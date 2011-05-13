@@ -1,0 +1,11 @@
+(2) que la descarga se pueda cancelar
+(2) sistema de búsquedas:
+    - que busque en las tres columnas
+    - que highlightee lo encontrado
+    - con ctrl-f se para en el text entry
+    - f3 y ctrl-g va para adelante, shift-f3 y ctrl-G va para atrás  <-- seleccionando las filas
+    - poner un text entry y un botonito a la derecha en la toolbar
+(2) poner un icono
+(3) poner un menu, en función de cómo haya quedado el toolbar y eso
+(3) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
+(3) el estado de downloading tiene que tener un texto tal que "downloading: 3%" sea menor que "downloading: 25%"
