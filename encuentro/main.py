@@ -167,31 +167,6 @@ class MainUI(object):
     _data_file = os.path.join(xdg_data_home, 'encuentro.data')
     _config_file = os.path.join(xdg_config_home, 'encuentro.conf')
 
-    # FIXME(1): distribuir:
-    #     - armar proyecto en LP (FIXME (0))
-    #     - hacer un release de la v0.1, cuando FIXME(0) esté listo
-    #     - ponerlo en un PPA
-    #     - hacer una versión para windows, o empezarla
-    #     - avisar en PyAr, poner post blog:
-    #           - diciendo qué es esto
-    #           - algo de info sacado de AYUDA.txt
-    #           - como instalarlo (PPA, paquete (diciendo qué otras cosas se necesita), windows)
-    # FIXME(0): documentacion, ayuda:
-    #     - cartel de alguna manera que diga "tenes que setear usuario y clave"
-    #          - mataria un boton de explicar mas, que lleve a un dialog explicando mejor, con un boton que abre un browser en el sitio de encuentro
-    #          - que si no tiene usuario y clave, nunca habilite descargar
-    #     - poner un LEEME.txt
-    #          - que hable de la licencia del codigo, pero que diga que el contenido es de Canal Encuentro, y que refiera al sitio
-    #          - que mande a AYUDA.txt
-    #          - url del proyecto
-    #          - instalar: que detalle los paquetes que necesita tener para que funcione todo
-    #     - poner un README.txt
-    #          - que hable de la licencia del codigo, pero que diga que el contenido es de Canal Encuentro, y que refiera al sitio
-    #          - el programa está orientado a hispanoparlantes, ver más info en LEEME.txt
-    #     - poner un AYUDA.txt
-    #          - que diga que para el funcionamiento se necesita clave y usuario, con url para sacarla
-    #          - qué es actualizar, como se descargar, como se ve
-
     def __init__(self):
         self.builder = gtk.Builder()
         self.builder.add_from_file('data/ui/main.glade')
@@ -223,6 +198,7 @@ class MainUI(object):
             self.config = {}
 
         self.update_dialog = UpdateUI(self)
+        # FIXME(1): si no tenemos user y password, que update_boton en la barra esté apagado
         self.preferences_dialog = PreferencesUI(self, self.config)
 
         self.downloader = Downloader(self.config)
