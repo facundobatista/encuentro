@@ -31,7 +31,7 @@
          - que diga que para el funcionamiento se necesita clave y usuario, con url para sacarla
          - qué es actualizar, como se descargar, como se ve
 (1) distribuir:
-    - hacer un release de la v0.1 (pre-alfa)
+    - hacer un release de la v0.2 (pre-alfa)
     - ponerlo en un PPA
     - hacer una versión para windows, o empezarla
     - avisar en PyAr, poner post blog:
@@ -40,10 +40,10 @@
           - como instalarlo (PPA, paquete (diciendo qué otras cosas se necesita), windows)
     - tweet!
 (2) distribuir:
-    - hacer un release de la v0.2 (alfa)
+    - hacer un release de la v0.3 (alfa)
     - actualizar pypi, el ppa, LP, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 (3) distribuir:
-    - hacer un release de la v0.3 (beta)
+    - hacer un release de la v0.4 (beta)
     - actualizar pypi, el ppa, LP, y el .exe
     - avisar en pyar, otro post en el blog, tweet
