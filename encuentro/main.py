@@ -1,7 +1,5 @@
 # -*- coding: utf8 -*-
 
-# -*- coding: utf-8 -*-
-#
 # Copyright 2011 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
