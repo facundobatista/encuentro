@@ -37,6 +37,7 @@ from xdg.BaseDirectory import xdg_config_home, xdg_data_home
 
 from encuentro.network import get_datos_emision, Status, Downloader
 
+BASEDIR = os.path.dirname(__file__)
 
 class PreferencesUI(object):
     """Preferences GUI."""
@@ -46,7 +47,8 @@ class PreferencesUI(object):
         self.config_data = config_data
 
         self.builder = gtk.Builder()
-        self.builder.add_from_file('data/ui/preferences.glade')
+        self.builder.add_from_file(os.path.join(BASEDIR,
+                                                'ui', 'preferences.glade'))
         self.builder.connect_signals(self)
 
         widgets = (
@@ -85,7 +87,8 @@ class UpdateUI(object):
         self.main = main
 
         self.builder = gtk.Builder()
-        self.builder.add_from_file('data/ui/update.glade')
+        self.builder.add_from_file(os.path.join(BASEDIR,
+                                                'ui', 'update.glade'))
         self.builder.connect_signals(self)
 
         widgets = (
@@ -169,7 +172,8 @@ class MainUI(object):
 
     def __init__(self):
         self.builder = gtk.Builder()
-        self.builder.add_from_file('data/ui/main.glade')
+        self.builder.add_from_file(os.path.join(BASEDIR,
+                                                'ui', 'main.glade'))
         self.builder.connect_signals(self)
 
         widgets = (
