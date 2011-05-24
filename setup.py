@@ -27,8 +27,44 @@ Needed packages to run (using Debian/Ubuntu package names):
     python-xdg 0.19
 """
 
+import os
 
+from distutils.command.install import install
 from distutils.core import setup
+
+
+class CustomInstall(install):
+    """Custom installation class on package files.
+
+    It copies all the files into the "PREFIX/share/PROJECTNAME" dir.
+    """
+    def run(self):
+        """Run parent install, and then save the install dir in the script."""
+        install.run(self)
+
+        for script in self.distribution.scripts:
+            script_path = os.path.join(self.install_scripts,
+                                       os.path.basename(script))
+            with open(script_path, 'rb') as fh:
+                content = fh.read()
+            content = content.replace('@ INSTALLED_BASE_DIR @',
+                                      self._custom_data_dir)
+            with open(script_path, 'wb') as fh:
+                fh.write(content)
+
+
+    def finalize_options(self):
+        """Alter the installation path."""
+        install.finalize_options(self)
+        data_dir = os.path.join(self.prefix, "share",
+                                self.distribution.get_name())
+
+        # change the lib install directory so all package files go inside here
+        self.install_lib = data_dir
+
+        # save this custom data dir to later change the scripts
+        self._custom_data_dir = data_dir
+
 
 setup(
     name = 'encuentro',
@@ -44,4 +80,8 @@ setup(
     packages = ["encuentro"],
     package_data = {"encuentro": ["ui/*.glade"]},
     scripts = ["bin/encuentro"],
+
+    cmdclass = {
+        'install': CustomInstall,
+    }
 )
