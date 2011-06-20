@@ -6,7 +6,17 @@
     - f3 y ctrl-g va para adelante, shift-f3 y ctrl-G va para atrás  <-- seleccionando las filas
     - poner un text entry y un botonito a la derecha en la toolbar
 (2) poner un icono
-(2) Ver si no hay mejor manera de saber qué artículos hay.
+(1) Ver si no hay mejor manera de saber qué artículos hay.
+    - Separar el "buscar articulos" a un ejecutable separado (--server, exporta un json, --local, baja y graba el pickle para el programa)
+    - ejecutar eso en taniquetil, con un cron, de manera de tener una lista todo el tiempo actualizada
+    - que eso que se ejecuta en taniquetil exporte un .json
+    - que el programa pollee ese json para ver si hay cosas nuevas
+    - si no encuentra eso que tire un mensaje de warning, y que indique que se puede descargar a mano
+    - el boton de actualizar intenta de nuevo contra el server, como en restart
+    - eventualmente, esconder ese botón en el menu, sacarlo del toolbar
+(2) Que el log de "actualizar" no sea clickeable (pero si marcable y copiable)
+(2) Que el log de "actualizar" autoscrollee para abajo (solo si esta abajo; o sea, que se pueda subir y dejar arriba, pero que si se baja siga mostrando lo nuevo)
+(2) Que cuando abra los diag modales, la main window quede deshabilitada
 (3) Sacar el boton de actualizar y que eso sea automágico.
     - que al arrancar por primera vez revise del 1 al X, siendo X algo hardcodeado en función de lo que sabemos que hay.
     - que siempre al arrancar revise a partir del último nro, y que revise unos 20, si todos dieron error se queda en el nro anterior.
