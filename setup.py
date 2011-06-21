@@ -56,11 +56,20 @@ class CustomInstall(install):
     def finalize_options(self):
         """Alter the installation path."""
         install.finalize_options(self)
+
+        # the data path is under 'prefix'
         data_dir = os.path.join(self.prefix, "share",
                                 self.distribution.get_name())
 
+        # if we have 'root', put the building path also under it (used normally
+        # by pbuilder)
+        if self.root is None:
+            build_dir = data_dir
+        else:
+            build_dir = os.path.join(self.root, data_dir[1:])
+
         # change the lib install directory so all package files go inside here
-        self.install_lib = data_dir
+        self.install_lib = build_dir
 
         # save this custom data dir to later change the scripts
         self._custom_data_dir = data_dir
