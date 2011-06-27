@@ -1,4 +1,7 @@
+from __future__ import with_statement
+
 import codecs
+import os
 import re
 import simplejson
 import sys
@@ -135,8 +138,10 @@ def main():
             all_data.append(d)
 
     info = simplejson.dumps(all_data)
-    with codecs.open("encuentro-v01.json", "w", "utf8") as fh:
+    with codecs.open("encuentro-v01.json.tmp", "w", "utf8") as fh:
         fh.write(info)
+    os.rename("encuentro-v01.json.tmp", "encuentro-v01.json")
+
 
 if len(sys.argv) == 2:
     print get_episode_info(int(sys.argv[1]))
