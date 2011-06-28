@@ -6,28 +6,15 @@
     - f3 y ctrl-g va para adelante, shift-f3 y ctrl-G va para atrás  <-- seleccionando las filas
     - poner un text entry y un botonito a la derecha en la toolbar
 (2) poner un icono
-(1) Ver si no hay mejor manera de saber qué artículos hay.
-    - Separar el "buscar articulos" a un ejecutable separado (--server, exporta un json, --local, baja y graba el pickle para el programa)
-    - ejecutar eso en taniquetil, con un cron, de manera de tener una lista todo el tiempo actualizada
-    - que eso que se ejecuta en taniquetil exporte un .json
-    - que el programa pollee ese json para ver si hay cosas nuevas
-    - si no encuentra eso que tire un mensaje de warning, y que indique que se puede descargar a mano
-    - el boton de actualizar intenta de nuevo contra el server, como en restart
-    - eventualmente, esconder ese botón en el menu, sacarlo del toolbar
-(2) Que el log de "actualizar" no sea clickeable (pero si marcable y copiable)
-(2) Que el log de "actualizar" autoscrollee para abajo (solo si esta abajo; o sea, que se pueda subir y dejar arriba, pero que si se baja siga mostrando lo nuevo)
+(1) Que el JSON grabado en el server esté en bz2 (y que se soporte eso en el cliente)
+(2) Poner en la config un checkbox si se quiere que en restart el programa actualice contenido del server, default en False, y que si está en True cuando arranca el programa que dispare un reload en background.
 (2) Que cuando abra los diag modales, la main window quede deshabilitada
-(3) Sacar el boton de actualizar y que eso sea automágico.
-    - que al arrancar por primera vez revise del 1 al X, siendo X algo hardcodeado en función de lo que sabemos que hay.
-    - que siempre al arrancar revise a partir del último nro, y que revise unos 20, si todos dieron error se queda en el nro anterior.
 (3) poner un menu, en función de cómo haya quedado el toolbar y eso
 (3) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
 (3) el estado de downloading tiene que tener un texto tal que "downloading: 3%" sea menor que "downloading: 25%"
 (1) documentacion, ayuda:
-    - que al arrancar, si no tiene ningun registro y no tiene usuario y clave, que le salga un tutor:
-        - dialog que diga: "Para poder usar el programa debe primero configurarlo!", con dos botones "cerrar" y "explicar más", y un checkbox que diga "no volver a mostrar", deshabilitado por default.
-        - si le da "explicar más", que vaya a otro dialog que explique: "Para poder ver los datos de cada programa de Encuentro tiene que obtener un usuario y clave y configurar el sistema haciendo click en el botón de Configuración (para obtener usuario y clave haga click en "Abrir web Encuentro" aquí abajo.\nLuego haga click en el botón Actualizar, e ingrese un rango numérico... por ejemplo, del 1 al 100, del 101 al 200, etc, e irá actualizando la data del sistema."
-        - que este segundo diálogo tenga dos botones: "Abrir web Encuentro" que dispara un browser donde corresponde, y "cerrar"
+    - que al arrancar, si no tiene ningun registro y/o no tiene usuario y clave, que le salga un wizard:
+        - ver explicación abajo!
         - el dialogo inicial sólo sale mientras dejemos el "no volver a mostrar" deshabilitado
     - poner un LEEME.txt
          - que hable de la licencia del codigo, pero que diga que el contenido es de Canal Encuentro, y que refiera al sitio
@@ -57,3 +44,22 @@
     - hacer un release de la v0.4 (beta)
     - actualizar pypi, el ppa, LP, y el .exe
     - avisar en pyar, otro post en el blog, tweet
+(1) agregar logs
+(2) integrar con apport
+(3) que la descarga de episodios muestre un progreso
+(0): ver bug de las columnas cerradas!!
+(0): NO BAJAAAAAAAAAAAAAAA
+
+Wizard:
+
+p1. "Bienvenido al visor de contenido del Canal Encuentro.\nPara poder usar el programa debe primero configurarlo!", con dos botones "cerrar" y "explicar más", y un checkbox que diga "no volver a mostrar", deshabilitado por default.
+p2. si le da "explicar más, p3, sino cerramos y ya.
+p3. si vemos que ya tiene la lista, p8, sino p4.
+p4. dialogo que explique "Primero tiene que actualizar la lista de episodios: puede actualizar la lista ahora desde esta misma ventana y en cualquier momento desde el menú del programa.", y ofrecer tres botones: "cerrar", "actualizar" y "continuar" (este continuar que esté deshabilitado si corresponde).
+p5. si da cerrar, cerramos y ya
+p6. si da actualizar, saltamos a actualizar, y al volver vamos a p4, pero marcando el continuar como prendido si es que bajó todo ok (bah, revisemos que tenemos lista de episodios descomprimida).
+p7. si da "continuar", al p8
+p8. otro dialog que explique: "Para poder descargar los programas de Canal Encuentro tiene que obtener un usuario y clave y configurar el sistema ahora desde esta misma ventana o en cualquier momento desde el menú del programa.\nPara obtener usuario y clave haga click en "Abrir web Encuentro" aquí abajo.". Tenemos tres botones: "Abrir web Encuentro" que dispara un browser donde corresponde, "Configurar ahora" y "Terminar".
+p9. "abrir web encuentro" dispara un webbrowser() con la pag de sacar user y clave de encuentro
+p10. "configurar ahora" abre vent de configuracion
+p11. Terminar: cierra

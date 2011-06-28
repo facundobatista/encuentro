@@ -22,8 +22,7 @@
 import os
 import pickle
 import subprocess
-import sys
-import traceback
+import simplejson
 
 # gtk import and magic to work with twisted
 import gtk
@@ -31,11 +30,81 @@ from twisted.internet import gtk2reactor
 gtk2reactor.install()
 
 from twisted.internet import reactor, defer
+from twisted.web import client
 from xdg.BaseDirectory import xdg_config_home, xdg_data_home
 
-from encuentro.network import get_datos_emision, Status, Downloader
+from encuentro.network import Downloader
+
+EPISODES_URL = "http://www.taniquetil.com.ar/encuentro-v01.json"
 
 BASEDIR = os.path.dirname(__file__)
+
+
+class Status(object):
+    """Status constants."""
+    none, waiting, downloading, downloaded = \
+                                'none waiting downloading downloaded'.split()
+
+
+class EpisodeData(object):
+    """Episode data."""
+    _liststore_order = {
+        'titulo': 0,
+        'seccion': 1,
+        'tematica': 2,
+        'duracion': 3,
+        'nroemis': 4,
+        'state': 5,        # note that state and progress both point to row 5,
+        'progress': 5,     # because any change in these will update the row
+    }
+    def __init__(self, titulo, seccion, sinopsis, tematica, duracion, nroemis,
+                 state=None, progress=None, filename=None):
+        self.titulo = titulo
+        self.seccion = seccion
+        self.sinopsis = sinopsis
+        self.tematica = tematica
+        self.duracion = duracion
+        self.state = Status.none if state is None else state
+        self.progress = progress
+        self.filename = filename
+        self.nroemis = nroemis
+
+    def get_row_data(self):
+        """Return the data for the liststore row."""
+        data = (self.titulo, self.seccion, self.tematica,
+                self.duracion, self.nroemis, self._get_nice_state())
+        return data
+
+    def _get_nice_state(self):
+        """A nicer state wording."""
+        if self.state == Status.none:
+            state = ''
+        elif self.state == Status.waiting:
+            state = 'Esperando'
+        elif self.state == Status.downloading:
+            state = 'Descargando: %s' % self.progress
+        elif self.state == Status.downloaded:
+            state = 'Terminado'
+        else:
+            raise ValueError("Bad state value: %r" % (self.state,))
+        return state
+
+    def update_self(self, new_data):
+        """Update current atributes with new_data."""
+
+    def update_row(self, row, **kwargs):
+        """Update own attributes and value in the row."""
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+            try:
+                pos = self._liststore_order[k]
+            except KeyError:
+                pass  # not a shown value
+            else:
+                if k == 'state' or k == 'progress':
+                    v = self._get_nice_state()
+                row[pos] = v
+
 
 class PreferencesUI(object):
     """Preferences GUI."""
@@ -90,76 +159,48 @@ class UpdateUI(object):
         self.builder.connect_signals(self)
 
         widgets = (
-            'dialog', 'textview', 'update_button', 'close_button',
-            'entry_from', 'entry_to',
+            'dialog', 'textview', 'cancel_button',
         )
 
         for widget in widgets:
             obj = self.builder.get_object(widget)
             assert obj is not None, '%s must not be None' % widget
             setattr(self, widget, obj)
-
-        self.update_button.set_sensitive(False)
-        # FIXME(2): 'Enter' should trigger update if it's enabled
-
+    # FIXME(1): poner un tamaño por default mas copado
     def run(self):
         """Show the dialog."""
+        self.closed = False
+        self._update()
         self.dialog.run()
-
-    def on_entries_changed(self, widget, data=None):
-        """Entries were edited, enable button if all is ok."""
-        try:
-            scrap_from = int(self.entry_from.get_text())
-            scrap_to = int(self.entry_to.get_text())
-        except ValueError:
-            self.update_button.set_sensitive(False)
-        else:
-            self.update_button.set_sensitive(scrap_to >= scrap_from)
+        self.textview.get_buffer().set_text("")
 
     def on_dialog_destroy(self, widget, data=None):
         """Hide the dialog."""
+        self.closed = True
         self.dialog.hide()
-    on_dialog_close = on_dialog_destroy
-
-    def on_dialog_response(self, widget, data=None):
-        """Update against web."""
-        if data == 1:    # 'update' button
-            return True
-        return self.on_dialog_destroy(widget, data)
+    on_dialog_response = on_dialog_close = on_dialog_destroy
 
     @defer.inlineCallbacks
-    def on_update_button_clicked(self, widget, data=None):
-        self.update_button.set_sensitive(False)
-
-        # we may be doing this differently...
-        button_label = self.update_button.get_children()[0]
-        prev_text = button_label.get_text()
-        button_label.set_text("Actualizando...")
-
-        scrap_from = int(self.entry_from.get_text())
-        scrap_to = int(self.entry_to.get_text())
+    def _update(self):
+        """Update the content from server."""
+        self.closed = False
         log = self.textview.get_buffer().insert_at_cursor
 
-        for i in xrange(scrap_from, scrap_to + 1):
-#            if i in self.main.programs_data:
-#                log("Episodio %d no leido, ya estaba en la lista\n" % (i,))
-#                continue
-            try:
-                program = yield get_datos_emision(i)
-            except Exception, e:
-                log("Problemas al leer el episodio %d: %s\n" % (i, e))
-                traceback.print_tb(sys.exc_traceback)
-            else:
-                if program is None:
-                    log("No existe el episodio %d\n" % (i,))
-                else:
-                    self.main.programs_data[i] = program
-                    self.main.refresh_treeview()
-                    log("Episodio %d actualizado correctamente\n" % (i,))
+        log("Descargando la lista de episodios...\n")
+        try:
+            new_content = yield client.getPage(EPISODES_URL)
+        except Exception, e:
+            log("Hubo un PROBLEMA: " + str(e))
+            return
+        if self.closed:
+            return
 
-        # activate button and restore the button label
-        self.update_button.set_sensitive(True)
-        button_label.set_text(prev_text)
+        log("Actualizando los datos internos....\n")
+        new_data = simplejson.loads(new_content)
+        self.main.merge_episode_data(new_data)
+
+        log("¡Todo terminado bien!\n")
+        self.on_dialog_destroy(None)
 
 
 class MainUI(object):
@@ -242,6 +283,35 @@ class MainUI(object):
         tree_selection.connect('changed',
                                self.on_programs_treeview_selection_changed)
 
+    def merge_episode_data(self, new_data):
+        """Merge new data to current programs data."""
+        for d in new_data:
+            # v01 of json file
+            nroemis = d['nroemis']
+            sinopsis = d['sinopsis']
+            tematica = d['tematica']
+            seccion = d['seccion']
+            titulo = d['titulo']
+            duracion = d['duracion']
+
+            try:
+                epis = self.programs_data[d['nroemis']]
+            except KeyError:
+                ed = EpisodeData(titulo=titulo, seccion=seccion,
+                                 sinopsis=sinopsis, tematica=tematica,
+                                 duracion=duracion, nroemis=nroemis)
+                self.programs_data[nroemis] = ed
+            else:
+                epis.titulo = titulo
+                epis.sinopsis = sinopsis
+                epis.tematica = tematica
+                epis.seccion = seccion
+                epis.duracion = duracion
+
+        # refresh the treeview and save the data
+        self.refresh_treeview()
+        self._save_states()
+
     def refresh_treeview(self):
         """Update the liststore of the programs."""
         columns = [self.programs_store.get_column_type(i)
@@ -252,7 +322,7 @@ class MainUI(object):
         self.programs_treeview.set_model(new_liststore)
         self.programs_store = new_liststore
         # FIXME(3): que luego de actualizar reordene
-        # FIXME(3): que duracon y episodio esten justified a la derecha
+        # FIXME(3): que duracion y episodio esten justified a la derecha
 
     def on_main_window_delete_event(self, widget, event):
         """Still time to decide if want to close or not."""
@@ -325,7 +395,7 @@ class MainUI(object):
         row = self.programs_store[pathlist[0]]
         episode_number = row[4]  # 4 is the episode number
         episode = self.programs_data[episode_number]
-        episode.update(row, state=Status.downloading, progress="encolado")
+        episode.update_row(row, state=Status.downloading, progress="encolado")
 
         self.episodes_to_download.append(row)
         print "=== episodes", self.episodes_to_download
@@ -336,18 +406,19 @@ class MainUI(object):
         while self.episodes_to_download:
             row = self.episodes_to_download.pop(0)
             filename = yield self._download(row)
-            episode.update(row, state=Status.downloaded, filename=filename)
+            episode.update_row(row, state=Status.downloaded, filename=filename)
         self._downloading = False
 
     def _download(self, row):
         """Effectively download an episode."""
         episode_number = row[4]  # 4 is the episode number
         episode = self.programs_data[episode_number]
-        episode.update(row, state=Status.downloading, progress="comenzando...")
+        episode.update_row(row, state=Status.downloading,
+                           progress="comenzando...")
 
         def update_progress_cb(progress):
             """Update the progress and refreshes the treeview."""
-            episode.update(row, progress=progress)
+            episode.update_row(row, progress=progress)
 
         # download!
         d = self.downloader.download(episode_number, update_progress_cb)
