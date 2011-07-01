@@ -265,10 +265,14 @@ class MainUI(object):
         if 'mainwin_position' in self.config:
             self.main_window.move(*self.config['mainwin_position'])
 
+        treeview_columns = self.programs_treeview.get_columns()
         if 'cols_width' in self.config:
-            treeview_columns = self.programs_treeview.get_columns()
             for col, size in zip(treeview_columns, self.config['cols_width']):
                 col.set_fixed_width(size)
+        else:
+            width = self.main_window.get_size()[0] // len(treeview_columns)
+            for col in treeview_columns:
+                col.set_fixed_width(width)
 
     def _non_glade_setup(self):
         """Stuff I don't know how to do it in Glade."""
@@ -439,7 +443,9 @@ class MainUI(object):
         filename = os.path.join(downloaddir, episode.filename)
 
         if os.path.exists(filename):
-            subprocess.call(["/usr/bin/xdg-open", filename])
+            # pass file:// url with absolute path
+            fullpath = 'file://' + os.path.abspath(filename)
+            subprocess.call(["/usr/bin/xdg-open", fullpath])
         else:
             print "FIXME: file is not there!", filename
             # FIXME(3): if file is not there show an error dialog and

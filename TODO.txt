@@ -47,8 +47,8 @@
 (1) agregar logs
 (2) integrar con apport
 (3) que la descarga de episodios muestre un progreso
-(0): ver bug de las columnas cerradas!!
-(0): NO BAJAAAAAAAAAAAAAAA
+(2): que al cerrar y abrir quede ordenado como estaba, y viendo lo que estaba seleccionado antes
+(0): sacar un microupdate, para el PPA, y avisarle del PPA a la familia
 
 Wizard:
 

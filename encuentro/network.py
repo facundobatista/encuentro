@@ -89,7 +89,6 @@ class MiBrowser(Process):
             # let's try to get the link again
             link = browser.getLink(text=RE_DESCARGA)
 
-        print "========= link", link.text
         m = LINKSIZE.match(link.text)
         if m:
             filesize = m.groups()[0]
@@ -100,12 +99,12 @@ class MiBrowser(Process):
         link.click()
 
         response = browser.mech_browser.response()
-        print "    tenemos respuesta!"
+#        print "    tenemos respuesta!"
         aout = open(fname, "w")
         tot = 0
         while not self.must_quit.is_set():
             r = response.read(CHUNK)
-            print "    leido:", len(r)
+#            print "    leido:", len(r)
             if r == "":
                 break
             aout.write(r)
