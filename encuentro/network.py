@@ -70,6 +70,7 @@ class MiBrowser(Process):
         browser.mech_browser.set_handle_robots(False)
 
         # open the url and send the content
+        print "    run! abriendo url"
         browser.open(self.url)
         self.output_queue.put(browser.contents)
 
@@ -78,7 +79,7 @@ class MiBrowser(Process):
         try:
             link = browser.getLink(text=RE_DESCARGA)
         except LinkNotFoundError:
-#            print "    no estamos logueados, mandamos user y password"
+            print "    no estamos logueados, mandamos user y password"
             login = browser.getForm(index=1)
             usr = login.getControl(name='user')
             pss = login.getControl(name='pass')
@@ -88,20 +89,23 @@ class MiBrowser(Process):
             # let's try to get the link again
             link = browser.getLink(text=RE_DESCARGA)
 
+        print "========= link", link.text
         m = LINKSIZE.match(link.text)
         if m:
             filesize = m.groups()[0]
-#            print "    tamaño aprox (MB):", filesize
+            print "    tamaño aprox (MB):", filesize
         else:
             filesize = "?"
             print "WARNING: Texto del link raro:", repr(link.text)
         link.click()
 
         response = browser.mech_browser.response()
+        print "    tenemos respuesta!"
         aout = open(fname, "w")
         tot = 0
         while not self.must_quit.is_set():
             r = response.read(CHUNK)
+            print "    leido:", len(r)
             if r == "":
                 break
             aout.write(r)
@@ -163,6 +167,7 @@ class Downloader(object):
         self.browser_quit.add(bquit)
         authuser = self.config.get('user', '')
         authpass = self.config.get('password', '')
+
         brow = MiBrowser(authuser, authpass, url, qoutput, qinput, bquit)
         brow.start()
 
@@ -217,7 +222,16 @@ if __name__ == "__main__":
 
     def show(avance):
         print "Avance:", avance
-    downloader = Downloader('.', "pass", "clave")
-    downloader.download(107, show)
 
+    config = dict(user="lxpdvtnvrqdoa@mailinator.com",
+                  password="descargas", downloaddir='.')
+
+    @defer.inlineCallbacks
+    def download():
+        downloader = Downloader(config)
+        fname = yield downloader.download(107, show)
+        print "All done!", fname
+        reactor.stop()
+
+    reactor.callWhenRunning(download)
     reactor.run()
