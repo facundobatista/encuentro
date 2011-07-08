@@ -77,7 +77,7 @@ class CustomInstall(install):
 
 setup(
     name = 'encuentro',
-    version = '0.1.1',
+    version = '0.1.2',
     license = 'GPL-3',
     author = 'Facundo Batista',
     author_email = 'facundo@taniquetil.com.ar',
