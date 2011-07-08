@@ -1,0 +1,55 @@
+- Cambiar la versión en setup.py
+
+- Revisar que ande todo:
+    ./setup.py clean build
+    ./setup.py clean install --prefix=/tmp/test
+    ./setup.py clean sdist
+
+- Marcar a nivel bazaar:
+    bzr commit -m "[release] vX.Y.Z"
+    bzr tag release_X_Y_Z
+    bzr push
+
+- Hacer un "bzr log" y preparar el changelog y las release notes
+
+- Subir el tarball:
+    cd dist
+    EDITOR=vim lp-project-upload encuentro 0.1.2 encuentro-0.1.2.tar.gz
+    (acá usar el changelog y las release notes preparadas antes)
+
+- Subir el tarball y preparar nuevo dir:
+    cp dist/encuentro-X.Y.Z.tar.gz ../encuentro_X.Y.Z.orig.tar.gz
+    cd ..
+    bzr branch trunk/ encuentro-X.Y.Z
+    cd encuentro-X.Y.Z/
+    bzr dh-make --bzr-only encuentro 0.1.2 ../encuentro_0.1.2.orig.tar.gz
+    python-mkdebian
+
+- Editar el changelog con: EDITOR=vim dch
+    - Agregar lineas de changelog
+    - Agregar un "-0ubuntu1" al nro de versión entre paréntesis
+
+- Archivos necesarios para Debian (tocar como dice acá o traer intactos
+  de otro packaging que se haya hecho antes):
+    - add a directory named 'source' inside the debian dir
+    - add a file inside 'source' named 'format' with this content:
+            3.0 (quilt)\n
+    - control: confirmar que las dependencias sean las correctas (ver el setup.py)
+    - copyright: modificar
+    - create a 'watch' file with this content:
+            version=3
+            http://launchpad.net/ubuntuone-test/+download .*/ubuntuone-test-([0-9.]+)\.tar\.gz
+
+- Armar el paquete en si:
+    debuild -S -sa
+    bzr add debian
+    pbuilder-maverick build ../encuentro_X.Y.Z-0ubuntu1.dsc
+    (acá probar el .deb que quedó en ~/pbuilder/maverick_result)
+
+- Actualizar el PPA
+    dput ppa:facundo/encuentro encuentro_X.Y.Z-0ubuntu1_source.changes
+    (luego de unos minutos, debería aparecer acá:
+                https://launchpad.net/~facundo/+archive/encuentro/ )
+
+- Esperar que se buildee la versión de Maverick, y copiar los sources a Natty
+    Ir a:  https://launchpad.net/~yourteam/+archive/ubuntuone-test/+copy-packages

@@ -48,7 +48,7 @@
 (2) integrar con apport
 (3) que la descarga de episodios muestre un progreso
 (2): que al cerrar y abrir quede ordenado como estaba, y viendo lo que estaba seleccionado antes
-(0): sacar un microupdate, para el PPA, y avisarle del PPA a la familia
+(2): que en los imports se agarre el error y muestre mensaje lindo de "tenés que instalar esto"
 
 Wizard:
 

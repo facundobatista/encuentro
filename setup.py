@@ -20,11 +20,11 @@
 
 Needed packages to run (using Debian/Ubuntu package names):
 
-    python-zope.testbrowser 3.8.1
+    python-zope.testbrowser 3.5.1
     python-mechanize 0.1.11
-    python-twisted-bin 10.1.0
-    python-gtk2 2.21.0
-    python-xdg 0.19
+    python-twisted-bin 8.2.0
+    python-gtk2 2.16.0
+    python-xdg 0.15
 """
 
 import os
