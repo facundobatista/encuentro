@@ -1,6 +1,6 @@
 #!/usr/bin/python
-
 # -*- coding: utf-8 -*-
+
 #
 # Copyright 2011 Facundo Batista
 #
@@ -19,5 +19,30 @@
 # For further info, check  https://launchpad.net/encuentro
 
 """The package."""
+
+def import_exit(package, version):
+    """Show a nice explanation of which dependency to install and quit."""
+    print
+    print u"¡Falta instalar una dependencia!"
+    print u"Necesitás tener instalado el paquete %r" % (package,)
+    print u"(de la versión %s en adelante funciona seguro)" % (version,)
+    print
+    exit()
+
+# test some packages! gtk and twisted are controlled in main.py, as they
+# import order is critical because of the reactor
+
+try:
+    import xdg
+except ImportError:
+    import_exit('python-xdg', '0.15')
+try:
+    import mechanize
+except ImportError:
+    import_exit('python-mechanize', '0.1.11')
+try:
+    import zope.testbrowser
+except ImportError:
+    import_exit('python-zope.testbrowser', '3.5.1')
 
 from main import MainUI as EncuentroUI

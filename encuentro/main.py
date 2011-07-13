@@ -24,9 +24,18 @@ import pickle
 import subprocess
 import simplejson
 
+from encuentro import import_exit
+
 # gtk import and magic to work with twisted
-import gtk
-from twisted.internet import gtk2reactor
+try:
+    import gtk
+except ImportError:
+    import_exit('python-gtk2', '2.16.0')
+
+try:
+    from twisted.internet import gtk2reactor
+except ImportError:
+    import_exit('python-twisted-bin', '8.2.0')
 gtk2reactor.install()
 
 from twisted.internet import reactor, defer
