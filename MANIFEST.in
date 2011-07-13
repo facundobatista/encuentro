@@ -1,1 +1,4 @@
 include encuentro/ui/*.glade
+include LEEME.txt
+include AYUDA.txt
+include README.txt

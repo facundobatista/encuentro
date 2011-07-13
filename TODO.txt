@@ -16,17 +16,8 @@
     - que al arrancar, si no tiene ningun registro y/o no tiene usuario y clave, que le salga un wizard:
         - ver explicación abajo!
         - el dialogo inicial sólo sale mientras dejemos el "no volver a mostrar" deshabilitado
-    - poner un LEEME.txt
-         - que hable de la licencia del codigo, pero que diga que el contenido es de Canal Encuentro, y que refiera al sitio
-         - que mande a AYUDA.txt
-         - url del proyecto
-         - instalar: que detalle los paquetes que necesita tener para que funcione todo
-    - poner un README.txt
-         - que hable de la licencia del codigo, pero que diga que el contenido es de Canal Encuentro, y que refiera al sitio
-         - el programa está orientado a hispanoparlantes, ver más info en LEEME.txt
-    - poner un AYUDA.txt
-         - que diga que para el funcionamiento se necesita clave y usuario, con url para sacarla
-         - qué es actualizar, como se descargar, como se ve
+    - sumar los archivos nuevos a la distrib (manifest, etc)
+(1) - que si no tiene directorio configurado, que al bajar las cosas tome "$HOME/encuentro/..."
 (1) distribuir:
     - hacer un release de la v0.2 (pre-alfa)
     - ponerlo en un PPA
@@ -48,7 +39,7 @@
 (2) integrar con apport
 (3) que la descarga de episodios muestre un progreso
 (2): que al cerrar y abrir quede ordenado como estaba, y viendo lo que estaba seleccionado antes
-(2): que en los imports se agarre el error y muestre mensaje lindo de "tenés que instalar esto"
+(1): que en los imports se agarre el error y muestre mensaje lindo de "tenés que instalar esto"
 
 Wizard:
 
