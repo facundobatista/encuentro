@@ -23,6 +23,7 @@ import os
 import pickle
 import subprocess
 import simplejson
+import user
 
 from encuentro import import_exit
 
@@ -175,7 +176,7 @@ class UpdateUI(object):
             obj = self.builder.get_object(widget)
             assert obj is not None, '%s must not be None' % widget
             setattr(self, widget, obj)
-    # FIXME(1): poner un tamaño por default mas copado
+
     def run(self):
         """Show the dialog."""
         self.closed = False
@@ -249,8 +250,11 @@ class MainUI(object):
         else:
             self.config = {}
 
+        # we have a default for download dir
+        if not self.config.get('downloaddir'):
+            self.config['downloaddir'] = os.path.join(user.home, 'encuentro')
+
         self.update_dialog = UpdateUI(self)
-        # FIXME(1): si no tenemos user y password, que update_boton en la barra esté apagado
         self.preferences_dialog = PreferencesUI(self, self.config)
 
         self.downloader = Downloader(self.config)

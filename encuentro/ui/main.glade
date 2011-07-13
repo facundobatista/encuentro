@@ -34,6 +34,7 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_download">
                 <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Descargar</property>
                 <property name="label" translatable="yes">Descargar</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-go-down</property>
@@ -47,6 +48,7 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_play">
                 <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Play</property>
                 <property name="label" translatable="yes">toolbutton</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-media-play</property>
@@ -69,6 +71,7 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_update">
                 <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Actualizar</property>
                 <property name="label" translatable="yes">Actualizar</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-refresh</property>
@@ -82,6 +85,7 @@
             <child>
               <object class="GtkToolButton" id="toolbutton_preferencias">
                 <property name="visible">True</property>
+                <property name="tooltip_text" translatable="yes">Configurar</property>
                 <property name="label" translatable="yes">Preferencias</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-preferences</property>

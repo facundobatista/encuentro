@@ -16,8 +16,6 @@
     - que al arrancar, si no tiene ningun registro y/o no tiene usuario y clave, que le salga un wizard:
         - ver explicación abajo!
         - el dialogo inicial sólo sale mientras dejemos el "no volver a mostrar" deshabilitado
-    - sumar los archivos nuevos a la distrib (manifest, etc)
-(1) - que si no tiene directorio configurado, que al bajar las cosas tome "$HOME/encuentro/..."
 (1) distribuir:
     - hacer un release de la v0.2 (pre-alfa)
     - ponerlo en un PPA
@@ -39,7 +37,6 @@
 (2) integrar con apport
 (3) que la descarga de episodios muestre un progreso
 (2): que al cerrar y abrir quede ordenado como estaba, y viendo lo que estaba seleccionado antes
-(1): que en los imports se agarre el error y muestre mensaje lindo de "tenés que instalar esto"
 
 Wizard:
 
