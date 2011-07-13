@@ -28,6 +28,6 @@ Licencias
 
 Este programa no distribuye contenido de Canal Encuentro, sino que permite un mejor uso personal de esos contenidos. Por favor, referirse al sitio web de Canal Encuentro (www.encuentro.gov.ar) para saber qué se puede y qué no se puede hacer con los contenidos de ese sitio.
 
-El código de este programa está licenciado bajo la GNU GPL v3, podés encontrar esta licencia acá:
+El código de este programa está licenciado bajo la GNU GPL v3, podés encontrar esta licencia en el archivo COPYING o acá:
 
     http://www.gnu.org/licenses/gpl.html

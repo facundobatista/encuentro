@@ -10,6 +10,6 @@ Notes regarding licenses:
 
     http://www.encuentro.gov.ar
 
-- The code is licensed under the GNU GPL v3:
+- The code is licensed under the GNU GPL v3, see file COPYING here or...
 
     http://www.gnu.org/licenses/gpl.html
