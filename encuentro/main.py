@@ -19,6 +19,7 @@
 """Main Encuentro code."""
 
 
+import logging
 import os
 import pickle
 import subprocess
@@ -48,6 +49,8 @@ from encuentro.network import Downloader
 EPISODES_URL = "http://www.taniquetil.com.ar/encuentro-v01.json"
 
 BASEDIR = os.path.dirname(__file__)
+
+logger = logging.getLogger('encuentro.main')
 
 
 class Status(object):
@@ -79,6 +82,10 @@ class EpisodeData(object):
         self.filename = filename
         self.nroemis = nroemis
 
+    def __str__(self):
+        return "<EpisodeData [%d] (%s) %r>" % (self.nroemis,
+                                               self.state, self.titulo)
+
     def get_row_data(self):
         """Return the data for the liststore row."""
         data = (self.titulo, self.seccion, self.tematica,
@@ -98,9 +105,6 @@ class EpisodeData(object):
         else:
             raise ValueError("Bad state value: %r" % (self.state,))
         return state
-
-    def update_self(self, new_data):
-        """Update current atributes with new_data."""
 
     def update_row(self, row, **kwargs):
         """Update own attributes and value in the row."""
@@ -147,10 +151,11 @@ class PreferencesUI(object):
 
     def on_dialog_destroy(self, widget, data=None):
         """Save the data and hide the dialog."""
-        user = self.entry_user.get_text()
+        usr = self.entry_user.get_text()
         password = self.entry_password.get_text()
         downloaddir = self.entry_downloaddir.get_text()
-        new_cfg = dict(user=user, password=password, downloaddir=downloaddir)
+        new_cfg = dict(user=usr, password=password, downloaddir=downloaddir)
+        logger.info("Updating preferences config: %s", new_cfg)
         self.config_data.update(new_cfg)
         self.dialog.hide()
 
@@ -194,22 +199,25 @@ class UpdateUI(object):
     def _update(self):
         """Update the content from server."""
         self.closed = False
-        log = self.textview.get_buffer().insert_at_cursor
+        tview = self.textview.get_buffer().insert_at_cursor
 
-        log("Descargando la lista de episodios...\n")
+        logger.info("Updating episodes metadata")
+        tview("Descargando la lista de episodios...\n")
         try:
             new_content = yield client.getPage(EPISODES_URL)
         except Exception, e:
-            log("Hubo un PROBLEMA: " + str(e))
+            logger.error("Problem when updating episodes: %s", e)
+            tview("Hubo un PROBLEMA: " + str(e))
             return
         if self.closed:
             return
 
-        log("Actualizando los datos internos....\n")
+        tview("Actualizando los datos internos....\n")
         new_data = simplejson.loads(new_content)
+        logger.debug("Updating internal metadata (%d)", len(new_data))
         self.main.merge_episode_data(new_data)
 
-        log("¡Todo terminado bien!\n")
+        tview("¡Todo terminado bien!\n")
         self.on_dialog_destroy(None)
 
 
@@ -242,6 +250,7 @@ class MainUI(object):
                 self.programs_data = pickle.load(fh)
         else:
             self.programs_data = {}
+        logger.info("Episodes metadata loaded (%d)", len(self.programs_data))
 
         # get config from file, or defaults
         if os.path.exists(self._config_file):
@@ -249,6 +258,14 @@ class MainUI(object):
                 self.config = pickle.load(fh)
         else:
             self.config = {}
+
+        # log the config, but without user and pass
+        safecfg = self.config.copy()
+        if 'user' in safecfg:
+            safecfg['user'] = 'xxx'
+        if 'password' in safecfg:
+            safecfg['password'] = 'xxx'
+        logger.debug("Configuration loaded: %s", safecfg)
 
         # we have a default for download dir
         if not self.config.get('downloaddir'):
@@ -269,6 +286,7 @@ class MainUI(object):
         self.refresh_treeview()
         self.main_window.show()
         self._restore_layout()
+        logger.debug("Main UI started ok")
 
     def _restore_layout(self):
         """Get info from config and change layouts."""
@@ -343,25 +361,31 @@ class MainUI(object):
 
     def on_main_window_delete_event(self, widget, event):
         """Still time to decide if want to close or not."""
+        logger.info("Attempt to close the program")
         for idx, program in self.programs_data.iteritems():
             state = program.state
             if state == Status.waiting or state == Status.downloading:
+                logger.debug("Active (%s) download: %s", state, program)
                 break
         else:
             # all fine, save all and quit
+            logger.info("Saving states and quitting")
             self._save_states()
             return False
 
         # stuff pending
+        logger.info("Descargas activas! %s (%r)", idx, program.titulo)
         m = (u"Al menos un programa está todavía en proceso de descarga!\n\n"
              u"Episodio %s: %s\n" % (idx, program.titulo))
         self.dialog_quit_label.set_text(m)
         quit = self.dialog_quit.run()
         self.dialog_quit.hide()
         if not quit:
+            logger.info("Quit cancelled")
             return True
 
         # quit anyway, put all downloading and pending episodes to none
+        logger.info("Fixing episodes, saving state and exiting")
         for program in self.programs_data.itervalues():
             state = program.state
             if state == Status.waiting or state == Status.downloading:
@@ -412,24 +436,29 @@ class MainUI(object):
         row = self.programs_store[pathlist[0]]
         episode_number = row[4]  # 4 is the episode number
         episode = self.programs_data[episode_number]
+        logger.debug("Download requested of %s", episode)
         episode.update_row(row, state=Status.downloading, progress="encolado")
 
         self.episodes_to_download.append(row)
-        print "=== episodes", self.episodes_to_download
         if self._downloading:
             return
 
+        logger.debug("Downloads: starting")
         self._downloading = True
         while self.episodes_to_download:
             row = self.episodes_to_download.pop(0)
-            filename = yield self._download(row)
+            filename, episode = yield self._download(row)
+            logger.debug("Episode downloaded: %s", episode)
             episode.update_row(row, state=Status.downloaded, filename=filename)
         self._downloading = False
+        logger.debug("Downloads: finished")
 
+    @defer.inlineCallbacks
     def _download(self, row):
         """Effectively download an episode."""
         episode_number = row[4]  # 4 is the episode number
         episode = self.programs_data[episode_number]
+        logger.debug("Effectively downloading episode %d", episode_number)
         episode.update_row(row, state=Status.downloading,
                            progress="comenzando...")
 
@@ -438,8 +467,9 @@ class MainUI(object):
             episode.update_row(row, progress=progress)
 
         # download!
-        d = self.downloader.download(episode_number, update_progress_cb)
-        return d
+        fname = yield self.downloader.download(episode_number,
+                                               update_progress_cb)
+        defer.returnValue((fname, episode))
 
     def on_toolbutton_play_clicked(self, widget, data=None):
         """Play the episode."""
@@ -455,11 +485,14 @@ class MainUI(object):
         downloaddir = self.config.get('downloaddir', '')
         filename = os.path.join(downloaddir, episode.filename)
 
+        logger.info("Play requested of %s", episode)
         if os.path.exists(filename):
             # pass file:// url with absolute path
             fullpath = 'file://' + os.path.abspath(filename)
+            logger.info("Playing %r", fullpath)
             subprocess.call(["/usr/bin/xdg-open", fullpath])
         else:
+            logger.warning("Aborted playing, file not found: %r", fullpath)
             print "FIXME: file is not there!", filename
             # FIXME(3): if file is not there show an error dialog and
             # mark the node as no-state

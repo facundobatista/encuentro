@@ -36,6 +36,9 @@ else:
 if project_basedir not in sys.path:
     sys.path.insert(0, project_basedir)
 
+from encuentro import logger
+logger.set_up()
+
 from encuentro import EncuentroUI
 
 from twisted.internet import reactor
