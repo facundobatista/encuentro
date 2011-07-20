@@ -45,6 +45,7 @@ from twisted.web import client
 from xdg.BaseDirectory import xdg_config_home, xdg_data_home
 
 from encuentro.network import Downloader
+from encuentro import wizard
 
 EPISODES_URL = "http://www.taniquetil.com.ar/encuentro-v01.json"
 
@@ -123,8 +124,7 @@ class EpisodeData(object):
 class PreferencesUI(object):
     """Preferences GUI."""
 
-    def __init__(self, main, config_data):
-        self.main = main
+    def __init__(self, config_data):
         self.config_data = config_data
 
         self.builder = gtk.Builder()
@@ -141,12 +141,15 @@ class PreferencesUI(object):
             assert obj is not None, '%s must not be None' % widget
             setattr(self, widget, obj)
 
-    def run(self):
+    def run(self, parent_pos=None):
         """Show the dialog."""
         self.entry_user.set_text(self.config_data.get('user', ''))
         self.entry_password.set_text(self.config_data.get('password', ''))
         self.entry_downloaddir.set_text(
                                     self.config_data.get('downloaddir', ''))
+        if parent_pos is not None:
+            x, y = parent_pos
+            self.dialog.move(x + 50, y + 50)
         self.dialog.run()
 
     def on_dialog_destroy(self, widget, data=None):
@@ -182,9 +185,12 @@ class UpdateUI(object):
             assert obj is not None, '%s must not be None' % widget
             setattr(self, widget, obj)
 
-    def run(self):
+    def run(self, parent_pos=None):
         """Show the dialog."""
         self.closed = False
+        if parent_pos is not None:
+            x, y = parent_pos
+            self.dialog.move(x + 50, y + 50)
         self._update()
         self.dialog.run()
         self.textview.get_buffer().set_text("")
@@ -272,7 +278,7 @@ class MainUI(object):
             self.config['downloaddir'] = os.path.join(user.home, 'encuentro')
 
         self.update_dialog = UpdateUI(self)
-        self.preferences_dialog = PreferencesUI(self, self.config)
+        self.preferences_dialog = PreferencesUI(self.config)
 
         self.downloader = Downloader(self.config)
         self.episodes_to_download = []
@@ -287,6 +293,11 @@ class MainUI(object):
         self.main_window.show()
         self._restore_layout()
         logger.debug("Main UI started ok")
+
+        cfg = self.config
+        if not cfg.get('nowizard'):
+            wizard.go(self, lambda: cfg.get('user') and cfg.get('password'),
+                      lambda: bool(self.programs_data))
 
     def _restore_layout(self):
         """Get info from config and change layouts."""
@@ -412,11 +423,11 @@ class MainUI(object):
 
     def on_toolbutton_preferencias_clicked(self, widget, data=None):
         """Open the preference dialog."""
-        self.preferences_dialog.run()
+        self.preferences_dialog.run(self.main_window.get_position())
 
     def on_toolbutton_update_clicked(self, widget, data=None):
         """Open the preference dialog."""
-        self.update_dialog.run()
+        self.update_dialog.run(self.main_window.get_position())
 
     @defer.inlineCallbacks
     def on_toolbutton_download_clicked(self, widget, data=None):
