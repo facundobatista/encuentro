@@ -12,10 +12,6 @@
 (3) poner un menu, en función de cómo haya quedado el toolbar y eso
 (3) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
 (3) el estado de downloading tiene que tener un texto tal que "downloading: 3%" sea menor que "downloading: 25%"
-(1) documentacion, ayuda:
-    - que al arrancar, si no tiene ningun registro y/o no tiene usuario y clave, que le salga un wizard:
-        - ver explicación abajo!
-        - el dialogo inicial sólo sale mientras dejemos el "no volver a mostrar" deshabilitado
 (1) distribuir:
     - hacer un release de la v0.2 (pre-alfa)
     - ponerlo en un PPA
@@ -33,21 +29,6 @@
     - hacer un release de la v0.4 (beta)
     - actualizar pypi, el ppa, LP, y el .exe
     - avisar en pyar, otro post en el blog, tweet
-(1) agregar logs
 (2) integrar con apport
 (3) que la descarga de episodios muestre un progreso
-(2): que al cerrar y abrir quede ordenado como estaba, y viendo lo que estaba seleccionado antes
-
-Wizard:
-
-p1. "Bienvenido al visor de contenido del Canal Encuentro.\nPara poder usar el programa debe primero configurarlo!", con dos botones "cerrar" y "explicar más", y un checkbox que diga "no volver a mostrar", deshabilitado por default.
-p2. si le da "explicar más, p3, sino cerramos y ya.
-p3. si vemos que ya tiene la lista, p8, sino p4.
-p4. dialogo que explique "Primero tiene que actualizar la lista de episodios: puede actualizar la lista ahora desde esta misma ventana y en cualquier momento desde el menú del programa.", y ofrecer tres botones: "cerrar", "actualizar" y "continuar" (este continuar que esté deshabilitado si corresponde).
-p5. si da cerrar, cerramos y ya
-p6. si da actualizar, saltamos a actualizar, y al volver vamos a p4, pero marcando el continuar como prendido si es que bajó todo ok (bah, revisemos que tenemos lista de episodios descomprimida).
-p7. si da "continuar", al p8
-p8. otro dialog que explique: "Para poder descargar los programas de Canal Encuentro tiene que obtener un usuario y clave y configurar el sistema ahora desde esta misma ventana o en cualquier momento desde el menú del programa.\nPara obtener usuario y clave haga click en "Abrir web Encuentro" aquí abajo.". Tenemos tres botones: "Abrir web Encuentro" que dispara un browser donde corresponde, "Configurar ahora" y "Terminar".
-p9. "abrir web encuentro" dispara un webbrowser() con la pag de sacar user y clave de encuentro
-p10. "configurar ahora" abre vent de configuracion
-p11. Terminar: cierra
+(2) que al cerrar y abrir quede ordenado como estaba, y viendo lo que estaba seleccionado antes

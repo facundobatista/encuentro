@@ -1,5 +1,6 @@
 from __future__ import with_statement
 
+import bz2
 import codecs
 import os
 import re
@@ -138,9 +139,17 @@ def main():
             all_data.append(d)
 
     info = simplejson.dumps(all_data)
+
+    # uncompressed
     with codecs.open("encuentro-v01.json.tmp", "w", "utf8") as fh:
         fh.write(info)
     os.rename("encuentro-v01.json.tmp", "encuentro-v01.json")
+
+    # compressed
+    info = bz2.compress(info)
+    with open("encuentro-v01.bz2.tmp", "wb") as fh:
+        fh.write(info)
+    os.rename("encuentro-v01.bz2.tmp", "encuentro-v01.bz2")
 
 
 if len(sys.argv) == 2:
