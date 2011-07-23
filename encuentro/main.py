@@ -19,6 +19,7 @@
 """Main Encuentro code."""
 
 
+import bz2
 import logging
 import os
 import pickle
@@ -47,7 +48,7 @@ from xdg.BaseDirectory import xdg_config_home, xdg_data_home
 from encuentro.network import Downloader
 from encuentro import wizard
 
-EPISODES_URL = "http://www.taniquetil.com.ar/encuentro-v01.json"
+EPISODES_URL = "http://www.taniquetil.com.ar/encuentro-v01.bz2"
 
 BASEDIR = os.path.dirname(__file__)
 
@@ -210,13 +211,17 @@ class UpdateUI(object):
         logger.info("Updating episodes metadata")
         tview("Descargando la lista de episodios...\n")
         try:
-            new_content = yield client.getPage(EPISODES_URL)
+            compressed = yield client.getPage(EPISODES_URL)
         except Exception, e:
-            logger.error("Problem when updating episodes: %s", e)
-            tview("Hubo un PROBLEMA: " + str(e))
+            logger.error("Problem when downloading episodes: %s", e)
+            tview("Hubo un PROBLEMA al bajar los episodios: " + str(e))
             return
         if self.closed:
             return
+
+        tview("Descomprimiendo el archivo....\n")
+        new_content = bz2.decompress(compressed)
+        logger.debug("Downloaded data decompressed ok")
 
         tview("Actualizando los datos internos....\n")
         new_data = simplejson.loads(new_content)

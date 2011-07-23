@@ -6,7 +6,6 @@
     - f3 y ctrl-g va para adelante, shift-f3 y ctrl-G va para atrás  <-- seleccionando las filas
     - poner un text entry y un botonito a la derecha en la toolbar
 (2) poner un icono
-(1) Que el JSON grabado en el server esté en bz2 (y que se soporte eso en el cliente)
 (2) Poner en la config un checkbox si se quiere que en restart el programa actualice contenido del server, default en False, y que si está en True cuando arranca el programa que dispare un reload en background.
 (2) Que cuando abra los diag modales, la main window quede deshabilitada
 (3) poner un menu, en función de cómo haya quedado el toolbar y eso
