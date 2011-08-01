@@ -245,8 +245,8 @@ class MainUI(object):
         self.builder.connect_signals(self)
 
         widgets = (
-            'main_window', 'programs_store', 'programs_treeview',
-            'toolbutton_play', 'toolbutton_download',
+            'main_window', 'programs_store', 'programs_treeview', 'toolbar',
+            'toolbutton_play', 'toolbutton_download', 'toolbutton_needconfig',
             'dialog_quit', 'dialog_quit_label',
         )
 
@@ -299,10 +299,32 @@ class MainUI(object):
         self._restore_layout()
         logger.debug("Main UI started ok")
 
-        cfg = self.config
-        if not cfg.get('nowizard'):
-            wizard.go(self, lambda: cfg.get('user') and cfg.get('password'),
-                      lambda: bool(self.programs_data))
+        if not self.config.get('nowizard'):
+            wizard.go(self, self._have_config, self._have_metadata)
+        self.review_need_something_indicator()
+
+    def _have_config(self):
+        """Return if some config is needed."""
+        return self.config.get('user') and self.config.get('password')
+
+    def _have_metadata(self):
+        """Return if metadata is needed."""
+        return bool(self.programs_data)
+
+    def review_need_something_indicator(self):
+        """Start the wizard if needed, or hide the need config button."""
+        if not self._have_config() or not self._have_metadata():
+            # config needed, put the alert if not there
+            if not self.toolbutton_needconfig.get_property("visible"):
+                self.toolbutton_needconfig.show()
+        else:
+            # no config needed, remove the alert if there
+            if self.toolbutton_needconfig.get_property("visible"):
+                self.toolbutton_needconfig.hide()
+
+    def on_toolbutton_needconfig_clicked(self, widget, data=None):
+        """The 'need config' toolbar button was clicked, open the wizard."""
+        wizard.go(self, self._have_config, self._have_metadata)
 
     def _restore_layout(self):
         """Get info from config and change layouts."""
@@ -429,10 +451,12 @@ class MainUI(object):
     def on_toolbutton_preferencias_clicked(self, widget, data=None):
         """Open the preference dialog."""
         self.preferences_dialog.run(self.main_window.get_position())
+        self.review_need_something_indicator()
 
     def on_toolbutton_update_clicked(self, widget, data=None):
         """Open the preference dialog."""
         self.update_dialog.run(self.main_window.get_position())
+        self.review_need_something_indicator()
 
     @defer.inlineCallbacks
     def on_toolbutton_download_clicked(self, widget, data=None):

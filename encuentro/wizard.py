@@ -76,12 +76,17 @@ class WizardUI(object):
             assert obj is not None, '%s must not be None' % widget
             setattr(self, widget, obj)
 
-        self.state_init()
-        self.window.show()
-
         # position the dialog window over the other one
         mainx, mainy = main.main_window.get_position()
         self.window.move(mainx + 50, mainy + 50)
+
+        self.state_init()
+        self.window.show()
+
+    def close(self):
+        """Close the wizard."""
+        self.window.hide()
+        self.main.review_need_something_indicator()
 
     def set_button_text(self, button, text):
         """Set the text to a button."""
@@ -114,8 +119,7 @@ class WizardUI(object):
             # end
             self.state_end()
         elif self.state == 'end':
-            # close
-            self.window.hide()
+            self.close()
         else:
             raise ValueError("Bad state for button 2: %s", self.state)
 
@@ -123,8 +127,7 @@ class WizardUI(object):
         """Center button clicked."""
         logger.debug("Button 2 clicked in state %r", self.state)
         if self.state == 'init':
-            # close
-            self.window.hide()
+            self.close()
         elif self.state == 'episodes':
             # update the episodes
             self.main.update_dialog.run(self.window.get_position())
@@ -144,8 +147,7 @@ class WizardUI(object):
         """Leftmost button clicked."""
         logger.debug("Button 3 clicked in state %r", self.state)
         if self.state == 'episodes':
-            # close
-            self.window.hide()
+            self.close()
         elif self.state == 'config':
             # open web to register
             webbrowser.open(URL_ENCUENTRO)
