@@ -458,7 +458,6 @@ class MainUI(object):
         self.update_dialog.run(self.main_window.get_position())
         self.review_need_something_indicator()
 
-    @defer.inlineCallbacks
     def on_toolbutton_download_clicked(self, widget, data=None):
         """Download the episode(s)."""
         # FIXME(2): download all the selected episodes that are in no-state (of
@@ -471,11 +470,14 @@ class MainUI(object):
             print "ToDo: implement multiple downloads"
             return
 
-        path = pathlist[0]
-        print "======= path", path
         row = self.programs_store[pathlist[0]]
         episode_number = row[4]  # 4 is the episode number
         episode = self.programs_data[episode_number]
+        self._queue_download(row, episode)
+
+    @defer.inlineCallbacks
+    def _queue_download(self, row, episode):
+        """User indicated to download something."""
         logger.debug("Download requested of %s", episode)
         episode.update_row(row, state=Status.downloading, progress="encolado")
 
@@ -487,14 +489,15 @@ class MainUI(object):
         self._downloading = True
         while self.episodes_to_download:
             row = self.episodes_to_download.pop(0)
-            filename, episode = yield self._download(row)
+            filename, episode = yield self._episode_download(row)
             logger.debug("Episode downloaded: %s", episode)
             episode.update_row(row, state=Status.downloaded, filename=filename)
+            self._check_download_play_buttons()
         self._downloading = False
         logger.debug("Downloads: finished")
 
     @defer.inlineCallbacks
-    def _download(self, row):
+    def _episode_download(self, row):
         """Effectively download an episode."""
         episode_number = row[4]  # 4 is the episode number
         episode = self.programs_data[episode_number]
@@ -522,6 +525,10 @@ class MainUI(object):
         row = self.programs_store[pathlist[0]]
         episode_number = row[4]  # 4 is the episode number
         episode = self.programs_data[episode_number]
+        self._play_episode(episode)
+
+    def _play_episode(self, episode):
+        """Play an episode."""
         downloaddir = self.config.get('downloaddir', '')
         filename = os.path.join(downloaddir, episode.filename)
 
@@ -554,6 +561,16 @@ class MainUI(object):
         widget.set_sort_indicator(True)
         widget.set_sort_order(new_order)
 
+    def on_programs_treeview_row_activated(self, treeview, path, view_column):
+        """Double click on the episode, download or play."""
+        row = self.programs_store[path]
+        episode = self.programs_data[row[4]]  # 4 is the episode number
+        logger.debug("Double click in %s", episode)
+        if episode.state == Status.downloaded:
+            self._play_episode(episode)
+        elif episode.state == Status.none:
+            self._queue_download(row, episode)
+
     def on_programs_treeview_button_press_event(self, widget, event):
         """Support for right-button click."""
         if event.button != 3:  # right click
@@ -569,6 +586,12 @@ class MainUI(object):
 
     def on_programs_treeview_selection_changed(self, tree_selection):
         """Get all selected rows and adjust buttons accordingly."""
+        self._check_download_play_buttons(tree_selection)
+
+    def _check_download_play_buttons(self, tree_selection=None):
+        """Set both buttons state according to the selected episodes."""
+        if tree_selection is None:
+            tree_selection = self.programs_treeview.get_selection()
         model, pathlist = tree_selection.get_selected_rows()
 
         # 'play' button should be enabled if only one row is selected and

@@ -139,6 +139,7 @@
                 <property name="can_focus">True</property>
                 <property name="model">programs_store</property>
                 <signal name="button_press_event" handler="on_programs_treeview_button_press_event"/>
+                <signal name="row_activated" handler="on_programs_treeview_row_activated"/>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn_titulo">
                     <property name="resizable">True</property>
