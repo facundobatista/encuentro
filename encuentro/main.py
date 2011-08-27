@@ -45,7 +45,7 @@ from twisted.internet import reactor, defer
 from twisted.web import client
 from xdg.BaseDirectory import xdg_config_home, xdg_data_home
 
-from encuentro.network import Downloader
+from encuentro.network import Downloader, BadCredentialsError
 from encuentro import wizard
 
 EPISODES_URL = "http://www.taniquetil.com.ar/encuentro-v01.bz2"
@@ -247,7 +247,7 @@ class MainUI(object):
         widgets = (
             'main_window', 'programs_store', 'programs_treeview',
             'toolbutton_play', 'toolbutton_download',
-            'dialog_quit', 'dialog_quit_label',
+            'dialog_quit', 'dialog_quit_label', 'dialog_alert', 'dialog_error',
         )
 
         for widget in widgets:
@@ -390,7 +390,7 @@ class MainUI(object):
             return False
 
         # stuff pending
-        logger.info("Descargas activas! %s (%r)", idx, program.titulo)
+        logger.info("Active downloads! %s (%r)", idx, program.titulo)
         m = (u"Al menos un programa está todavía en proceso de descarga!\n\n"
              u"Episodio %s: %s\n" % (idx, program.titulo))
         self.dialog_quit_label.set_text(m)
@@ -463,11 +463,33 @@ class MainUI(object):
         self._downloading = True
         while self.episodes_to_download:
             row = self.episodes_to_download.pop(0)
-            filename, episode = yield self._download(row)
-            logger.debug("Episode downloaded: %s", episode)
-            episode.update_row(row, state=Status.downloaded, filename=filename)
+            try:
+                filename, episode = yield self._download(row)
+            except BadCredentialsError:
+                logger.debug("Bad credentials error!")
+                self._show_download_error(self.dialog_alert)
+                episode.update_row(row, state=Status.none)
+            except Exception, e:
+                logger.debug("Unknown download error: %s", e)
+                self._show_download_error(self.dialog_error, str(e))
+                episode.update_row(row, state=Status.none)
+            else:
+                logger.debug("Episode downloaded: %s", episode)
+                episode.update_row(row, state=Status.downloaded,
+                                   filename=filename)
         self._downloading = False
         logger.debug("Downloads: finished")
+
+    def _show_download_error(self, dialog, text=None):
+        """Show different download errors."""
+        if text is not None:
+            l = dialog.children()[0].children()[0].children()[1].children()[0]
+            l.set_text(text)
+        logger.debug("Handling a download error: %s", dialog)
+        configure = dialog.run()
+        dialog.hide()
+        if configure == 1:
+            self.preferences_dialog.run(self.main_window.get_position())
 
     @defer.inlineCallbacks
     def _download(self, row):
