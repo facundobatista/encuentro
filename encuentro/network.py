@@ -49,7 +49,17 @@ RE_DESCARGA = re.compile('Descargar ca.*completo.*')
 
 CHUNK = 16 * 1024
 
+BAD_LOGIN_TEXT = "TU CLAVE ES INCORRECTA"
+
 logger = logging.getLogger('encuentro.network')
+
+
+class BadCredentialsError(Exception):
+    """Problems with user and/or password."""
+
+
+class EncuentroError(Exception):
+    """Generic problem working with the Encuentro web site."""
 
 
 class MiBrowser(Process):
@@ -64,6 +74,43 @@ class MiBrowser(Process):
         self.must_quit = must_quit
         Process.__init__(self)
 
+    def _get_download_link(self, browser):
+        """Get the download link."""
+        # first attempt
+        try:
+            link = browser.getLink(text=RE_DESCARGA)
+        except LinkNotFoundError:
+            pass
+        else:
+            return link
+
+        # log in, and try again
+        logger.debug("Browser not logged, sending user and pass")
+        login = browser.getForm(index=1)
+        usr = login.getControl(name='user')
+        pss = login.getControl(name='pass')
+        usr.value, pss.value = self.authinfo
+        login.submit()
+
+        try:
+            link = browser.getLink(text=RE_DESCARGA)
+        except LinkNotFoundError:
+            pass
+        else:
+            return link
+
+        # didn't get the download link, let's check if it is a password error
+        # or something else
+        if BAD_LOGIN_TEXT in browser.contents:
+            logger.error("Wrong user or password sent")
+            raise BadCredentialsError()
+
+        # ok, we don't know what happened :(
+        logger.error("Unknown error while browsing Encuentro: %r",
+                     browser.contents)
+        raise EncuentroError("Unknown problem when getting download link")
+
+
     def run(self):
         """Do the heavy work."""
         # set up
@@ -76,19 +123,13 @@ class MiBrowser(Process):
         self.output_queue.put(browser.contents)
 
         # get the filename and download
-        fname = self.input_queue.get()
+        fname = self.input_queue.get(browser)
         try:
-            link = browser.getLink(text=RE_DESCARGA)
-        except LinkNotFoundError:
-            logger.debug("Browser not logged, sending user and pass")
-            login = browser.getForm(index=1)
-            usr = login.getControl(name='user')
-            pss = login.getControl(name='pass')
-            usr.value, pss.value = self.authinfo
-            login.submit()
-
-            # let's try to get the link again
-            link = browser.getLink(text=RE_DESCARGA)
+            link = self._get_download_link(browser)
+        except Exception, e:
+            # problem, can't continue
+            self.output_queue.put(e)
+            return
 
         m = LINKSIZE.match(link.text)
         if m:
@@ -211,6 +252,8 @@ class Downloader(object):
         while True:
             # get all data and just use the last item
             data = (yield qinput.deferred_get())[-1]
+            if isinstance(data, Exception):
+                raise data
             if data == 'done':
                 break
 
