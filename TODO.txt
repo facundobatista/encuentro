@@ -13,11 +13,9 @@
 (3) Ver si se puede sacar el tamaño total del video del header (y no la aproximación que tenemos ahora que sale del html)
 (1) distribuir:
     - pag web
-        - subirla
         - que quede encuentro.taniqu...
         - que se le vea el favicon
     - hacer que al instalarse quede en "desktop", con logo y todo
-    - poner logo en launchpad
     - hacer un release de la v0.2 (pre-alfa)
     - ponerlo en un PPA
     - avisar en PyAr, poner post blog:
@@ -37,5 +35,3 @@
 (2) integrar con apport
 (3) que la descarga de episodios muestre un progreso
 (2) que al cerrar y abrir quede ordenado como estaba, y viendo lo que estaba seleccionado antes
-(1) hacer una paginita linda (con toda la info que vamos a mandar al distribuir!)
-(1) bug! que si usr o pass esta mal, informar al usuario
