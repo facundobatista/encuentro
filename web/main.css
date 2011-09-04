@@ -1,0 +1,58 @@
+body {
+ color: #444;
+ font-family: Ubuntu, sans-serif;
+}
+
+#page{
+ margin: 2% 5%;
+ width: 90%;
+}
+
+#header, #footer{
+ width: 100%;
+ display: table;
+ text-align: center;
+}
+
+#footer p{
+ font-size: small;
+}
+
+#header h1{
+ font-size: 1.5em;
+}
+
+.section{
+ margin: 2% 5%;
+ width: 90%;
+ background-repeat: no-repeat;
+ background-position: top right;
+}
+
+.section p{
+ padding: 0.5em 5em;
+}
+
+.image-list{
+ text-align: center;
+}
+
+.feature-list em{
+ font-weight: bold;
+ font-size: 1.2em;
+}
+
+.image-list li{
+ list-style-type: none;
+ display: inline;
+ margin: 0.5em;
+}
+
+.image-list img {
+ padding: 0.5em;
+ border: 1px dotted #ddd;
+}
+
+li{
+ margin: 0.4em;
+}
