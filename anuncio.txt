@@ -1,0 +1,39 @@
+
+Encuentro 0.2
+
+Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro.
+
+Notar que este programa no distribuye contenido de Canal Encuentro, sino que permite un mejor uso personal de esos contenidos. Por favor, referirse al sitio web de Canal Encuentro (www.encuentro.gov.ar) para saber qué se puede y qué no se puede hacer con los contenidos de ese sitio.
+
+http://encuentro.taniquetil.com.ar/imgs/title.png
+
+La versión 0.2 es una versión pre-alfa... se puede usar, descargar y ver videos, y debería funcionar todo correctamente, pero le falta mucha funcionalidad (por ejemplo, buscar).
+
+- Se pueden encolar descargas de episodios, que luego irán bajando uno por uno.
+
+- Visualización directa de los episodios desde el programa.
+
+- Se mantiene y muestra el estado de cada episodio.
+
+- La lista e información de los episodios se descarga automáticamente del server, para un mejor arranque.
+
+- Tenemos un sitio web 3.0! Pasen y vean: http://encuentro.taniquetil.com.ar/ (con botón de Donaciones y todo)
+
+- Configuración de parámetros, con un wizard para realizar más fácilmente la configuración necesaria.
+
+- Descargable como tarball (multiplataforma), con un instalador para Debian/Ubuntu, e incluso con un PPA para suscribirse.
+
+
+La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
+
+    http://launchpad.net/encuentro/trunk/0.4/+download/enjuewemela-0.4.deb
+
+Si quieren obtener automaticamente las nuevas actualizaciones, pueden suscribirse al PPA; en una linea de comandos hagan:
+
+    sudo add-apt-repository ppa:facundo/encuentro
+
+En cualquier otro caso, pueden usar el tarball para instalarlo:
+
+    http://edge.launchpad.net/encuentro/trunk/0.2/+download/encuentro-0.2.tar.gz
+
+¡Que lo disfruten!

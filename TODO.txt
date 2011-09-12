@@ -12,18 +12,11 @@
 (3) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
 (3) Ver si se puede sacar el tamaño total del video del header (y no la aproximación que tenemos ahora que sale del html)
 (1) distribuir:
-    - pag web
-        - que quede encuentro.taniqu...
-        - que se le vea el favicon
     - hacer que al instalarse quede en "desktop", con logo y todo
     - hacer un release de la v0.2 (pre-alfa)
     - ponerlo en un PPA
-    - avisar en PyAr, poner post blog:
-          - diciendo qué es esto
-          - algo de info sacado de AYUDA.txt
-          - como instalarlo (PPA, paquete (diciendo qué otras cosas se necesita), windows)
-          - pedir ayuda para la versión windor
-    - tweet!
+    - avisar en PyAr, poner post blog, tweet,  diciendo qué es esto
+    - pedir ayuda para la versión windows
 (2) distribuir:
     - hacer un release de la v0.3 (alfa)
     - actualizar pypi, el ppa, LP, y el .exe
