@@ -36,4 +36,7 @@ En cualquier otro caso, pueden usar el tarball para instalarlo:
 
     http://edge.launchpad.net/encuentro/trunk/0.2/+download/encuentro-0.2.tar.gz
 
+
+Recuerden revisar el archivo AYUDA.txt si tienen alguna duda de cómo usar el programa.
+
 ¡Que lo disfruten!
