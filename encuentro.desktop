@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Type=Application
+Name=Encuentro
+GenericName=Encuentro
+Comment=Simple program to download and see the content from Canal Encuentro
+Comment[es]=Simple programa que permite buscar, descargar y ver contenido del Canal Encuentro
+Icon=@ INSTALLED_ICON @
+Exec=encuentro
+Terminal=false
+StartupNotify=false
+Categories=Application;Education;Network;
