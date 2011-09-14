@@ -5,3 +5,4 @@ include AYUDA.txt
 include README.txt
 include COPYING
 include AUTHORS
+include encuentro.desktop
