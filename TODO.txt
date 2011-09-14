@@ -22,3 +22,4 @@
 (2) integrar con apport
 (3) que la descarga de episodios muestre un progreso
 (2) que al cerrar y abrir quede ordenado como estaba, y viendo lo que estaba seleccionado antes
+(2) agregar un ./test que corra pep8 y pylint
