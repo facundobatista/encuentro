@@ -1,0 +1,2 @@
+pylint encuentro
+pep8 --repeat .

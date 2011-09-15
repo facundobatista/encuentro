@@ -80,6 +80,7 @@ class WizardUI(object):
         mainx, mainy = main.main_window.get_position()
         self.window.move(mainx + 50, mainy + 50)
 
+        self.state = None
         self.state_init()
         self.window.show()
 
@@ -210,7 +211,7 @@ class WizardUI(object):
         self.buttons_box.remove(self.button3)
 
 
-def go(main, have_config, have_episodes):
+def start(main, have_config, have_episodes):
     """Start a Wizard UI only if needed."""
     if not have_config() or not have_episodes():
         WizardUI(main, have_config, have_episodes)

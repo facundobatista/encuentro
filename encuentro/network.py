@@ -272,6 +272,7 @@ class Downloader(object):
 if __name__ == "__main__":
 
     def show(avance):
+        """Show progress."""
         print "Avance:", avance
 
     config = dict(user="lxpdvtnvrqdoa@mailinator.com",

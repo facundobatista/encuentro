@@ -93,21 +93,21 @@ class CustomInstall(install):
 
 
 setup(
-    name = 'encuentro',
-    version = '0.2',
-    license = 'GPL-3',
-    author = 'Facundo Batista',
-    author_email = 'facundo@taniquetil.com.ar',
-    description = 'Search, download and see the wonderful Encuentro content.',
-    long_description = 'Simple application that allows to search, download ' \
-                       'and see the content of the Encuentro channel.',
-    url = 'https://launchpad.net/encuentro',
+    name='encuentro',
+    version='0.2',
+    license='GPL-3',
+    author='Facundo Batista',
+    author_email='facundo@taniquetil.com.ar',
+    description='Search, download and see the wonderful Encuentro content.',
+    long_description='Simple application that allows to search, download ' \
+                      'and see the content of the Encuentro channel.',
+    url='https://launchpad.net/encuentro',
 
-    packages = ["encuentro"],
-    package_data = {"encuentro": ["ui/*.glade", "logos/icon-32.png"]},
-    scripts = ["bin/encuentro"],
+    packages=["encuentro"],
+    package_data={"encuentro": ["ui/*.glade", "logos/icon-32.png"]},
+    scripts=["bin/encuentro"],
 
-    cmdclass = {
+    cmdclass={
         'install': CustomInstall,
     }
 )

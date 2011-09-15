@@ -72,6 +72,7 @@ class EpisodeData(object):
         'state': 5,        # note that state and progress both point to row 5,
         'progress': 5,     # because any change in these will update the row
     }
+
     def __init__(self, titulo, seccion, sinopsis, tematica, duracion, nroemis,
                  state=None, progress=None, filename=None):
         self.titulo = titulo
@@ -163,7 +164,8 @@ class PreferencesUI(object):
         self.config_data.update(new_cfg)
         self.dialog.hide()
 
-    on_dialog_response = on_button_clicked = on_dialog_close = on_dialog_destroy
+    on_dialog_response = on_dialog_close = on_dialog_destroy
+    on_button_clicked = on_dialog_destroy
 
 
 class UpdateUI(object):
@@ -171,6 +173,7 @@ class UpdateUI(object):
 
     def __init__(self, main):
         self.main = main
+        self.closed = False
 
         self.builder = gtk.Builder()
         self.builder.add_from_file(os.path.join(BASEDIR,
@@ -273,9 +276,9 @@ class MainUI(object):
         # log the config, but without user and pass
         safecfg = self.config.copy()
         if 'user' in safecfg:
-            safecfg['user'] = 'xxx'
+            safecfg['user'] = '<hidden>'
         if 'password' in safecfg:
-            safecfg['password'] = 'xxx'
+            safecfg['password'] = '<hidden>'
         logger.debug("Configuration loaded: %s", safecfg)
 
         # we have a default for download dir
@@ -300,7 +303,7 @@ class MainUI(object):
         logger.debug("Main UI started ok")
 
         if not self.config.get('nowizard'):
-            wizard.go(self, self._have_config, self._have_metadata)
+            wizard.start(self, self._have_config, self._have_metadata)
         self.review_need_something_indicator()
 
     def _have_config(self):
@@ -324,7 +327,7 @@ class MainUI(object):
 
     def on_toolbutton_needconfig_clicked(self, widget, data=None):
         """The 'need config' toolbar button was clicked, open the wizard."""
-        wizard.go(self, self._have_config, self._have_metadata)
+        wizard.start(self, self._have_config, self._have_metadata)
 
     def _restore_layout(self):
         """Get info from config and change layouts."""
@@ -412,6 +415,7 @@ class MainUI(object):
             return False
 
         # stuff pending
+        # we *sure* have idx and program; pylint: disable=W0631
         logger.info("Active downloads! %s (%r)", idx, program.titulo)
         m = (u"Al menos un programa está todavía en proceso de descarga!\n\n"
              u"Episodio %s: %s\n" % (idx, program.titulo))
@@ -463,7 +467,7 @@ class MainUI(object):
         # FIXME(2): download all the selected episodes that are in no-state (of
         # course, of those that are selected)
         tree_selection = self.programs_treeview.get_selection()
-        model, pathlist = tree_selection.get_selected_rows()
+        _, pathlist = tree_selection.get_selected_rows()
         if len(pathlist) > 1:
             # FIXME(3): support more than one download simultaneously (starting
             # one and queueing the others)
@@ -562,7 +566,7 @@ class MainUI(object):
             subprocess.call(["/usr/bin/xdg-open", fullpath])
         else:
             logger.warning("Aborted playing, file not found: %r", fullpath)
-            print "FIXME: file is not there!", filename
+            print "FIXME(3): file is not there!", filename
             # FIXME(3): if file is not there show an error dialog and
             # mark the node as no-state
 
@@ -597,7 +601,8 @@ class MainUI(object):
         """Support for right-button click."""
         if event.button != 3:  # right click
             return
-        print "========== cursor", widget.get_path_at_pos(int(event.x), int(event.y))
+        print "========== cursor", widget.get_path_at_pos(int(event.x),
+                                                          int(event.y))
         # FIXME(2): build a menu here, with the following options:
         #   If it's already downloaded:
         #       - Ver episodio
@@ -614,7 +619,7 @@ class MainUI(object):
         """Set both buttons state according to the selected episodes."""
         if tree_selection is None:
             tree_selection = self.programs_treeview.get_selection()
-        model, pathlist = tree_selection.get_selected_rows()
+        _, pathlist = tree_selection.get_selected_rows()
 
         # 'play' button should be enabled if only one row is selected and
         # its state is 'downloaded'
