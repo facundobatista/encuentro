@@ -4,7 +4,7 @@ import bz2
 import codecs
 import os
 import re
-import simplejson
+import json
 import sys
 import time
 import urllib2
@@ -42,7 +42,7 @@ def get_episodes_by_theme(tema):
     print "Downloading theme", tema
     u = urllib2.urlopen(req)
     content = u.read()
-    resp = simplejson.loads(content)
+    resp = json.loads(content)
     eps = [x['emision_id'] for x in resp]
     print "   ok:", len(eps)
     return eps
@@ -138,7 +138,7 @@ def main():
         else:
             all_data.append(d)
 
-    info = simplejson.dumps(all_data)
+    info = json.dumps(all_data)
 
     # uncompressed
     with codecs.open("encuentro-v01.json.tmp", "w", "utf8") as fh:

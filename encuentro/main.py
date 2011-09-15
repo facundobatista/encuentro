@@ -24,7 +24,7 @@ import logging
 import os
 import pickle
 import subprocess
-import simplejson
+import json
 import user
 
 from encuentro import import_exit
@@ -224,7 +224,7 @@ class UpdateUI(object):
         logger.debug("Downloaded data decompressed ok")
 
         tview("Actualizando los datos internos....\n")
-        new_data = simplejson.loads(new_content)
+        new_data = json.loads(new_content)
         logger.debug("Updating internal metadata (%d)", len(new_data))
         self.main.merge_episode_data(new_data)
 
