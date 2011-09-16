@@ -16,7 +16,6 @@ Es bastante sencillo, sólo tenés que hacer:
 
 Para que funcione correctamente, tenés que tener Python 2 instalado, y las siguientes dependencias (paquete y número mínimo de versión):
 
-    python-zope.testbrowser 3.5.1
     python-mechanize        0.1.11
     python-twisted-bin      8.2.0
     python-gtk2             2.16.0

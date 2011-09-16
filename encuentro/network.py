@@ -30,7 +30,7 @@ from multiprocessing import Process, Event
 from multiprocessing.queues import Queue
 from Queue import Empty
 
-from zope.testbrowser.browser import Browser
+from mechanize import Browser
 from mechanize._mechanize import LinkNotFoundError
 
 from twisted.internet import defer, reactor
@@ -38,7 +38,7 @@ from twisted.internet import defer, reactor
 URL = "http://descargas.encuentro.gov.ar/emision.php?emision_id=%d"
 SERVER = "descargas.encuentro.gov.ar"
 
-LINKSIZE = re.compile('.*?(\d+) MB\).*')
+LINKSIZE = re.compile('(\d+) MB')
 
 RE_SACATIT = re.compile('<h1 class="titFAQ">([^<]*)</h1>')
 RE_SINOPSIS = re.compile('<p class="sinopsisTXT">([^<]*)</p>')
@@ -74,80 +74,74 @@ class MiBrowser(Process):
         self.must_quit = must_quit
         Process.__init__(self)
 
-    def _get_download_link(self, browser):
-        """Get the download link."""
-        # first attempt
-        try:
-            link = browser.getLink(text=RE_DESCARGA)
-        except LinkNotFoundError:
-            pass
-        else:
-            return link
-
-        # log in, and try again
+    def _get_download_content(self, browser):
+        """Get the content handler to download."""
+        # log in
         logger.debug("Browser not logged, sending user and pass")
-        login = browser.getForm(index=1)
-        usr = login.getControl(name='user')
-        pss = login.getControl(name='pass')
-        usr.value, pss.value = self.authinfo
-        login.submit()
+        browser.select_form(nr=1)
+        usr, psw = self.authinfo
+        browser.set_value(usr, 'user')
+        browser.set_value(psw, 'pass')
+        browser.submit()
+
+        # get reported file size
+        html = self._get_html(browser)
+        m = LINKSIZE.search(html)
+        if m:
+            filesize = m.groups()[0]
+            logger.debug("Browser found aprox content size of %r", filesize)
+            filesize = int(filesize) + 1
+        else:
+            filesize = "?"
+            logger.warning("Strange text when searching file size: %r", html)
 
         try:
-            link = browser.getLink(text=RE_DESCARGA)
+            content = browser.follow_link(text_regex=RE_DESCARGA)
         except LinkNotFoundError:
             pass
         else:
-            return link
+            return content, filesize
 
         # didn't get the download link, let's check if it is a password error
         # or something else
-        if BAD_LOGIN_TEXT in browser.contents:
+        if BAD_LOGIN_TEXT in html:
             logger.error("Wrong user or password sent")
             raise BadCredentialsError()
 
         # ok, we don't know what happened :(
-        logger.error("Unknown error while browsing Encuentro: %r",
-                     browser.contents)
+        logger.error("Unknown error while browsing Encuentro: %r", html)
         raise EncuentroError("Unknown problem when getting download link")
 
+    def _get_html(self, browser):
+        """Return the viewing HTML."""
+        assert browser.viewing_html()
+        fh = browser.response()
+        return fh.read()
 
     def run(self):
         """Do the heavy work."""
         # set up
         browser = Browser()
-        browser.mech_browser.set_handle_robots(False)
+        browser.set_handle_robots(False)
 
         # open the url and send the content
         logger.debug("Browser opening url %s", self.url)
         browser.open(self.url)
-        self.output_queue.put(browser.contents)
+        self.output_queue.put(self._get_html(browser))
 
         # get the filename and download
         fname = self.input_queue.get(browser)
         try:
-            link = self._get_download_link(browser)
+            content, filesize = self._get_download_content(browser)
         except Exception, e:
             # problem, can't continue
             self.output_queue.put(e)
             return
 
-        m = LINKSIZE.match(link.text)
-        if m:
-            filesize = m.groups()[0]
-            logger.debug("Browser found aprox content size of %r", filesize)
-        else:
-            filesize = "?"
-            logger.warning("Strange link text: %r", link.text)
-        link.click()
-
-        # add one to the filesize, as it's truncated in the html
-        filesize = int(filesize) + 1
-
-        response = browser.mech_browser.response()
         aout = open(fname, "w")
         tot = 0
         while not self.must_quit.is_set():
-            r = response.read(CHUNK)
+            r = content.read(CHUNK)
             if r == "":
                 break
             aout.write(r)
@@ -270,6 +264,10 @@ class Downloader(object):
 
 
 if __name__ == "__main__":
+    h = logging.StreamHandler()
+    h.setLevel(logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(h)
 
     def show(avance):
         """Show progress."""
