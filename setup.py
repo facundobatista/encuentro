@@ -104,7 +104,10 @@ setup(
     url='https://launchpad.net/encuentro',
 
     packages=["encuentro"],
-    package_data={"encuentro": ["ui/*.glade", "logos/icon-32.png"]},
+    package_data={
+        "encuentro": ["ui/*.glade", "logos/icon-32.png"],
+        "": ["encuentro.desktop"],
+    },
     scripts=["bin/encuentro"],
 
     cmdclass={
