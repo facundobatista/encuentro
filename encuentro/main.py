@@ -296,6 +296,13 @@ class MainUI(object):
         self.toolbutton_play.set_sensitive(False)
         self.toolbutton_download.set_sensitive(False)
 
+        # icons
+        icons = []
+        for size in (16, 32, 48, 64, 128):
+            iconfile = os.path.join(BASEDIR, 'logos', 'icon-%d.png' % (size,))
+            icons.append(gtk.gdk.pixbuf_new_from_file(iconfile))
+        self.main_window.set_icon_list(*icons)
+
         self._non_glade_setup()
         self.refresh_treeview()
         self.main_window.show()
