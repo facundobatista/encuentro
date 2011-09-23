@@ -403,6 +403,8 @@ class MainUI(object):
         for p in self.programs_data.itervalues():
             new_liststore.append(p.get_row_data())
         self.programs_treeview.set_model(new_liststore)
+
+        # pograms_store was defined before, yes! pylint: disable=W0201
         self.programs_store = new_liststore
         # FIXME(3): que luego de actualizar reordene
         # FIXME(3): que duracion y episodio esten justified a la derecha
@@ -427,9 +429,9 @@ class MainUI(object):
         m = (u"Al menos un programa está todavía en proceso de descarga!\n\n"
              u"Episodio %s: %s\n" % (idx, program.titulo))
         self.dialog_quit_label.set_text(m)
-        quit = self.dialog_quit.run()
+        opt_quit = self.dialog_quit.run()
         self.dialog_quit.hide()
-        if not quit:
+        if not opt_quit:
             logger.info("Quit cancelled")
             return True
 
