@@ -1,4 +1,3 @@
-(2) que la descarga se pueda cancelar
 (2) sistema de búsquedas:
     - que busque en las tres columnas
     - que highlightee lo encontrado

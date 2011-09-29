@@ -1,7 +1,5 @@
 # -*- coding: utf8 -*-
 
-# -*- coding: utf-8 -*-
-#
 # Copyright 2011 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
@@ -60,6 +58,10 @@ class BadCredentialsError(Exception):
 
 class EncuentroError(Exception):
     """Generic problem working with the Encuentro web site."""
+
+
+class CancelledError(Exception):
+    """The download was cancelled."""
 
 
 class MiBrowser(Process):
@@ -128,6 +130,8 @@ class MiBrowser(Process):
         logger.debug("Browser opening url %s", self.url)
         browser.open(self.url)
         self.output_queue.put(self._get_html(browser))
+        if self.must_quit.is_set():
+            return
 
         # get the filename and download
         fname = self.input_queue.get(browser)
@@ -189,6 +193,7 @@ class Downloader(object):
         self._prev_progress = None
         self.browser_quit = set()
         logger.info("Downloader inited")
+        self.cancelled = False
 
     def shutdown(self):
         """Quit the download."""
@@ -196,9 +201,15 @@ class Downloader(object):
             bquit.set()
         logger.info("Downloader shutdown finished")
 
+    def cancel(self):
+        """Cancel a download."""
+        self.cancelled = True
+
     @defer.inlineCallbacks
     def download(self, nroemis, cb_progress):
         """Descarga una emisión a disco."""
+        self.cancelled = False
+
         # levantamos el browser
         qinput = DeferredQueue()
         qoutput = Queue()
@@ -214,6 +225,8 @@ class Downloader(object):
 
         # esperamos hasta que la pag esté
         pag = (yield qinput.deferred_get())[0]
+        if self.cancelled:
+            raise CancelledError()
 
         # obtenemos sección y titulo
         m = RE_SACATIT.search(pag)
@@ -248,6 +261,8 @@ class Downloader(object):
         while True:
             # get all data and just use the last item
             data = (yield qinput.deferred_get())[-1]
+            if self.cancelled:
+                raise CancelledError()
             if isinstance(data, Exception):
                 raise data
             if data == 'done':
@@ -282,9 +297,15 @@ if __name__ == "__main__":
     def download():
         """Download."""
         downloader = Downloader(test_config)
-        fname = yield downloader.download(107, show)
-        print "All done!", fname
-        reactor.stop()
+        reactor.callLater(10, downloader.cancel)
+        try:
+            fname = yield downloader.download(107, show)
+            print "All done!", fname
+        except CancelledError:
+            print "--- cancelado!"
+        finally:
+            downloader.shutdown()
+            reactor.stop()
 
     reactor.callWhenRunning(download)
     reactor.run()
