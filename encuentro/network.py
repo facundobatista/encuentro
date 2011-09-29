@@ -161,6 +161,7 @@ class DeferredQueue(Queue):
         d = defer.Deferred()
 
         def check():
+            """Check if we have data and transmit it."""
             try:
                 data = self.get(block=False)
             except Empty:
@@ -182,6 +183,7 @@ class DeferredQueue(Queue):
 
 class Downloader(object):
     """Episode downloader."""
+
     def __init__(self, config):
         self.config = config
         self._prev_progress = None
@@ -273,12 +275,13 @@ if __name__ == "__main__":
         """Show progress."""
         print "Avance:", avance
 
-    config = dict(user="lxpdvtnvrqdoa@mailinator.com",
-                  password="descargas", downloaddir='.')
+    test_config = dict(user="lxpdvtnvrqdoa@mailinator.com",
+                       password="descargas", downloaddir='.')
 
     @defer.inlineCallbacks
     def download():
-        downloader = Downloader(config)
+        """Download."""
+        downloader = Downloader(test_config)
         fname = yield downloader.download(107, show)
         print "All done!", fname
         reactor.stop()

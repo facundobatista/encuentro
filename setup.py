@@ -111,5 +111,5 @@ setup(
 
     cmdclass={
         'install': CustomInstall,
-    }
+    },
 )

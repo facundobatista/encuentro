@@ -5,12 +5,10 @@
     - con ctrl-f se para en el text entry
     - f3 y ctrl-g va para adelante, shift-f3 y ctrl-G va para atrás  <-- seleccionando las filas
     - poner un text entry y un botonito a la derecha en la toolbar
-(2) poner un icono en el programita
 (2) Poner en la config un checkbox si se quiere que en restart el programa actualice contenido del server, default en False, y que si está en True cuando arranca el programa que dispare un reload en background.
 (2) Que cuando abra los diag modales, la main window quede deshabilitada
 (3) poner un menu, en función de cómo haya quedado el toolbar y eso
 (3) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
-(3) Ver si se puede sacar el tamaño total del video del header (y no la aproximación que tenemos ahora que sale del html)
 (2) distribuir:
     - hacer un release de la v0.3 (alfa)
     - actualizar pypi, el ppa, LP, y el .exe
@@ -22,4 +20,3 @@
 (2) integrar con apport
 (3) que la descarga de episodios muestre un progreso
 (2) que al cerrar y abrir quede ordenado como estaba, y viendo lo que estaba seleccionado antes
-(2) que ./test corra todo bien

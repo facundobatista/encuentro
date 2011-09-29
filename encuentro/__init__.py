@@ -20,6 +20,7 @@
 
 """The package."""
 
+
 def import_exit(package, version):
     """Show a nice explanation of which dependency to install and quit."""
     print
@@ -31,6 +32,7 @@ def import_exit(package, version):
 
 # test some packages! gtk and twisted are controlled in main.py, as they
 # import order is critical because of the reactor
+# pylint: disable=W0611
 
 try:
     import xdg
