@@ -251,6 +251,7 @@ class MainUI(object):
             'main_window', 'programs_store', 'programs_treeview', 'toolbar',
             'toolbutton_play', 'toolbutton_download', 'toolbutton_needconfig',
             'dialog_quit', 'dialog_quit_label', 'dialog_alert', 'dialog_error',
+            'rb_menu', 'rbmenu_play', 'rbmenu_cancel', 'rbmenu_download',
         )
 
         for widget in widgets:
@@ -484,13 +485,12 @@ class MainUI(object):
             return
 
         row = self.programs_store[pathlist[0]]
-        episode_number = row[4]  # 4 is the episode number
-        episode = self.programs_data[episode_number]
-        self._queue_download(row, episode)
+        self._queue_download(row)
 
     @defer.inlineCallbacks
-    def _queue_download(self, row, episode):
+    def _queue_download(self, row):
         """User indicated to download something."""
+        episode = self.programs_data[row[4]]  # 4 is the episode number
         logger.debug("Download requested of %s", episode)
         episode.update_row(row, state=Status.downloading, progress="encolado")
 
@@ -574,7 +574,7 @@ class MainUI(object):
             logger.info("Playing %r", fullpath)
             subprocess.call(["/usr/bin/xdg-open", fullpath])
         else:
-            logger.warning("Aborted playing, file not found: %r", fullpath)
+            logger.warning("Aborted playing, file not found: %r", filename)
             print "FIXME(3): file is not there!", filename
             # FIXME(3): if file is not there show an error dialog and
             # mark the node as no-state
@@ -602,23 +602,50 @@ class MainUI(object):
         episode = self.programs_data[row[4]]  # 4 is the episode number
         logger.debug("Double click in %s", episode)
         if episode.state == Status.downloaded:
-            self._play_episode(episode)
+            self._play_episode(row)
         elif episode.state == Status.none:
-            self._queue_download(row, episode)
+            self._queue_download(row)
 
     def on_programs_treeview_button_press_event(self, widget, event):
         """Support for right-button click."""
         if event.button != 3:  # right click
             return
-        print "========== cursor", widget.get_path_at_pos(int(event.x),
-                                                          int(event.y))
-        # FIXME(2): build a menu here, with the following options:
-        #   If it's already downloaded:
-        #       - Ver episodio
-        #   If it's downloading, or waiting to download:
-        #       - Cancelar descarga
-        #   If it's empty:
-        #       - Descargar
+        cursor = widget.get_path_at_pos(int(event.x), int(event.y))
+        path = cursor[0][0]
+        row = self.programs_store[path]
+        episode = self.programs_data[row[4]]  # 4 is the episode number
+        state = episode.state
+        if state == Status.downloaded:
+            self.rbmenu_play.set_sensitive(True)
+            self.rbmenu_cancel.set_sensitive(False)
+            self.rbmenu_download.set_sensitive(False)
+        elif state == Status.downloading or state == Status.waiting:
+            self.rbmenu_play.set_sensitive(False)
+            self.rbmenu_cancel.set_sensitive(True)
+            self.rbmenu_download.set_sensitive(False)
+        elif state == Status.none:
+            self.rbmenu_play.set_sensitive(False)
+            self.rbmenu_cancel.set_sensitive(False)
+            self.rbmenu_download.set_sensitive(True)
+        self.rb_menu.popup(None, None, None,
+                           event.button, event.time, data=row)
+
+    def on_rbmenu_play_activate(self, widget):
+        """Play an episode."""
+        path = self.programs_treeview.get_cursor()[0]
+        row = self.programs_store[path]
+        episode = self.programs_data[row[4]]  # 4 is the episode number
+        self._play_episode(episode)
+
+    def on_rbmenu_cancel_activate(self, widget):
+        print "rbm cancel"
+        # FIXME(1): implement download cancellation
+
+    def on_rbmenu_download_activate(self, widget):
+        """Download an episode."""
+        path = self.programs_treeview.get_cursor()[0]
+        row = self.programs_store[path]
+        self._queue_download(row)
 
     def on_programs_treeview_selection_changed(self, tree_selection):
         """Get all selected rows and adjust buttons accordingly."""
