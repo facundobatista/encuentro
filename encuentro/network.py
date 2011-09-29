@@ -152,6 +152,7 @@ class MiBrowser(Process):
             tot += CHUNK / (1024.0 ** 2)
             m = "%.1f de %d MB" % (tot, filesize)
             self.output_queue.put(m)
+        content.close()
         self.output_queue.put('done')
 
 
@@ -226,6 +227,7 @@ class Downloader(object):
         # esperamos hasta que la pag esté
         pag = (yield qinput.deferred_get())[0]
         if self.cancelled:
+            bquit.set()
             raise CancelledError()
 
         # obtenemos sección y titulo
@@ -262,6 +264,11 @@ class Downloader(object):
             # get all data and just use the last item
             data = (yield qinput.deferred_get())[-1]
             if self.cancelled:
+                logger.debug("Cancelled! Quit browser, wait, and clean.")
+                bquit.set()
+                yield qinput.deferred_get()
+                os.remove(tempf)
+                logger.debug("Cancelled! Cleaned up.")
                 raise CancelledError()
             if isinstance(data, Exception):
                 raise data

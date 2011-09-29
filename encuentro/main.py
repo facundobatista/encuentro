@@ -45,7 +45,7 @@ from twisted.internet import reactor, defer
 from twisted.web import client
 from xdg.BaseDirectory import xdg_config_home, xdg_data_home
 
-from encuentro.network import Downloader, BadCredentialsError
+from encuentro.network import Downloader, BadCredentialsError, CancelledError
 from encuentro import wizard
 
 EPISODES_URL = "http://www.taniquetil.com.ar/encuentro-v01.bz2"
@@ -504,6 +504,9 @@ class MainUI(object):
             row = self.episodes_to_download.pop(0)
             try:
                 filename, episode = yield self._episode_download(row)
+            except CancelledError:
+                logger.debug("Got a CancelledError!")
+                episode.update_row(row, state=Status.none)
             except BadCredentialsError:
                 logger.debug("Bad credentials error!")
                 self._show_download_error(self.dialog_alert)
@@ -638,8 +641,13 @@ class MainUI(object):
         self._play_episode(episode)
 
     def on_rbmenu_cancel_activate(self, widget):
-        print "rbm cancel"
-        # FIXME(1): implement download cancellation
+        logger.info("Cancelling download.")
+        path = self.programs_treeview.get_cursor()[0]
+        row = self.programs_store[path]
+        episode = self.programs_data[row[4]]  # 4 is the episode number
+        episode.update_row(row, state=Status.downloading,
+                           progress="cancelando...")
+        self.downloader.cancel()
 
     def on_rbmenu_download_activate(self, widget):
         """Download an episode."""
