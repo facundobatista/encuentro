@@ -474,24 +474,21 @@ class MainUI(object):
 
     def on_toolbutton_download_clicked(self, widget, data=None):
         """Download the episode(s)."""
-        # FIXME(2): download all the selected episodes that are in no-state (of
-        # course, of those that are selected)
         tree_selection = self.programs_treeview.get_selection()
         _, pathlist = tree_selection.get_selected_rows()
-        if len(pathlist) > 1:
-            # FIXME(3): support more than one download simultaneously (starting
-            # one and queueing the others)
-            print "ToDo: implement multiple downloads"
-            return
-
-        row = self.programs_store[pathlist[0]]
-        self._queue_download(row)
+        for path in pathlist:
+            row = self.programs_store[path]
+            self._queue_download(row)
 
     @defer.inlineCallbacks
     def _queue_download(self, row):
         """User indicated to download something."""
         episode = self.programs_data[row[4]]  # 4 is the episode number
         logger.debug("Download requested of %s", episode)
+        if episode.state != Status.none:
+            logger.debug("Download denied, episode %s is not in downloadeable "
+                         "state.", episode.nroemis)
+            return
         episode.update_row(row, state=Status.downloading, progress="encolado")
 
         self.episodes_to_download.append(row)
