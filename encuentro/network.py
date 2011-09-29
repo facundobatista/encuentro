@@ -128,6 +128,7 @@ class MiBrowser(Process):
 
         # open the url and send the content
         logger.debug("Browser opening url %s", self.url)
+        # yes, browser.open *is* callable; pylint: disable=E1102
         browser.open(self.url)
         self.output_queue.put(self._get_html(browser))
         if self.must_quit.is_set():

@@ -47,4 +47,4 @@ try:
 except ImportError:
     import_exit('python-zope.testbrowser', '3.5.1')
 
-from main import MainUI as EncuentroUI
+from encuentro.main import MainUI as EncuentroUI

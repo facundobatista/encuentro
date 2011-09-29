@@ -641,6 +641,7 @@ class MainUI(object):
         self._play_episode(episode)
 
     def on_rbmenu_cancel_activate(self, widget):
+        """Cancel current download."""
         logger.info("Cancelling download.")
         path = self.programs_treeview.get_cursor()[0]
         row = self.programs_store[path]
