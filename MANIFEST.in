@@ -1,5 +1,5 @@
 include encuentro/ui/*.glade
-include encuentro/logos/icon-32.png
+include encuentro/logos/icon-*.png
 include LEEME.txt
 include AYUDA.txt
 include README.txt

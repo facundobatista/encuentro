@@ -9,11 +9,11 @@
 (3) poner un menu, en función de cómo haya quedado el toolbar y eso
 (3) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
 (2) distribuir:
-    - hacer un release de la v0.3 (alfa)
+    - hacer un release de la v0.4 (alfa)
     - actualizar pypi, el ppa, LP, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 (3) distribuir:
-    - hacer un release de la v0.4 (beta)
+    - hacer un release de la v0.5 (beta)
     - actualizar pypi, el ppa, LP, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 (2) integrar con apport

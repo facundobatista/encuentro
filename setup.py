@@ -93,7 +93,7 @@ class CustomInstall(install):
 
 setup(
     name='encuentro',
-    version='0.2',
+    version='0.3',
     license='GPL-3',
     author='Facundo Batista',
     author_email='facundo@taniquetil.com.ar',
@@ -104,7 +104,7 @@ setup(
 
     packages=["encuentro"],
     package_data={
-        "encuentro": ["ui/*.glade", "logos/icon-32.png"],
+        "encuentro": ["ui/*.glade", "logos/icon-*.png"],
         "": ["encuentro.desktop"],
     },
     scripts=["bin/encuentro"],
