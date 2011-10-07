@@ -42,9 +42,5 @@ try:
     import mechanize
 except ImportError:
     import_exit('python-mechanize', '0.1.11')
-try:
-    import zope.testbrowser
-except ImportError:
-    import_exit('python-zope.testbrowser', '3.5.1')
 
 from encuentro.main import MainUI as EncuentroUI

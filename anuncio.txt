@@ -1,5 +1,5 @@
 
-Encuentro 0.2
+Encuentro 0.3
 
 Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro.
 
@@ -7,26 +7,22 @@ Notar que este programa no distribuye contenido de Canal Encuentro, sino que per
 
 http://encuentro.taniquetil.com.ar/imgs/title.png
 
-La versión 0.2 es una versión pre-alfa... se puede usar, descargar y ver videos, y debería funcionar todo correctamente, pero le falta mucha funcionalidad (por ejemplo, buscar).
+La versión 0.3 (todavía pre-alfa) trae los siguientes cambios con respecto a la versión anterior:
 
-- Se pueden encolar descargas de episodios, que luego irán bajando uno por uno.
+- Ahora podés poner al mismo tiempo a bajar muchos episodios (se encolan).
 
-- Visualización directa de los episodios desde el programa.
+- ¡Soportamos botón derecho! Hacé click en cualquier episodio y fijate las opciones.
 
-- Se mantiene y muestra el estado de cada episodio.
+- Las descargas ahora pueden cancelarse.
 
-- La lista e información de los episodios se descarga automáticamente del server, para un mejor arranque.
+- Menos dependencias: no más zope, y uso json de la biblioteca estándar.
 
-- Tenemos un sitio web 3.0! Pasen y vean: http://encuentro.taniquetil.com.ar/ (con botón de Donaciones y todo)
-
-- Configuración de parámetros, con un wizard para realizar más fácilmente la configuración necesaria.
-
-- Descargable como tarball (multiplataforma), con un instalador para Debian/Ubuntu, e incluso con un PPA para suscribirse.
+- También corregí algunos problemillas, y limpié un poco el código.
 
 
 La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
 
-    http://launchpad.net/encuentro/trunk/0.4/+download/enjuewemela-0.4.deb
+    http://launchpad.net/encuentro/trunk/0.3/+download/encuentro-0.3.deb
 
 Si quieren obtener automaticamente las nuevas actualizaciones, pueden suscribirse al PPA; en una linea de comandos hagan:
 
@@ -34,7 +30,7 @@ Si quieren obtener automaticamente las nuevas actualizaciones, pueden suscribirs
 
 En cualquier otro caso, pueden usar el tarball para instalarlo:
 
-    http://edge.launchpad.net/encuentro/trunk/0.2/+download/encuentro-0.2.tar.gz
+    http://launchpad.net/encuentro/trunk/0.3/+download/encuentro-0.3.tar.gz
 
 
 Recuerden revisar el archivo AYUDA.txt si tienen alguna duda de cómo usar el programa.
