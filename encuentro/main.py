@@ -54,6 +54,19 @@ BASEDIR = os.path.dirname(__file__)
 
 logger = logging.getLogger('encuentro.main')
 
+def get_download_dir():
+    """Get a the download dir for the system.
+
+    I hope this someday will be included in the xdg library :|
+    """
+    try:
+        cmd = ["xdg-user-dir", 'DOWNLOAD']
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        base = proc.communicate()[0].strip()
+    except OSError:
+        base = user.home
+    return os.path.join(base, 'encuentro')
+
 
 class Status(object):
     """Status constants."""
@@ -284,7 +297,7 @@ class MainUI(object):
 
         # we have a default for download dir
         if not self.config.get('downloaddir'):
-            self.config['downloaddir'] = os.path.join(user.home, 'encuentro')
+            self.config['downloaddir'] = get_download_dir()
 
         self.update_dialog = UpdateUI(self)
         self.preferences_dialog = PreferencesUI(self.config)
