@@ -27,6 +27,7 @@ Needed packages to run (using Debian/Ubuntu package names):
 """
 
 import os
+import shutil
 
 from distutils.command.install import install
 from distutils.core import setup
@@ -66,6 +67,11 @@ class CustomInstall(install):
         with open(dst_desktop, 'wb') as fh:
             fh.write(content)
 
+        # install apport file
+        if not os.path.exists(self._custom_apport_dir):
+            os.makedirs(self._custom_apport_dir)
+        shutil.copy("source_encuentro.py", self._custom_apport_dir)
+
     def finalize_options(self):
         """Alter the installation path."""
         install.finalize_options(self)
@@ -74,6 +80,8 @@ class CustomInstall(install):
         data_dir = os.path.join(self.prefix, "share",
                                 self.distribution.get_name())
         apps_dir = os.path.join(self.prefix, "share", "applications")
+        apport_dir = os.path.join(self.prefix, "share",
+                                  "apport", "package-hooks")
 
         # if we have 'root', put the building path also under it (used normally
         # by pbuilder)
@@ -89,6 +97,7 @@ class CustomInstall(install):
         # save this custom data dir to later change the scripts
         self._custom_data_dir = data_dir
         self._custom_apps_dir = apps_dir
+        self._custom_apport_dir = apport_dir
 
 
 setup(
@@ -105,7 +114,7 @@ setup(
     packages=["encuentro"],
     package_data={
         "encuentro": ["ui/*.glade", "logos/icon-*.png"],
-        "": ["encuentro.desktop"],
+        "": ["encuentro.desktop", "source_encuentro.py"],
     },
     scripts=["bin/encuentro"],
 

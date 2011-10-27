@@ -46,12 +46,19 @@ def exception_handler(exc_type, exc_value, tb):
     logger.error("Unhandled exception!\n%s", msg)
 
 
+def get_filename():
+    """Return the log file name."""
+    return os.path.join(xdg.BaseDirectory.xdg_cache_home,
+                        'encuentro', 'encuentro.log')
+
+
 def set_up():
     """Set up the logging."""
-    logfolder = os.path.join(xdg.BaseDirectory.xdg_cache_home, 'encuentro')
+
+    logfile = get_filename()
+    logfolder = os.path.dirname(logfile)
     if not os.path.exists(logfolder):
         os.makedirs(logfolder)
-    logfile = os.path.join(logfolder, 'encuentro.log')
 
     logger = logging.getLogger('encuentro')
     handler = CustomRotatingFH(logfile, maxBytes=1e6, backupCount=10)
