@@ -20,12 +20,14 @@
 
 
 import bz2
+import json
 import logging
 import os
 import pickle
 import subprocess
-import json
 import user
+
+from unicodedata import normalize
 
 from encuentro import import_exit
 
@@ -87,7 +89,7 @@ class EpisodeData(object):
     }
 
     def __init__(self, titulo, seccion, sinopsis, tematica, duracion, nroemis,
-                 state=None, progress=None, filename=None):
+                 state=None, progress=None, filename=None, to_filter=''):
         self.titulo = titulo
         self.seccion = seccion
         self.sinopsis = sinopsis
@@ -97,14 +99,23 @@ class EpisodeData(object):
         self.progress = progress
         self.filename = filename
         self.nroemis = nroemis
+        self.to_filter = to_filter
 
     def __str__(self):
         return "<EpisodeData [%d] (%s) %r>" % (self.nroemis,
                                                self.state, self.titulo)
 
-    def get_row_data(self):
+    def get_row_data(self, mark=None):
         """Return the data for the liststore row."""
-        data = (self.titulo, self.seccion, self.tematica,
+        if mark is None:
+            title = self.titulo
+        else:
+            pos1, length = mark
+            pos2 = pos1 + length
+            t = self.titulo
+            title = ''.join(t[:pos1] + '<span background="yellow">' +
+                            t[pos1:pos2] + '</span>' + t[pos2:])
+        data = (title, self.seccion, self.tematica,
                 self.duracion, self.nroemis, self._get_nice_state())
         return data
 
@@ -280,6 +291,13 @@ class MainUI(object):
             self.programs_data = {}
         logger.info("Episodes metadata loaded (%d)", len(self.programs_data))
 
+        # check if we need to update "to_filter"
+        one_program = self.programs_data.values()[:1]
+        if one_program:
+            if getattr(one_program[0], 'to_filter', None) is None:
+                for p in self.programs_data.itervalues():
+                    p.to_filter = self._prepare_to_filter(p.titulo)
+
         # get config from file, or defaults
         if os.path.exists(self._config_file):
             with open(self._config_file) as fh:
@@ -334,6 +352,13 @@ class MainUI(object):
     def _have_metadata(self):
         """Return if metadata is needed."""
         return bool(self.programs_data)
+
+    def _prepare_to_filter(self, text):
+        """Prepare a text to filter.
+
+        It receives unicode, but return simple lowercase ascii.
+        """
+        return normalize('NFKD', text).encode('ASCII', 'ignore').lower()
 
     def review_need_something_indicator(self):
         """Start the wizard if needed, or hide the need config button."""
@@ -396,7 +421,8 @@ class MainUI(object):
             except KeyError:
                 ed = EpisodeData(titulo=titulo, seccion=seccion,
                                  sinopsis=sinopsis, tematica=tematica,
-                                 duracion=duracion, nroemis=nroemis)
+                                 duracion=duracion, nroemis=nroemis,
+                                 to_filter=self._prepare_to_filter(titulo))
                 self.programs_data[nroemis] = ed
             else:
                 epis.titulo = titulo
@@ -409,19 +435,33 @@ class MainUI(object):
         self.refresh_treeview()
         self._save_states()
 
-    def refresh_treeview(self):
+    def refresh_treeview(self, field_filter=''):
         """Update the liststore of the programs."""
         columns = [self.programs_store.get_column_type(i)
                    for i in range(self.programs_store.get_n_columns())]
         new_liststore = gtk.ListStore(*columns)
+        len_filter = len(field_filter)
         for p in self.programs_data.itervalues():
-            new_liststore.append(p.get_row_data())
+            if field_filter:
+                # it's being filtered
+                pos = p.to_filter.find(field_filter)
+                if pos == -1:
+                    continue
+                new_liststore.append(p.get_row_data((pos, len_filter)))
+            else:
+                new_liststore.append(p.get_row_data())
         self.programs_treeview.set_model(new_liststore)
 
         # pograms_store was defined before, yes! pylint: disable=W0201
         self.programs_store = new_liststore
         # FIXME(3): que luego de actualizar reordene
         # FIXME(3): que duracion y episodio esten justified a la derecha
+
+    def on_filter_entry_changed(self, widget, data=None):
+        """Filter the rows for something."""
+        text = widget.get_text().decode('utf8')
+        text = self._prepare_to_filter(text)
+        self.refresh_treeview(text)
 
     def on_main_window_delete_event(self, widget, event):
         """Still time to decide if want to close or not."""
@@ -615,7 +655,7 @@ class MainUI(object):
         episode = self.programs_data[row[4]]  # 4 is the episode number
         logger.debug("Double click in %s", episode)
         if episode.state == Status.downloaded:
-            self._play_episode(row)
+            self._play_episode(episode)
         elif episode.state == Status.none:
             self._queue_download(row)
 

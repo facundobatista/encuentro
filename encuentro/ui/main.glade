@@ -261,7 +261,39 @@
               <object class="GtkToolItem" id="toolitem1">
                 <property name="visible">True</property>
                 <child>
-                  <placeholder/>
+                  <object class="GtkHBox" id="hbox1">
+                    <property name="visible">True</property>
+                    <property name="spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="label1">
+                        <property name="visible">True</property>
+                        <property name="tooltip_text" translatable="yes">Filtrar por título</property>
+                        <property name="xalign">0.89999997615814209</property>
+                        <property name="label" translatable="yes">Filtrar:</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="pack_type">end</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="filter_entry">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="tooltip_text" translatable="yes">Ingrese un texto para filtrar por título</property>
+                        <property name="invisible_char">●</property>
+                        <property name="width_chars">15</property>
+                        <property name="truncate_multiline">True</property>
+                        <signal name="changed" handler="on_filter_entry_changed"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="pack_type">end</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                  </object>
                 </child>
               </object>
               <packing>
@@ -312,7 +344,7 @@
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext1"/>
                       <attributes>
-                        <attribute name="text">0</attribute>
+                        <attribute name="markup">0</attribute>
                       </attributes>
                     </child>
                   </object>
