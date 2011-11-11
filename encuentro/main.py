@@ -392,6 +392,16 @@ class MainUI(object):
             for col in treeview_columns:
                 col.set_fixed_width(width)
 
+        if 'cols_order' in self.config:
+            self.programs_store.set_sort_column_id(*self.config['cols_order'])
+
+        if 'selected_row' in self.config:
+            path = self.config['selected_row']
+            self.programs_treeview.scroll_to_cell(path, use_align=True,
+                                                  row_align=.5)
+            self.programs_treeview.set_cursor(path)
+            self.programs_treeview.grab_focus()
+
     def _non_glade_setup(self):
         """Stuff I don't know how to do it in Glade."""
         tree_selection = self.programs_treeview.get_selection()
@@ -439,6 +449,8 @@ class MainUI(object):
         """Update the liststore of the programs."""
         columns = [self.programs_store.get_column_type(i)
                    for i in range(self.programs_store.get_n_columns())]
+        prv_order_col, prv_order_dir = self.programs_store.get_sort_column_id()
+
         new_liststore = gtk.ListStore(*columns)
         len_filter = len(field_filter)
         for p in self.programs_data.itervalues():
@@ -450,11 +462,13 @@ class MainUI(object):
                 new_liststore.append(p.get_row_data((pos, len_filter)))
             else:
                 new_liststore.append(p.get_row_data())
+
+        if prv_order_col is not None:
+            new_liststore.set_sort_column_id(prv_order_col, prv_order_dir)
         self.programs_treeview.set_model(new_liststore)
 
         # pograms_store was defined before, yes! pylint: disable=W0201
         self.programs_store = new_liststore
-        # FIXME(3): que luego de actualizar reordene
         # FIXME(3): que duracion y episodio esten justified a la derecha
 
     def on_filter_entry_changed(self, widget, data=None):
@@ -507,6 +521,11 @@ class MainUI(object):
         self.config['mainwin_position'] = self.main_window.get_position()
         treeview_columns = self.programs_treeview.get_columns()
         self.config['cols_width'] = [c.get_width() for c in treeview_columns]
+        self.config['cols_order'] = self.programs_store.get_sort_column_id()
+        tree_selection = self.programs_treeview.get_selection()
+        _, pathlist = tree_selection.get_selected_rows()
+        self.config['selected_row'] = pathlist[0]
+
         with open(self._config_file, 'w') as fh:
             pickle.dump(self.config, fh)
 
