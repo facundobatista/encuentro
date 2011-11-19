@@ -150,7 +150,8 @@ class EpisodeData(object):
 class PreferencesUI(object):
     """Preferences GUI."""
 
-    def __init__(self, config_data):
+    def __init__(self, main, config_data):
+        self.main = main
         self.config_data = config_data
 
         self.builder = gtk.Builder()
@@ -176,6 +177,7 @@ class PreferencesUI(object):
         if parent_pos is not None:
             x, y = parent_pos
             self.dialog.move(x + 50, y + 50)
+        self.main.main_window.set_sensitive(False)
         self.dialog.run()
 
     def on_dialog_destroy(self, widget, data=None):
@@ -186,6 +188,7 @@ class PreferencesUI(object):
         new_cfg = dict(user=usr, password=password, downloaddir=downloaddir)
         logger.info("Updating preferences config: %s", new_cfg)
         self.config_data.update(new_cfg)
+        self.main.main_window.set_sensitive(True)
         self.dialog.hide()
 
     on_dialog_response = on_dialog_close = on_dialog_destroy
@@ -220,11 +223,13 @@ class UpdateUI(object):
             x, y = parent_pos
             self.dialog.move(x + 50, y + 50)
         self._update()
+        self.main.main_window.set_sensitive(False)
         self.dialog.run()
         self.textview.get_buffer().set_text("")
 
     def on_dialog_destroy(self, widget, data=None):
         """Hide the dialog."""
+        self.main.main_window.set_sensitive(True)
         self.closed = True
         self.dialog.hide()
     on_dialog_response = on_dialog_close = on_dialog_destroy
@@ -318,7 +323,7 @@ class MainUI(object):
             self.config['downloaddir'] = get_download_dir()
 
         self.update_dialog = UpdateUI(self)
-        self.preferences_dialog = PreferencesUI(self.config)
+        self.preferences_dialog = PreferencesUI(self, self.config)
 
         self.downloader = Downloader(self.config)
         self.episodes_to_download = []
