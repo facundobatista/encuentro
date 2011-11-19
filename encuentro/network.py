@@ -129,7 +129,13 @@ class MiBrowser(Process):
         # open the url and send the content
         logger.debug("Browser opening url %s", self.url)
         # yes, browser.open *is* callable; pylint: disable=E1102
-        browser.open(self.url)
+        try:
+            browser.open(self.url)
+        except Exception, e:
+            # mechanize error can not be pickled
+            self.output_queue.put(EncuentroError(str(e)))
+            return
+
         self.output_queue.put(self._get_html(browser))
         if self.must_quit.is_set():
             return
@@ -227,6 +233,8 @@ class Downloader(object):
 
         # esperamos hasta que la pag esté
         pag = (yield qinput.deferred_get())[0]
+        if isinstance(pag, Exception):
+            raise pag
         if self.cancelled:
             bquit.set()
             raise CancelledError()
