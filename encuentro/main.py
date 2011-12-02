@@ -29,7 +29,7 @@ import user
 
 from unicodedata import normalize
 
-from encuentro import import_exit
+from encuentro import import_exit, dirs
 
 # gtk import and magic to work with twisted
 try:
@@ -45,7 +45,6 @@ gtk2reactor.install()
 
 from twisted.internet import reactor, defer
 from twisted.web import client
-from xdg.BaseDirectory import xdg_config_home, xdg_data_home
 
 from encuentro.network import Downloader, BadCredentialsError, CancelledError
 from encuentro import wizard
@@ -267,8 +266,9 @@ class UpdateUI(object):
 class MainUI(object):
     """Main GUI class."""
 
-    _data_file = os.path.join(xdg_data_home, 'encuentro.data')
-    _config_file = os.path.join(xdg_config_home, 'encuentro.conf')
+    _data_file = os.path.join(dirs.data_dir, 'encuentro.data')
+    _config_file = os.path.join(dirs.config_dir, 'encuentro.conf')
+    print "Dirs!", repr(_data_file), repr(_config_file)
 
     def __init__(self):
         self.builder = gtk.Builder()
