@@ -526,10 +526,15 @@ class MainUI(object):
         self.config['mainwin_position'] = self.main_window.get_position()
         treeview_columns = self.programs_treeview.get_columns()
         self.config['cols_width'] = [c.get_width() for c in treeview_columns]
-        self.config['cols_order'] = self.programs_store.get_sort_column_id()
+
+        cols_order = self.programs_store.get_sort_column_id()
+        if cols_order != (None, None):
+            self.config['cols_order'] = cols_order
+
         tree_selection = self.programs_treeview.get_selection()
         _, pathlist = tree_selection.get_selected_rows()
-        self.config['selected_row'] = pathlist[0]
+        if len(pathlist) > 0:
+            self.config['selected_row'] = pathlist[0]
 
         with open(self._config_file, 'w') as fh:
             pickle.dump(self.config, fh)
