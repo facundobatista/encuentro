@@ -20,27 +20,52 @@
 
 """The package."""
 
+import sys
 
-def import_exit(package, version):
-    """Show a nice explanation of which dependency to install and quit."""
-    print
-    print u"¡Falta instalar una dependencia!"
-    print u"Necesitás tener instalado el paquete %r" % (package,)
-    print u"(de la versión %s en adelante funciona seguro)" % (version,)
-    print
-    exit()
+IMPORT_MSG = u"""
+ERROR! Problema al importar %(module)r
+
+Probablemente falte instalar una dependencia.  Se necesita tener instalado
+el paquete %(package)r versión %(version)s o superior.
+"""
+
+class NiceImporter(object):
+    """Show nicely successful and errored imports."""
+    def __init__(self, module, package, version):
+        self.module = module
+        self.package = package
+        self.version = version
+
+    def __enter__(self):
+        pass
+
+    def _get_version(self):
+        """Get the version of a module."""
+        mod = sys.modules[self.module]
+        for attr in ('version', '__version__', 'ver'):
+            v = getattr(mod, attr, None)
+            if v is not None:
+                return v
+        return "<desconocida>"
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_type is None:
+            version = self._get_version()
+            print "Modulo %r importado ok, version %r" % (self.module, version)
+        else:
+            print IMPORT_MSG % dict(module=self.module, package=self.package,
+                                    version=self.version)
+
 
 # test some packages! gtk and twisted are controlled in main.py, as they
 # import order is critical because of the reactor
 # pylint: disable=W0611
 
-try:
+with NiceImporter('xdg', 'python-xdg', '0.15'):
     import xdg
-except ImportError:
-    import_exit('python-xdg', '0.15')
-try:
+with NiceImporter('mechanize', 'python-mechanize', '0.1.11'):
     import mechanize
-except ImportError:
-    import_exit('python-mechanize', '0.1.11')
+
+
 
 from encuentro.main import MainUI as EncuentroUI

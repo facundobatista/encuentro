@@ -29,18 +29,13 @@ import user
 
 from unicodedata import normalize
 
-from encuentro import import_exit
+from encuentro import NiceImporter
 
 # gtk import and magic to work with twisted
-try:
+with NiceImporter('gtk', 'python-gtk2', '2.16.0'):
     import gtk
-except ImportError:
-    import_exit('python-gtk2', '2.16.0')
-
-try:
+with NiceImporter('twisted', 'python-twisted-bin', '8.2.0'):
     from twisted.internet import gtk2reactor
-except ImportError:
-    import_exit('python-twisted-bin', '8.2.0')
 gtk2reactor.install()
 
 from twisted.internet import reactor, defer
