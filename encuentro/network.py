@@ -21,17 +21,26 @@
 import logging
 import os
 import re
+import sys
 import time
 import uuid
 
-from multiprocessing import Process, Event
-from multiprocessing.queues import Queue
-from Queue import Empty
+if sys.platform == 'win32':
+    # multiprocessing path mangling is not useful for how we are
+    # installing Encuentro, so let's use threading
+    from threading import Thread as Process, Event
+    from Queue import Queue, Empty
+else:
+    from multiprocessing import Process, Event
+    from multiprocessing.queues import Queue
+    from Queue import Empty
 
 from mechanize import Browser
 from mechanize._mechanize import LinkNotFoundError
 
 from twisted.internet import defer, reactor
+
+from encuentro import platform
 
 URL = "http://descargas.encuentro.gov.ar/emision.php?emision_id=%d"
 SERVER = "descargas.encuentro.gov.ar"
@@ -251,8 +260,10 @@ class Downloader(object):
         else:
             titulo = str(uuid.uuid4())
             logger.warning("Couldn't get title/section! fake: %s", titulo)
-            seccion = "Desconocido"
+            seccion = u"Desconocido"
         downloaddir = self.config.get('downloaddir', '')
+        seccion = platform.sanitize(seccion)
+        titulo = platform.sanitize(titulo)
         fname = os.path.join(downloaddir, seccion, titulo + u".avi")
 
         # ver si esa seccion existe, sino crearla

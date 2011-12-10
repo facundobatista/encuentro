@@ -16,8 +16,9 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-"""Multiplatform directory finder."""
+"""Multiplatform code."""
 
+import re
 import sys
 
 if sys.platform == 'win32':
@@ -32,4 +33,10 @@ else:
     del BaseDirectory
 
 
-
+def sanitize(name):
+    """Sanitize the name according to the OS."""
+    if sys.platform == 'win32':
+        sanit = re.sub(u'[<>:"/|?*]', '', name)
+    else:
+        sanit = re.sub(u'/', '', name)
+    return sanit

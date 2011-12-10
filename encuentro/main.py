@@ -29,7 +29,7 @@ import user
 
 from unicodedata import normalize
 
-from encuentro import import_exit, dirs
+from encuentro import import_exit, platform
 
 # gtk import and magic to work with twisted
 try:
@@ -266,9 +266,10 @@ class UpdateUI(object):
 class MainUI(object):
     """Main GUI class."""
 
-    _data_file = os.path.join(dirs.data_dir, 'encuentro.data')
-    _config_file = os.path.join(dirs.config_dir, 'encuentro.conf')
-    print "Dirs!", repr(_data_file), repr(_config_file)
+    _data_file = os.path.join(platform.data_dir, 'encuentro.data')
+    _config_file = os.path.join(platform.config_dir, 'encuentro.conf')
+    print "Using data file:", repr(_data_file),
+    print "Using configuration file:", repr(_config_file)
 
     def __init__(self):
         self.builder = gtk.Builder()
@@ -604,6 +605,16 @@ class MainUI(object):
 
     def _show_download_error(self, dialog, text=None):
         """Show different download errors."""
+        # error text can be produced by windows, try to to sanitize it
+        if isinstance(text, str):
+            try:
+                text = text.decode("utf8")
+            except UnicodeDecodeError:
+                try:
+                    text = text.decode("latin1")
+                except UnicodeDecodeError:
+                    text = repr(text)
+
         if text is not None:
             l = dialog.children()[0].children()[0].children()[1].children()[0]
             l.set_text(text)
