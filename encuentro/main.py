@@ -29,18 +29,13 @@ import user
 
 from unicodedata import normalize
 
-from encuentro import import_exit, platform
+from encuentro import NiceImporter, platform
 
 # gtk import and magic to work with twisted
-try:
+with NiceImporter('gtk', 'python-gtk2', '2.16.0'):
     import gtk
-except ImportError:
-    import_exit('python-gtk2', '2.16.0')
-
-try:
+with NiceImporter('twisted', 'python-twisted-bin', '8.2.0'):
     from twisted.internet import gtk2reactor
-except ImportError:
-    import_exit('python-twisted-bin', '8.2.0')
 gtk2reactor.install()
 
 from twisted.internet import reactor, defer
@@ -268,7 +263,7 @@ class MainUI(object):
 
     _data_file = os.path.join(platform.data_dir, 'encuentro.data')
     _config_file = os.path.join(platform.config_dir, 'encuentro.conf')
-    print "Using data file:", repr(_data_file),
+    print "Using data file:", repr(_data_file)
     print "Using configuration file:", repr(_config_file)
 
     def __init__(self):
