@@ -38,9 +38,10 @@ else:
 from mechanize import Browser
 from mechanize._mechanize import LinkNotFoundError
 
-from twisted.internet import defer, reactor
-
+# this must go before the reactor import
 from encuentro import platform
+
+from twisted.internet import defer, reactor
 
 URL = "http://descargas.encuentro.gov.ar/emision.php?emision_id=%d"
 SERVER = "descargas.encuentro.gov.ar"
