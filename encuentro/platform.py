@@ -18,8 +18,11 @@
 
 """Multiplatform code."""
 
+import os
 import re
+import subprocess
 import sys
+import user
 
 if sys.platform == 'win32':
     from win32com.shell import shell, shellcon
@@ -40,3 +43,20 @@ def sanitize(name):
     else:
         sanit = re.sub(u'/', '', name)
     return sanit
+
+
+def get_download_dir():
+    """Get a the download dir for the system.
+
+    I hope this someday will be included in the xdg library :|
+    """
+    try:
+        cmd = ["xdg-user-dir", 'DOWNLOAD']
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        base = proc.communicate()[0].strip()
+    except OSError:
+        base = user.home
+    return os.path.join(base, 'encuentro')
+
+
+
