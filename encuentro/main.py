@@ -48,6 +48,19 @@ BASEDIR = os.path.dirname(__file__)
 
 logger = logging.getLogger('encuentro.main')
 
+_normalize_cache = {}
+
+def search_normalizer(char):
+    """Normalize always to one char length."""
+    try:
+        return _normalize_cache[char]
+    except KeyError:
+        norm = normalize('NFKD', char).encode('ASCII', 'ignore').lower()
+        if not norm:
+            norm = '?'
+        _normalize_cache[char] = norm
+        return norm
+
 
 class Status(object):
     """Status constants."""
@@ -344,7 +357,7 @@ class MainUI(object):
 
         It receives unicode, but return simple lowercase ascii.
         """
-        return normalize('NFKD', text).encode('ASCII', 'ignore').lower()
+        return ''.join(search_normalizer(c) for c in text)
 
     def review_need_something_indicator(self):
         """Start the wizard if needed, or hide the need config button."""

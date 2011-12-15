@@ -65,4 +65,3 @@ def open_file(fullpath):
         os.startfile(fullpath)
     else:
         subprocess.call(["/usr/bin/xdg-open", fullpath])
-
