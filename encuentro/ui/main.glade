@@ -4,7 +4,7 @@
   <!-- interface-naming-policy project-wide -->
   <object class="GtkMessageDialog" id="dialog_alert">
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">Incorrect credentials!</property>
+    <property name="title" translatable="yes">Aviso</property>
     <property name="modal">True</property>
     <property name="window_position">center</property>
     <property name="type_hint">dialog</property>

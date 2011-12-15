@@ -365,10 +365,14 @@ class MainUI(object):
             # config needed, put the alert if not there
             if not self.toolbutton_needconfig.get_property("visible"):
                 self.toolbutton_needconfig.show()
+            # also turn off the download button
+            self.toolbutton_download.set_sensitive(False)
         else:
             # no config needed, remove the alert if there
             if self.toolbutton_needconfig.get_property("visible"):
                 self.toolbutton_needconfig.hide()
+            # also turn on the download button
+            self.toolbutton_download.set_sensitive(True)
 
     def on_toolbutton_needconfig_clicked(self, widget, data=None):
         """The 'need config' toolbar button was clicked, open the wizard."""
@@ -582,11 +586,11 @@ class MainUI(object):
                 episode.update_row(row, state=Status.none)
             except BadCredentialsError:
                 logger.debug("Bad credentials error!")
-                self._show_download_error(self.dialog_alert)
+                self._show_message(self.dialog_alert)
                 episode.update_row(row, state=Status.none)
             except Exception, e:
                 logger.debug("Unknown download error: %s", e)
-                self._show_download_error(self.dialog_error, str(e))
+                self._show_message(self.dialog_error, str(e))
                 episode.update_row(row, state=Status.none)
             else:
                 logger.debug("Episode downloaded: %s", episode)
@@ -596,7 +600,7 @@ class MainUI(object):
         self._downloading = False
         logger.debug("Downloads: finished")
 
-    def _show_download_error(self, dialog, text=None):
+    def _show_message(self, dialog, text=None):
         """Show different download errors."""
         # error text can be produced by windows, try to to sanitize it
         if isinstance(text, str):
@@ -690,7 +694,13 @@ class MainUI(object):
         if episode.state == Status.downloaded:
             self._play_episode(episode)
         elif episode.state == Status.none:
-            self._queue_download(row)
+            if self._have_config():
+                self._queue_download(row)
+            else:
+                logger.debug("Not starting download because no config.")
+                t = (u"No se puede arrancar una descarga porque la "
+                     u"configuración está incompleta.")
+                self._show_message(self.dialog_alert, t)
 
     def on_programs_treeview_button_press_event(self, widget, event):
         """Support for right-button click."""
@@ -747,6 +757,8 @@ class MainUI(object):
         """Set both buttons state according to the selected episodes."""
         if tree_selection is None:
             tree_selection = self.programs_treeview.get_selection()
+            if tree_selection is None:
+                return
         _, pathlist = tree_selection.get_selected_rows()
 
         # 'play' button should be enabled if only one row is selected and
@@ -760,14 +772,15 @@ class MainUI(object):
         self.toolbutton_play.set_sensitive(play_enabled)
 
         # 'download' button should be enabled if at least one of the selected
-        # rows is in 'none' state
+        # rows is in 'none' state, and if config is ok
         download_enabled = False
-        for path in pathlist:
-            row = self.programs_store[path]
-            episode = self.programs_data[row[4]]  # 4 is the episode number
-            if episode.state == Status.none:
-                download_enabled = True
-                break
+        if self._have_config():
+            for path in pathlist:
+                row = self.programs_store[path]
+                episode = self.programs_data[row[4]]  # 4 is the episode number
+                if episode.state == Status.none:
+                    download_enabled = True
+                    break
         self.toolbutton_download.set_sensitive(download_enabled)
 
 
