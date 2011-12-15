@@ -59,4 +59,10 @@ def get_download_dir():
     return os.path.join(base, 'encuentro')
 
 
+def open_file(fullpath):
+    """Open the file."""
+    if sys.platform == 'win32':
+        os.startfile(fullpath)
+    else:
+        subprocess.call(["/usr/bin/xdg-open", fullpath])
 

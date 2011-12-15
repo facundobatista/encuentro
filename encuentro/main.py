@@ -24,7 +24,6 @@ import json
 import logging
 import os
 import pickle
-import subprocess
 
 from unicodedata import normalize
 
@@ -646,7 +645,7 @@ class MainUI(object):
             # pass file:// url with absolute path
             fullpath = 'file://' + os.path.abspath(filename)
             logger.info("Playing %r", fullpath)
-            subprocess.call(["/usr/bin/xdg-open", fullpath])
+            platform.open_file(fullpath)
         else:
             logger.warning("Aborted playing, file not found: %r", filename)
             print "FIXME(3): file is not there!", filename

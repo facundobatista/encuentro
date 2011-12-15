@@ -1,7 +1,6 @@
 (3) Poner en la config un checkbox si se quiere que en restart el programa actualice contenido del server, default en False, y que si está en True cuando arranca el programa que dispare un reload en background.
 (3) poner un menu, en función de cómo haya quedado el toolbar y eso
 (3) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
-(2) que se puedan ver los videos en windows
 (2) bug al buscar "fer"
 (2) distribuir:
     - ATENCION: probar que la instalacion de apport funque ok
