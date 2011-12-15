@@ -7,3 +7,4 @@ include COPYING
 include AUTHORS
 include encuentro.desktop
 include source_encuentro.py 
+include version.txt
