@@ -1,6 +1,6 @@
 #!/usr/bin/python
-
 # -*- coding: utf-8 -*-
+
 #
 # Copyright 2011 Facundo Batista
 #
@@ -36,7 +36,10 @@ else:
 # first of all, show the versions
 print "Running Python %s on %r" % (sys.version_info, sys.platform)
 version_file = os.path.join(project_basedir, 'version.txt')
-print "Encuentro: v. %s" % (open(version_file).read().strip(),)
+if os.path.exists(version_file):
+    print "Encuentro: v. %s" % (open(version_file).read().strip(),)
+else:
+    print u"Encuentro: sin info de versión, ¿seguro está bien instalado?"
 
 if project_basedir not in sys.path:
     sys.path.insert(0, project_basedir)
