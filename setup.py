@@ -72,6 +72,9 @@ class CustomInstall(install):
             os.makedirs(self._custom_apport_dir)
         shutil.copy("source_encuentro.py", self._custom_apport_dir)
 
+        # version file
+        shutil.copy("version.txt", self.install_lib)
+
     def finalize_options(self):
         """Alter the installation path."""
         install.finalize_options(self)
@@ -90,6 +93,7 @@ class CustomInstall(install):
         else:
             build_dir = os.path.join(self.root, data_dir[1:])
             apps_dir = os.path.join(self.root, apps_dir[1:])
+            apport_dir = os.path.join(self.root, apport_dir[1:])
 
         # change the lib install directory so all package files go inside here
         self.install_lib = build_dir
