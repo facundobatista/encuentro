@@ -2,16 +2,9 @@
 (3) poner un menu, en función de cómo haya quedado el toolbar y eso
 (3) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
 (3) poner hovering en los iconos de la toolbar, indicando especialmente por qué están deshabilitados
-(2) distribuir:
-    - ATENCION: probar que la instalacion de apport funque ok
-    - ATENCION: ver que las distintas formas de distribuir incluyan y lean bien
-                el version.txt file
-    - hacer un release de la v0.4 (alfa)
-    - actualizar el ppa, LP, y el .exe
-    - avisar en pyar, otro post en el blog, tweet
 (3) distribuir:
     - hacer un release de la v0.5 (beta)
-    - actualizar pypi, el ppa, LP, y el .exe
+    - actualizar pypi, el ppa, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 (3) que la descarga de episodios muestre un progreso
 (3) que se minimice al systray

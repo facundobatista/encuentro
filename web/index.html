@@ -41,19 +41,31 @@
   </div>
 
   <div class="section" id="section-gametypes">
-   <h2>Descargar</h2>
+   <h2>Instalar</h2>
 
    <ul class="download-list">
-    <li><a href="http://launchpad.net/encuentro/trunk/0.3.1/+download/encuentro-0.3.1.deb">Instalador (.deb) para Debian/Ubuntu</a></li>
-    <li><a href="http://launchpad.net/encuentro/trunk/0.3.1/+download/encuentro-0.3.1.tar.gz">Tarball multiplatforma</a></li>
-   </ul>
+    <li>Para Debian/Ubuntu usá <a href="http://launchpad.net/encuentro/trunk/0.4/+download/encuentro-0.4.deb">el instalador (.deb)</a></li>
+    <li>En Windows, usá <a href="http://launchpad.net/encuentro/trunk/0.4/+download/encuentro-0.4.exe">el instalador (.exe)</a></li>
+    <li>Podés descargar el <a href="http://launchpad.net/encuentro/trunk/0.4/+download/encuentro-0.4.tar.gz">tarball multiplatforma</a> e instalarlo a la manera antigua.</li>
 
-   Para estar <b>automáticamente actualizado</b> en Debian/Ubuntu instalar el PPA, abra una linea de comandos y haga: <br/>
+    <li>Para instalarlo en Arch, directamente hacé:
+<pre>
+    sudo yaourt -S encuentro
+</pre>
+
+    <li>Para estar <b>automáticamente actualizado</b> en Debian/Ubuntu hay que instalar el PPA, abrí una linea de comandos y hacé:</li>
 <pre>
     sudo add-apt-repository ppa:facundo/encuentro
     sudo apt-get update
     sudo apt-get install encuentro
 </pre>
+
+    <li>También se puede instalar directamente desde PyPI (no sé cómo se maneja el tema de las dependencias, acá):
+<pre>
+    sudo easy_install encuentro
+</pre>
+
+   </ul>
   </div>
 
   </div>
@@ -82,7 +94,18 @@
   <div class="section" id="section-devs">
    <h2>Historial</h2>
 
-   La versión actual es la 0.3 (todavía pre-alfa), los cambios para esta versión son:
+   La versión actual es la 0.4 (alfa), los cambios para esta versión son:
+   
+   <ul>
+     <li>Ahora se puede filtrar todos los programas para encontrarlos más fácil.</li>
+     <li>¡Tenemos una versión para Windows! (gracias Javier Andalia)</li>
+     <li>¡Tenemos un instalador para Arch Linux! (gracias Diego Mascialino)</li>
+     <li>Mostramos versiones de todas las bibliotecas usadas al arrancar.</li>
+     <li>Mejor info de error si no se encuentra alguna biblioteca.</li>
+     <li>Correcciones pequeñas, y más control de errores...</li>
+   </ul>
+
+   Cambios para la versión 0.3:
    
    <ul>
      <li>Ahora podés poner al mismo tiempo a bajar muchos episodios (se encolan).</li>
@@ -107,7 +130,7 @@
  </div>
 
  <div id="footer">
-  <p>Copyright 2011 - Facundo Batista</p>
+  <p>Copyright 2011-2012 - Facundo Batista</p>
   <p>Asesor de estilo: Mariano Guerra</p>
  </div>
 </div>
