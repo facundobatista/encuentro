@@ -159,7 +159,7 @@ class MiBrowser(Process):
             self.output_queue.put(e)
             return
 
-        aout = open(fname, "w")
+        aout = open(fname, "wb")
         tot = 0
         while not self.must_quit.is_set():
             r = content.read(CHUNK)
