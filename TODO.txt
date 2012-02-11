@@ -8,5 +8,9 @@
     - avisar en pyar, otro post en el blog, tweet
 (3) que la descarga de episodios muestre un progreso
 (3) que se minimice al systray
+    bug: 897738
+(3) que notifique las descargas terminadas (si está configurado para que lo haga)
+    bug: 897738
 (3) En main.py:608: DeprecationWarning: use GtkContainer.get_children
     l = dialog.children()[0].children()[0].children()[1].children()[0]
+(3) que las busquedas sean tambien por sección
