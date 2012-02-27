@@ -602,6 +602,8 @@ class MainUI(object):
 
     def _show_message(self, dialog, text=None):
         """Show different download errors."""
+        logger.debug("Showing a message: %r (%s)", text, dialog)
+
         # error text can be produced by windows, try to to sanitize it
         if isinstance(text, str):
             try:
@@ -615,7 +617,6 @@ class MainUI(object):
         if text is not None:
             l = dialog.children()[0].children()[0].children()[1].children()[0]
             l.set_text(text)
-        logger.debug("Handling a download error: %s", dialog)
         configure = dialog.run()
         dialog.hide()
         if configure == 1:
@@ -648,12 +649,12 @@ class MainUI(object):
             return
 
         row = self.programs_store[pathlist[0]]
+        self._play_episode(row)
+
+    def _play_episode(self, row):
+        """Play an episode."""
         episode_number = row[4]  # 4 is the episode number
         episode = self.programs_data[episode_number]
-        self._play_episode(episode)
-
-    def _play_episode(self, episode):
-        """Play an episode."""
         downloaddir = self.config.get('downloaddir', '')
         filename = os.path.join(downloaddir, episode.filename)
 
@@ -665,9 +666,10 @@ class MainUI(object):
             platform.open_file(fullpath)
         else:
             logger.warning("Aborted playing, file not found: %r", filename)
-            print "FIXME(3): file is not there!", filename
-            # FIXME(3): if file is not there show an error dialog and
-            # mark the node as no-state
+            msg = u"No se encontró el archivo para reproducir: " + repr(
+                                                                    filename)
+            self._show_message(self.dialog_error, msg)
+            episode.update_row(row, state=Status.none)
 
     def on_any_treeviewcolumn_clicked(self, widget, data=None):
         """Clicked on the column title.
@@ -692,7 +694,7 @@ class MainUI(object):
         episode = self.programs_data[row[4]]  # 4 is the episode number
         logger.debug("Double click in %s", episode)
         if episode.state == Status.downloaded:
-            self._play_episode(episode)
+            self._play_episode(row)
         elif episode.state == Status.none:
             if self._have_config():
                 self._queue_download(row)
@@ -730,8 +732,7 @@ class MainUI(object):
         """Play an episode."""
         path = self.programs_treeview.get_cursor()[0]
         row = self.programs_store[path]
-        episode = self.programs_data[row[4]]  # 4 is the episode number
-        self._play_episode(episode)
+        self._play_episode(row)
 
     def on_rbmenu_cancel_activate(self, widget):
         """Cancel current download."""
