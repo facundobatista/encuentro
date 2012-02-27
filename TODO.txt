@@ -14,3 +14,4 @@
 (3) En main.py:608: DeprecationWarning: use GtkContainer.get_children
     l = dialog.children()[0].children()[0].children()[1].children()[0]
 (3) que las busquedas sean tambien por sección
+(4) que Duración y Episodio estén alineados a la derecha

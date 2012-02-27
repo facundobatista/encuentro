@@ -473,7 +473,6 @@ class MainUI(object):
 
         # pograms_store was defined before, yes! pylint: disable=W0201
         self.programs_store = new_liststore
-        # FIXME(3): que duracion y episodio esten justified a la derecha
 
     def on_filter_entry_changed(self, widget, data=None):
         """Filter the rows for something."""
