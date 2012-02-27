@@ -1,17 +1,27 @@
 (3) Poner en la config un checkbox si se quiere que en restart el programa actualice contenido del server, default en False, y que si está en True cuando arranca el programa que dispare un reload en background.
-(3) poner un menu, en función de cómo haya quedado el toolbar y eso
-(3) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
-(3) poner hovering en los iconos de la toolbar, indicando especialmente por qué están deshabilitados
+(3) En main.py:608: DeprecationWarning: use GtkContainer.get_children
+    l = dialog.children()[0].children()[0].children()[1].children()[0]
+(3) que las busquedas sean tambien por sección
 (3) distribuir:
     - hacer un release de la v0.5 (beta)
     - actualizar pypi, el ppa, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
-(3) que la descarga de episodios muestre un progreso
-(3) que se minimice al systray
+
+(4) poner un menu, en función de cómo haya quedado el toolbar y eso
+(4) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
+(4) poner hovering en los iconos de la toolbar, indicando especialmente por qué están deshabilitados
+(4) que se minimice al systray
     bug: 897738
-(3) que notifique las descargas terminadas (si está configurado para que lo haga)
+(4) distribuir:
+    - hacer un release de la v0.6 (beta)
+    - actualizar pypi, el ppa, LP, arch, y el .exe
+    - avisar en pyar, otro post en el blog, tweet
+
+(5) que notifique las descargas terminadas (si está configurado para que lo haga)
     bug: 897738
-(3) En main.py:608: DeprecationWarning: use GtkContainer.get_children
-    l = dialog.children()[0].children()[0].children()[1].children()[0]
-(3) que las busquedas sean tambien por sección
-(4) que Duración y Episodio estén alineados a la derecha
+(5) que la descarga de episodios muestre un progreso
+(5) que Duración y Episodio estén alineados a la derecha
+(5) distribuir:
+    - hacer un release de la v1.0
+    - actualizar pypi, el ppa, LP, arch, y el .exe
+    - avisar en pyar, otro post en el blog, tweet
