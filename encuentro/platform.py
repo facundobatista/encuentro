@@ -25,6 +25,7 @@ import sys
 import user
 
 if sys.platform == 'win32':
+    # won't find this in linux; pylint: disable=F0401
     from win32com.shell import shell, shellcon
     config_dir = shell.SHGetFolderPath(0, shellcon.CSIDL_PROFILE, None, 0)
     data_dir = shell.SHGetFolderPath(0, shellcon.CSIDL_LOCAL_APPDATA, None, 0)

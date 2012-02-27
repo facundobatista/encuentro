@@ -77,6 +77,7 @@ class CancelledError(Exception):
 class MiBrowser(Process):
     """Browser en otro proceso."""
 
+    # we *are* calling parent's init; pylint: disable=W0231
     def __init__(self, authuser, authpass, url,
                  input_queue, output_queue, must_quit):
         self.authinfo = authuser, authpass

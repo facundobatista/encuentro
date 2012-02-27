@@ -50,6 +50,7 @@ logger = logging.getLogger('encuentro.main')
 
 _normalize_cache = {}
 
+
 def search_normalizer(char):
     """Normalize always to one char length."""
     try:

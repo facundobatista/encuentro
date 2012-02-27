@@ -29,6 +29,7 @@ Probablemente falte instalar una dependencia.  Se necesita tener instalado
 el paquete %(package)r versión %(version)s o superior.
 """
 
+
 class NiceImporter(object):
     """Show nicely successful and errored imports."""
     def __init__(self, module, package, version):
@@ -65,7 +66,6 @@ with NiceImporter('xdg', 'python-xdg', '0.15'):
     import xdg
 with NiceImporter('mechanize', 'python-mechanize', '0.1.11'):
     import mechanize
-
 
 
 from encuentro.main import MainUI as EncuentroUI
