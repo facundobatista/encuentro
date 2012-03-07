@@ -98,17 +98,32 @@ class EpisodeData(object):
         return "<EpisodeData [%d] (%s) %r>" % (self.nroemis,
                                                self.state, self.titulo)
 
-    def get_row_data(self, mark=None):
+    def _filter(self, attrib, field_filter):
+        """Check if filter is ok and highligh the attribute."""
+        pos1 = attrib.find(field_filter)
+        if pos1 == -1:
+            return False, attrib
+
+        pos2 = pos1 + len(field_filter)
+        t = attrib
+        result = ''.join(t[:pos1] + '<span background="yellow">' +
+                         t[pos1:pos2] + '</span>' + t[pos2:])
+        return True, result
+
+    def get_row_data(self, field_filter):
         """Return the data for the liststore row."""
-        if mark is None:
+        if field_filter == '':
             title = self.titulo
+            seccion = self.seccion
         else:
-            pos1, length = mark
-            pos2 = pos1 + length
-            t = self.titulo
-            title = ''.join(t[:pos1] + '<span background="yellow">' +
-                            t[pos1:pos2] + '</span>' + t[pos2:])
-        data = (title, self.seccion, self.tematica,
+            # it's being filtered
+            found_titulo, title = self._filter(self.titulo, field_filter)
+            found_seccion, seccion = self._filter(self.seccion, field_filter)
+            if not found_titulo and not found_seccion:
+                # not matched any of both, don't show the row
+                return
+
+        data = (title, seccion, self.tematica,
                 self.duracion, self.nroemis, self._get_nice_state())
         return data
 
@@ -294,9 +309,12 @@ class MainUI(object):
         # check if we need to update "to_filter"
         one_program = self.programs_data.values()[:1]
         if one_program:
-            if getattr(one_program[0], 'to_filter', None) is None:
+            old_to_filter = getattr(one_program[0], 'to_filter', None)
+            if old_to_filter is None or isinstance(old_to_filter, basestring):
                 for p in self.programs_data.itervalues():
-                    p.to_filter = self._prepare_to_filter(p.titulo)
+                    p.to_filter = dict(
+                                    titulo=self._prepare_to_filter(p.titulo),
+                                    seccion=self._prepare_to_filter(p.seccion))
 
         # get config from file, or defaults
         if os.path.exists(self._config_file):
@@ -456,16 +474,10 @@ class MainUI(object):
         prv_order_col, prv_order_dir = self.programs_store.get_sort_column_id()
 
         new_liststore = gtk.ListStore(*columns)
-        len_filter = len(field_filter)
         for p in self.programs_data.itervalues():
-            if field_filter:
-                # it's being filtered
-                pos = p.to_filter.find(field_filter)
-                if pos == -1:
-                    continue
-                new_liststore.append(p.get_row_data((pos, len_filter)))
-            else:
-                new_liststore.append(p.get_row_data())
+            data = p.get_row_data(field_filter)
+            if data is not None:
+                new_liststore.append(data)
 
         if prv_order_col is not None:
             new_liststore.set_sort_column_id(prv_order_col, prv_order_dir)
