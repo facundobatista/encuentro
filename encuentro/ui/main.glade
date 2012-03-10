@@ -387,10 +387,13 @@
                     <property name="sizing">fixed</property>
                     <property name="title">Duración</property>
                     <property name="clickable">True</property>
+                    <property name="alignment">1</property>
                     <property name="sort_column_id">3</property>
                     <signal name="clicked" handler="on_any_treeviewcolumn_clicked"/>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext5"/>
+                      <object class="GtkCellRendererText" id="cellrenderertext5">
+                        <property name="xalign">1</property>
+                      </object>
                       <attributes>
                         <attribute name="text">3</attribute>
                       </attributes>
@@ -403,10 +406,13 @@
                     <property name="sizing">fixed</property>
                     <property name="title">Episodio</property>
                     <property name="clickable">True</property>
+                    <property name="alignment">1</property>
                     <property name="sort_column_id">4</property>
                     <signal name="clicked" handler="on_any_treeviewcolumn_clicked"/>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext3"/>
+                      <object class="GtkCellRendererText" id="cellrenderertext3">
+                        <property name="xalign">1</property>
+                      </object>
                       <attributes>
                         <attribute name="text">4</attribute>
                       </attributes>

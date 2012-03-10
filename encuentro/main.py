@@ -298,6 +298,16 @@ class MainUI(object):
             assert obj is not None, '%s must not be None' % widget
             setattr(self, widget, obj)
 
+        # stupid glade! it does not let me put the cell renderer
+        # aligned to the right
+        columns = self.programs_treeview.get_columns()
+        for col_number in (3, 4):
+            column = columns[col_number]
+            cell_renderer = column.get_cell_renderers()[0]
+            column.clear()
+            column.pack_end(cell_renderer, expand=True)
+            column.add_attribute(cell_renderer, "text", col_number)
+
         # get data from file, or empty
         if os.path.exists(self._data_file):
             with open(self._data_file) as fh:

@@ -19,7 +19,6 @@
 (5) que notifique las descargas terminadas (si está configurado para que lo haga)
     bug: 897738
 (5) que la descarga de episodios muestre un progreso
-(5) que Duración y Episodio estén alineados a la derecha
 (5) distribuir:
     - hacer un release de la v1.0
     - actualizar pypi, el ppa, LP, arch, y el .exe
