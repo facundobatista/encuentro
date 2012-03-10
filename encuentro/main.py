@@ -51,6 +51,13 @@ logger = logging.getLogger('encuentro.main')
 _normalize_cache = {}
 
 
+def prepare_to_filter(text):
+    """Prepare a text to filter.
+
+    It receives unicode, but return simple lowercase ascii.
+    """
+    return ''.join(search_normalizer(c) for c in text)
+
 def search_normalizer(char):
     """Normalize always to one char length."""
     try:
@@ -82,7 +89,7 @@ class EpisodeData(object):
     }
 
     def __init__(self, titulo, seccion, sinopsis, tematica, duracion, nroemis,
-                 state=None, progress=None, filename=None, to_filter=''):
+                 state=None, progress=None, filename=None):
         self.titulo = titulo
         self.seccion = seccion
         self.sinopsis = sinopsis
@@ -92,20 +99,29 @@ class EpisodeData(object):
         self.progress = progress
         self.filename = filename
         self.nroemis = nroemis
-        self.to_filter = to_filter
+        self.to_filter = None
+        self.set_filter()
+
+    def set_filter(self):
+        """Set the data to filter later."""
+        self.to_filter = dict(
+            titulo=prepare_to_filter(self.titulo),
+            seccion=prepare_to_filter(self.seccion),
+        )
 
     def __str__(self):
         return "<EpisodeData [%d] (%s) %r>" % (self.nroemis,
                                                self.state, self.titulo)
 
-    def _filter(self, attrib, field_filter):
+    def _filter(self, attrib_name, field_filter):
         """Check if filter is ok and highligh the attribute."""
-        pos1 = attrib.find(field_filter)
+        attrib_to_search = self.to_filter[attrib_name]
+        t = attrib_real = getattr(self, attrib_name)
+        pos1 = attrib_to_search.find(field_filter)
         if pos1 == -1:
-            return False, attrib
+            return False, attrib_real
 
         pos2 = pos1 + len(field_filter)
-        t = attrib
         result = ''.join(t[:pos1] + '<span background="yellow">' +
                          t[pos1:pos2] + '</span>' + t[pos2:])
         return True, result
@@ -117,8 +133,8 @@ class EpisodeData(object):
             seccion = self.seccion
         else:
             # it's being filtered
-            found_titulo, title = self._filter(self.titulo, field_filter)
-            found_seccion, seccion = self._filter(self.seccion, field_filter)
+            found_titulo, title = self._filter('titulo', field_filter)
+            found_seccion, seccion = self._filter('seccion', field_filter)
             if not found_titulo and not found_seccion:
                 # not matched any of both, don't show the row
                 return
@@ -299,7 +315,7 @@ class MainUI(object):
             setattr(self, widget, obj)
 
         # stupid glade! it does not let me put the cell renderer
-        # aligned to the right
+        # expanded *in the column*
         columns = self.programs_treeview.get_columns()
         for col_number in (3, 4):
             column = columns[col_number]
@@ -322,9 +338,7 @@ class MainUI(object):
             old_to_filter = getattr(one_program[0], 'to_filter', None)
             if old_to_filter is None or isinstance(old_to_filter, basestring):
                 for p in self.programs_data.itervalues():
-                    p.to_filter = dict(
-                                    titulo=self._prepare_to_filter(p.titulo),
-                                    seccion=self._prepare_to_filter(p.seccion))
+                    p.set_filter()
 
         # get config from file, or defaults
         if os.path.exists(self._config_file):
@@ -380,13 +394,6 @@ class MainUI(object):
     def _have_metadata(self):
         """Return if metadata is needed."""
         return bool(self.programs_data)
-
-    def _prepare_to_filter(self, text):
-        """Prepare a text to filter.
-
-        It receives unicode, but return simple lowercase ascii.
-        """
-        return ''.join(search_normalizer(c) for c in text)
 
     def review_need_something_indicator(self):
         """Start the wizard if needed, or hide the need config button."""
@@ -463,8 +470,7 @@ class MainUI(object):
             except KeyError:
                 ed = EpisodeData(titulo=titulo, seccion=seccion,
                                  sinopsis=sinopsis, tematica=tematica,
-                                 duracion=duracion, nroemis=nroemis,
-                                 to_filter=self._prepare_to_filter(titulo))
+                                 duracion=duracion, nroemis=nroemis)
                 self.programs_data[nroemis] = ed
             else:
                 epis.titulo = titulo
@@ -472,6 +478,7 @@ class MainUI(object):
                 epis.tematica = tematica
                 epis.seccion = seccion
                 epis.duracion = duracion
+                epis.set_filter()
 
         # refresh the treeview and save the data
         self.refresh_treeview()
@@ -499,7 +506,7 @@ class MainUI(object):
     def on_filter_entry_changed(self, widget, data=None):
         """Filter the rows for something."""
         text = widget.get_text().decode('utf8')
-        text = self._prepare_to_filter(text)
+        text = prepare_to_filter(text)
         self.refresh_treeview(text)
 
     def on_main_window_delete_event(self, widget, event):
