@@ -644,8 +644,9 @@ class MainUI(object):
                     text = repr(text)
 
         if text is not None:
-            l = dialog.children()[0].children()[0].children()[1].children()[0]
-            l.set_text(text)
+            hbox = dialog.get_children()[0].get_children()[0]
+            label = hbox.get_children()[1].get_children()[0]
+            label.set_text(text)
         configure = dialog.run()
         dialog.hide()
         if configure == 1:
