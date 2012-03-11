@@ -247,13 +247,21 @@ class UpdateUI(object):
             assert obj is not None, '%s must not be None' % widget
             setattr(self, widget, obj)
 
+    def tview_insert(self, text):
+        """Insert something in the textview's buffer."""
+        _buffer = self.textview.get_buffer()
+        _buffer.insert(_buffer.get_end_iter(), text)
+        while gtk.events_pending():
+            gtk.main_iteration()
+
     def run(self, parent_pos=None):
         """Show the dialog."""
         self.closed = False
         if parent_pos is not None:
             x, y = parent_pos
             self.dialog.move(x + 50, y + 50)
-        self._update()
+
+        self._update(self.tview_insert)
         self.main.main_window.set_sensitive(False)
         self.dialog.run()
         self.textview.get_buffer().set_text("")
@@ -266,32 +274,38 @@ class UpdateUI(object):
     on_dialog_response = on_dialog_close = on_dialog_destroy
 
     @defer.inlineCallbacks
-    def _update(self):
+    def update(self, refresh_gui):
+        """Trigger an update in background."""
+        dummy = lambda text: None
+        yield self._update(dummy)
+        refresh_gui()
+
+    @defer.inlineCallbacks
+    def _update(self, tell_user):
         """Update the content from server."""
         self.closed = False
-        tview = self.textview.get_buffer().insert_at_cursor
 
         logger.info("Updating episodes metadata")
-        tview("Descargando la lista de episodios...\n")
+        tell_user("Descargando la lista de episodios...\n")
         try:
             compressed = yield client.getPage(EPISODES_URL)
         except Exception, e:
             logger.error("Problem when downloading episodes: %s", e)
-            tview("Hubo un PROBLEMA al bajar los episodios: " + str(e))
+            tell_user("Hubo un PROBLEMA al bajar los episodios: " + str(e))
             return
         if self.closed:
             return
 
-        tview("Descomprimiendo el archivo....\n")
+        tell_user("Descomprimiendo el archivo....\n")
         new_content = bz2.decompress(compressed)
         logger.debug("Downloaded data decompressed ok")
 
-        tview("Actualizando los datos internos....\n")
+        tell_user("Actualizando los datos internos....\n")
         new_data = json.loads(new_content)
         logger.debug("Updating internal metadata (%d)", len(new_data))
         self.main.merge_episode_data(new_data)
 
-        tview("¡Todo terminado bien!\n")
+        tell_user(u"¡Todo terminado bien!\n")
         self.on_dialog_destroy(None)
 
 
@@ -388,6 +402,11 @@ class MainUI(object):
         self.refresh_treeview()
         self.main_window.show()
         self._restore_layout()
+
+        # update stuff if needed to
+        if 'autorefresh' in self.config and self.config['autorefresh']:
+            self.update_dialog.update(self._restore_layout)
+
         logger.debug("Main UI started ok")
 
         if not self.config.get('nowizard'):
