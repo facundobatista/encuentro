@@ -185,6 +185,7 @@ class PreferencesUI(object):
 
         widgets = (
             'dialog', 'entry_user', 'entry_password', 'entry_downloaddir',
+            'checkbutton_autorefresh',
         )
 
         for widget in widgets:
@@ -198,6 +199,9 @@ class PreferencesUI(object):
         self.entry_password.set_text(self.config_data.get('password', ''))
         self.entry_downloaddir.set_text(
                                     self.config_data.get('downloaddir', ''))
+        self.checkbutton_autorefresh.set_active(
+                                    self.config_data.get('autorefresh', False))
+
         if parent_pos is not None:
             x, y = parent_pos
             self.dialog.move(x + 50, y + 50)
@@ -209,7 +213,10 @@ class PreferencesUI(object):
         usr = self.entry_user.get_text()
         password = self.entry_password.get_text()
         downloaddir = self.entry_downloaddir.get_text()
-        new_cfg = dict(user=usr, password=password, downloaddir=downloaddir)
+        autorefresh = self.checkbutton_autorefresh.get_active()
+        new_cfg = dict(user=usr, password=password, downloaddir=downloaddir,
+                       autorefresh=autorefresh)
+
         logger.info("Updating preferences config: %s", new_cfg)
         self.config_data.update(new_cfg)
         self.main.main_window.set_sensitive(True)

@@ -31,7 +31,7 @@
         <child>
           <object class="GtkTable" id="table1">
             <property name="visible">True</property>
-            <property name="n_rows">5</property>
+            <property name="n_rows">6</property>
             <property name="n_columns">2</property>
             <child>
               <object class="GtkLabel" id="label1">
@@ -141,6 +141,21 @@
               </object>
               <packing>
                 <property name="right_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="checkbutton_autorefresh">
+                <property name="label" translatable="yes">Recargar automáticamente la lista de episodios al iniciar</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="right_attach">2</property>
+                <property name="top_attach">5</property>
+                <property name="bottom_attach">6</property>
+                <property name="y_padding">11</property>
               </packing>
             </child>
           </object>
