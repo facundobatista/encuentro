@@ -1,6 +1,5 @@
 (3) distribuir:
-    - hacer un release de la v0.5 (beta)
-    - actualizar pypi, el ppa, LP, arch, y el .exe
+    - actualizar .deb, el ppa, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 
 (4) poner un menu, en función de cómo haya quedado el toolbar y eso
@@ -10,7 +9,7 @@
     bug: 897738
 (4) distribuir:
     - hacer un release de la v0.6 (beta)
-    - actualizar pypi, el ppa, LP, arch, y el .exe
+    - actualizar .deb, el ppa, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 
 (5) que notifique las descargas terminadas (si está configurado para que lo haga)
@@ -18,5 +17,5 @@
 (5) que la descarga de episodios muestre un progreso
 (5) distribuir:
     - hacer un release de la v1.0
-    - actualizar pypi, el ppa, LP, arch, y el .exe
+    - actualizar .deb, el ppa, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
