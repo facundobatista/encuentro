@@ -1,5 +1,5 @@
 
-Encuentro 0.3
+Encuentro 0.5
 
 Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro.
 
@@ -7,30 +7,52 @@ Notar que este programa no distribuye contenido de Canal Encuentro, sino que per
 
 http://encuentro.taniquetil.com.ar/imgs/title.png
 
-La versión 0.3 (todavía pre-alfa) trae los siguientes cambios con respecto a la versión anterior:
+Página oficial:
 
-- Ahora podés poner al mismo tiempo a bajar muchos episodios (se encolan).
+    http://encuentro.taniquetil.com.ar/
 
-- ¡Soportamos botón derecho! Hacé click en cualquier episodio y fijate las opciones.
 
-- Las descargas ahora pueden cancelarse.
+La versión 0.5 (entramos en beta!) trae los siguientes cambios con respecto a la versión anterior:
 
-- Menos dependencias: no más zope, y uso json de la biblioteca estándar.
+- Se puede autorefrescar la lista de episodios al inicio (si lo dice la config)
 
-- También corregí algunos problemillas, y limpié un poco el código.
+- El filtro ahora funciona también sobre la columna de Sección
+
+- Soporta mejor los episodios que fueron borrados del disco
+
+- También hay algunas pequeñas mejoras y otros detalles corregidos
 
 
 La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
 
-    http://launchpad.net/encuentro/trunk/0.3/+download/encuentro-0.3.deb
+    http://launchpad.net/encuentro/trunk/0.5/+download/encuentro-0.5.deb
+
+
+Si tienen Arch lo instalan directamente con:
+
+    sudo yaourt -S encuentro
+
+
+También se puede instalar directamente desde PyPI:
+
+    sudo easy_install encuentro
+
+
+Si tienen Windows, usen este instalador:
+
+    http://launchpad.net/encuentro/trunk/0.5/+download/encuentro-0.5.exe
+
+
+En cualquier otro caso, pueden usar el tarball para instalarlo:
+
+    http://launchpad.net/encuentro/trunk/0.5/+download/encuentro-0.5.tar.gz
+
 
 Si quieren obtener automaticamente las nuevas actualizaciones, pueden suscribirse al PPA; en una linea de comandos hagan:
 
     sudo add-apt-repository ppa:facundo/encuentro
-
-En cualquier otro caso, pueden usar el tarball para instalarlo:
-
-    http://launchpad.net/encuentro/trunk/0.3/+download/encuentro-0.3.tar.gz
+    sudo apt-get update
+    sudo apt-get install encuentro
 
 
 Recuerden revisar el archivo AYUDA.txt si tienen alguna duda de cómo usar el programa.
