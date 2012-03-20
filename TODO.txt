@@ -1,7 +1,3 @@
-(3) distribuir:
-    - actualizar .deb, el ppa, LP, arch, y el .exe
-    - avisar en pyar, otro post en el blog, tweet
-
 (4) poner un menu, en función de cómo haya quedado el toolbar y eso
 (4) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
 (4) poner hovering en los iconos de la toolbar, indicando especialmente por qué están deshabilitados
@@ -9,7 +5,7 @@
     bug: 897738
 (4) distribuir:
     - hacer un release de la v0.6 (beta)
-    - actualizar .deb, el ppa, LP, arch, y el .exe
+    - actualizar .deb, el ppa, PyPI, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 
 (5) que notifique las descargas terminadas (si está configurado para que lo haga)
@@ -17,5 +13,5 @@
 (5) que la descarga de episodios muestre un progreso
 (5) distribuir:
     - hacer un release de la v1.0
-    - actualizar .deb, el ppa, LP, arch, y el .exe
+    - actualizar .deb, el ppa, PyPI, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
