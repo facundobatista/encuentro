@@ -28,7 +28,7 @@ La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este
     http://launchpad.net/encuentro/trunk/0.5/+download/encuentro-0.5.deb
 
 
-Si tienen Arch lo instalan directamente con:
+Instalarlo en Arch es sencillo ya que está disponible en AUR, por ejemplo se puede hacer:
 
     sudo yaourt -S encuentro
 
