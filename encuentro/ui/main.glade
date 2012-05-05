@@ -1356,4 +1356,8 @@ Public License instead of this License.  But first, please read
       </object>
     </child>
   </object>
+  <object class="GtkStatusIcon" id="statusicon">
+    <property name="title" translatable="yes">Encuentro</property>
+    <signal name="activate" handler="on_statusicon_activate" swapped="no"/>
+  </object>
 </interface>

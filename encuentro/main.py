@@ -346,6 +346,7 @@ class MainUI(object):
 
     def __init__(self, version):
         self.version = version
+        self.main_window_active = None  # means active, see docstring below
         self.builder = gtk.Builder()
         self.builder.add_from_file(os.path.join(BASEDIR,
                                                 'ui', 'main.glade'))
@@ -356,7 +357,7 @@ class MainUI(object):
             'toolbutton_play', 'toolbutton_download', 'toolbutton_needconfig',
             'dialog_quit', 'dialog_quit_label', 'dialog_alert', 'dialog_error',
             'rb_menu', 'rbmenu_play', 'rbmenu_cancel', 'rbmenu_download',
-            'menu_download', 'menu_play', 'aboutdialog',
+            'menu_download', 'menu_play', 'aboutdialog', 'statusicon',
         )
 
         for widget in widgets:
@@ -431,6 +432,7 @@ class MainUI(object):
             iconfile = os.path.join(BASEDIR, 'logos', 'icon-%d.png' % (size,))
             icons.append(gtk.gdk.pixbuf_new_from_file(iconfile))
         self.main_window.set_icon_list(*icons)
+        self.statusicon.set_from_pixbuf(icons[0])
 
         self._non_glade_setup()
         self.refresh_treeview()
@@ -895,6 +897,23 @@ class MainUI(object):
         self.aboutdialog.set_property('version', str(self.version))
         self.aboutdialog.run()
         self.aboutdialog.hide()
+
+    def on_statusicon_activate(self, *a):
+        """Switch visibility for the main window.
+
+        The 'main_window_active' is None if window should be active, or the
+        last position when hidden (so it's properly restored then).
+        """
+        if self.main_window_active is None:
+            # was active, let's hide
+            self.main_window_active = self.main_window.get_position()
+            self.main_window.hide()
+        else:
+            # we have the stored position!
+            position = self.main_window_active
+            self.main_window_active = None
+            self.main_window.show()
+            self.main_window.move(*position)
 
 
 if __name__ == '__main__':

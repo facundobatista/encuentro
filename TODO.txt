@@ -1,13 +1,12 @@
-(4) que se minimice al systray
-    bug: #897738 ;
+(4) que notifique las descargas terminadas (si está configurado para que lo haga)
+    bug: 897738
+(4) que la descarga de episodios muestre un progreso
 (4) distribuir:
     - hacer un release de la v0.6 (beta)
     - actualizar .deb, el ppa, PyPI, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 
-(5) que notifique las descargas terminadas (si está configurado para que lo haga)
-    bug: 897738
-(5) que la descarga de episodios muestre un progreso
+(5) dejar de pasar un tiempo
 (5) distribuir:
     - hacer un release de la v1.0
     - actualizar .deb, el ppa, PyPI, LP, arch, y el .exe
