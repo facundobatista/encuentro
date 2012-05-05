@@ -139,8 +139,8 @@ class EpisodeData(object):
                 # not matched any of both, don't show the row
                 return
 
-        data = (title, seccion, self.tematica,
-                self.duracion, self.nroemis, self._get_nice_state())
+        data = (title, seccion, self.tematica, self.duracion, self.nroemis,
+                self._get_nice_state(), self.sinopsis)
         return data
 
     def _get_nice_state(self):

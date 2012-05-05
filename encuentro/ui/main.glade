@@ -1186,6 +1186,7 @@ Public License instead of this License.  But first, please read
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="model">programs_store</property>
+                <property name="tooltip_column">6</property>
                 <signal name="button-press-event" handler="on_programs_treeview_button_press_event" swapped="no"/>
                 <signal name="row-activated" handler="on_programs_treeview_row_activated" swapped="no"/>
                 <child>
@@ -1315,6 +1316,8 @@ Public License instead of this License.  But first, please read
       <!-- column-name nro_epis -->
       <column type="guint64"/>
       <!-- column-name estado -->
+      <column type="gchararray"/>
+      <!-- column-name sinopsis -->
       <column type="gchararray"/>
     </columns>
   </object>
