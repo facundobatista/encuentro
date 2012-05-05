@@ -317,7 +317,8 @@ class MainUI(object):
     print "Using data file:", repr(_data_file)
     print "Using configuration file:", repr(_config_file)
 
-    def __init__(self):
+    def __init__(self, version):
+        self.version = version
         self.builder = gtk.Builder()
         self.builder.add_from_file(os.path.join(BASEDIR,
                                                 'ui', 'main.glade'))
@@ -328,6 +329,7 @@ class MainUI(object):
             'toolbutton_play', 'toolbutton_download', 'toolbutton_needconfig',
             'dialog_quit', 'dialog_quit_label', 'dialog_alert', 'dialog_error',
             'rb_menu', 'rbmenu_play', 'rbmenu_cancel', 'rbmenu_download',
+            'menu_download', 'menu_play', 'aboutdialog',
         )
 
         for widget in widgets:
@@ -389,7 +391,9 @@ class MainUI(object):
 
         # initial widgets setup
         self.toolbutton_play.set_sensitive(False)
+        self.menu_play.set_sensitive(False)
         self.toolbutton_download.set_sensitive(False)
+        self.menu_download.set_sensitive(False)
 
         # icons
         icons = []
@@ -429,12 +433,14 @@ class MainUI(object):
                 self.toolbutton_needconfig.show()
             # also turn off the download button
             self.toolbutton_download.set_sensitive(False)
+            self.menu_download.set_sensitive(False)
         else:
             # no config needed, remove the alert if there
             if self.toolbutton_needconfig.get_property("visible"):
                 self.toolbutton_needconfig.hide()
             # also turn on the download button
             self.toolbutton_download.set_sensitive(True)
+            self.menu_download.set_sensitive(True)
 
     def on_toolbutton_needconfig_clicked(self, widget, data=None):
         """The 'need config' toolbar button was clicked, open the wizard."""
@@ -535,7 +541,7 @@ class MainUI(object):
         text = prepare_to_filter(text)
         self.refresh_treeview(text)
 
-    def on_main_window_delete_event(self, widget, event):
+    def _close(self):
         """Still time to decide if want to close or not."""
         logger.info("Attempt to close the program")
         for idx, program in self.programs_data.iteritems():
@@ -570,6 +576,18 @@ class MainUI(object):
         self._save_states()
         return False
 
+    def on_main_window_delete_event(self, widget, event):
+        """Windows was deleted."""
+        return self._close()
+
+    def on_menu_quit_activate(self, widget):
+        """Quit from the menu."""
+        # strange semantics because we use the same True/False that does the
+        # trick for event propagation
+        abort_close = self._close()
+        if not abort_close:
+            self.on_main_window_destroy(None)
+
     def _save_states(self):
         """Dump all states and info to disk."""
         with open(self._data_file, 'w') as fh:
@@ -601,11 +619,13 @@ class MainUI(object):
         """Open the preference dialog."""
         self.preferences_dialog.run(self.main_window.get_position())
         self.review_need_something_indicator()
+    on_menu_preferences_activate = on_toolbutton_preferencias_clicked
 
     def on_toolbutton_update_clicked(self, widget, data=None):
         """Open the preference dialog."""
         self.update_dialog.run(self.main_window.get_position())
         self.review_need_something_indicator()
+    on_menu_update_activate = on_toolbutton_update_clicked
 
     def on_toolbutton_download_clicked(self, widget, data=None):
         """Download the episode(s)."""
@@ -614,6 +634,7 @@ class MainUI(object):
         for path in pathlist:
             row = self.programs_store[path]
             self._queue_download(row)
+    on_menu_download_activate = on_toolbutton_download_clicked
 
     @defer.inlineCallbacks
     def _queue_download(self, row):
@@ -706,6 +727,7 @@ class MainUI(object):
 
         row = self.programs_store[pathlist[0]]
         self._play_episode(row)
+    on_menu_play_activate = on_toolbutton_play_clicked
 
     def _play_episode(self, row):
         """Play an episode."""
@@ -827,6 +849,7 @@ class MainUI(object):
             if episode.state == Status.downloaded:
                 play_enabled = True
         self.toolbutton_play.set_sensitive(play_enabled)
+        self.menu_play.set_sensitive(play_enabled)
 
         # 'download' button should be enabled if at least one of the selected
         # rows is in 'none' state, and if config is ok
@@ -839,6 +862,13 @@ class MainUI(object):
                     download_enabled = True
                     break
         self.toolbutton_download.set_sensitive(download_enabled)
+        self.menu_download.set_sensitive(download_enabled)
+
+    def on_menu_about_activate(self, widget):
+        """Show the 'About of' dialog."""
+        self.aboutdialog.set_property('version', str(self.version))
+        self.aboutdialog.run()
+        self.aboutdialog.hide()
 
 
 if __name__ == '__main__':

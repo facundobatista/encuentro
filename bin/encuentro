@@ -35,8 +35,9 @@ else:
 # first of all, show the versions
 print "Running Python %s on %r" % (sys.version_info, sys.platform)
 version_file = os.path.join(project_basedir, 'version.txt')
+version = open(version_file).read().strip()
 if os.path.exists(version_file):
-    print "Encuentro: v. %s" % (open(version_file).read().strip(),)
+    print "Encuentro: v. %s" % (version,)
 else:
     print "Encuentro: sin revno info"
 
@@ -50,5 +51,5 @@ from encuentro import EncuentroUI
 
 from twisted.internet import reactor
 
-EncuentroUI()
+EncuentroUI(version)
 reactor.run()

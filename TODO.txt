@@ -1,4 +1,3 @@
-(4) poner un menu, en función de cómo haya quedado el toolbar y eso
 (4) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
 (4) poner hovering en los iconos de la toolbar, indicando especialmente por qué están deshabilitados
 (4) que se minimice al systray
