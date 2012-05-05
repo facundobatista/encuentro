@@ -24,6 +24,7 @@ Needed packages to run (using Debian/Ubuntu package names):
     python-twisted-bin 8.2.0
     python-gtk2 2.16.0
     python-xdg 0.15
+    python-notify 0.1.1   # not really needed, but provides notifications
 """
 
 import os

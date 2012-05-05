@@ -36,6 +36,11 @@ with NiceImporter('twisted', 'python-twisted-bin', '8.2.0'):
     from twisted.internet import gtk2reactor
 gtk2reactor.install()
 
+pynotify = None
+with NiceImporter('pynotify', 'python-notify', '0.1.1'):
+    import pynotify
+    pynotify.init("Encuentro")
+
 from twisted.internet import reactor, defer
 from twisted.web import client
 
@@ -185,7 +190,7 @@ class PreferencesUI(object):
 
         widgets = (
             'dialog', 'entry_user', 'entry_password', 'entry_downloaddir',
-            'checkbutton_autorefresh',
+            'checkbutton_autorefresh', 'checkbutton_notification',
         )
 
         for widget in widgets:
@@ -201,6 +206,8 @@ class PreferencesUI(object):
                                     self.config_data.get('downloaddir', ''))
         self.checkbutton_autorefresh.set_active(
                                     self.config_data.get('autorefresh', False))
+        self.checkbutton_notification.set_active(
+                                    self.config_data.get('notification', True))
 
         if parent_pos is not None:
             x, y = parent_pos
@@ -214,8 +221,9 @@ class PreferencesUI(object):
         password = self.entry_password.get_text()
         downloaddir = self.entry_downloaddir.get_text()
         autorefresh = self.checkbutton_autorefresh.get_active()
+        notification = self.checkbutton_notification.get_active()
         new_cfg = dict(user=usr, password=password, downloaddir=downloaddir,
-                       autorefresh=autorefresh)
+                       autorefresh=autorefresh, notification=notification)
 
         logger.info("Updating preferences config: %s", new_cfg)
         self.config_data.update(new_cfg)
@@ -347,6 +355,7 @@ class MainUI(object):
     def __init__(self, version):
         self.version = version
         self.main_window_active = None  # means active, see docstring below
+
         self.builder = gtk.Builder()
         self.builder.add_from_file(os.path.join(BASEDIR,
                                                 'ui', 'main.glade'))
@@ -745,6 +754,10 @@ class MainUI(object):
         # download!
         fname = yield self.downloader.download(episode_number,
                                                update_progress_cb)
+        episode_name = u"%s (%s)" % (row[0], row[1])
+        if self.config.get('notification', True) and pynotify is not None:
+            n = pynotify.Notification(u"Descarga finalizada", episode_name)
+            n.show()
         defer.returnValue((fname, episode))
 
     def on_toolbutton_play_clicked(self, widget, data=None):
