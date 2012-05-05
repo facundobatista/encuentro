@@ -309,6 +309,33 @@ class UpdateUI(object):
         self.on_dialog_destroy(None)
 
 
+class SensitiveGrouper(object):
+    """Centralize sensitiviness and tooltip management."""
+    _tooltips = gtk.Tooltips()
+
+    def __init__(self):
+        self.items = {}
+
+    def add(self, reference, toolb, menub, active_ttip, alternate_ttip):
+        """Add an item.
+
+        All items born with sensitiveness in False.
+        """
+        self.items[reference] = (toolb, menub, active_ttip, alternate_ttip)
+        toolb.set_sensitive(False)
+        menub.set_sensitive(False)
+
+    def set_sensitive(self, reference, sensitiviness):
+        """Set sensitiviness."""
+        toolb, menub, active_ttip, alternate_ttip = self.items[reference]
+        toolb.set_sensitive(sensitiviness)
+        menub.set_sensitive(sensitiviness)
+
+        # set a different tooltip to the toolbar button
+        tip_text = (alternate_ttip, active_ttip)[int(sensitiviness)]
+        toolb.set_tooltip(self._tooltips, tip_text)
+
+
 class MainUI(object):
     """Main GUI class."""
 
@@ -389,11 +416,14 @@ class MainUI(object):
         self.episodes_to_download = []
         self._downloading = False
 
-        # initial widgets setup
-        self.toolbutton_play.set_sensitive(False)
-        self.menu_play.set_sensitive(False)
-        self.toolbutton_download.set_sensitive(False)
-        self.menu_download.set_sensitive(False)
+        # widget sensitiviness
+        self.sensit_grouper = sg = SensitiveGrouper()
+        sg.add('play', self.toolbutton_play, self.menu_play, u"Reproducir",
+               u"Reproducir - El episodio debe estar descargado para "
+               u"poder verlo.")
+        sg.add('download', self.toolbutton_download, self.menu_download,
+               u"Descargar", u"Descargar - No se puede descargar si ya está "
+               u"descargado o falta alguna configuración en el programa.")
 
         # icons
         icons = []
@@ -432,15 +462,13 @@ class MainUI(object):
             if not self.toolbutton_needconfig.get_property("visible"):
                 self.toolbutton_needconfig.show()
             # also turn off the download button
-            self.toolbutton_download.set_sensitive(False)
-            self.menu_download.set_sensitive(False)
+            self.sensit_grouper.set_sensitive('download', False)
         else:
             # no config needed, remove the alert if there
             if self.toolbutton_needconfig.get_property("visible"):
                 self.toolbutton_needconfig.hide()
             # also turn on the download button
-            self.toolbutton_download.set_sensitive(True)
-            self.menu_download.set_sensitive(True)
+            self.sensit_grouper.set_sensitive('download', True)
 
     def on_toolbutton_needconfig_clicked(self, widget, data=None):
         """The 'need config' toolbar button was clicked, open the wizard."""
@@ -848,8 +876,7 @@ class MainUI(object):
             episode = self.programs_data[row[4]]  # 4 is the episode number
             if episode.state == Status.downloaded:
                 play_enabled = True
-        self.toolbutton_play.set_sensitive(play_enabled)
-        self.menu_play.set_sensitive(play_enabled)
+        self.sensit_grouper.set_sensitive('play', play_enabled)
 
         # 'download' button should be enabled if at least one of the selected
         # rows is in 'none' state, and if config is ok
@@ -861,8 +888,7 @@ class MainUI(object):
                 if episode.state == Status.none:
                     download_enabled = True
                     break
-        self.toolbutton_download.set_sensitive(download_enabled)
-        self.menu_download.set_sensitive(download_enabled)
+        self.sensit_grouper.set_sensitive('download', download_enabled)
 
     def on_menu_about_activate(self, widget):
         """Show the 'About of' dialog."""

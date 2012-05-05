@@ -1,5 +1,4 @@
 (4) que si dejamos el mouse arriba de la linea (hovering) se muestre la sinopsis
-(4) poner hovering en los iconos de la toolbar, indicando especialmente por qué están deshabilitados
 (4) que se minimice al systray
     bug: #897738 ;
 (4) distribuir:
