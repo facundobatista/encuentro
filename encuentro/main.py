@@ -63,6 +63,7 @@ def prepare_to_filter(text):
     """
     return ''.join(search_normalizer(c) for c in text)
 
+
 def search_normalizer(char):
     """Normalize always to one char length."""
     try:

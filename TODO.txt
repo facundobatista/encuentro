@@ -4,6 +4,15 @@
     - actualizar .deb, el ppa, PyPI, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 
+(5) Poner "Duración [min]" en la columna correspondiente (bug #945278)
+(5) Utilizar campo password para la contraseña de la cuenta de
+    Encuentro (#897735)
+    - El texto de la password debería mostrarse o no en función de un
+      checkbox (en el mismo diálogo del que pregunta la clave) que
+      sea "Mostrar texto"
+    - Este checkbox, en default, debería estar activado (mostrando el
+      texto de la password, digamos)
+    - Este checkbox debería persistirse
 (5) dejar de pasar al menos un mes, fixear todos los bugs que haya
 (5) distribuir:
     - hacer un release de la v1.0
