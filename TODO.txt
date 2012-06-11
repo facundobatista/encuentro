@@ -1,3 +1,107 @@
+- hacer la parte server
+    - recorrer todas las búsquedas
+    - escrapear cada pag de busq, para lista de "descargas" o "lista episodios"
+    - escrapear cada pag de "lista episodios", para otra lista de "descargas"
+    - armar nuevo tarball con metadata, cambiando el nro de version
+    - pylint
+
+- hacer la parte cliente
+    - cuando el programa arranque (la nueva versión, 0.6)
+        - encontrar que la MD en disco es la vieja
+        - decirle al usuario...
+            - todo cambió, culpa de canal encuentro y amigos
+            - esta nueva versión sólo trabaja con contenido actualizado
+            - que está buenisimo porque hay muchas más cosas
+            - pero vas a tener que registrar nuevo usuario en $URL
+        - bajar la nueva MD del server
+        - borrar de la config usuario y claves viejos (para que el programa exprese
+          que falta registrar usuario)
+        - actualizar todo, dejar todo lindo para usar
+    - detectar que el tarball cambió de versión y avisarle al usuario:
+        - que va a perder el estado anterior
+        - que tiene que registrarse en el nuevo sitio para poder bajar lo nuevo
+        - aclarar que va a tener más contenido
+    - toquetear todo lo que dice "canal Encuentro" y agregar los otros canales
+        - en la web, oficial
+        - en la web, del proyecto
+        - en el código
+        - en el glade
+        - en READMEs, etc
+    - tambien toquetear en todos lados la URL para sacar usuarios
+        - en la web, oficial
+        - en la web, del proyecto
+        - en el código
+        - en el glade
+        - en READMEs, etc
+    - cuando diga que "OK a todo nuevo"
+        - cambiar las columnas
+        - cargar metadata nueva
+    - pylint
+
+
+Nuevo esquema:
+
+http://conectate.gov.ar/educar-portal-video-web/module/busqueda/busquedaAvanzada.do?canalId=126&modulo=menu&temaCanalId=126&tipoEmisionId=2&pagina=1&modo=Lista
+
+temaCanalId
+ 1 Encuentro
+ 2 Pakapaka
+ 3 Ronda
+125 Educ.ar
+126 Conectar Igualdad
+
+tipoEmisionId
+ 1 pelicula
+ 2 especial
+ 3 serie
+ 4 micro
+
+"pelicula" y "especial", van derecho a la descarga
+"serie" y "micro" van a una lista de temporadas (el html tiene todo)
+
+
+1. Busqueda
+  - titulo de la serie o pelicula/especial
+  - una imagen
+  - un texto explicativo
+  - un link a 2 o 3
+
+
+2. Lista temporadas
+  - Duración
+  - Genero (1 o varios)
+  - Título de cada episodio
+  - link a 3
+
+3. Video -- ¿vale la pena entrar acá?
+  - link a la descarga
+  - Duración
+
+
+Viejo:
+    - titulo  (episodio)
+    - seccion
+    - tematica
+    - duracion
+    - episodio
+    (hover) descripción
+
+Nuevo:
+    - canal
+    - seccion (en serie/micro, titulo "general", sino "Película" o "Especial")
+    - titulo (de la pelicula o especial, o del capitulo en serie/micro)
+    - género (texto, con punto y coma)
+    - duración (la que tengamos, o "?")
+    (hover) descripción
+
+    al filtrar:
+        por sección y titulo
+    para despues
+        combo box por canal
+        combo box por género
+
+------------------
+
 (4) que la descarga de episodios muestre un progreso
 (4) distribuir:
     - hacer un release de la v0.6 (beta)
