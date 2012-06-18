@@ -18,6 +18,8 @@
 
 """Some scrapers."""
 
+import re
+
 import bs4
 
 
@@ -36,6 +38,9 @@ def scrap_busqueda(html):
 
 def scrap_series(html):
     """Get useful info from the series list."""
+    # sanitize html
+    html = re.sub("<script.*?</script>", "", html, flags=re.S)
+
     soup = bs4.BeautifulSoup(html)
     epis_section = soup.find("ul", "serieCap")
     episodes = epis_section.find_all('a')

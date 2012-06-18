@@ -42,8 +42,8 @@ CHANNELS = [
 # different emission types
 # id, name, divided in series or not
 EMISSIONS = [
-    (1, u"Película", False),
-    (2, u"Especial", False),
+#    (1, u"Película", False),
+#    (2, u"Especial", False),
     (3, u"Serie", True),
     (4, u"Micro", True),
 ]
@@ -97,7 +97,7 @@ def do_search(channel_id, emis_id):
         items = _search(url)
         if not items:
             # done, return collected info
-            print "    done:", len(all_items)
+            print "      done:", len(all_items)
             return all_items
 
         # store and go for next page
@@ -106,9 +106,9 @@ def do_search(channel_id, emis_id):
 
 
 @retryable
-def get_from_series(url):
+def get_from_series(i, url):
     """Get the episodes from an url page."""
-    print "Get from series:", url
+    print "Get from series:", i, url
     u = urllib2.urlopen(url)
     page = u.read()
     results = scrapers.scrap_series(page)
@@ -117,14 +117,12 @@ def get_from_series(url):
 
 
 @retryable
-def get_episode_info(url):
+def get_episode_info(i, url):
     """Get the info from an episode."""
-    print "Get episode info:", url
+    print "Get episode info:", i, url
     u = urllib2.urlopen(url)
     page = u.read()
-    print "=== scrap"
     info = scrapers.scrap_video(page)
-    print "=== info", len(info)
     return info
 
 
@@ -136,21 +134,22 @@ def get_episodes():
             if emis_is_deep:
                 # series, need to get each
                 episodes = []
-                for _, url in results:
-                    episodes.extend(get_from_series(URL_BASE + url))
+                for i, (_, url) in enumerate(results):
+                    episodes.extend(get_from_series(i, URL_BASE + url))
                 results = episodes
+                print "Series collected:", len(results)
 
             # inform each
-            for title, url in results:
-                yield (chan_name, emis_name, title, URL_BASE + url)
+            for i, (title, url) in enumerate(results):
+                yield (i, chan_name, emis_name, title, URL_BASE + url)
 
 
 def get_all_data():
     """Collect all data from the servers."""
     all_data = []
-    for chan_name, emis_name, title, url in get_episodes():
+    for i, chan_name, emis_name, title, url in get_episodes():
         info = dict(channel=chan_name, emission=emis_name, title=title)
-        descrip, durat = get_episode_info(url)
+        descrip, durat = get_episode_info(i, url)
         info.update(description=descrip, duration=durat)
         all_data.append(info)
     return all_data

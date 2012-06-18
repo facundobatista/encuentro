@@ -41,7 +41,7 @@ _RES_BUSQ_1 = [
     (u'Experiencias Modelo 1:1 Alumnos', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=126&modulo=menu&temaCanalId=126&tipoEmisionId=2&idRecurso=50310'),
 ]
 
-_RES_BUSQ_2 = [
+_RES_SERIES_1 = [
     (u'La formaci\xf3n de un pa\xeds', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&temaCanalId=1&tipoEmisionId=3&recursoPadreId=50001&idRecurso=50002'),
     (u'Campa\u0144a del desierto', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&temaCanalId=1&tipoEmisionId=3&recursoPadreId=50001&idRecurso=50003'),
     (u'La rep\xfablica conservadora (1890 - 1916)', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&temaCanalId=1&tipoEmisionId=3&recursoPadreId=50001&idRecurso=50004'),
@@ -73,17 +73,26 @@ _RES_BUSQ_2 = [
     (u'Y la Argentina detuvo su coraz\xf3n', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&temaCanalId=1&tipoEmisionId=3&recursoPadreId=50001&idRecurso=100391'),
 ]
 
-_RES_BUSQ_3 = (
+_RES_SERIES_2 = [
+    (u'Cap\xedtulo 1 - 1810 a 1860', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&temaCanalId=1&tipoEmisionId=3&recursoPadreId=102685&idRecurso=102686'),
+    (u'Cap\xedtulo 2 - 1860 a 1900', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&temaCanalId=1&tipoEmisionId=3&recursoPadreId=102685&idRecurso=102688'),
+    (u'Cap\xedtulo 3 - 1900 a 1930', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&temaCanalId=1&tipoEmisionId=3&recursoPadreId=102685&idRecurso=102689'),
+    (u'Cap\xedtulo 4 - 1930 a 1955', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&temaCanalId=1&tipoEmisionId=3&recursoPadreId=102685&idRecurso=102692'),
+    (u'Cap\xedtulo 5 - 1955 a 1970', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&temaCanalId=1&tipoEmisionId=3&recursoPadreId=102685&idRecurso=102693'),
+    (u'Cap\xedtulo 6 - 1970 a la actualidad', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&temaCanalId=1&tipoEmisionId=3&recursoPadreId=102685&idRecurso=102694'),
+]
+
+_RES_VIDEO_1 = (
     u'Si te gusta la naturaleza, este video te va a encantar. Descubr\xed con Eliseo c\xf3mo se plantan las semillas de calabaza y c\xf3mo se encarna una lombriz en un anzuelo.',
     5,
 )
 
-_RES_BUSQ_4 = (
+_RES_VIDEO_2 = (
     u'"Revolución. El Cruce de los Andes" redescubre la figura de uno de los hombres más importantes de nuestra historia, el Gral. José de San Martín y reconstruye la gesta épica más trascendente en la liberación de Latinoamérica. El film, protagonizado por el actor Rodrigo de la Serna y con la dirección de Leandro Ipiña, es una producción conjunta de la Televisión Pública, Canal Encuentro y el INCAA, con el apoyo de la Televisión española (TVE), del gobierno de la provincia de San Juan, y de la Universidad Nacional de San Martín (UNSAM) que se enfoca en aspectos inéditos de la personalidad del prócer.',
     None,
 )
 
-_RES_BUSQ_5 = (
+_RES_VIDEO_3 = (
     u'A través de un viaje a bordo del buque oceanográfico "Puerto Deseado", se documenta el trabajo de relevamiento realizado en varias misiones para elaborar el informe técnico que se presentó a la ONU, en relación a la ampliación de la soberanía territorial en el Atlántico Sur. Este especial incluye entrevistas a los responsables del proyecto COPLA, oceanógrafos, biólogos, marinos y demás personas involucradas. Se ilustra con imágenes registradas del trabajo técnico, tomas subacuáticas/submarinas, cartografía y plataforma submarina, con gráfica y animaciones en 2D y 3D.',
     51,
 )
@@ -96,22 +105,27 @@ class ScrapersTestCase(unittest.TestCase):
         res = scrapers.scrap_busqueda(html)
         self.assertEqual(res, _RES_BUSQ_1)
 
-    def test_example_series(self):
-        html = open("../tests/ejemplo-series.html").read()
+    def test_example_series_1(self):
+        html = open("../tests/ejemplo-series_1.html").read()
         res = scrapers.scrap_series(html)
-        self.assertEqual(res, _RES_BUSQ_2)
+        self.assertEqual(res, _RES_SERIES_1)
+
+    def test_example_series_2(self):
+        html = open("../tests/ejemplo-series_2.html").read()
+        res = scrapers.scrap_series(html)
+        self.assertEqual(res, _RES_SERIES_2)
 
     def test_example_video_1(self):
         html = open("../tests/ejemplo-video_1.html").read()
         res = scrapers.scrap_video(html)
-        self.assertEqual(res, _RES_BUSQ_3)
+        self.assertEqual(res, _RES_VIDEO_1)
 
     def test_example_video_2(self):
         html = open("../tests/ejemplo-video_2.html").read()
         res = scrapers.scrap_video(html)
-        self.assertEqual(res, _RES_BUSQ_4)
+        self.assertEqual(res, _RES_VIDEO_2)
 
     def test_example_video_3(self):
         html = open("../tests/ejemplo-video_3.html").read()
         res = scrapers.scrap_video(html)
-        self.assertEqual(res, _RES_BUSQ_5)
+        self.assertEqual(res, _RES_VIDEO_3)
