@@ -43,18 +43,6 @@ Nuevo esquema:
 
 http://conectate.gov.ar/educar-portal-video-web/module/busqueda/busquedaAvanzada.do?canalId=126&modulo=menu&temaCanalId=126&tipoEmisionId=2&pagina=1&modo=Lista
 
-temaCanalId
- 1 Encuentro
- 2 Pakapaka
- 3 Ronda
-125 Educ.ar
-126 Conectar Igualdad
-
-tipoEmisionId
- 1 pelicula
- 2 especial
- 3 serie
- 4 micro
 
 "pelicula" y "especial", van derecho a la descarga
 "serie" y "micro" van a una lista de temporadas (el html tiene todo)

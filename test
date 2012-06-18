@@ -1,2 +1,3 @@
+trial tests
 pylint encuentro
 pep8 --repeat .

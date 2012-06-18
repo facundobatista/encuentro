@@ -1,26 +1,67 @@
-from __future__ import with_statement
+# -*- coding: utf8 -*-
+
+# Copyright 2012 Facundo Batista
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3, as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranties of
+# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+# PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# For further info, check  https://launchpad.net/encuentro
+
+"""Main server process to get all info."""
 
 import bz2
 import codecs
-import os
-import re
 import json
+import os
 import sys
 import time
 import urllib2
 
+import scrapers
 
-THEME_URL = "http://descargas.encuentro.gov.ar/jsonProgramasPorTema.php"
-EPISODE_URL = "http://descargas.encuentro.gov.ar/emision.php?emision_id=%s"
 
-RE_SACATIT = re.compile('<h1 class="titFAQ">([^<]*)</h1>')
-RE_SINOPSIS = re.compile('<p class="sinopsisTXT">([^<]*)</p>')
-RE_TEMATICA = re.compile('<h2>Tem&aacute;tica:</h2>[^<]*<p>([^<]*)</p>')
-RE_DURACION = re.compile('<h2>Duraci&oacute;n:</h2>[^<]*<p>([^<]*)</p>')
+# different channels from where read content
+# id, name
+CHANNELS = [
+    (1, u"Encuentro"),
+    (2, u"Pakapaka"),
+    (3, u"Ronda"),
+    (125, u"Educ.ar"),
+    (126, u"Conectar Igualdad"),
+]
+
+# different emission types
+# id, name, divided in series or not
+EMISSIONS = [
+    (1, u"Película", False),
+    (2, u"Especial", False),
+    (3, u"Serie", True),
+    (4, u"Micro", True),
+]
+
+
+URL_BASE = "http://conectate.gov.ar"
+
+URL_SEARCH = (
+    "http://conectate.gov.ar/educar-portal-video-web/module/"
+    "busqueda/busquedaAvanzada.do?canalId=%(channel_id)d&modulo=menu"
+    "&temaCanalId=%(channel_id)d&tipoEmisionId=%(emission_id)d"
+    "&pagina=%(page_number)d&modo=Lista"
+)
 
 
 def retryable(func):
     """Decorator to retry functions."""
+    return func
     def _f(*args, **kwargs):
         for attempt in range(5, -1, -1):  # if reaches 0: no more attempts
             try:
@@ -36,120 +77,100 @@ def retryable(func):
 
 
 @retryable
-def get_episodes_by_theme(tema):
-    """Get all the episodes number of a theme."""
-    req = urllib2.Request(THEME_URL, "tema_id=%d" % tema)
-    print "Downloading theme", tema
-    u = urllib2.urlopen(req)
-    content = u.read()
-    resp = json.loads(content)
-    eps = [x['emision_id'] for x in resp]
-    print "   ok:", len(eps)
-    return eps
+def _search(url):
+    """Search each page."""
+    u = urllib2.urlopen(url)
+    page = u.read()
+    results = scrapers.scrap_busqueda(page)
+    return results
 
 
-def _episode_parser(pag):
-    """Get the episode info out of the HTML."""
+def do_search(channel_id, emis_id):
+    """Search the web site."""
+    print "Searching channel=%d  emission=%d" % (channel_id, emis_id)
+    all_items = []
+    page = 1
+    while True:
+        print "    page", page
+        d = dict(channel_id=channel_id, emission_id=emis_id, page_number=page)
+        url = URL_SEARCH % d
+        items = _search(url)
+        if not items:
+            # done, return collected info
+            print "    done:", len(all_items)
+            return all_items
 
-    m = RE_SACATIT.search(pag)
-    if m:
-        alltit = m.group(1).decode('utf8').strip()
-        if alltit == u'-':
-            # it doesn't really exist!
-            return
-        titulo, seccion = alltit.rsplit(" - ", 1)
-    else:
-        print "  Warning: couldn't get title/section"
-        titulo = None
-        seccion = None
-
-    m = RE_SINOPSIS.search(pag)
-    if m:
-        sinopsis = m.group(1).decode('utf8').strip()
-    else:
-        print "  Warning: couldn't get sinopsis"
-        sinopsis = None
-
-    m = RE_TEMATICA.search(pag)
-    if m:
-        tematica = m.group(1).decode('utf8').strip()
-    else:
-        print "  Warning: couldn't get theme"
-        tematica = None
-
-    m = RE_DURACION.search(pag)
-    if m:
-        strdur = m.group(1)    # possibilities found: '26', '0:26:00', '0:2600'
-        seps = strdur.count(':')
-        if seps == 0:
-            duracion = int(strdur)
-        elif seps == 1:
-            h, ms = strdur.split(':')
-            h = int(h)
-            assert len(ms) == 4, "Bad duration format: %r" % (strdur,)
-            m = int(ms[:2])
-            duracion = h * 60 + m
-        elif seps == 2:
-            h, m, s = map(int, strdur.split(':'))
-            duracion = h * 60 + m
-        else:
-            raise ValueError("Bad duration format: %r" % (strdur,))
-    else:
-        print "  Warning: couldn't get duration"
-        duracion = None
-
-    d = dict(titulo=titulo, seccion=seccion, sinopsis=sinopsis,
-             tematica=tematica, duracion=duracion)
-    return d
+        # store and go for next page
+        all_items.extend(items)
+        page += 1
 
 
 @retryable
-def get_episode_info(epis):
-    """Get the info of the episode."""
-    print "Downloading episode", epis
-    u = urllib2.urlopen(EPISODE_URL % epis)
-    pag = u.read()
-    d = _episode_parser(pag)
-    if d is not None:
-        d['nroemis'] = epis
-    return d
+def get_from_series(url):
+    """Get the episodes from an url page."""
+    print "Get from series:", url
+    u = urllib2.urlopen(url)
+    page = u.read()
+    results = scrapers.scrap_series(page)
+    print "   ", len(results)
+    return results
+
+
+@retryable
+def get_episode_info(url):
+    """Get the info from an episode."""
+    print "Get episode info:", url
+    u = urllib2.urlopen(url)
+    page = u.read()
+    print "=== scrap"
+    info = scrapers.scrap_video(page)
+    print "=== info", len(info)
+    return info
+
+
+def get_episodes():
+    """Yield episode info."""
+    for chan_id, chan_name in CHANNELS:
+        for emis_id, emis_name, emis_is_deep in EMISSIONS:
+            results = do_search(chan_id, emis_id)
+            if emis_is_deep:
+                # series, need to get each
+                episodes = []
+                for _, url in results:
+                    episodes.extend(get_from_series(URL_BASE + url))
+                results = episodes
+
+            # inform each
+            for title, url in results:
+                yield (chan_name, emis_name, title, URL_BASE + url)
+
+
+def get_all_data():
+    """Collect all data from the servers."""
+    all_data = []
+    for chan_name, emis_name, title, url in get_episodes():
+        info = dict(channel=chan_name, emission=emis_name, title=title)
+        descrip, durat = get_episode_info(url)
+        info.update(description=descrip, duration=durat)
+        all_data.append(info)
+    return all_data
 
 
 def main():
-    themepis = {}
-    for i in xrange(0, 50):
-        eps = get_episodes_by_theme(i)
-        if eps is None:
-            print "Abort!"
-            sys.exit()
-
-        for ep in eps:
-            themepis[int(ep)] = i
-
-    allepis = sorted(themepis)
-    print "Quantity of episodes:", len(allepis)
-
-    all_data = []
-    for epis in allepis:
-        d = get_episode_info(epis)
-        if d is None:
-            print "WARNING: Episode %d does not exist! (from theme %d)" % (
-                                                        epis, themepis[epis])
-        else:
-            all_data.append(d)
-
+    """Entry point."""
+    all_data = get_all_data()
     info = json.dumps(all_data)
 
     # uncompressed
-    with codecs.open("encuentro-v01.json.tmp", "w", "utf8") as fh:
+    with codecs.open("encuentro-v02.json.tmp", "w", "utf8") as fh:
         fh.write(info)
-    os.rename("encuentro-v01.json.tmp", "encuentro-v01.json")
+    os.rename("encuentro-v02.json.tmp", "encuentro-v02.json")
 
     # compressed
     info = bz2.compress(info)
-    with open("encuentro-v01.bz2.tmp", "wb") as fh:
+    with open("encuentro-v02.bz2.tmp", "wb") as fh:
         fh.write(info)
-    os.rename("encuentro-v01.bz2.tmp", "encuentro-v01.bz2")
+    os.rename("encuentro-v02.bz2.tmp", "encuentro-v02.bz2")
 
 
 if len(sys.argv) == 2:
