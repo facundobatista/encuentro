@@ -76,7 +76,7 @@ def scrap_video(html):
         elif hasattr(it, 'name'):
             if it.name == 'em':
                 desc_list.append(u'"' + it.text + u'"')
-            elif it.name == 'div':
+            elif it.name in ('div', 'strong'):
                 desc_list.append(it.text)
             elif it.name == 'br':
                 pass

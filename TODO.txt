@@ -1,8 +1,5 @@
 - hacer la parte server
-    - recorrer todas las búsquedas
-    - escrapear cada pag de busq, para lista de "descargas" o "lista episodios"
-    - escrapear cada pag de "lista episodios", para otra lista de "descargas"
-    - armar nuevo tarball con metadata, cambiando el nro de version
+    - terminar de revisar que anden todos los casos
     - pylint
 
 - hacer la parte cliente

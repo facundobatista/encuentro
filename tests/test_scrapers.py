@@ -112,6 +112,12 @@ _RES_VIDEO_6 = (
     15,
 )
 
+_RES_VIDEO_7 = (
+    u'La muestra Game On! El arte del juego se llevó adelante en la gelería de arte Objeto a, en el barrio de Palermo de la Ciudad de Buenos Aires, y educ.ar entrevistó a algunos de sus protagonistas.',
+    None,
+)
+
+
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
 
@@ -158,6 +164,11 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_video_6(self):
         html = open("../tests/ejemplo-video_6.html").read()
         res = scrapers.scrap_video(html)
-#        print "=== res", res
-#        print "=== RES", _RES_VIDEO_6
         self.assertEqual(res, _RES_VIDEO_6)
+
+    def test_example_video_7(self):
+        html = open("../tests/ejemplo-video_7.html").read()
+        res = scrapers.scrap_video(html)
+#        print "=== res", res
+#        print "=== RES", _RES_VIDEO_7
+        self.assertEqual(res, _RES_VIDEO_7)

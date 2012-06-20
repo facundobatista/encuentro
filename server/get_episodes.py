@@ -33,18 +33,18 @@ import scrapers
 # different channels from where read content
 # id, name
 CHANNELS = [
-#    (1, u"Encuentro"),
-#    (2, u"Pakapaka"),
+    (1, u"Encuentro"),
+    (2, u"Pakapaka"),
     (3, u"Ronda"),
-#    (125, u"Educ.ar"),
-#    (126, u"Conectar Igualdad"),
+    (125, u"Educ.ar"),
+    (126, u"Conectar Igualdad"),
 ]
 
 # different emission types
 # id, name, divided in series or not
 EMISSIONS = [
-#    (1, u"Película", False),
-#    (2, u"Especial", False),
+    (1, u"Película", False),
+    (2, u"Especial", False),
     (3, u"Serie", True),
     (4, u"Micro", True),
 ]
