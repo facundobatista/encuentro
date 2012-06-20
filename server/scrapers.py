@@ -23,6 +23,12 @@ import re
 import bs4
 
 
+def _sanitize(html):
+    """Sanitize html."""
+    html = re.sub("<script.*?</script>", "", html, flags=re.S)
+    return html
+
+
 def scrap_busqueda(html):
     """Get useful info from the search."""
     soup = bs4.BeautifulSoup(html)
@@ -38,10 +44,7 @@ def scrap_busqueda(html):
 
 def scrap_series(html):
     """Get useful info from the series list."""
-    # sanitize html
-    html = re.sub("<script.*?</script>", "", html, flags=re.S)
-
-    soup = bs4.BeautifulSoup(html)
+    soup = bs4.BeautifulSoup(_sanitize(html))
     epis_section = soup.find("ul", "serieCap")
     episodes = epis_section.find_all('a')
     processed = []
@@ -54,12 +57,12 @@ def scrap_series(html):
 
 def scrap_video(html):
     """Get useful info from the video page."""
-    soup = bs4.BeautifulSoup(html)
+    soup = bs4.BeautifulSoup(_sanitize(html))
 
     # get the description, can be multipart
     it = soup.find('div','capitulo_thumb')
     duration = None
-    description = []
+    desc_list = []
     while True:
         it = it.next_sibling
         if it is None:
@@ -70,13 +73,20 @@ def scrap_video(html):
             assert p1 == u"Duración"
             duration = int(p2.split()[0])
 
-        elif getattr(it, 'name', None) == "em":
-            txt = it.text.replace("\n", "").replace("\r", "").replace("\t", "")
-            description.append(u'"' + txt + u'"')
+        elif hasattr(it, 'name'):
+            if it.name == 'em':
+                desc_list.append(u'"' + it.text + u'"')
+            elif it.name == 'div':
+                desc_list.append(it.text)
+            elif it.name == 'br':
+                pass
+            else:
+                raise ValueError("Unknown item in the description: %r" % (it,))
 
         else:
-            txt = it.replace("\n", "").replace("\r", "").replace("\t", "")
-            description.append(txt)
+            desc_list.append(it)
 
-    description = "".join(description).strip()
+    description = "".join(desc_list).strip()
+    description = description.replace(u"\n", u"").replace(u"\r", u"").\
+                                replace(u"\t", u"").replace(u"\u0144", u"ñ")
     return (description, duration)

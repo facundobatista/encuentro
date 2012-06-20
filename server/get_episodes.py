@@ -18,6 +18,7 @@
 
 """Main server process to get all info."""
 
+import cPickle
 import bz2
 import codecs
 import json
@@ -32,11 +33,11 @@ import scrapers
 # different channels from where read content
 # id, name
 CHANNELS = [
-    (1, u"Encuentro"),
-    (2, u"Pakapaka"),
+#    (1, u"Encuentro"),
+#    (2, u"Pakapaka"),
     (3, u"Ronda"),
-    (125, u"Educ.ar"),
-    (126, u"Conectar Igualdad"),
+#    (125, u"Educ.ar"),
+#    (126, u"Conectar Igualdad"),
 ]
 
 # different emission types
@@ -57,6 +58,29 @@ URL_SEARCH = (
     "&temaCanalId=%(channel_id)d&tipoEmisionId=%(emission_id)d"
     "&pagina=%(page_number)d&modo=Lista"
 )
+
+
+class Cache(object):
+    """An automatic caché in disk."""
+    def __init__(self, fname):
+        self.fname = fname
+        if os.path.exists(fname):
+            with open(fname, "rb") as fh:
+                self.db = cPickle.load(fh)
+        else:
+            self.db = {}
+
+    def get(self, key):
+        """Return a value in the DB."""
+        return self.db[key]
+
+    def set(self, key, value):
+        """Set a value to the DB."""
+        self.db[key] = value
+        with open(self.fname, "wb") as fh:
+            cPickle.dump(self.db, fh)
+
+episodes_cache = Cache("episodes_cache.pickle")
 
 
 def retryable(func):
@@ -120,9 +144,15 @@ def get_from_series(i, url):
 def get_episode_info(i, url):
     """Get the info from an episode."""
     print "Get episode info:", i, url
-    u = urllib2.urlopen(url)
-    page = u.read()
-    info = scrapers.scrap_video(page)
+    try:
+        info = episodes_cache.get(url)
+        print "    cached!"
+    except KeyError:
+        u = urllib2.urlopen(url)
+        page = u.read()
+        info = scrapers.scrap_video(page)
+        episodes_cache.set(url, info)
+        print "    ok"
     return info
 
 

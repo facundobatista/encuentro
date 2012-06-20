@@ -97,6 +97,21 @@ _RES_VIDEO_3 = (
     51,
 )
 
+_RES_VIDEO_4 = (
+    u'La Revolución Libertadora y la resistencia peronista, los años de Frondizi y de Onganía, los gobiernos radicales: toda la historia argentina narrada desde un imponente archivo fotográfico, ilustraciones y material audiovisual. El relato permite apreciar los diferentes períodos históricos y cuáles fueron las consecuencias de los sucesos más significativos de la historia argentina del siglo XX, a partir del medio audiovisual como punto de partida para el debate y la reflexión.',
+    28,
+)
+
+_RES_VIDEO_5 = (
+    u'Este capítulo indaga sobre los mecanismos institucionales con los que cuenta un Estado nacional para administrar los recursos que dispone, cómo los administra y cuál es su función principal en un contexto democrático.',
+    26,
+)
+
+_RES_VIDEO_6 = (
+    u'Mitos, cuentos y leyendas pasan de generación en generación y se recuerdan desde tiempos inmemoriales hasta hoy en día. En este particular taller, Lila y Nico acompañan a su abuelo mientras intenta reparar su auto. El abuelo recuerda muchas historias y comparte con sus nietos charlas, aventuras y experiencias ocurridas en distintos lugares de Latinoamérica. En El taller de historias, se adaptan leyendas latinoamericanas y cuentos folclóricos argentinos para niños de 2 a 5 años. Una forma interesante y divertida de introducir el género al tiempo que se reivindica la transmisión oral y se fortalecen los vínculos intergeneracionales y la identificación con las distintas culturas latinoamericanas.',
+    15,
+)
+
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
 
@@ -129,3 +144,20 @@ class ScrapersTestCase(unittest.TestCase):
         html = open("../tests/ejemplo-video_3.html").read()
         res = scrapers.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_3)
+
+    def test_example_video_4(self):
+        html = open("../tests/ejemplo-video_4.html").read()
+        res = scrapers.scrap_video(html)
+        self.assertEqual(res, _RES_VIDEO_4)
+
+    def test_example_video_5(self):
+        html = open("../tests/ejemplo-video_5.html").read()
+        res = scrapers.scrap_video(html)
+        self.assertEqual(res, _RES_VIDEO_5)
+
+    def test_example_video_6(self):
+        html = open("../tests/ejemplo-video_6.html").read()
+        res = scrapers.scrap_video(html)
+#        print "=== res", res
+#        print "=== RES", _RES_VIDEO_6
+        self.assertEqual(res, _RES_VIDEO_6)
