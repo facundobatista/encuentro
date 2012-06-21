@@ -45,13 +45,15 @@ def scrap_busqueda(html):
 def scrap_series(html):
     """Get useful info from the series list."""
     soup = bs4.BeautifulSoup(_sanitize(html))
+    serietitle_section = soup.find("div", "titSerieEncabezado")
+    serietitle_text = serietitle_section.h1.text
     epis_section = soup.find("ul", "serieCap")
     episodes = epis_section.find_all('a')
     processed = []
     for epis in episodes:
         title = epis.text.strip()
         dest_url = epis.get('href')
-        processed.append((title, dest_url))
+        processed.append((u"%s: %s" % (serietitle_text, title), dest_url))
     return processed
 
 

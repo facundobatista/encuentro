@@ -178,7 +178,7 @@ def get_all_data():
     """Collect all data from the servers."""
     all_data = []
     for i, chan_name, emis_name, title, url in get_episodes():
-        info = dict(channel=chan_name, emission=emis_name, title=title)
+        info = dict(channel=chan_name, section=emis_name, title=title)
         descrip, durat = get_episode_info(i, url)
         info.update(description=descrip, duration=durat)
         all_data.append(info)

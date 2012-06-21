@@ -1,7 +1,3 @@
-- hacer la parte server
-    - terminar de revisar que anden todos los casos
-    - pylint
-
 - hacer la parte cliente
     - cuando el programa arranque (la nueva versión, 0.6)
         - encontrar que la MD en disco es la vieja
@@ -36,32 +32,6 @@
     - pylint
 
 
-Nuevo esquema:
-
-http://conectate.gov.ar/educar-portal-video-web/module/busqueda/busquedaAvanzada.do?canalId=126&modulo=menu&temaCanalId=126&tipoEmisionId=2&pagina=1&modo=Lista
-
-
-"pelicula" y "especial", van derecho a la descarga
-"serie" y "micro" van a una lista de temporadas (el html tiene todo)
-
-
-1. Busqueda
-  - titulo de la serie o pelicula/especial
-  - una imagen
-  - un texto explicativo
-  - un link a 2 o 3
-
-
-2. Lista temporadas
-  - Duración
-  - Genero (1 o varios)
-  - Título de cada episodio
-  - link a 3
-
-3. Video -- ¿vale la pena entrar acá?
-  - link a la descarga
-  - Duración
-
 
 Viejo:
     - titulo  (episodio)
@@ -78,6 +48,14 @@ Nuevo:
     - género (texto, con punto y coma)
     - duración (la que tengamos, o "?")
     (hover) descripción
+
+    - channel
+    - section
+    - title
+    - duration
+    - description (hover)
+    - estado
+
 
     al filtrar:
         por sección y titulo
