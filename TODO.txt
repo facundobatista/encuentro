@@ -1,30 +1,28 @@
+El sistema debe actualizarse.
+
+Esta nueva versión del programa Encuentro sólo funciona con contenido actualizado, lo cual le permitirá trabajar con programas del canal Encuentro y de otros nuevos canales.
+
+Para poder descargar el nuevo contenido, deberá registrar un nuevo usuario y actualizar el sistema. Haga click en "Aceptar" para limpiar la configuración, "Canc
+
+  - r
+
 - hacer la parte cliente
     - cuando el programa arranque (la nueva versión, 0.6)
-        - encontrar que la MD en disco es la vieja
-        - decirle al usuario...
-            - todo cambió, culpa de canal encuentro y amigos
-            - esta nueva versión sólo trabaja con contenido actualizado
-            - que está buenisimo porque hay muchas más cosas
-            - pero vas a tener que registrar nuevo usuario en $URL
-        - bajar la nueva MD del server
+        - encontrar que la MD en disco es la vieja (detectar que el tarball
+          cambió de versión y avisarle al usuario)
+        - si el usuario no quiere, salir del programa
+        - si el usuario acepta,
         - borrar de la config usuario y claves viejos (para que el programa exprese
           que falta registrar usuario)
-        - actualizar todo, dejar todo lindo para usar
-    - detectar que el tarball cambió de versión y avisarle al usuario:
-        - que va a perder el estado anterior
-        - que tiene que registrarse en el nuevo sitio para poder bajar lo nuevo
-        - aclarar que va a tener más contenido
+            - bajar la nueva MD del server
+            - actualizar todo, dejar todo lindo para usar
     - toquetear todo lo que dice "canal Encuentro" y agregar los otros canales
         - en la web, oficial
         - en la web, del proyecto
-        - en el código
-        - en el glade
         - en READMEs, etc
     - tambien toquetear en todos lados la URL para sacar usuarios
         - en la web, oficial
         - en la web, del proyecto
-        - en el código
-        - en el glade
         - en READMEs, etc
     - cuando diga que "OK a todo nuevo"
         - cambiar las columnas
@@ -62,6 +60,16 @@ Nuevo:
     para despues
         combo box por canal
         combo box por género
+
+
+    {
+    u'channel': u'Encuentro',
+    u'section': u'Serie',
+    u'title': u'Especiales Historia de un pa\xeds Argentina siglo XX. Efem\xe9rides: Especial 11 de Septiembre'
+    u'duration': 26,
+    u'description': u'La versi\xf3n oficial sobre Domingo Faustino ...',
+    }
+
 
 ------------------
 

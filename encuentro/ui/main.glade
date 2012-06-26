@@ -9,7 +9,7 @@
     <property name="program_name">Encuentro</property>
     <property name="version">tobereplacedbycode</property>
     <property name="copyright" translatable="yes">Copyright 2010-2012 Facundo Batista</property>
-    <property name="comments">Simple programa que permite buscar, descargar y ver contenido del Canal Encuentro.
+    <property name="comments">Simple programa que permite buscar, descargar y ver contenido del Canal Encuentro y otros.
 </property>
     <property name="website">http://encuentro.taniquetil.com.ar</property>
     <property name="website_label" translatable="yes">http://encuentro.taniquetil.com.ar</property>
@@ -893,6 +893,71 @@ Public License instead of this License.  But first, please read
     <action-widgets>
       <action-widget response="0">button_back</action-widget>
       <action-widget response="1">button_quit</action-widget>
+    </action-widgets>
+  </object>
+  <object class="GtkMessageDialog" id="dialog_upgrade">
+    <property name="can_focus">False</property>
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Actualización necesaria</property>
+    <property name="type_hint">dialog</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="message_type">warning</property>
+    <property name="text" translatable="yes">El contenido debe actualizarse</property>
+    <property name="secondary_text" translatable="yes">Esta nueva versión del programa Encuentro sólo funciona con contenido actualizado, lo cual le permitirá trabajar con programas del canal Encuentro y de otros nuevos canales, pero deberá configurarlo nuevamente y perderá la posibilidad de ver directactamente los videos ya descargados (los cuales permanecerán en su disco).</property>
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="dialog-vbox3">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="button_upgrade_quit">
+                <property name="label" translatable="yes">Salir del programa</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="button_upgrade_go">
+                <property name="label" translatable="yes">Continuar y actualizar</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="0">button_upgrade_quit</action-widget>
+      <action-widget response="0">button_upgrade_go</action-widget>
     </action-widgets>
   </object>
   <object class="GtkWindow" id="main_window">

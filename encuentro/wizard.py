@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011 Facundo Batista
+# Copyright 2011-2012 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -26,10 +26,10 @@ import gtk
 
 BASEDIR = os.path.dirname(__file__)
 
-URL_ENCUENTRO = "http://www.encuentro.gov.ar/registration.aspx"
+URL_REGIS = "http://registro.educ.ar/cuentas/registro/index?servicio=conectate"
 
 TEXT_INIT = u"""
-Bienvenido al visor de contenido del Canal Encuentro.
+Bienvenido al visor de contenido del Canal Encuentro y otros.
 Para poder usar el programa debe primero configurarlo!
 """
 
@@ -40,11 +40,11 @@ y en cualquier momento desde el menú del programa.
 """
 
 TEXT_CONFIG = u"""
-Para poder descargar los programas de Canal Encuentro tiene que obtener
+Para poder descargar los programas de Conectate tiene que obtener
 un usuario y clave, y luego configurar el sistema ahora desde esta misma
 ventana o en cualquier momento desde el menú del programa.
 
-Para obtener usuario y clave haga click en "Abrir web Encuentro" aquí abajo.
+Para obtener usuario y clave haga click en "Abrir web Conectate" aquí abajo.
 """
 
 TEXT_END = u"""
@@ -151,7 +151,7 @@ class WizardUI(object):
             self.close()
         elif self.state == 'config':
             # open web to register
-            webbrowser.open(URL_ENCUENTRO)
+            webbrowser.open(URL_REGIS)
         else:
             raise ValueError("Bad state for button 3: %s", self.state)
 
@@ -198,7 +198,7 @@ class WizardUI(object):
         self.set_button_text(self.button2, u"Configurar ahora")
         if self.button3 not in self.buttons_box:
             self.buttons_box.pack_end(self.button3, expand=False, padding=5)
-        self.set_button_text(self.button3, u"Abrir web Encuentro")
+        self.set_button_text(self.button3, u"Abrir web Conectate")
 
     def state_end(self):
         """Wizard done."""
