@@ -1,10 +1,15 @@
+Para la web:
+------------
+
 El sistema debe actualizarse.
 
 Esta nueva versión del programa Encuentro sólo funciona con contenido actualizado, lo cual le permitirá trabajar con programas del canal Encuentro y de otros nuevos canales.
 
 Para poder descargar el nuevo contenido, deberá registrar un nuevo usuario y actualizar el sistema. Haga click en "Aceptar" para limpiar la configuración, "Canc
 
-  - r
+
+
+
 
 - hacer la parte cliente
     - cuando el programa arranque (la nueva versión, 0.6)
@@ -16,20 +21,16 @@ Para poder descargar el nuevo contenido, deberá registrar un nuevo usuario y ac
           que falta registrar usuario)
             - bajar la nueva MD del server
             - actualizar todo, dejar todo lindo para usar
-    - toquetear todo lo que dice "canal Encuentro" y agregar los otros canales
-        - en la web, oficial
-        - en la web, del proyecto
-        - en READMEs, etc
-    - tambien toquetear en todos lados la URL para sacar usuarios
-        - en la web, oficial
-        - en la web, del proyecto
-        - en READMEs, etc
-    - cuando diga que "OK a todo nuevo"
-        - cambiar las columnas
-        - cargar metadata nueva
+                - cambiar las columnas
+                - cargar metadata nueva
+    - poner en el index.html:
+        - el texto explicando el gran cambio (ver arriba)
+        - los pequeños features/bugs que entraron
     - pylint
 
-
+- lanzamiento
+    - sacar el tarball, pedir reviews, pruebas
+    - luego, el final (con todo todo)
 
 Viejo:
     - titulo  (episodio)

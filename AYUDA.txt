@@ -1,6 +1,6 @@
-¡Bienvenido al Visualizador de contenidos del Canal Encuentro!
+¡Bienvenido al Visualizador de contenidos del Canal Encuentro y otros!
 
-Este es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro. Para más información de cómo instalar el programa y licencias, leer el archivo LEEME.txt.
+Este es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro y otros. Para más información de cómo instalar el programa y licencias, leer el archivo LEEME.txt.
 
 
 Cómo ejecutar el programa
@@ -24,17 +24,17 @@ Para descargar cualquiera de ellos, tenés que seleccionarlo y hacer click en el
 
 Entonces, accedé a esta página:
 
-   http://www.encuentro.gov.ar/registration.aspx
+   http://registro.educ.ar/cuentas/ServicioLogin/index?servicio=conectate
 
 ...y obtené un usuario y una clave. Luego, volviendo al programa, hacé click en el botón Configurar de la barra de arriba. Te aparecerá un diálogo con tres campos, allí tienes que incluir:
 
-- el usuario que acabas de obtener del sitio del Canal Encuentro
+- el usuario que acabas de obtener del sitio del Conectate
 
 - la clave que también acabás de obtener
 
 - el directorio donde querés que se descarguen los capítulos
 
-Listo! Ahora puedes descargar cualquier programa!
+Listo! Ahora puedes descargar cualquier programa de cualquier canal!
 
 Una vez descargado, para verlos sólo necesitás seleccionarlo y hacer click en el botón de Play.
 
