@@ -36,7 +36,6 @@ else:
     from Queue import Empty
 
 from mechanize import Browser
-from mechanize._mechanize import LinkNotFoundError
 
 # this must go before the reactor import
 from encuentro import platform
@@ -104,6 +103,7 @@ class MiBrowser(Process):
         logger.debug("Opening final url")
         content = browser.open(new_url)
         try:
+            # pylint: disable=W0212
             filesize = int(content._headers['content-length'])
         except KeyError:
             pass

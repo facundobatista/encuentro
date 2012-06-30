@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011 Facundo Batista
+# Copyright 2011-2012 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -47,9 +47,12 @@ from twisted.web import client
 from encuentro.network import Downloader, BadCredentialsError, CancelledError
 from encuentro import wizard
 
-EPISODES_URL = "http://www.taniquetil.com.ar/encuentro-v01.bz2"
+EPISODES_URL = "http://www.taniquetil.com.ar/encuentro-v02.bz2"
 
 BASEDIR = os.path.dirname(__file__)
+
+# more recent version of the in-disk data
+LAST_PROGRAMS_VERSION = 1
 
 logger = logging.getLogger('encuentro.main')
 
@@ -85,39 +88,38 @@ class Status(object):
 class EpisodeData(object):
     """Episode data."""
     _liststore_order = {
-        'titulo': 0,
-        'seccion': 1,
-        'tematica': 2,
-        'duracion': 3,
-        'nroemis': 4,
-        'state': 5,        # note that state and progress both point to row 5,
-        'progress': 5,     # because any change in these will update the row
+        'channel': 0,
+        'section': 1,
+        'title': 2,
+        'duration': 3,
+        'state': 4,        # note that state and progress both point to row 4,
+        'progress': 4,     # because any change in these will update the row
     }
 
-    def __init__(self, titulo, seccion, sinopsis, tematica, duracion, nroemis,
-                 state=None, progress=None, filename=None):
-        self.titulo = titulo
-        self.seccion = seccion
-        self.sinopsis = sinopsis
-        self.tematica = tematica
-        self.duracion = duracion
+    def __init__(self, channel, section, title, duration, description,
+                 episode_id, state=None, progress=None, filename=None):
+        self.channel = channel
+        self.section = section
+        self.title = title
+        self.duration = duration
+        self.description = description
+        self.episode_id = episode_id
         self.state = Status.none if state is None else state
         self.progress = progress
         self.filename = filename
-        self.nroemis = nroemis
         self.to_filter = None
         self.set_filter()
 
     def set_filter(self):
         """Set the data to filter later."""
         self.to_filter = dict(
-            titulo=prepare_to_filter(self.titulo),
-            seccion=prepare_to_filter(self.seccion),
+            titulo=prepare_to_filter(self.title),
+            seccion=prepare_to_filter(self.section),
         )
 
     def __str__(self):
-        return "<EpisodeData [%d] (%s) %r>" % (self.nroemis,
-                                               self.state, self.titulo)
+        return "<EpisodeData [%d] (%s) %r>" % (self.episode_id,
+                                               self.state, self.title)
 
     def _filter(self, attrib_name, field_filter):
         """Check if filter is ok and highligh the attribute."""
@@ -135,18 +137,18 @@ class EpisodeData(object):
     def get_row_data(self, field_filter):
         """Return the data for the liststore row."""
         if field_filter == '':
-            title = self.titulo
-            seccion = self.seccion
+            title = self.title
+            section = self.section
         else:
             # it's being filtered
-            found_titulo, title = self._filter('titulo', field_filter)
-            found_seccion, seccion = self._filter('seccion', field_filter)
-            if not found_titulo and not found_seccion:
+            found_title, title = self._filter('title', field_filter)
+            found_section, section = self._filter('section', field_filter)
+            if not found_title and not found_section:
                 # not matched any of both, don't show the row
                 return
 
-        data = (title, seccion, self.tematica, self.duracion, self.nroemis,
-                self._get_nice_state(), self.sinopsis)
+        data = (self.channel, section, title, self.duration, self.episode_id,
+                self._get_nice_state(), self.description)
         return data
 
     def _get_nice_state(self):
@@ -202,7 +204,7 @@ class PreferencesUI(object):
     def run(self, parent_pos=None):
         """Show the dialog."""
         self.entry_user.set_text(self.config_data.get('user', ''))
-        self.entry_password.set_text(self.config_data.get('password', ''))
+        elf.entry_password.set_text(self.config_data.get('password', ''))
         self.entry_downloaddir.set_text(
                                     self.config_data.get('downloaddir', ''))
         self.checkbutton_autorefresh.set_active(
@@ -297,7 +299,9 @@ class UpdateUI(object):
         logger.info("Updating episodes metadata")
         tell_user("Descargando la lista de episodios...\n")
         try:
-            compressed = yield client.getPage(EPISODES_URL)
+#            compressed = yield client.getPage(EPISODES_URL)
+            # FIXME: undo this hack
+            compressed = open("server/encuentro-v02.bz2").read()
         except Exception, e:
             logger.error("Problem when downloading episodes: %s", e)
             tell_user("Hubo un PROBLEMA al bajar los episodios: " + str(e))
@@ -368,6 +372,7 @@ class MainUI(object):
             'dialog_quit', 'dialog_quit_label', 'dialog_alert', 'dialog_error',
             'rb_menu', 'rbmenu_play', 'rbmenu_cancel', 'rbmenu_download',
             'menu_download', 'menu_play', 'aboutdialog', 'statusicon',
+            'dialog_upgrade',
         )
 
         for widget in widgets:
@@ -388,23 +393,47 @@ class MainUI(object):
         # get data from file, or empty
         if os.path.exists(self._data_file):
             with open(self._data_file) as fh:
-                self.programs_data = pickle.load(fh)
+                loaded_programs_data = pickle.load(fh)
         else:
             self.programs_data = {}
-        logger.info("Episodes metadata loaded (%d)", len(self.programs_data))
 
-        # check if we need to update "to_filter"
-        one_program = self.programs_data.values()[:1]
-        if one_program:
-            old_to_filter = getattr(one_program[0], 'to_filter', None)
-            if old_to_filter is None or isinstance(old_to_filter, basestring):
-                for p in self.programs_data.itervalues():
-                    p.set_filter()
+        if isinstance(loaded_programs_data, dict):
+            # pre-versioned data
+            self.programs_vers = None
+            self.programs_data = loaded_programs_data
+        else:
+            self.programs_vers, self.programs_data = loaded_programs_data
+
+        logger.info("Episodes metadata loaded ver=%r  len=%d",
+                    self.programs_vers, len(self.programs_data))
+
+        reset_userpass = False
+        if self.programs_vers is None:
+             # migrate! actually, from None, no migration is possible, we
+             # need to tell the user the ugly truth
+             self.programs_vers = LAST_PROGRAMS_VERSION
+             go_on = self.dialog_upgrade.run()
+             self.dialog_upgrade.hide()
+             if not go_on:
+                 exit()
+             # if user accessed to go on, don't really need to migrate
+             # anything, as *all* the code is to support the new metadata
+             # version only, so just remove it and mark the usr/pass config
+             # to be removed
+             reset_userpass = True
+             self.programs_data = {}
+
+        if self.programs_vers != LAST_PROGRAMS_VERSION:
+            raise ValueError("Data is newer than code! %s" %
+                             (self.programs_vers,))
 
         # get config from file, or defaults
         if os.path.exists(self._config_file):
             with open(self._config_file) as fh:
                 self.config = pickle.load(fh)
+                if reset_userpass:
+                    self.config['user'] = ''
+                    self.config['password'] = ''
         else:
             self.config = {}
 
@@ -529,27 +558,27 @@ class MainUI(object):
     def merge_episode_data(self, new_data):
         """Merge new data to current programs data."""
         for d in new_data:
-            # v01 of json file
-            nroemis = d['nroemis']
-            sinopsis = d['sinopsis']
-            tematica = d['tematica']
-            seccion = d['seccion']
-            titulo = d['titulo']
-            duracion = d['duracion']
+            # v1 of json file
+            channel = d['channel']
+            section = d['section']
+            title = d['title']
+            duration = d['duration']
+            description = d['description']
+            episode_id = d['episode_id']
 
             try:
-                epis = self.programs_data[d['nroemis']]
+                epis = self.programs_data[episode_id]
             except KeyError:
-                ed = EpisodeData(titulo=titulo, seccion=seccion,
-                                 sinopsis=sinopsis, tematica=tematica,
-                                 duracion=duracion, nroemis=nroemis)
-                self.programs_data[nroemis] = ed
+                ed = EpisodeData(channel=channel, section=section, title=title,
+                                 duration=duration, description=description,
+                                 episode_id=episode_id)
+                self.programs_data[episode_id] = ed
             else:
-                epis.titulo = titulo
-                epis.sinopsis = sinopsis
-                epis.tematica = tematica
-                epis.seccion = seccion
-                epis.duracion = duracion
+                epis.channel  = channel
+                epis.section = section
+                epis.title = title
+                epis.duration = duration
+                epis.description = description
                 epis.set_filter()
 
         # refresh the treeview and save the data
@@ -753,6 +782,7 @@ class MainUI(object):
             episode.update_row(row, progress=progress)
 
         # download!
+        # pylint: disable=E1120
         fname = yield self.downloader.download(episode_number,
                                                update_progress_cb)
         episode_name = u"%s (%s)" % (row[0], row[1])

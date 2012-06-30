@@ -957,7 +957,7 @@ Public License instead of this License.  But first, please read
     </child>
     <action-widgets>
       <action-widget response="0">button_upgrade_quit</action-widget>
-      <action-widget response="0">button_upgrade_go</action-widget>
+      <action-widget response="1">button_upgrade_go</action-widget>
     </action-widgets>
   </object>
   <object class="GtkWindow" id="main_window">

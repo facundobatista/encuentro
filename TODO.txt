@@ -13,16 +13,10 @@ Para poder descargar el nuevo contenido, deberá registrar un nuevo usuario y ac
 
 - hacer la parte cliente
     - cuando el programa arranque (la nueva versión, 0.6)
-        - encontrar que la MD en disco es la vieja (detectar que el tarball
-          cambió de versión y avisarle al usuario)
-        - si el usuario no quiere, salir del programa
-        - si el usuario acepta,
-        - borrar de la config usuario y claves viejos (para que el programa exprese
-          que falta registrar usuario)
-            - bajar la nueva MD del server
-            - actualizar todo, dejar todo lindo para usar
-                - cambiar las columnas
-                - cargar metadata nueva
+        - bajar la nueva MD del server
+        - actualizar todo, dejar todo lindo para usar
+            - cambiar las columnas
+            - cargar metadata nueva
     - poner en el index.html:
         - el texto explicando el gran cambio (ver arriba)
         - los pequeños features/bugs que entraron

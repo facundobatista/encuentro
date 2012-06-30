@@ -18,6 +18,7 @@
 
 """Main server process to get all info."""
 
+import cgi
 import cPickle
 import bz2
 import codecs
@@ -180,7 +181,9 @@ def get_all_data():
     for i, chan_name, emis_name, title, url in get_episodes():
         info = dict(channel=chan_name, section=emis_name, title=title)
         descrip, durat = get_episode_info(i, url)
-        info.update(description=descrip, duration=durat)
+        episode_id =  cgi.parse_qs(urllib2.urlparse.urlparse(url)
+                                                        .query)['idRecurso'][0]
+        info.update(description=descrip, duration=durat, episode_id=episode_id)
         all_data.append(info)
     return all_data
 
