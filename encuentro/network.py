@@ -50,7 +50,7 @@ CHUNK = 16 * 1024
 
 BAD_LOGIN_TEXT = "loginForm"
 
-DONE_TOKEN = object()
+DONE_TOKEN = "I positively assure that the download is finished (?)"
 
 logger = logging.getLogger('encuentro.network')
 
@@ -145,7 +145,6 @@ class MiBrowser(Process):
 
         # get the filename and download
         fname = self.input_queue.get(browser)
-        print "==== FNAME", fname
         try:
             content, filesize = self._get_download_content(browser)
         except Exception, e:
@@ -219,7 +218,7 @@ class Downloader(object):
         self.cancelled = True
 
     @defer.inlineCallbacks
-    def download(self, seccion, titulo, url, cb_progress):
+    def download(self, canal, seccion, titulo, url, cb_progress):
         """Descarga una emisión a disco."""
         self.cancelled = False
 
@@ -234,13 +233,13 @@ class Downloader(object):
         logger.info("Download episode %r: browser started", url)
         brow = MiBrowser(authuser, authpass, url, qoutput, qinput, bquit)
         brow.start()
-        print "=== brow started"
 
         # build where to save it
         downloaddir = self.config.get('downloaddir', '')
+        canal = platform.sanitize(canal)
         seccion = platform.sanitize(seccion)
         titulo = platform.sanitize(titulo)
-        fname = os.path.join(downloaddir, seccion, titulo + u".avi")
+        fname = os.path.join(downloaddir, canal, seccion, titulo + u".avi")
 
         # ver si esa seccion existe, sino crearla
         dirsecc = os.path.dirname(fname)
@@ -268,7 +267,7 @@ class Downloader(object):
                 raise CancelledError()
             if isinstance(data, Exception):
                 raise data
-            if data is DONE_TOKEN:
+            if data == DONE_TOKEN:
                 break
 
             # actualizamos si hay algo nuevo

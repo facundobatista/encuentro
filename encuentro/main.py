@@ -94,13 +94,14 @@ class EpisodeData(object):
     }
 
     def __init__(self, channel, section, title, duration, description,
-                 episode_id, state=None, progress=None, filename=None):
+                 episode_id, url, state=None, progress=None, filename=None):
         self.channel = channel
         self.section = section
         self.title = title
         self.duration = duration
         self.description = description
         self.episode_id = episode_id
+        self.url = url
         self.state = Status.none if state is None else state
         self.progress = progress
         self.filename = filename
@@ -147,8 +148,8 @@ class EpisodeData(object):
         # FIXME: mostrar ?, no 0
         duration = 0 if self.duration is None else self.duration
 
-        data = (self.channel, section, title, duration,
-                self._get_nice_state(), self.description, self.episode_id)
+        data = (self.channel, section, title, duration, self._get_nice_state(),
+                self.description, self.episode_id)
         return data
 
     def _get_nice_state(self):
@@ -624,13 +625,14 @@ class MainUI(object):
             duration = d['duration']
             description = d['description']
             episode_id = d['episode_id']
+            url = d['url']
 
             try:
                 epis = self.programs_data[episode_id]
             except KeyError:
                 ed = EpisodeData(channel=channel, section=section, title=title,
                                  duration=duration, description=description,
-                                 episode_id=episode_id)
+                                 episode_id=episode_id, url=url)
                 self.programs_data[episode_id] = ed
             else:
                 epis.channel  = channel
@@ -638,6 +640,7 @@ class MainUI(object):
                 epis.title = title
                 epis.duration = duration
                 epis.description = description
+                epis.url = url
                 epis.set_filter()
 
         # refresh the treeview and save the data
@@ -685,9 +688,9 @@ class MainUI(object):
 
         # stuff pending
         # we *sure* have idx and program; pylint: disable=W0631
-        logger.info("Active downloads! %s (%r)", idx, program.titulo)
+        logger.info("Active downloads! %s (%r)", idx, program.title)
         m = (u"Al menos un programa está todavía en proceso de descarga!\n\n"
-             u"Episodio %s: %s\n" % (idx, program.titulo))
+             u"Episodio %s: %s\n" % (idx, program.title))
         self.dialog_quit_label.set_text(m)
         opt_quit = self.dialog_quit.run()
         self.dialog_quit.hide()
@@ -831,7 +834,7 @@ class MainUI(object):
         """Effectively download an episode."""
         episode_number = row[6]  # 6 is the episode number
         episode = self.programs_data[episode_number]
-        logger.debug("Effectively downloading episode %d", episode_number)
+        logger.debug("Effectively downloading episode %s", episode_number)
         episode.update_row(row, state=Status.downloading,
                            progress="comenzando...")
 
@@ -840,10 +843,11 @@ class MainUI(object):
             episode.update_row(row, progress=progress)
 
         # download!
-        # pylint: disable=E1120
-        fname = yield self.downloader.download(episode_number,
-                                               update_progress_cb)
-        episode_name = u"%s (%s)" % (row[0], row[1])
+        fname = yield self.downloader.download(episode.channel,
+                                               episode.section, episode.title,
+                                               episode.url, update_progress_cb)
+        episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
+                                          episode.title)
         if self.config.get('notification', True) and pynotify is not None:
             n = pynotify.Notification(u"Descarga finalizada", episode_name)
             n.show()
