@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011 Facundo Batista
+# Copyright 2011-2012 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -47,7 +47,7 @@ from twisted.web import client
 from encuentro.network import Downloader, BadCredentialsError, CancelledError
 from encuentro import wizard
 
-EPISODES_URL = "http://www.taniquetil.com.ar/encuentro-v01.bz2"
+EPISODES_URL = "http://www.taniquetil.com.ar/encuentro-v02.bz2"
 
 BASEDIR = os.path.dirname(__file__)
 
@@ -85,39 +85,38 @@ class Status(object):
 class EpisodeData(object):
     """Episode data."""
     _liststore_order = {
-        'titulo': 0,
-        'seccion': 1,
-        'tematica': 2,
-        'duracion': 3,
-        'nroemis': 4,
-        'state': 5,        # note that state and progress both point to row 5,
-        'progress': 5,     # because any change in these will update the row
+        'channel': 0,
+        'section': 1,
+        'title': 2,
+        'duration': 3,
+        'state': 4,        # note that state and progress both point to row 4,
+        'progress': 4,     # because any change in these will update the row
     }
 
-    def __init__(self, titulo, seccion, sinopsis, tematica, duracion, nroemis,
-                 state=None, progress=None, filename=None):
-        self.titulo = titulo
-        self.seccion = seccion
-        self.sinopsis = sinopsis
-        self.tematica = tematica
-        self.duracion = duracion
+    def __init__(self, channel, section, title, duration, description,
+                 episode_id, url, state=None, progress=None, filename=None):
+        self.channel = channel
+        self.section = section
+        self.title = title
+        self.duration = duration
+        self.description = description
+        self.episode_id = episode_id
+        self.url = url
         self.state = Status.none if state is None else state
         self.progress = progress
         self.filename = filename
-        self.nroemis = nroemis
         self.to_filter = None
         self.set_filter()
 
     def set_filter(self):
         """Set the data to filter later."""
         self.to_filter = dict(
-            titulo=prepare_to_filter(self.titulo),
-            seccion=prepare_to_filter(self.seccion),
+            title=prepare_to_filter(self.title),
         )
 
     def __str__(self):
-        return "<EpisodeData [%d] (%s) %r>" % (self.nroemis,
-                                               self.state, self.titulo)
+        return "<EpisodeData [%s] (%s) %r (%r): %r>" % (self.episode_id,
+                            self.state, self.channel, self.section, self.title)
 
     def _filter(self, attrib_name, field_filter):
         """Check if filter is ok and highligh the attribute."""
@@ -135,18 +134,18 @@ class EpisodeData(object):
     def get_row_data(self, field_filter):
         """Return the data for the liststore row."""
         if field_filter == '':
-            title = self.titulo
-            seccion = self.seccion
+            title = self.title
         else:
             # it's being filtered
-            found_titulo, title = self._filter('titulo', field_filter)
-            found_seccion, seccion = self._filter('seccion', field_filter)
-            if not found_titulo and not found_seccion:
-                # not matched any of both, don't show the row
+            found_title, title = self._filter('title', field_filter)
+            if not found_title:
+                # not matched any, don't show the row
                 return
 
-        data = (title, seccion, self.tematica, self.duracion, self.nroemis,
-                self._get_nice_state(), self.sinopsis)
+        duration = u'?' if self.duration is None else unicode(self.duration)
+
+        data = (self.channel, self.section, title, duration,
+                self._get_nice_state(), self.description, self.episode_id)
         return data
 
     def _get_nice_state(self):
@@ -345,12 +344,103 @@ class SensitiveGrouper(object):
         toolb.set_tooltip(self._tooltips, tip_text)
 
 
+class ProgramsData(object):
+    """Holder / interface for programs data."""
+
+    # more recent version of the in-disk data
+    last_programs_version = 1
+
+    def __init__(self, main_window, filename):
+        self.main_window = main_window
+        self.filename = filename
+        print "Using data file:", repr(filename)
+
+        self.version = None
+        self.data = None
+        self.reset_config_from_migration = False
+        self.load()
+        self.migrate()
+
+    def load(self):
+        """Load the data from the file."""
+        # if not file, all empty
+        if not os.path.exists(self.filename):
+            self.data = {}
+            self.version = self.last_programs_version
+            return
+
+        # get from the file
+        with open(self.filename, 'rb') as fh:
+            loaded_programs_data = pickle.load(fh)
+
+        # check pre-versioned data
+        if isinstance(loaded_programs_data, dict):
+            # pre-versioned data
+            self.version = 0
+            self.data = loaded_programs_data
+        else:
+            self.version, self.data = loaded_programs_data
+
+    def migrate(self):
+        """Migrate metadata if needed."""
+        if self.version == self.last_programs_version:
+            # all updated, nothing to migrate
+            return
+
+        if self.version > self.last_programs_version:
+            raise ValueError("Data is newer than code! %s" % (self.version,))
+
+        # migrate
+        if self.version == 0:
+            # migrate! actually, from 0, no migration is possible, we
+            # need to tell the user the ugly truth
+            self.version = self.last_programs_version
+            dialog = self.main_window.dialog_upgrade
+            go_on = dialog.run()
+            dialog.hide()
+            if not go_on:
+                exit()
+            # if user accessed to go on, don't really need to migrate
+            # anything, as *all* the code is to support the new metadata
+            # version only, so just remove it and mark the usr/pass config
+            # to be removed
+            self.reset_config_from_migration = True
+            self.data = {}
+            return
+
+        raise ValueError("Don't know how to migrate from %r" % (self.version,))
+
+    def __str__(self):
+        return "<ProgramsData ver=%r len=%d>" % (self.version, len(self.data))
+
+    def __nonzero__(self):
+        return bool(self.data)
+
+    def __getitem__(self, pos):
+        return self.data[pos]
+
+    def __setitem__(self, pos, value):
+        self.data[pos] = value
+
+    def values(self):
+        """Return the iter values of the data."""
+        return self.data.itervalues()
+
+    def items(self):
+        """Return the iter items of the data."""
+        return self.data.iteritems()
+
+    def save(self):
+        """Save to disk."""
+        to_save = (self.last_programs_version, self.data)
+        with open(self.filename, 'wb') as fh:
+            pickle.dump(to_save, fh)
+
+
 class MainUI(object):
     """Main GUI class."""
 
-    _data_file = os.path.join(platform.data_dir, 'encuentro.data')
     _config_file = os.path.join(platform.config_dir, 'encuentro.conf')
-    print "Using data file:", repr(_data_file)
     print "Using configuration file:", repr(_config_file)
 
     def __init__(self, version):
@@ -368,6 +458,7 @@ class MainUI(object):
             'dialog_quit', 'dialog_quit_label', 'dialog_alert', 'dialog_error',
             'rb_menu', 'rbmenu_play', 'rbmenu_cancel', 'rbmenu_download',
             'menu_download', 'menu_play', 'aboutdialog', 'statusicon',
+            'dialog_upgrade',
         )
 
         for widget in widgets:
@@ -385,26 +476,20 @@ class MainUI(object):
             column.pack_end(cell_renderer, expand=True)
             column.add_attribute(cell_renderer, "text", col_number)
 
-        # get data from file, or empty
-        if os.path.exists(self._data_file):
-            with open(self._data_file) as fh:
-                self.programs_data = pickle.load(fh)
-        else:
-            self.programs_data = {}
-        logger.info("Episodes metadata loaded (%d)", len(self.programs_data))
-
-        # check if we need to update "to_filter"
-        one_program = self.programs_data.values()[:1]
-        if one_program:
-            old_to_filter = getattr(one_program[0], 'to_filter', None)
-            if old_to_filter is None or isinstance(old_to_filter, basestring):
-                for p in self.programs_data.itervalues():
-                    p.set_filter()
+        data_file = os.path.join(platform.data_dir, 'encuentro.data')
+        self.programs_data = ProgramsData(self, data_file)
+        logger.info("Episodes metadata loaded: %s", self.programs_data)
 
         # get config from file, or defaults
         if os.path.exists(self._config_file):
             with open(self._config_file) as fh:
                 self.config = pickle.load(fh)
+                if self.programs_data.reset_config_from_migration:
+                    self.config['user'] = ''
+                    self.config['password'] = ''
+                    del self.config['cols_width']
+                    del self.config['cols_order']
+                    del self.config['selected_row']
         else:
             self.config = {}
 
@@ -529,27 +614,29 @@ class MainUI(object):
     def merge_episode_data(self, new_data):
         """Merge new data to current programs data."""
         for d in new_data:
-            # v01 of json file
-            nroemis = d['nroemis']
-            sinopsis = d['sinopsis']
-            tematica = d['tematica']
-            seccion = d['seccion']
-            titulo = d['titulo']
-            duracion = d['duracion']
+            # v1 of json file
+            channel = d['channel']
+            section = d['section']
+            title = d['title']
+            duration = d['duration']
+            description = d['description']
+            episode_id = d['episode_id']
+            url = d['url']
 
             try:
-                epis = self.programs_data[d['nroemis']]
+                epis = self.programs_data[episode_id]
             except KeyError:
-                ed = EpisodeData(titulo=titulo, seccion=seccion,
-                                 sinopsis=sinopsis, tematica=tematica,
-                                 duracion=duracion, nroemis=nroemis)
-                self.programs_data[nroemis] = ed
+                ed = EpisodeData(channel=channel, section=section, title=title,
+                                 duration=duration, description=description,
+                                 episode_id=episode_id, url=url)
+                self.programs_data[episode_id] = ed
             else:
-                epis.titulo = titulo
-                epis.sinopsis = sinopsis
-                epis.tematica = tematica
-                epis.seccion = seccion
-                epis.duracion = duracion
+                epis.channel = channel
+                epis.section = section
+                epis.title = title
+                epis.duration = duration
+                epis.description = description
+                epis.url = url
                 epis.set_filter()
 
         # refresh the treeview and save the data
@@ -563,7 +650,7 @@ class MainUI(object):
         prv_order_col, prv_order_dir = self.programs_store.get_sort_column_id()
 
         new_liststore = gtk.ListStore(*columns)
-        for p in self.programs_data.itervalues():
+        for p in self.programs_data.values():
             data = p.get_row_data(field_filter)
             if data is not None:
                 new_liststore.append(data)
@@ -584,7 +671,7 @@ class MainUI(object):
     def _close(self):
         """Still time to decide if want to close or not."""
         logger.info("Attempt to close the program")
-        for idx, program in self.programs_data.iteritems():
+        for idx, program in self.programs_data.items():
             state = program.state
             if state == Status.waiting or state == Status.downloading:
                 logger.debug("Active (%s) download: %s", state, program)
@@ -597,9 +684,9 @@ class MainUI(object):
 
         # stuff pending
         # we *sure* have idx and program; pylint: disable=W0631
-        logger.info("Active downloads! %s (%r)", idx, program.titulo)
+        logger.info("Active downloads! %s (%r)", idx, program.title)
         m = (u"Al menos un programa está todavía en proceso de descarga!\n\n"
-             u"Episodio %s: %s\n" % (idx, program.titulo))
+             u"Episodio %s: %s\n" % (idx, program.title))
         self.dialog_quit_label.set_text(m)
         opt_quit = self.dialog_quit.run()
         self.dialog_quit.hide()
@@ -609,7 +696,7 @@ class MainUI(object):
 
         # quit anyway, put all downloading and pending episodes to none
         logger.info("Fixing episodes, saving state and exiting")
-        for program in self.programs_data.itervalues():
+        for program in self.programs_data.values():
             state = program.state
             if state == Status.waiting or state == Status.downloading:
                 program.state = Status.none
@@ -630,8 +717,7 @@ class MainUI(object):
 
     def _save_states(self):
         """Dump all states and info to disk."""
-        with open(self._data_file, 'w') as fh:
-            pickle.dump(self.programs_data, fh)
+        self.programs_data.save()
 
         self.config['mainwin_size'] = self.main_window.get_size()
         self.config['mainwin_position'] = self.main_window.get_position()
@@ -679,11 +765,11 @@ class MainUI(object):
     @defer.inlineCallbacks
     def _queue_download(self, row):
         """User indicated to download something."""
-        episode = self.programs_data[row[4]]  # 4 is the episode number
+        episode = self.programs_data[row[6]]  # 6 is the episode number
         logger.debug("Download requested of %s", episode)
         if episode.state != Status.none:
             logger.debug("Download denied, episode %s is not in downloadeable "
-                         "state.", episode.nroemis)
+                         "state.", episode.episode_id)
             return
         episode.update_row(row, state=Status.downloading, progress="encolado")
 
@@ -742,9 +828,9 @@ class MainUI(object):
     @defer.inlineCallbacks
     def _episode_download(self, row):
         """Effectively download an episode."""
-        episode_number = row[4]  # 4 is the episode number
+        episode_number = row[6]  # 6 is the episode number
         episode = self.programs_data[episode_number]
-        logger.debug("Effectively downloading episode %d", episode_number)
+        logger.debug("Effectively downloading episode %s", episode_number)
         episode.update_row(row, state=Status.downloading,
                            progress="comenzando...")
 
@@ -753,9 +839,11 @@ class MainUI(object):
             episode.update_row(row, progress=progress)
 
         # download!
-        fname = yield self.downloader.download(episode_number,
-                                               update_progress_cb)
-        episode_name = u"%s (%s)" % (row[0], row[1])
+        fname = yield self.downloader.download(episode.channel,
+                                               episode.section, episode.title,
+                                               episode.url, update_progress_cb)
+        episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
+                                          episode.title)
         if self.config.get('notification', True) and pynotify is not None:
             n = pynotify.Notification(u"Descarga finalizada", episode_name)
             n.show()
@@ -775,7 +863,7 @@ class MainUI(object):
 
     def _play_episode(self, row):
         """Play an episode."""
-        episode_number = row[4]  # 4 is the episode number
+        episode_number = row[6]  # 6 is the episode number
         episode = self.programs_data[episode_number]
         downloaddir = self.config.get('downloaddir', '')
         filename = os.path.join(downloaddir, episode.filename)
@@ -813,7 +901,7 @@ class MainUI(object):
     def on_programs_treeview_row_activated(self, treeview, path, view_column):
         """Double click on the episode, download or play."""
         row = self.programs_store[path]
-        episode = self.programs_data[row[4]]  # 4 is the episode number
+        episode = self.programs_data[row[6]]  # 6 is the episode number
         logger.debug("Double click in %s", episode)
         if episode.state == Status.downloaded:
             self._play_episode(row)
@@ -833,7 +921,7 @@ class MainUI(object):
         cursor = widget.get_path_at_pos(int(event.x), int(event.y))
         path = cursor[0][0]
         row = self.programs_store[path]
-        episode = self.programs_data[row[4]]  # 4 is the episode number
+        episode = self.programs_data[row[6]]  # 6 is the episode number
         state = episode.state
         if state == Status.downloaded:
             self.rbmenu_play.set_sensitive(True)
@@ -861,7 +949,7 @@ class MainUI(object):
         logger.info("Cancelling download.")
         path = self.programs_treeview.get_cursor()[0]
         row = self.programs_store[path]
-        episode = self.programs_data[row[4]]  # 4 is the episode number
+        episode = self.programs_data[row[6]]  # 6 is the episode number
         episode.update_row(row, state=Status.downloading,
                            progress="cancelando...")
         self.downloader.cancel()
@@ -889,7 +977,7 @@ class MainUI(object):
         play_enabled = False
         if len(pathlist) == 1:
             row = self.programs_store[pathlist[0]]
-            episode = self.programs_data[row[4]]  # 4 is the episode number
+            episode = self.programs_data[row[6]]  # 6 is the episode number
             if episode.state == Status.downloaded:
                 play_enabled = True
         self.sensit_grouper.set_sensitive('play', play_enabled)
@@ -900,7 +988,7 @@ class MainUI(object):
         if self._have_config():
             for path in pathlist:
                 row = self.programs_store[path]
-                episode = self.programs_data[row[4]]  # 4 is the episode number
+                episode = self.programs_data[row[6]]  # 6 is the episode number
                 if episode.state == Status.none:
                     download_enabled = True
                     break

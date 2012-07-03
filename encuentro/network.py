@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011 Facundo Batista
+# Copyright 2011-2012 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -23,7 +23,7 @@ import os
 import re
 import sys
 import time
-import uuid
+import urllib
 
 if sys.platform == 'win32':
     # multiprocessing path mangling is not useful for how we are
@@ -36,28 +36,21 @@ else:
     from Queue import Empty
 
 from mechanize import Browser
-from mechanize._mechanize import LinkNotFoundError
 
 # this must go before the reactor import
 from encuentro import platform
 
 from twisted.internet import defer, reactor
 
-URL = "http://descargas.encuentro.gov.ar/emision.php?emision_id=%d"
-SERVER = "descargas.encuentro.gov.ar"
-
-LINKSIZE = re.compile('(\d+) MB')
-
-RE_SACATIT = re.compile('<h1 class="titFAQ">([^<]*)</h1>')
-RE_SINOPSIS = re.compile('<p class="sinopsisTXT">([^<]*)</p>')
-RE_TEMATICA = re.compile('<h2>Tem&aacute;tica:</h2>[^<]*<p>([^<]*)</p>')
-RE_DURACION = re.compile('<h2>Duraci&oacute;n:</h2>[^<]*<p>([^<]*)</p>')
-
-RE_DESCARGA = re.compile('Descargar ca.*completo.*')
+URL_BASE = "http://conectate.gov.ar"
+URL_AUTH = ("http://conectate.gov.ar/educar-portal-video-web/"
+            "module/login/loginAjax.do")
 
 CHUNK = 16 * 1024
 
-BAD_LOGIN_TEXT = "TU CLAVE ES INCORRECTA"
+BAD_LOGIN_TEXT = "loginForm"
+
+DONE_TOKEN = "I positively assure that the download is finished (?)"
 
 logger = logging.getLogger('encuentro.network')
 
@@ -89,34 +82,39 @@ class MiBrowser(Process):
 
     def _get_download_content(self, browser):
         """Get the content handler to download."""
-        # log in
-        logger.debug("Browser not logged, sending user and pass")
-        browser.select_form(nr=1)
-        usr, psw = self.authinfo
-        browser.set_value(usr, 'user')
-        browser.set_value(psw, 'pass')
-        browser.submit()
+        # open base url
+        browser.open(self.url)
 
-        # get reported file size
         html = self._get_html(browser)
-        m = LINKSIZE.search(html)
-        if m:
-            filesize = m.groups()[0]
-            logger.debug("Browser found aprox content size of %r", filesize)
-            filesize = int(filesize) + 1
-        else:
-            filesize = "?"
-            logger.warning("Strange text when searching file size: %r", html)
+        url_items = dict(base=URL_BASE)
+        for token in "urlDescarga idRecurso fileId".split():
+            re_str = 'id="%s" value="([^"]*)"' % (token,)
+            val = re.search(re_str, html).groups()[0]
+            url_items[token] = val
+        new_url = ("%(base)s%(urlDescarga)s&idRecurso=%(idRecurso)s&"
+                   "fileId=%(fileId)s" % url_items)
 
+        # log in
+        logger.debug("Sending user and pass")
+        usr, psw = self.authinfo
+        auth = urllib.urlencode(dict(usuario=usr, clave=psw))
+        browser.open(URL_AUTH, data=auth)
+
+        logger.debug("Opening final url")
+        content = browser.open(new_url)
         try:
-            content = browser.follow_link(text_regex=RE_DESCARGA)
-        except LinkNotFoundError:
+            # pylint: disable=W0212
+            filesize = int(content._headers['content-length'])
+        except KeyError:
             pass
         else:
+            logger.debug("Got content! filesize: %d", filesize)
             return content, filesize
 
         # didn't get the download link, let's check if it is a password error
         # or something else
+        with open("/tmp/roto.html", "wb") as fh:
+            fh.write(html)
         if BAD_LOGIN_TEXT in html:
             logger.error("Wrong user or password sent")
             raise BadCredentialsError()
@@ -147,10 +145,6 @@ class MiBrowser(Process):
             self.output_queue.put(EncuentroError(str(e)))
             return
 
-        self.output_queue.put(self._get_html(browser))
-        if self.must_quit.is_set():
-            return
-
         # get the filename and download
         fname = self.input_queue.get(browser)
         try:
@@ -162,16 +156,17 @@ class MiBrowser(Process):
 
         aout = open(fname, "wb")
         tot = 0
+        size_mb = filesize / (1024.0 ** 2)
         while not self.must_quit.is_set():
             r = content.read(CHUNK)
             if r == "":
                 break
             aout.write(r)
-            tot += CHUNK / (1024.0 ** 2)
-            m = "%.1f de %d MB" % (tot, filesize)
+            tot += len(r)
+            m = "%.1f%% (de %d MB)" % (tot * 100.0 / filesize, size_mb)
             self.output_queue.put(m)
         content.close()
-        self.output_queue.put('done')
+        self.output_queue.put(DONE_TOKEN)
 
 
 class DeferredQueue(Queue):
@@ -225,48 +220,28 @@ class Downloader(object):
         self.cancelled = True
 
     @defer.inlineCallbacks
-    def download(self, nroemis, cb_progress):
+    def download(self, canal, seccion, titulo, url, cb_progress):
         """Descarga una emisión a disco."""
         self.cancelled = False
 
         # levantamos el browser
         qinput = DeferredQueue()
         qoutput = Queue()
-        url = URL % nroemis
         bquit = Event()
         self.browser_quit.add(bquit)
         authuser = self.config.get('user', '')
         authpass = self.config.get('password', '')
 
-        logger.info("Download episode %s: browser started", nroemis)
+        logger.info("Download episode %r: browser started", url)
         brow = MiBrowser(authuser, authpass, url, qoutput, qinput, bquit)
         brow.start()
 
-        # esperamos hasta que la pag esté
-        pag = (yield qinput.deferred_get())[0]
-        if isinstance(pag, Exception):
-            raise pag
-        if self.cancelled:
-            bquit.set()
-            raise CancelledError()
-
-        # obtenemos sección y titulo
-        m = RE_SACATIT.search(pag)
-        if m:
-            alltit = m.group(1).decode('utf8').strip()
-            logger.debug("Got page title: %r", alltit)
-            if alltit == u'-':
-                # no real episode :/
-                return
-            titulo, seccion = alltit.rsplit(" - ", 1)
-        else:
-            titulo = str(uuid.uuid4())
-            logger.warning("Couldn't get title/section! fake: %s", titulo)
-            seccion = u"Desconocido"
+        # build where to save it
         downloaddir = self.config.get('downloaddir', '')
+        canal = platform.sanitize(canal)
         seccion = platform.sanitize(seccion)
         titulo = platform.sanitize(titulo)
-        fname = os.path.join(downloaddir, seccion, titulo + u".avi")
+        fname = os.path.join(downloaddir, canal, seccion, titulo + u".avi")
 
         # ver si esa seccion existe, sino crearla
         dirsecc = os.path.dirname(fname)
@@ -294,7 +269,7 @@ class Downloader(object):
                 raise CancelledError()
             if isinstance(data, Exception):
                 raise data
-            if data == 'done':
+            if data == DONE_TOKEN:
                 break
 
             # actualizamos si hay algo nuevo
@@ -322,13 +297,18 @@ if __name__ == "__main__":
     test_config = dict(user="lxpdvtnvrqdoa@mailinator.com",
                        password="descargas", downloaddir='.')
 
+    url_episode = "http://conectate.gov.ar/educar-portal-video-web/module/"\
+                  "detalleRecurso/DetalleRecurso.do?modulo=masVotados&"\
+                  "recursoPadreId=50001&idRecurso=50004"
+
     @defer.inlineCallbacks
     def download():
         """Download."""
         downloader = Downloader(test_config)
-        reactor.callLater(10, downloader.cancel)
+#        reactor.callLater(10, downloader.cancel)
         try:
-            fname = yield downloader.download(107, show)
+            fname = yield downloader.download("test-ej-canal", "secc", "tit",
+                                              url_episode, show)
             print "All done!", fname
         except CancelledError:
             print "--- cancelado!"

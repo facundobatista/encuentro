@@ -1,6 +1,6 @@
 ¡Bienvenido al Visualizador de contenidos del Canal Encuentro!
 
-Este es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro. Para más información de cómo usar el programa, leer el archivo AYUDA.txt.
+Este es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro y otros. Para más información de cómo usar el programa, leer el archivo AYUDA.txt.
 
 Si querés conocer más sobre el proyecto, el mismo se gestiona desde aquí:
 

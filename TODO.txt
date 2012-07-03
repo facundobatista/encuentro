@@ -1,9 +1,38 @@
-(4) que la descarga de episodios muestre un progreso
+Para la web:
+------------
+
+El sistema debe actualizarse.
+
+Esta nueva versión del programa Encuentro sólo funciona con contenido actualizado, lo cual le permitirá trabajar con programas del canal Encuentro y de otros nuevos canales.
+
+Para poder descargar el nuevo contenido, deberá registrar un nuevo usuario y actualizar el sistema. Haga click en "Aceptar" para limpiar la configuración, "Canc
+
+
+
+- hacer la parte cliente
+    - poner en el index.html:
+        - el texto explicando el gran cambio (ver arriba)
+        - los pequeños features/bugs que entraron
+
+- lanzamiento
+    - sacar el tarball, pedir reviews, pruebas
+    - luego, el final (con todo todo)
+
+
+------------------
+
 (4) distribuir:
     - hacer un release de la v0.6 (beta)
     - actualizar .deb, el ppa, PyPI, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 
+(5) Ver este warning raro:
+        encuentro/main.py:538: GtkWarning: Failed to set text from markup due
+        to error parsing markup: Error en la línea 1: La entidad no termina
+        con un punto y coma; probablemente utilizó el carácter "&" sin la
+        intención de indicar una entidad, escape el signo "&" como &amp;
+(5) poner combobox de filtros por canal y por género
+(5) que la descarga de episodios muestre un progreso
 (5) Poner "Duración [min]" en la columna correspondiente (bug #945278)
 (5) Utilizar campo password para la contraseña de la cuenta de
     Encuentro (#897735)
