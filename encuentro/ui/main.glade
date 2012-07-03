@@ -903,7 +903,9 @@ Public License instead of this License.  But first, please read
     <property name="skip_taskbar_hint">True</property>
     <property name="message_type">warning</property>
     <property name="text" translatable="yes">El contenido debe actualizarse</property>
-    <property name="secondary_text" translatable="yes">Esta nueva versión del programa Encuentro sólo funciona con contenido actualizado, lo cual le permitirá trabajar con programas del canal Encuentro y de otros nuevos canales, pero deberá configurarlo nuevamente y perderá la posibilidad de ver directactamente los videos ya descargados (los cuales permanecerán en su disco).</property>
+    <property name="secondary_text" translatable="yes">Esta nueva versión del programa Encuentro sólo funciona con contenido actualizado, lo cual le permitirá trabajar con programas del canal Encuentro y de otros nuevos canales, pero deberá configurarlo nuevamente y perderá la posibilidad de ver directactamente los videos ya descargados (los cuales permanecerán en su disco).
+
+Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuevamente el programa.</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox3">
         <property name="visible">True</property>
@@ -930,7 +932,7 @@ Public License instead of this License.  But first, please read
             </child>
             <child>
               <object class="GtkButton" id="button_upgrade_go">
-                <property name="label" translatable="yes">Continuar y actualizar</property>
+                <property name="label" translatable="yes">Continuar</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -1255,10 +1257,10 @@ Public License instead of this License.  But first, please read
                 <signal name="button-press-event" handler="on_programs_treeview_button_press_event" swapped="no"/>
                 <signal name="row-activated" handler="on_programs_treeview_row_activated" swapped="no"/>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn_titulo">
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn_channel">
                     <property name="resizable">True</property>
                     <property name="sizing">fixed</property>
-                    <property name="title">Título</property>
+                    <property name="title">Canal</property>
                     <property name="clickable">True</property>
                     <property name="sort_column_id">0</property>
                     <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
@@ -1271,7 +1273,7 @@ Public License instead of this License.  But first, please read
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn_seccion">
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn_section">
                     <property name="resizable">True</property>
                     <property name="sizing">fixed</property>
                     <property name="title">Sección</property>
@@ -1287,10 +1289,10 @@ Public License instead of this License.  But first, please read
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn_tematica">
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn_title">
                     <property name="resizable">True</property>
                     <property name="sizing">fixed</property>
-                    <property name="title">Temática</property>
+                    <property name="title">Título</property>
                     <property name="clickable">True</property>
                     <property name="sort_column_id">2</property>
                     <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
@@ -1303,7 +1305,7 @@ Public License instead of this License.  But first, please read
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn_duracion">
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn_duration">
                     <property name="resizable">True</property>
                     <property name="sizing">fixed</property>
                     <property name="title">Duración</property>
@@ -1322,26 +1324,7 @@ Public License instead of this License.  But first, please read
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn_nroepis">
-                    <property name="resizable">True</property>
-                    <property name="sizing">fixed</property>
-                    <property name="title">Episodio</property>
-                    <property name="clickable">True</property>
-                    <property name="alignment">1</property>
-                    <property name="sort_column_id">4</property>
-                    <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext3">
-                        <property name="xalign">1</property>
-                      </object>
-                      <attributes>
-                        <attribute name="text">4</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn_estado">
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn_state">
                     <property name="resizable">True</property>
                     <property name="sizing">fixed</property>
                     <property name="title">Estado</property>
@@ -1351,7 +1334,7 @@ Public License instead of this License.  But first, please read
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext6"/>
                       <attributes>
-                        <attribute name="text">5</attribute>
+                        <attribute name="text">4</attribute>
                       </attributes>
                     </child>
                   </object>
@@ -1370,19 +1353,19 @@ Public License instead of this License.  But first, please read
   </object>
   <object class="GtkListStore" id="programs_store">
     <columns>
-      <!-- column-name titulo -->
+      <!-- column-name channel -->
       <column type="gchararray"/>
-      <!-- column-name seccion -->
+      <!-- column-name section -->
       <column type="gchararray"/>
-      <!-- column-name tematica -->
+      <!-- column-name title -->
       <column type="gchararray"/>
-      <!-- column-name duracion -->
+      <!-- column-name duration -->
       <column type="guint64"/>
-      <!-- column-name nro_epis -->
-      <column type="guint64"/>
-      <!-- column-name estado -->
+      <!-- column-name state -->
       <column type="gchararray"/>
-      <!-- column-name sinopsis -->
+      <!-- column-name description -->
+      <column type="gchararray"/>
+      <!-- column-name episode_id -->
       <column type="gchararray"/>
     </columns>
   </object>

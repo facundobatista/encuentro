@@ -13,67 +13,32 @@ Para poder descargar el nuevo contenido, deberá registrar un nuevo usuario y ac
 
 - hacer la parte cliente
     - cuando el programa arranque (la nueva versión, 0.6)
-        - bajar la nueva MD del server
-        - actualizar todo, dejar todo lindo para usar
-            - cambiar las columnas
-            - cargar metadata nueva
     - poner en el index.html:
         - el texto explicando el gran cambio (ver arriba)
         - los pequeños features/bugs que entraron
+    - probar:
+        - hover
+        - descarga
+        - corte de la descarga
+        - bajar, arrancar
+        - filtros
+            por sección y titulo
     - pylint
 
 - lanzamiento
     - sacar el tarball, pedir reviews, pruebas
     - luego, el final (con todo todo)
 
-Viejo:
-    - titulo  (episodio)
-    - seccion
-    - tematica
-    - duracion
-    - episodio
-    (hover) descripción
-
-Nuevo:
-    - canal
-    - seccion (en serie/micro, titulo "general", sino "Película" o "Especial")
-    - titulo (de la pelicula o especial, o del capitulo en serie/micro)
-    - género (texto, con punto y coma)
-    - duración (la que tengamos, o "?")
-    (hover) descripción
-
-    - channel
-    - section
-    - title
-    - duration
-    - description (hover)
-    - estado
-
-
-    al filtrar:
-        por sección y titulo
-    para despues
-        combo box por canal
-        combo box por género
-
-
-    {
-    u'channel': u'Encuentro',
-    u'section': u'Serie',
-    u'title': u'Especiales Historia de un pa\xeds Argentina siglo XX. Efem\xe9rides: Especial 11 de Septiembre'
-    u'duration': 26,
-    u'description': u'La versi\xf3n oficial sobre Domingo Faustino ...',
-    }
-
 
 ------------------
 
-(4) que la descarga de episodios muestre un progreso
 (4) distribuir:
     - hacer un release de la v0.6 (beta)
     - actualizar .deb, el ppa, PyPI, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 
+(5) poner combobox de filtros por canal y por género
+(5) que la descarga de episodios muestre un progreso
 (5) Poner "Duración [min]" en la columna correspondiente (bug #945278)
 (5) Utilizar campo password para la contraseña de la cuenta de
     Encuentro (#897735)
