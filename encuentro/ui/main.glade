@@ -724,7 +724,7 @@ Public License instead of this License.  But first, please read
     <property name="type_hint">dialog</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="message_type">warning</property>
-    <property name="text" translatable="yes">El usuario o clave configurados es incorrecto!</property>
+    <property name="text" translatable="yes">El usuario o clave configurados es incorrecto, o el episodio no está disponible!</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox">
         <property name="visible">True</property>
@@ -1253,7 +1253,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="model">programs_store</property>
-                <property name="tooltip_column">6</property>
+                <property name="tooltip_column">5</property>
                 <signal name="button-press-event" handler="on_programs_treeview_button_press_event" swapped="no"/>
                 <signal name="row-activated" handler="on_programs_treeview_row_activated" swapped="no"/>
                 <child>
@@ -1299,7 +1299,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext4"/>
                       <attributes>
-                        <attribute name="text">2</attribute>
+                        <attribute name="markup">2</attribute>
                       </attributes>
                     </child>
                   </object>
@@ -1360,7 +1360,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
       <!-- column-name title -->
       <column type="gchararray"/>
       <!-- column-name duration -->
-      <column type="guint64"/>
+      <column type="gchararray"/>
       <!-- column-name state -->
       <column type="gchararray"/>
       <!-- column-name description -->

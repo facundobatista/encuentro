@@ -111,8 +111,7 @@ class EpisodeData(object):
     def set_filter(self):
         """Set the data to filter later."""
         self.to_filter = dict(
-            titulo=prepare_to_filter(self.title),
-            seccion=prepare_to_filter(self.section),
+            title=prepare_to_filter(self.title),
         )
 
     def __str__(self):
@@ -136,20 +135,17 @@ class EpisodeData(object):
         """Return the data for the liststore row."""
         if field_filter == '':
             title = self.title
-            section = self.section
         else:
             # it's being filtered
             found_title, title = self._filter('title', field_filter)
-            found_section, section = self._filter('section', field_filter)
-            if not found_title and not found_section:
-                # not matched any of both, don't show the row
+            if not found_title:
+                # not matched any, don't show the row
                 return
 
-        # FIXME: mostrar ?, no 0
-        duration = 0 if self.duration is None else self.duration
+        duration = u'?' if self.duration is None else unicode(self.duration)
 
-        data = (self.channel, section, title, duration, self._get_nice_state(),
-                self.description, self.episode_id)
+        data = (self.channel, self.section, title, duration,
+                self._get_nice_state(), self.description, self.episode_id)
         return data
 
     def _get_nice_state(self):
@@ -396,21 +392,21 @@ class ProgramsData(object):
 
         # migrate
         if self.version == 0:
-             # migrate! actually, from 0, no migration is possible, we
-             # need to tell the user the ugly truth
-             self.programs_vers = self.last_programs_version
-             dialog = self.main_window.dialog_upgrade
-             go_on = dialog.run()
-             dialog.hide()
-             if not go_on:
-                 exit()
-             # if user accessed to go on, don't really need to migrate
-             # anything, as *all* the code is to support the new metadata
-             # version only, so just remove it and mark the usr/pass config
-             # to be removed
-             self.reset_config_from_migration = True
-             self.data = {}
-             return
+            # migrate! actually, from 0, no migration is possible, we
+            # need to tell the user the ugly truth
+            self.version = self.last_programs_version
+            dialog = self.main_window.dialog_upgrade
+            go_on = dialog.run()
+            dialog.hide()
+            if not go_on:
+                exit()
+            # if user accessed to go on, don't really need to migrate
+            # anything, as *all* the code is to support the new metadata
+            # version only, so just remove it and mark the usr/pass config
+            # to be removed
+            self.reset_config_from_migration = True
+            self.data = {}
+            return
 
         raise ValueError("Don't know how to migrate from %r" % (self.version,))
 
@@ -635,7 +631,7 @@ class MainUI(object):
                                  episode_id=episode_id, url=url)
                 self.programs_data[episode_id] = ed
             else:
-                epis.channel  = channel
+                epis.channel = channel
                 epis.section = section
                 epis.title = title
                 epis.duration = duration
@@ -773,7 +769,7 @@ class MainUI(object):
         logger.debug("Download requested of %s", episode)
         if episode.state != Status.none:
             logger.debug("Download denied, episode %s is not in downloadeable "
-                         "state.", episode.nroemis)
+                         "state.", episode.episode_id)
             return
         episode.update_row(row, state=Status.downloading, progress="encolado")
 

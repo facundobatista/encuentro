@@ -113,6 +113,8 @@ class MiBrowser(Process):
 
         # didn't get the download link, let's check if it is a password error
         # or something else
+        with open("/tmp/roto.html", "wb") as fh:
+            fh.write(html)
         if BAD_LOGIN_TEXT in html:
             logger.error("Wrong user or password sent")
             raise BadCredentialsError()
@@ -305,7 +307,7 @@ if __name__ == "__main__":
         downloader = Downloader(test_config)
 #        reactor.callLater(10, downloader.cancel)
         try:
-            fname = yield downloader.download("test-ejemplo-seccion", "test",
+            fname = yield downloader.download("test-ej-canal", "secc", "tit",
                                               url_episode, show)
             print "All done!", fname
         except CancelledError:

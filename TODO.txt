@@ -9,21 +9,10 @@ Para poder descargar el nuevo contenido, deberá registrar un nuevo usuario y ac
 
 
 
-
-
 - hacer la parte cliente
-    - cuando el programa arranque (la nueva versión, 0.6)
     - poner en el index.html:
         - el texto explicando el gran cambio (ver arriba)
         - los pequeños features/bugs que entraron
-    - probar:
-        - hover
-        - descarga
-        - corte de la descarga
-        - bajar, arrancar
-        - filtros
-            por sección y titulo
-    - pylint
 
 - lanzamiento
     - sacar el tarball, pedir reviews, pruebas
@@ -37,6 +26,11 @@ Para poder descargar el nuevo contenido, deberá registrar un nuevo usuario y ac
     - actualizar .deb, el ppa, PyPI, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
 
+(5) Ver este warning raro:
+        encuentro/main.py:538: GtkWarning: Failed to set text from markup due
+        to error parsing markup: Error en la línea 1: La entidad no termina
+        con un punto y coma; probablemente utilizó el carácter "&" sin la
+        intención de indicar una entidad, escape el signo "&" como &amp;
 (5) poner combobox de filtros por canal y por género
 (5) que la descarga de episodios muestre un progreso
 (5) Poner "Duración [min]" en la columna correspondiente (bug #945278)
