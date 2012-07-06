@@ -759,11 +759,11 @@ class MainUI(object):
         _, pathlist = tree_selection.get_selected_rows()
         for path in pathlist:
             row = self.programs_store[path]
-            self._queue_download(row)
+            self._queue_download(row, path)
     on_menu_download_activate = on_toolbutton_download_clicked
 
     @defer.inlineCallbacks
-    def _queue_download(self, row):
+    def _queue_download(self, row, path):
         """User indicated to download something."""
         episode = self.programs_data[row[6]]  # 6 is the episode number
         logger.debug("Download requested of %s", episode)
@@ -907,7 +907,7 @@ class MainUI(object):
             self._play_episode(row)
         elif episode.state == Status.none:
             if self._have_config():
-                self._queue_download(row)
+                self._queue_download(row, path)
             else:
                 logger.debug("Not starting download because no config.")
                 t = (u"No se puede arrancar una descarga porque la "
@@ -958,7 +958,7 @@ class MainUI(object):
         """Download an episode."""
         path = self.programs_treeview.get_cursor()[0]
         row = self.programs_store[path]
-        self._queue_download(row)
+        self._queue_download(row, path)
 
     def on_programs_treeview_selection_changed(self, tree_selection):
         """Get all selected rows and adjust buttons accordingly."""

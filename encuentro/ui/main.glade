@@ -1329,7 +1329,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                     <property name="sizing">fixed</property>
                     <property name="title">Estado</property>
                     <property name="clickable">True</property>
-                    <property name="sort_column_id">5</property>
+                    <property name="sort_column_id">4</property>
                     <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext6"/>
