@@ -31,7 +31,10 @@ def _sanitize(html):
 
 def scrap_busqueda(html):
     """Get useful info from the search."""
-    html = html.decode("latin1")
+    try:
+        html.decode("utf8")
+    except UnicodeDecodeError:
+        html = html.decode("latin1")
     soup = bs4.BeautifulSoup(html)
     results = soup.find_all("div", "resBusqueda")
     processed = []
@@ -45,7 +48,10 @@ def scrap_busqueda(html):
 
 def scrap_series(html):
     """Get useful info from the series list."""
-    html = html.decode("latin1")
+    try:
+        html.decode("utf8")
+    except UnicodeDecodeError:
+        html = html.decode("latin1")
     soup = bs4.BeautifulSoup(_sanitize(html))
     serietitle_section = soup.find("div", "titSerieEncabezado")
     serietitle_text = serietitle_section.h1.text
@@ -61,7 +67,10 @@ def scrap_series(html):
 
 def scrap_video(html):
     """Get useful info from the video page."""
-    html = html.decode("latin1")
+    try:
+        html.decode("utf8")
+    except UnicodeDecodeError:
+        html = html.decode("latin1")
     soup = bs4.BeautifulSoup(_sanitize(html))
 
     # get the description, can be multipart
