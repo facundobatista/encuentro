@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 # Copyright 2012 Facundo Batista
 #
@@ -55,8 +55,10 @@ def scrap_series(html):
     soup = bs4.BeautifulSoup(_sanitize(html))
     serietitle_section = soup.find("div", "titSerieEncabezado")
     serietitle_text = serietitle_section.h1.text
-    epis_section = soup.find("ul", "serieCap")
-    episodes = epis_section.find_all('a')
+    epis_section = soup.find_all("ul", "serieCap")
+    episodes = []
+    for season in epis_section:
+        episodes.extend(season.find_all('a'))
     processed = []
     for epis in episodes:
         title = epis.text.strip()
