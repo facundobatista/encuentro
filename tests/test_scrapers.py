@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 # Copyright 2012 Facundo Batista
 #
@@ -82,6 +82,52 @@ _RES_SERIES_2 = [
     (u'El Mosquito. Historia de Humor gráfico y político: Cap\xedtulo 6 - 1970 a la actualidad', '/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&temaCanalId=1&tipoEmisionId=3&recursoPadreId=102685&idRecurso=102694'),
 ]
 
+_RES_SERIES_3 = [
+    (u'Encuentro en el estudio: Fito P\xe1ez', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50188'),
+    (u'Encuentro en el estudio: Rub\xe9n Juarez', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50189'),
+    (u'Encuentro en el estudio: Liliana Herrero', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50190'),
+    (u'Encuentro en el estudio: Alejandro Lerner', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50191'),
+    (u'Encuentro en el estudio: Divididos', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50192'),
+    (u'Encuentro en el estudio: Peteco Carabajal', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50193'),
+    (u'Encuentro en el estudio: Kevin Johansen', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50194'),
+    (u'Encuentro en el estudio: Adriana Varela', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50195'),
+    (u'Encuentro en el estudio: Ra\xfal Barboza', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50196'),
+    (u'Encuentro en el estudio: Fabiana Cantilo', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50197'),
+    (u'Encuentro en el estudio: V\xedctor Heredia', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50198'),
+    (u'Encuentro en el estudio: Juan Carlos Baglietto', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50199'),
+    (u'Encuentro en el estudio: Teresa Parodi', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50200'),
+    (u'Encuentro en el estudio: Gustavo Santaolalla', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100909'),
+    (u'Encuentro en el estudio: Chango Spasiuk', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100911'),
+    (u'Encuentro en el estudio: Hilda Lizarazu', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100912'),
+    (u'Encuentro en el estudio: Chico Novarro', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100913'),
+    (u'Encuentro en el estudio: Las Pelotas', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100914'),
+    (u'Encuentro en el estudio: Sandra Mihanovich', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100916'),
+    (u'Encuentro en el estudio: Rub\xe9n Rada', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100917'),
+    (u'Encuentro en el estudio: Leopoldo Federico', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100919'),
+    (u'Encuentro en el estudio: Juana Molina', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100920'),
+    (u'Encuentro en el estudio: Paz Mart\xednez', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100922'),
+    (u'Encuentro en el estudio: Virus', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100924'),
+    (u'Encuentro en el estudio: Amelita Baltar', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100926'),
+    (u'Encuentro en el estudio: Lito Vitale', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100927'),
+    (u'Encuentro en el estudio: Le\xf3n Gieco', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50203'),
+    (u'Encuentro en el estudio: Vicentico', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50201'),
+    (u'Encuentro en el estudio: Rata Blanca', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50204'),
+    (u'Encuentro en el estudio: Tata Cedr\xf3n', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=50202'),
+    (u'Encuentro en el estudio: Lo mejor de Encuentro en el estudio, primera parte', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100434'),
+    (u'Encuentro en el estudio: Los Pericos', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100435'),
+    (u'Encuentro en el estudio: Patricia Sosa', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100436'),
+    (u'Encuentro en el estudio: Los Palmeras', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100437'),
+    (u'Encuentro en el estudio: Susana Rinaldi', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100438'),
+    (u'Encuentro en el estudio: Lito Nebbia', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100439'),
+    (u'Encuentro en el estudio: Ramona Galarza', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100440'),
+    (u'Encuentro en el estudio: Chango Far\xedas G\xf3mez', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100441'),
+    (u'Encuentro en el estudio: Jaime Torres', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100442'),
+    (u'Encuentro en el estudio: Diego Frenkel', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100443'),
+    (u'Encuentro en el estudio: Moris y Antonio Birabent', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100444'),
+    (u'Encuentro en el estudio: Lo mejor de Encuentro en el estudio, segunda parte', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100445'),
+    (u'Encuentro en el estudio: Lo mejor de Encuentro en el estudio, tercera parte', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100446')
+]
+
 _RES_VIDEO_1 = (
     u'Si te gusta la naturaleza, este video te va a encantar. Descubr\xed con Eliseo c\xf3mo se plantan las semillas de calabaza y c\xf3mo se encarna una lombriz en un anzuelo.',
     5,
@@ -135,6 +181,11 @@ class ScrapersTestCase(unittest.TestCase):
         html = open("../tests/ejemplo-series_2.html").read()
         res = scrapers.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_2)
+
+    def test_example_series_3(self):
+        html = open("../tests/ejemplo-series_3.html").read()
+        res = scrapers.scrap_series(html)
+        self.assertEqual(res, _RES_SERIES_3)
 
     def test_example_video_1(self):
         html = open("../tests/ejemplo-video_1.html").read()
