@@ -169,19 +169,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label5">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="xalign">0</property>
-                <property name="yalign">0</property>
-                <property name="ypad">6</property>
-                <property name="label" translatable="yes">Ingrese los datos de registración del Canal Encuentro:</property>
-              </object>
-              <packing>
-                <property name="right_attach">2</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkCheckButton" id="checkbutton_autorefresh">
                 <property name="label" translatable="yes">Recargar automáticamente la lista de episodios al iniciar</property>
                 <property name="visible">True</property>
@@ -210,6 +197,49 @@
                 <property name="right_attach">2</property>
                 <property name="top_attach">6</property>
                 <property name="bottom_attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkHBox" id="hbox1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkLabel" id="label5">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="xalign">0</property>
+                    <property name="yalign">0</property>
+                    <property name="ypad">6</property>
+                    <property name="label" translatable="yes">Ingrese sus datos del portal Conectate:</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLinkButton" id="linkbutton1">
+                    <property name="label" translatable="yes">Regístrese aquí</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="relief">none</property>
+                    <property name="use_underline">True</property>
+                    <property name="xalign">1</property>
+                    <property name="yalign">0.61000001430511475</property>
+                    <property name="uri">http://registro.educ.ar/cuentas/registro/index?servicio=conectate</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="right_attach">2</property>
               </packing>
             </child>
           </object>
