@@ -21,29 +21,8 @@ Para poder descargar el nuevo contenido, deberá registrar un nuevo usuario y ac
 
 ------------------
 
-(4) distribuir:
-    - hacer un release de la v0.6 (beta)
-    - actualizar .deb, el ppa, PyPI, LP, arch, y el .exe
-    - avisar en pyar, otro post en el blog, tweet
-
-(5) Ver este warning raro:
-        encuentro/main.py:538: GtkWarning: Failed to set text from markup due
-        to error parsing markup: Error en la línea 1: La entidad no termina
-        con un punto y coma; probablemente utilizó el carácter "&" sin la
-        intención de indicar una entidad, escape el signo "&" como &amp;
-(5) poner combobox de filtros por canal y por género
-(5) que la descarga de episodios muestre un progreso
-(5) Poner "Duración [min]" en la columna correspondiente (bug #945278)
-(5) Utilizar campo password para la contraseña de la cuenta de
-    Encuentro (#897735)
-    - El texto de la password debería mostrarse o no en función de un
-      checkbox (en el mismo diálogo del que pregunta la clave) que
-      sea "Mostrar texto"
-    - Este checkbox, en default, debería estar activado (mostrando el
-      texto de la password, digamos)
-    - Este checkbox debería persistirse
-(5) dejar de pasar al menos un mes, fixear todos los bugs que haya
-(5) distribuir:
-    - hacer un release de la v1.0
+Pasos para  distribuir:
+    - ver que los tests pasen todo ok
+    - hacer un release de la vN
     - actualizar .deb, el ppa, PyPI, LP, arch, y el .exe
     - avisar en pyar, otro post en el blog, tweet
