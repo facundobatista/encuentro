@@ -84,7 +84,7 @@ def scrap_video(html):
 
         if u"Duración" in unicode(it):
             p1, p2 = it.text.split(":")
-            assert p1 == u"Duración"
+            assert p1.strip() == u"Duración"
             duration = int(p2.split()[0])
 
         elif hasattr(it, 'name'):
@@ -98,6 +98,8 @@ def scrap_video(html):
                 raise ValueError("Unknown item in the description: %r" % (it,))
 
         else:
+            if it == u"p": # bad found <p>
+                continue
             desc_list.append(it)
 
     description = "".join(desc_list).strip()
