@@ -1308,7 +1308,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                   <object class="GtkTreeViewColumn" id="treeviewcolumn_duration">
                     <property name="resizable">True</property>
                     <property name="sizing">fixed</property>
-                    <property name="title">Duración</property>
+                    <property name="title">Duración [min]</property>
                     <property name="clickable">True</property>
                     <property name="alignment">1</property>
                     <property name="sort_column_id">3</property>
