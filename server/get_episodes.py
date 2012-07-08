@@ -86,7 +86,6 @@ episodes_cache = Cache("episodes_cache.pickle")
 
 def retryable(func):
     """Decorator to retry functions."""
-    return func
     def _f(*args, **kwargs):
         for attempt in range(5, -1, -1):  # if reaches 0: no more attempts
             try:
@@ -95,7 +94,7 @@ def retryable(func):
                 if not attempt:
                     raise
                 print "   problem (retrying...):", e
-                time.sleep(5)
+                time.sleep(30)
             else:
                 return res
     return _f
