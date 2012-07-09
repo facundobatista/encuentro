@@ -20,6 +20,7 @@
 
 
 import bz2
+import cgi
 import json
 import logging
 import os
@@ -97,7 +98,7 @@ class EpisodeData(object):
                  episode_id, url, state=None, progress=None, filename=None):
         self.channel = channel
         self.section = section
-        self.title = title
+        self.title = cgi.escape(title)
         self.duration = duration
         self.description = description
         self.episode_id = episode_id
@@ -107,6 +108,19 @@ class EpisodeData(object):
         self.filename = filename
         self.to_filter = None
         self.set_filter()
+
+    def update(self, channel, section, title, duration, description,
+               episode_id, url, state=None, progress=None, filename=None):
+        self.channel = channel
+        self.section = section
+        self.title = cgi.escape(title)
+        self.duration = duration
+        self.description = description
+        self.episode_id = episode_id
+        self.url = url
+        self.state = Status.none if state is None else state
+        self.progress = progress
+        self.filename = filename
 
     def set_filter(self):
         """Set the data to filter later."""
@@ -614,30 +628,19 @@ class MainUI(object):
     def merge_episode_data(self, new_data):
         """Merge new data to current programs data."""
         for d in new_data:
-            # v1 of json file
-            channel = d['channel']
-            section = d['section']
-            title = d['title']
-            duration = d['duration']
-            description = d['description']
+            # v2 of json file
+            names = ['channel', 'section', 'title', 'duration', 'description',
+                     'episode_id', 'url']
+            values = dict((name, d[name]) for name in names)
             episode_id = d['episode_id']
-            url = d['url']
 
             try:
-                epis = self.programs_data[episode_id]
+                ed = self.programs_data[episode_id]
             except KeyError:
-                ed = EpisodeData(channel=channel, section=section, title=title,
-                                 duration=duration, description=description,
-                                 episode_id=episode_id, url=url)
+                ed = EpisodeData(**values)
                 self.programs_data[episode_id] = ed
             else:
-                epis.channel = channel
-                epis.section = section
-                epis.title = title
-                epis.duration = duration
-                epis.description = description
-                epis.url = url
-                epis.set_filter()
+                ed.update(**values)
 
         # refresh the treeview and save the data
         self.refresh_treeview()
