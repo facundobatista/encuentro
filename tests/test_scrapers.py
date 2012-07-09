@@ -163,6 +163,11 @@ _RES_VIDEO_7 = (
     None,
 )
 
+_RES_VIDEO_8 = (
+    u'En di\xe1logo \xedntimo, Lalo Mir y el \u201cbandoneonista cantor\u201d charlan sobre la milonga, sobre las diferencias de estilo en el tango, sobre la vida. Un encuentro imperdible donde el m\xfasico conmueve al cantar Desencuentro o al improvisar sobre Malena, como ninguno.',
+    48,
+)
+
 
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
@@ -220,6 +225,11 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_video_7(self):
         html = open("../tests/ejemplo-video_7.html").read()
         res = scrapers.scrap_video(html)
-#        print "=== res", res
-#        print "=== RES", _RES_VIDEO_7
         self.assertEqual(res, _RES_VIDEO_7)
+
+    def test_example_video_8(self):
+        html = open("../tests/ejemplo-video_8.html").read()
+        res = scrapers.scrap_video(html)
+#        print "\n=== res", res
+#        print "=== RES", _RES_VIDEO_8
+        self.assertEqual(res, _RES_VIDEO_8)

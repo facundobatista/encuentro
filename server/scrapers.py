@@ -34,7 +34,7 @@ def scrap_busqueda(html):
     try:
         html.decode("utf8")
     except UnicodeDecodeError:
-        html = html.decode("latin1")
+        html = html.decode("cp1252")
     soup = bs4.BeautifulSoup(html)
     results = soup.find_all("div", "resBusqueda")
     processed = []
@@ -51,7 +51,7 @@ def scrap_series(html):
     try:
         html.decode("utf8")
     except UnicodeDecodeError:
-        html = html.decode("latin1")
+        html = html.decode("cp1252")
     soup = bs4.BeautifulSoup(_sanitize(html))
     serietitle_section = soup.find("div", "titSerieEncabezado")
     serietitle_text = serietitle_section.h1.text
@@ -72,7 +72,7 @@ def scrap_video(html):
     try:
         html.decode("utf8")
     except UnicodeDecodeError:
-        html = html.decode("latin1")
+        html = html.decode("cp1252")
     soup = bs4.BeautifulSoup(_sanitize(html))
 
     # get the description, can be multipart
