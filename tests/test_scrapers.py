@@ -168,6 +168,11 @@ _RES_VIDEO_8 = (
     48,
 )
 
+_RES_VIDEO_9 = (
+    u'Con an\xe9cdotas, entrevistados, humor y resoluci\xf3n de problemas, el reconocido matem\xe1tico Adri\xe1n Paenza nos acerca historias que tienen a la matem\xe1tica como protagonista. La serie ofrece un panorama distinto sobre esta disciplina: m\xe1s humano, divertido y cercano a la vida cotidiana. En su cuarta temporada, Alterados por Pi emprende una gira por escuelas a las que Adri\xe1n Paenza lleva sus juegos y acertijos. \xbfEl objetivo? \xa1Demostrar que la matem\xe1tica no es aburrida! Una nueva manera de ense\xf1ar ciencias, de manera l\xfadica y entretenida, que llena las aulas de muchas escuelas p\xfablicas de an\xe9cdotas, historias y humor.',
+    28,
+)
+
 
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
@@ -230,6 +235,11 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_video_8(self):
         html = open("../tests/ejemplo-video_8.html").read()
         res = scrapers.scrap_video(html)
-#        print "\n=== res", res
-#        print "=== RES", _RES_VIDEO_8
         self.assertEqual(res, _RES_VIDEO_8)
+
+    def test_example_video_9(self):
+        html = open("../tests/ejemplo-video_9.html").read()
+        res = scrapers.scrap_video(html)
+#        print "\n=== res", res
+#        print "=== RES", _RES_VIDEO_9
+        self.assertEqual(res, _RES_VIDEO_9)

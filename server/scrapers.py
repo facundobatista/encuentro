@@ -92,12 +92,13 @@ def scrap_video(html):
         elif hasattr(it, 'name'):
             if it.name == 'em':
                 desc_list.append(u'"' + it.text + u'"')
-            elif it.name in ('div', 'strong'):
+            elif it.name in ('div', 'strong', 'span'):
                 desc_list.append(it.text)
             elif it.name == 'br':
                 pass
             else:
-                raise ValueError("Unknown item in the description: %r" % (it,))
+                raise ValueError("Unknown item (%r) in the description: %r" %
+                                                                (it.name, it))
 
         else:
             if it == u"p": # bad found <p>
