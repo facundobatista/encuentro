@@ -669,6 +669,7 @@ class MainUI(object):
         """Filter the rows for something."""
         text = widget.get_text().decode('utf8')
         text = prepare_to_filter(text)
+        text = cgi.escape(text)
         self.refresh_treeview(text)
 
     def _close(self):
