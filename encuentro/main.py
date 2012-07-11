@@ -501,9 +501,9 @@ class MainUI(object):
                 if self.programs_data.reset_config_from_migration:
                     self.config['user'] = ''
                     self.config['password'] = ''
-                    del self.config['cols_width']
-                    del self.config['cols_order']
-                    del self.config['selected_row']
+                    self.config.pop('cols_width', None)
+                    self.config.pop('cols_order', None)
+                    self.config.pop('selected_row', None)
         else:
             self.config = {}
 
