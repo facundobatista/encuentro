@@ -1,0 +1,22 @@
+- ver que los tests pasen todo ok
+
+- hacer un release de la vN (tarball)
+
+- generar el .deb y subirlo a la pag de descargas
+
+- actualizar el ppa, esperar que entre, multiplicar a los distintos ubuntus
+
+- actualizar PyPI
+
+- actualizar y subir la página web
+
+- pedir para los otros sistemas:
+    - arch
+    - windows
+    - fedora/redhat
+
+- anunciar
+    - pyar
+    - post en el blog
+    - tuit
+

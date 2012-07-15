@@ -1,10 +1,29 @@
 ¡Bienvenido al Visualizador de contenidos del Canal Encuentro!
 
-Este es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro y otros. Para más información de cómo usar el programa, leer el archivo AYUDA.txt.
+Este es un simple programa que permite buscar, descargar y ver contenido del
+Canal Encuentro y otros. Para más información de cómo usar el programa, leer
+el archivo AYUDA.txt.
 
 Si querés conocer más sobre el proyecto, el mismo se gestiona desde aquí:
 
     https://launchpad.net/encuentro
+
+
+*Nota importante*: Si tenés una versión anterior a la 0.7, el programa no te
+va a funcionar. Tenés que actualizar sí o sí la versión. Esto es porque
+Encuentro migró sus contenidos al portal Conectate, por lo que las versiones
+viejas no te van a funcionar correctamente. La buena noticia es que ahora
+podrás descargar no sólo contenido de Encuentro, sino también de Paka Paka,
+Educ.ar, y otros.
+
+
+Cómo ejecutarlo directamente
+----------------------------
+
+Tanto si hacés un branch del proyecto, como si abrís el tarball, el programa
+puede ejecutarse fácilmente sin instalarlo, haciendo:
+
+    bin/encuentro
 
 
 Cómo instalarlo
@@ -14,7 +33,8 @@ Es bastante sencillo, sólo tenés que hacer:
 
     sudo python setup.py install
 
-Para que funcione correctamente, tenés que tener Python 2 instalado, y las siguientes dependencias (paquete y número mínimo de versión):
+Para que funcione correctamente, tenés que tener Python 2 instalado, y las
+siguientes dependencias (paquete y número mínimo de versión):
 
     python-mechanize        0.1.11
     python-twisted-bin      8.2.0
@@ -25,8 +45,12 @@ Para que funcione correctamente, tenés que tener Python 2 instalado, y las sigu
 Licencias
 ---------
 
-Este programa no distribuye contenido de Canal Encuentro, sino que permite un mejor uso personal de esos contenidos. Por favor, referirse al sitio web de Canal Encuentro (www.encuentro.gov.ar) para saber qué se puede y qué no se puede hacer con los contenidos de ese sitio.
+Este programa no distribuye contenido de Canal Encuentro, sino que permite un
+mejor uso personal de esos contenidos. Por favor, referirse al sitio web de
+Conectate (http://conectate.gov.ar/) para saber qué se puede y qué no se
+puede hacer con los contenidos de ese sitio.
 
-El código de este programa está licenciado bajo la GNU GPL v3, podés encontrar esta licencia en el archivo COPYING o acá:
+El código de este programa está licenciado bajo la GNU GPL v3, podés encontrar
+esta licencia en el archivo COPYING o acá:
 
     http://www.gnu.org/licenses/gpl.html
