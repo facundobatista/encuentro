@@ -1,9 +1,9 @@
 
-Encuentro 0.5
+Encuentro 0.7
 
-Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro.
+Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, Educ.ar y otros.
 
-Notar que este programa no distribuye contenido de Canal Encuentro, sino que permite un mejor uso personal de esos contenidos. Por favor, referirse al sitio web de Canal Encuentro (www.encuentro.gov.ar) para saber qué se puede y qué no se puede hacer con los contenidos de ese sitio.
+Notar que este programa no distribuye contenido directamente, sino que permite un mejor uso personal de esos contenidos.  Por favor, referirse al sitio web de Conectate (conectate.gov.ar) para saber qué se puede y qué no se puede hacer con los contenidos de ese sitio.
 
 http://encuentro.taniquetil.com.ar/imgs/title.png
 
@@ -12,20 +12,24 @@ Página oficial:
     http://encuentro.taniquetil.com.ar/
 
 
-La versión 0.5 (entramos en beta!) trae los siguientes cambios con respecto a la versión anterior:
+La versión 0.7 (seguimos en beta!) trae los siguientes cambios con respecto a la versión anterior:
 
-- Se puede autorefrescar la lista de episodios al inicio (si lo dice la config)
+- El programa Encuentro funciona con todo el contenido de Conectate.
 
-- El filtro ahora funciona también sobre la columna de Sección
+- Se mejoró el título de la columna Duración.
 
-- Soporta mejor los episodios que fueron borrados del disco
+- Notificaciones cuando termina una descarga (configurable).
 
-- También hay algunas pequeñas mejoras y otros detalles corregidos
+- Icono de estado en el systray.
+
+- Mostramos la descripción del episodio al dejar el mouse quieto en la linea.
+
+- Ahora tenemos un menú.
 
 
 La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
 
-    http://launchpad.net/encuentro/trunk/0.5/+download/encuentro-0.5.deb
+    http://launchpad.net/encuentro/trunk/0.7/+download/encuentro-0.7.deb
 
 
 Instalarlo en Arch es sencillo ya que está disponible en AUR, por ejemplo se puede hacer:
@@ -38,15 +42,12 @@ También se puede instalar directamente desde PyPI:
     sudo easy_install encuentro
 
 
-Si tienen Windows, usen este instalador:
-
-    http://launchpad.net/encuentro/trunk/0.5/+download/encuentro-0.5.exe
-
-
 En cualquier otro caso, pueden usar el tarball para instalarlo:
 
-    http://launchpad.net/encuentro/trunk/0.5/+download/encuentro-0.5.tar.gz
+    http://launchpad.net/encuentro/trunk/0.7/+download/encuentro-0.7.tar.gz
 
+
+Si tienen Windows, Fedora o Red Hat, todavía no tenemos un instalador, pero lo pueden instalar o usar desde el tarball, como acabo de indicar.
 
 Si quieren obtener automaticamente las nuevas actualizaciones, pueden suscribirse al PPA; en una linea de comandos hagan:
 
