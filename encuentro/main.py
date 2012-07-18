@@ -111,6 +111,7 @@ class EpisodeData(object):
 
     def update(self, channel, section, title, duration, description,
                episode_id, url, state=None, progress=None, filename=None):
+        """Update the episode data."""
         self.channel = channel
         self.section = section
         self.title = cgi.escape(title)
