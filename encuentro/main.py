@@ -386,7 +386,13 @@ class ProgramsData(object):
 
         # get from the file
         with open(self.filename, 'rb') as fh:
-            loaded_programs_data = pickle.load(fh)
+            try:
+                loaded_programs_data = pickle.load(fh)
+            except Exception, err:
+                logger.warning("ERROR while opening the pickled data: %s", err)
+                self.data = {}
+                self.version = self.last_programs_version
+                return
 
         # check pre-versioned data
         if isinstance(loaded_programs_data, dict):
