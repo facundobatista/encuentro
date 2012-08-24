@@ -550,6 +550,7 @@ class MainUI(object):
         self.main_window.set_icon_list(*icons)
         self.statusicon.set_from_pixbuf(icons[0])
 
+        self.update_relationship = None
         self._non_glade_setup()
         self.refresh_treeview()
         self.main_window.show()
@@ -659,11 +660,13 @@ class MainUI(object):
                    for i in range(self.programs_store.get_n_columns())]
         prv_order_col, prv_order_dir = self.programs_store.get_sort_column_id()
 
+        relat = self.update_relationship = {}
         new_liststore = gtk.ListStore(*columns)
         for p in self.programs_data.values():
             data = p.get_row_data(field_filter)
             if data is not None:
-                new_liststore.append(data)
+                treeiter = new_liststore.append(data)
+                relat[p.episode_id] = treeiter
 
         if prv_order_col is not None:
             new_liststore.set_sort_column_id(prv_order_col, prv_order_dir)
@@ -773,6 +776,14 @@ class MainUI(object):
             self._queue_download(row, path)
     on_menu_download_activate = on_toolbutton_download_clicked
 
+    def _update_ep(self, episode, **kwargs):
+        """Update and episode (if being shown) with those args."""
+        # after the yield, the row may have changed, so we get it again
+        treeiter = self.update_relationship.get(episode.episode_id)
+        if treeiter is not None:
+           row = self.programs_store[treeiter]
+           episode.update_row(row, **kwargs)
+
     @defer.inlineCallbacks
     def _queue_download(self, row, path):
         """User indicated to download something."""
@@ -782,33 +793,34 @@ class MainUI(object):
             logger.debug("Download denied, episode %s is not in downloadeable "
                          "state.", episode.episode_id)
             return
-        episode.update_row(row, state=Status.downloading, progress="encolado")
+        self._update_ep(episode, state=Status.downloading, progress="encolado")
 
-        self.episodes_to_download.append(row)
+        self.episodes_to_download.append(episode)
         if self._downloading:
             return
 
         logger.debug("Downloads: starting")
         self._downloading = True
         while self.episodes_to_download:
-            row = self.episodes_to_download.pop(0)
+            episode = self.episodes_to_download.pop(0)
             try:
-                filename, episode = yield self._episode_download(row)
+                filename, episode = yield self._episode_download(episode)
             except CancelledError:
                 logger.debug("Got a CancelledError!")
-                episode.update_row(row, state=Status.none)
+                self._update_ep(episode, state=Status.none)
             except BadCredentialsError:
                 logger.debug("Bad credentials error!")
                 self._show_message(self.dialog_alert)
-                episode.update_row(row, state=Status.none)
+                self._update_ep(episode, state=Status.none)
             except Exception, e:
                 logger.debug("Unknown download error: %s", e)
                 self._show_message(self.dialog_error, str(e))
-                episode.update_row(row, state=Status.none)
+                self._update_ep(episode, state=Status.none)
             else:
                 logger.debug("Episode downloaded: %s", episode)
-                episode.update_row(row, state=Status.downloaded,
-                                   filename=filename)
+                self._update_ep(episode, state=Status.downloaded,
+                                filename=filename)
+
             self._check_download_play_buttons()
         self._downloading = False
         logger.debug("Downloads: finished")
@@ -837,17 +849,15 @@ class MainUI(object):
             self.preferences_dialog.run(self.main_window.get_position())
 
     @defer.inlineCallbacks
-    def _episode_download(self, row):
+    def _episode_download(self, episode):
         """Effectively download an episode."""
-        episode_number = row[6]  # 6 is the episode number
-        episode = self.programs_data[episode_number]
-        logger.debug("Effectively downloading episode %s", episode_number)
-        episode.update_row(row, state=Status.downloading,
-                           progress="comenzando...")
+        logger.debug("Effectively downloading episode %s", episode.episode_id)
+        self._update_ep(episode, state=Status.downloading,
+                        progress="comenzando...")
 
         def update_progress_cb(progress):
             """Update the progress and refreshes the treeview."""
-            episode.update_row(row, progress=progress)
+            self._update_ep(episode, progress=progress)
 
         # download!
         fname = yield self.downloader.download(episode.channel,
@@ -890,7 +900,7 @@ class MainUI(object):
             msg = u"No se encontró el archivo para reproducir: " + repr(
                                                                     filename)
             self._show_message(self.dialog_error, msg)
-            episode.update_row(row, state=Status.none)
+            self._update_ep(episode, state=Status.none)
 
     def on_any_treeviewcolumn_clicked(self, widget, data=None):
         """Clicked on the column title.
@@ -961,8 +971,8 @@ class MainUI(object):
         path = self.programs_treeview.get_cursor()[0]
         row = self.programs_store[path]
         episode = self.programs_data[row[6]]  # 6 is the episode number
-        episode.update_row(row, state=Status.downloading,
-                           progress="cancelando...")
+        self._update_ep(episode, state=Status.downloading,
+                        progress="cancelando...")
         self.downloader.cancel()
 
     def on_rbmenu_download_activate(self, widget):
