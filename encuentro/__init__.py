@@ -66,6 +66,3 @@ with NiceImporter('xdg', 'python-xdg', '0.15'):
     import xdg
 with NiceImporter('mechanize', 'python-mechanize', '0.1.11'):
     import mechanize
-
-
-from encuentro.main import MainUI as EncuentroUI

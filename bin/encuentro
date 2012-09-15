@@ -48,9 +48,9 @@ if project_basedir not in sys.path:
 from encuentro import logger
 logger.set_up()
 
-from encuentro import EncuentroUI
+from encuentro.main import MainUI
 
 from twisted.internet import reactor
 
-EncuentroUI(version)
+MainUI(version)
 reactor.run()
