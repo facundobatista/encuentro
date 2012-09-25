@@ -16,11 +16,11 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-"""Tests for the scrapers."""
+"""Tests for the scrapers for Conectate backend."""
 
 import unittest
 
-from server import scrapers
+from server import scrapers_conect
 
 
 _RES_BUSQ_1 = [
@@ -178,68 +178,68 @@ class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
 
     def test_example_busqueda(self):
-        html = open("../tests/ejemplo-busqueda.html").read()
-        res = scrapers.scrap_busqueda(html)
+        html = open("../tests/ej-conect-busqueda.html").read()
+        res = scrapers_conect.scrap_busqueda(html)
         self.assertEqual(res, _RES_BUSQ_1)
 
     def test_example_series_1(self):
-        html = open("../tests/ejemplo-series_1.html").read()
-        res = scrapers.scrap_series(html)
+        html = open("../tests/ej-conect-series_1.html").read()
+        res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_1)
 
     def test_example_series_2(self):
-        html = open("../tests/ejemplo-series_2.html").read()
-        res = scrapers.scrap_series(html)
+        html = open("../tests/ej-conect-series_2.html").read()
+        res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_2)
 
     def test_example_series_3(self):
-        html = open("../tests/ejemplo-series_3.html").read()
-        res = scrapers.scrap_series(html)
+        html = open("../tests/ej-conect-series_3.html").read()
+        res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_3)
 
     def test_example_video_1(self):
-        html = open("../tests/ejemplo-video_1.html").read()
-        res = scrapers.scrap_video(html)
+        html = open("../tests/ej-conect-video_1.html").read()
+        res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_1)
 
     def test_example_video_2(self):
-        html = open("../tests/ejemplo-video_2.html").read()
-        res = scrapers.scrap_video(html)
+        html = open("../tests/ej-conect-video_2.html").read()
+        res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_2)
 
     def test_example_video_3(self):
-        html = open("../tests/ejemplo-video_3.html").read()
-        res = scrapers.scrap_video(html)
+        html = open("../tests/ej-conect-video_3.html").read()
+        res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_3)
 
     def test_example_video_4(self):
-        html = open("../tests/ejemplo-video_4.html").read()
-        res = scrapers.scrap_video(html)
+        html = open("../tests/ej-conect-video_4.html").read()
+        res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_4)
 
     def test_example_video_5(self):
-        html = open("../tests/ejemplo-video_5.html").read()
-        res = scrapers.scrap_video(html)
+        html = open("../tests/ej-conect-video_5.html").read()
+        res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_5)
 
     def test_example_video_6(self):
-        html = open("../tests/ejemplo-video_6.html").read()
-        res = scrapers.scrap_video(html)
+        html = open("../tests/ej-conect-video_6.html").read()
+        res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_6)
 
     def test_example_video_7(self):
-        html = open("../tests/ejemplo-video_7.html").read()
-        res = scrapers.scrap_video(html)
+        html = open("../tests/ej-conect-video_7.html").read()
+        res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_7)
 
     def test_example_video_8(self):
-        html = open("../tests/ejemplo-video_8.html").read()
-        res = scrapers.scrap_video(html)
+        html = open("../tests/ej-conect-video_8.html").read()
+        res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_8)
 
     def test_example_video_9(self):
-        html = open("../tests/ejemplo-video_9.html").read()
-        res = scrapers.scrap_video(html)
+        html = open("../tests/ej-conect-video_9.html").read()
+        res = scrapers_conect.scrap_video(html)
 #        print "\n=== res", res
 #        print "=== RES", _RES_VIDEO_9
         self.assertEqual(res, _RES_VIDEO_9)

@@ -16,7 +16,7 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-"""Main server process to get all info."""
+"""Main server process to get all info from Conectate web site."""
 
 import cgi
 import cPickle
@@ -28,7 +28,7 @@ import sys
 import time
 import urllib2
 
-import scrapers
+import scrapers_conect
 
 
 # different channels from where read content
@@ -105,7 +105,7 @@ def _search(url):
     """Search each page."""
     u = urllib2.urlopen(url)
     page = u.read()
-    results = scrapers.scrap_busqueda(page)
+    results = scrapers_conect.scrap_busqueda(page)
     return results
 
 
@@ -135,7 +135,7 @@ def get_from_series(i, url):
     print "Get from series:", i, url
     u = urllib2.urlopen(url)
     page = u.read()
-    results = scrapers.scrap_series(page)
+    results = scrapers_conect.scrap_series(page)
     print "   ", len(results)
     return results
 
@@ -150,7 +150,7 @@ def get_episode_info(i, url):
     except KeyError:
         u = urllib2.urlopen(url)
         page = u.read()
-        info = scrapers.scrap_video(page)
+        info = scrapers_conect.scrap_video(page)
         episodes_cache.set(url, info)
         print "    ok"
     return info
