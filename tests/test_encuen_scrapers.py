@@ -65,6 +65,14 @@ _RES_PROGRAMA_2 = {
     ],
 }
 
+_RES_PROGRAMA_3 = {
+    "description": u"El 14 de julio de 2010, un evento histórico marcó un hito en la Legislatura argentina: la sanción de la Ley de Matrimonio Igualitario. El proceso de creación del proyecto, los debates y los conflictos que debió sortear desde sus orígenes hasta su aprobación llenan de contenido este documental. Entrevistas a jueces, diputados y activistas sociales. Ley pareja traza un recorrido para conocer los puntos más importantes de la ley que otorgó derecho y libertad a miles de argentinos y argentinas.",
+    "duration": None,
+    "links": [
+        (None, "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=106892"),
+    ],
+}
+
 
 
 class ScrapersTestCase(unittest.TestCase):
@@ -83,6 +91,11 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_programa_2(self):
         html = open("../tests/ej-encuen-programa_2.html").read()
         res = scrapers_encuen.scrap_programa(html)
-#        print "\n=== res", res
-#        print "=== RES", _RES_PROGRAMA_2
         self.assertEqual(res, _RES_PROGRAMA_2)
+
+    def test_example_programa_3(self):
+        html = open("../tests/ej-encuen-programa_3.html").read()
+        res = scrapers_encuen.scrap_programa(html)
+#        print "\n=== res", res
+#        print "=== RES", _RES_PROGRAMA_3
+        self.assertEqual(res, _RES_PROGRAMA_3)
