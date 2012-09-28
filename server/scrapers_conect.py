@@ -25,6 +25,9 @@ import bs4
 
 def _sanitize(html):
     """Sanitize html."""
+    # FIXME: pasar este sanitize a un lugar comun, que se use de ambos
+    # FIXME: que tambien haga el jueguito del unicodedecodeerrror
+    # FIXME: que reemplace u"\xa0" por u" "
     html = re.sub("<script.*?</script>", "", html, flags=re.S)
     return html
 

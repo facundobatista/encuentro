@@ -331,6 +331,27 @@ class UpdateUI(object):
         tell_user(u"¡Todo terminado bien!\n")
         self.on_dialog_destroy(None)
 
+# FIXME: pasar este update ui a otro archivo
+# FIXME: que el método "_update":
+#   - baje primero algo que le indique qué bajar
+#   - que baje todo lo que tiene que bajar
+#   - que mergee
+#   - que loguee resultados del merge
+#
+# Reglas del merge:
+# - description: si son iguales, usa uno; si uno es None, usa el otro; si no
+#   los concatena (el más corto de ambos primero)
+# - url: quedarse con la de 'conect', que es más detallada
+# - channel: quedarse con la de 'conect'
+# - title: quedarse con la de 'conect'
+# - section: quedarse con la de 'conect'
+# - duration: si son distintos, tomar el que no es None
+#
+# Loguear:
+# - cuantos "pisados" (con el mismo episode_id)
+# - cuantos con channel que no correspondian
+# - cuantos con title que no correspondian
+
 
 class SensitiveGrouper(object):
     """Centralize sensitiviness and tooltip management."""

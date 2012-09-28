@@ -72,15 +72,20 @@ def scrap_programa(html):
 
         if it.name == 'p':
             data = list(it.children)
-            if len(data) != 2:
-                continue
 
-            head, content = it.children
-            head = head.text.strip().strip(':')
+            head = data[0].text.strip().strip(':')
+            content = u''.join(getattr(x, 'text', x) for x in data[1:])
+
             if head == u'Sinopsis':
                 result['description'] = content.strip().replace("\n", "")
             elif head == u'Duración':
-                result['duration'] = int(content.split()[0].strip())
+                maybe_minutes = content.split()[0].strip()
+                try:
+                    minutes = int(maybe_minutes)
+                except ValueError:
+                    # some pages have everything but the numbers
+                    minutes = None
+                result['duration'] = minutes
 
         if it.name == 'a' and u'Ver / Descargar' in it.text:
             break

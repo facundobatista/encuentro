@@ -19,15 +19,14 @@
 """Main server process to get all info from Conectate web site."""
 
 import cgi
-import cPickle
 import bz2
 import codecs
 import json
 import os
 import sys
-import time
 import urllib2
 
+import helpers
 import scrapers_conect
 
 
@@ -61,46 +60,10 @@ URL_SEARCH = (
 )
 
 
-class Cache(object):
-    """An automatic caché in disk."""
-    def __init__(self, fname):
-        self.fname = fname
-        if os.path.exists(fname):
-            with open(fname, "rb") as fh:
-                self.db = cPickle.load(fh)
-        else:
-            self.db = {}
-
-    def get(self, key):
-        """Return a value in the DB."""
-        return self.db[key]
-
-    def set(self, key, value):
-        """Set a value to the DB."""
-        self.db[key] = value
-        with open(self.fname, "wb") as fh:
-            cPickle.dump(self.db, fh)
-
-episodes_cache = Cache("episodes_cache.pickle")
+episodes_cache = helpers.Cache("episodes_cache_conect.pickle")
 
 
-def retryable(func):
-    """Decorator to retry functions."""
-    def _f(*args, **kwargs):
-        for attempt in range(5, -1, -1):  # if reaches 0: no more attempts
-            try:
-                res = func(*args, **kwargs)
-            except Exception, e:
-                if not attempt:
-                    raise
-                print "   problem (retrying...):", e
-                time.sleep(30)
-            else:
-                return res
-    return _f
-
-
-@retryable
+@helpers.retryable
 def _search(url):
     """Search each page."""
     u = urllib2.urlopen(url)
@@ -129,7 +92,7 @@ def do_search(channel_id, emis_id):
         page += 1
 
 
-@retryable
+@helpers.retryable
 def get_from_series(i, url):
     """Get the episodes from an url page."""
     print "Get from series:", i, url
@@ -140,7 +103,7 @@ def get_from_series(i, url):
     return results
 
 
-@retryable
+@helpers.retryable
 def get_episode_info(i, url):
     """Get the info from an episode."""
     print "Get episode info:", i, url
