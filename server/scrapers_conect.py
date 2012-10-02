@@ -18,27 +18,14 @@
 
 """Some scrapers."""
 
-import re
-
 import bs4
 
-
-def _sanitize(html):
-    """Sanitize html."""
-    # FIXME: pasar este sanitize a un lugar comun, que se use de ambos
-    # FIXME: que tambien haga el jueguito del unicodedecodeerrror
-    # FIXME: que reemplace u"\xa0" por u" "
-    html = re.sub("<script.*?</script>", "", html, flags=re.S)
-    return html
+import helpers
 
 
 def scrap_busqueda(html):
     """Get useful info from the search."""
-    try:
-        html.decode("utf8")
-    except UnicodeDecodeError:
-        html = html.decode("cp1252")
-    soup = bs4.BeautifulSoup(html)
+    soup = bs4.BeautifulSoup(helpers.sanitize(html))
     results = soup.find_all("div", "resBusqueda")
     processed = []
     for res in results:
@@ -51,11 +38,7 @@ def scrap_busqueda(html):
 
 def scrap_series(html):
     """Get useful info from the series list."""
-    try:
-        html.decode("utf8")
-    except UnicodeDecodeError:
-        html = html.decode("cp1252")
-    soup = bs4.BeautifulSoup(_sanitize(html))
+    soup = bs4.BeautifulSoup(helpers.sanitize(html))
     serietitle_section = soup.find("div", "titSerieEncabezado")
     serietitle_text = serietitle_section.h1.text
     epis_section = soup.find_all("ul", "serieCap")
@@ -72,11 +55,7 @@ def scrap_series(html):
 
 def scrap_video(html):
     """Get useful info from the video page."""
-    try:
-        html.decode("utf8")
-    except UnicodeDecodeError:
-        html = html.decode("cp1252")
-    soup = bs4.BeautifulSoup(_sanitize(html))
+    soup = bs4.BeautifulSoup(helpers.sanitize(html))
 
     # get the description, can be multipart
     it = soup.find('div','capitulo_thumb')

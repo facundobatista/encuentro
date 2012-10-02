@@ -22,6 +22,8 @@ import re
 
 import bs4
 
+import helpers
+
 
 BASE_URL_RECURSO = (
     "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/"
@@ -29,19 +31,9 @@ BASE_URL_RECURSO = (
 )
 
 
-def _sanitize(html):
-    """Sanitize html."""
-    html = re.sub("<script.*?</script>", "", html, flags=re.S)
-    return html
-
-
 def scrap_listado(html):
     """Get useful info from the listings."""
-    try:
-        html.decode("utf8")
-    except UnicodeDecodeError:
-        html = html.decode("cp1252")
-    soup = bs4.BeautifulSoup(_sanitize(html))
+    soup = bs4.BeautifulSoup(helpers.sanitize(html))
     programs = soup.find("ul", "programas")
 
     processed = []
@@ -56,11 +48,7 @@ def scrap_listado(html):
 
 def scrap_programa(html):
     """Get useful info from a program."""
-    try:
-        html.decode("utf8")
-    except UnicodeDecodeError:
-        html = html.decode("cp1252")
-    soup = bs4.BeautifulSoup(_sanitize(html))
+    soup = bs4.BeautifulSoup(helpers.sanitize(html))
     it = soup.find("h1", id="programa")
 
     # get duration and description

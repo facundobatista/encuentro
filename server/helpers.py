@@ -21,7 +21,19 @@
 
 import cPickle
 import os
+import re
 import time
+
+
+def sanitize(html):
+    """Sanitize html."""
+    try:
+        html.decode("utf8")
+    except UnicodeDecodeError:
+        html = html.decode("cp1252")
+
+    html = re.sub("<script.*?</script>", "", html, flags=re.S)
+    return html
 
 
 class Cache(object):
