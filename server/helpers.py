@@ -19,10 +19,26 @@
 """A couple of helpers for server stuff."""
 
 
+import bz2
 import cPickle
+import json
 import os
 import re
 import time
+
+
+def save_file(basename, data):
+    """Save file to disk, dumping the data."""
+    # encode and compress
+    info = json.dumps(data)
+    info = bz2.compress(info)
+
+    # dump it
+    tmpname = basename + ".tmp"
+    bz2name = basename + ".bz2"
+    with open(tmpname, "wb") as fh:
+        fh.write(info)
+    os.rename(tmpname, bz2name)
 
 
 def sanitize(html):

@@ -19,10 +19,6 @@
 """Main server process to get all info from Encuentro web site."""
 
 import cgi
-import bz2
-import codecs
-import json
-import os
 import sys
 import urllib2
 
@@ -144,23 +140,10 @@ def get_all_data():
     return all_data
 
 
-# FIXME: meter esto tambien en algo comun, pasandole estruct del nombre
-# FIXME: usar nombres separados para ambos bajadores
 def main():
     """Entry point."""
     all_data = get_all_data()
-    info = json.dumps(all_data)
-
-    # uncompressed
-    with codecs.open("encuentro-v02.json.tmp", "w", "utf8") as fh:
-        fh.write(info)
-    os.rename("encuentro-v02.json.tmp", "encuentro-v02.json")
-
-    # compressed
-    info = bz2.compress(info)
-    with open("encuentro-v02.bz2.tmp", "wb") as fh:
-        fh.write(info)
-    os.rename("encuentro-v02.bz2.tmp", "encuentro-v02.bz2")
+    helpers.save_file("encuentro-v02", all_data)
 
 
 if len(sys.argv) == 2:
