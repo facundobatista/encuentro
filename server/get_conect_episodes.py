@@ -16,19 +16,14 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-"""Main server process to get all info."""
+"""Main server process to get all info from Conectate web site."""
 
 import cgi
-import cPickle
-import bz2
-import codecs
-import json
-import os
 import sys
-import time
 import urllib2
 
-import scrapers
+import helpers
+import scrapers_conect
 
 
 # different channels from where read content
@@ -61,51 +56,15 @@ URL_SEARCH = (
 )
 
 
-class Cache(object):
-    """An automatic caché in disk."""
-    def __init__(self, fname):
-        self.fname = fname
-        if os.path.exists(fname):
-            with open(fname, "rb") as fh:
-                self.db = cPickle.load(fh)
-        else:
-            self.db = {}
-
-    def get(self, key):
-        """Return a value in the DB."""
-        return self.db[key]
-
-    def set(self, key, value):
-        """Set a value to the DB."""
-        self.db[key] = value
-        with open(self.fname, "wb") as fh:
-            cPickle.dump(self.db, fh)
-
-episodes_cache = Cache("episodes_cache.pickle")
+episodes_cache = helpers.Cache("episodes_cache_conect.pickle")
 
 
-def retryable(func):
-    """Decorator to retry functions."""
-    def _f(*args, **kwargs):
-        for attempt in range(5, -1, -1):  # if reaches 0: no more attempts
-            try:
-                res = func(*args, **kwargs)
-            except Exception, e:
-                if not attempt:
-                    raise
-                print "   problem (retrying...):", e
-                time.sleep(30)
-            else:
-                return res
-    return _f
-
-
-@retryable
+@helpers.retryable
 def _search(url):
     """Search each page."""
     u = urllib2.urlopen(url)
     page = u.read()
-    results = scrapers.scrap_busqueda(page)
+    results = scrapers_conect.scrap_busqueda(page)
     return results
 
 
@@ -129,18 +88,18 @@ def do_search(channel_id, emis_id):
         page += 1
 
 
-@retryable
+@helpers.retryable
 def get_from_series(i, url):
     """Get the episodes from an url page."""
     print "Get from series:", i, url
     u = urllib2.urlopen(url)
     page = u.read()
-    results = scrapers.scrap_series(page)
+    results = scrapers_conect.scrap_series(page)
     print "   ", len(results)
     return results
 
 
-@retryable
+@helpers.retryable
 def get_episode_info(i, url):
     """Get the info from an episode."""
     print "Get episode info:", i, url
@@ -150,7 +109,7 @@ def get_episode_info(i, url):
     except KeyError:
         u = urllib2.urlopen(url)
         page = u.read()
-        info = scrapers.scrap_video(page)
+        info = scrapers_conect.scrap_video(page)
         episodes_cache.set(url, info)
         print "    ok"
     return info
@@ -190,18 +149,7 @@ def get_all_data():
 def main():
     """Entry point."""
     all_data = get_all_data()
-    info = json.dumps(all_data)
-
-    # uncompressed
-    with codecs.open("encuentro-v02.json.tmp", "w", "utf8") as fh:
-        fh.write(info)
-    os.rename("encuentro-v02.json.tmp", "encuentro-v02.json")
-
-    # compressed
-    info = bz2.compress(info)
-    with open("encuentro-v02.bz2.tmp", "wb") as fh:
-        fh.write(info)
-    os.rename("encuentro-v02.bz2.tmp", "encuentro-v02.bz2")
+    helpers.save_file("conectar-v02", all_data)
 
 
 if len(sys.argv) == 2:

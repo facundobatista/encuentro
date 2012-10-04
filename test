@@ -1,5 +1,5 @@
 set -e
 
 trial tests
-pylint encuentro
-pep8 --repeat encuentro/
+pylint encuentro server
+pep8 --repeat encuentro/ server/
