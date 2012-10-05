@@ -22,6 +22,7 @@ import re
 
 import bs4
 
+# we execute this script from inside the directory; pylint: disable=W0403
 import helpers
 
 

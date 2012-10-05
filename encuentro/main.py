@@ -693,8 +693,8 @@ class MainUI(object):
         # after the yield, the row may have changed, so we get it again
         treeiter = self.update_relationship.get(episode.episode_id)
         if treeiter is not None:
-           row = self.programs_store[treeiter]
-           episode.update_row(row, **kwargs)
+            row = self.programs_store[treeiter]
+            episode.update_row(row, **kwargs)
 
     @defer.inlineCallbacks
     def _queue_download(self, row, path):

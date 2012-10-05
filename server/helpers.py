@@ -76,6 +76,7 @@ class Cache(object):
 def retryable(func):
     """Decorator to retry functions."""
     def _f(*args, **kwargs):
+        """Retryable function."""
         for attempt in range(5, -1, -1):  # if reaches 0: no more attempts
             try:
                 res = func(*args, **kwargs)
@@ -87,4 +88,3 @@ def retryable(func):
             else:
                 return res
     return _f
-

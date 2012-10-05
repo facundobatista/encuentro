@@ -20,6 +20,7 @@
 
 import bs4
 
+# we execute this script from inside the directory; pylint: disable=W0403
 import helpers
 
 
@@ -58,7 +59,7 @@ def scrap_video(html):
     soup = bs4.BeautifulSoup(helpers.sanitize(html))
 
     # get the description, can be multipart
-    it = soup.find('div','capitulo_thumb')
+    it = soup.find('div', 'capitulo_thumb')
     duration = None
     desc_list = []
     while True:
@@ -83,7 +84,7 @@ def scrap_video(html):
                                                                 (it.name, it))
 
         else:
-            if it == u"p": # bad found <p>
+            if it == u"p":  # bad found <p>
                 continue
             desc_list.append(it)
 

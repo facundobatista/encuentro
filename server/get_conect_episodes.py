@@ -19,9 +19,9 @@
 """Main server process to get all info from Conectate web site."""
 
 import cgi
-import sys
 import urllib2
 
+# we execute this script from inside the directory; pylint: disable=W0403
 import helpers
 import scrapers_conect
 
@@ -139,7 +139,7 @@ def get_all_data():
     for i, chan_name, emis_name, title, url in get_episodes():
         info = dict(channel=chan_name, section=emis_name, title=title, url=url)
         descrip, durat = get_episode_info(i, url)
-        episode_id =  cgi.parse_qs(urllib2.urlparse.urlparse(url)
+        episode_id = cgi.parse_qs(urllib2.urlparse.urlparse(url)
                                                         .query)['idRecurso'][0]
         info.update(description=descrip, duration=durat, episode_id=episode_id)
         all_data.append(info)
@@ -152,7 +152,4 @@ def main():
     helpers.save_file("conectar-v02", all_data)
 
 
-if len(sys.argv) == 2:
-    print get_episode_info(int(sys.argv[1]))
-else:
-    main()
+main()

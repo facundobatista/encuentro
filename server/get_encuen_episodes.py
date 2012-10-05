@@ -22,6 +22,7 @@ import cgi
 import sys
 import urllib2
 
+# we execute this script from inside the directory; pylint: disable=W0403
 import helpers
 import scrapers_encuen
 
@@ -121,7 +122,7 @@ def get_all_data():
         if subtitle is not None:
             title = u"%s: %s" % (title, subtitle)
         query = urllib2.urlparse.urlparse(url).query
-        episode_id =  cgi.parse_qs(query)['idRecurso'][0]
+        episode_id = cgi.parse_qs(query)['idRecurso'][0]
         info = dict(channel=u"Encuentro", title=title, url=url,
                     section=section, description=descrip, duration=durat,
                     episode_id=episode_id)
