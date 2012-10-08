@@ -19,6 +19,7 @@
 """Main server process to get all info from Encuentro web site."""
 
 import cgi
+import json
 import sys
 import urllib2
 
@@ -27,25 +28,38 @@ import helpers
 import scrapers_encuen
 
 
-# different emission types
-# id, name, divided in series or not
-EMISSIONS = [
-    (1, u"Película", False),
-    (2, u"Especial", False),
-    (3, u"Serie", True),
-    (4, u"Micro", True),
-]
-
-
-URL_BASE = "http://conectate.gov.ar"
-
 URL_LISTING = (
     "http://www.encuentro.gov.ar/sitios/encuentro/programas/"
     "?limit=20&offset=%d"
 )
 
+URL_DETAILS = (
+    'http://www.encuentro.gov.ar/sitios/encuentro/Programas/detalleCapitulo'
+)
+
+POST_DETAILS = '__params=%7B%22rec_id%22%3A{}%2C%22ajax%22%3Atrue%7D'
 
 episodes_cache = helpers.Cache("episodes_cache_encuen.pickle")
+
+
+@helpers.retryable
+def get_download_availability(episode_id):
+    """Check if the episode is available for download."""
+    print "Get availability:", episode_id
+    try:
+        info = episodes_cache.get(episode_id)
+        print "    cached!"
+    except KeyError:
+        post = POST_DETAILS.format(episode_id)
+        u = urllib2.urlopen(URL_DETAILS, data=post)
+        t = u.read()
+        data = json.loads(t)
+        data = data["ResultSet"]['data']['recurso']['tipo_funcional']['data']
+        real_id = data['descargable']['file_id']
+        info = real_id is not None
+        episodes_cache.set(episode_id, info)
+        print "    ok, avail", real_id is not None
+    return info
 
 
 @helpers.retryable
@@ -123,6 +137,9 @@ def get_all_data():
             title = u"%s: %s" % (title, subtitle)
         query = urllib2.urlparse.urlparse(url).query
         episode_id = cgi.parse_qs(query)['idRecurso'][0]
+        available = get_download_availability(episode_id)
+        if not available:
+            continue
         info = dict(channel=u"Encuentro", title=title, url=url,
                     section=section, description=descrip, duration=durat,
                     episode_id=episode_id)

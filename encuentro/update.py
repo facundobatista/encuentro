@@ -29,7 +29,7 @@ from twisted.internet import defer
 from twisted.web import client
 
 
-BACKENDS_URL = "http://www.taniquetil.com.ar/backends-v01.list"
+BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v01.list"
 BASEDIR = os.path.dirname(__file__)
 
 logger = logging.getLogger('encuentro.update')
@@ -70,7 +70,7 @@ class UpdateUI(object):
             x, y = parent_pos
             self.dialog.move(x + 50, y + 50)
 
-        self._update(lambda text:
+        self._update(lambda *text:
                      self.tview_insert(" ".join(map(str, text)) + '\n'))
         self.main.main_window.set_sensitive(False)
         self.dialog.run()
@@ -86,7 +86,7 @@ class UpdateUI(object):
     @defer.inlineCallbacks
     def update(self, refresh_gui):
         """Trigger an update in background."""
-        dummy = lambda text: None
+        dummy = lambda *text: None
         yield self._update(dummy)
         refresh_gui()
 
@@ -107,13 +107,12 @@ class UpdateUI(object):
             return
         backends_list = [l.strip().split() for l in backends_file.split("\n")
                          if l and l[0] != '#']
-        print "======= bajado backends", repr(backends_list)
 
         backends = {}
         for b_name, b_url in backends_list:
             logger.info("Downloading backend metadata for %r", b_name)
-            tell_user("Descargando la lista de episodios para backend %s...",
-                      b_name)
+            tell_user("Descargando la lista de episodios para backend %r..." %
+                      (b_name,))
             try:
                 compressed = yield client.getPage(b_url)
             except Exception, e:
