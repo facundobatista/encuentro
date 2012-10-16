@@ -1,5 +1,5 @@
 
-Encuentro 0.7
+Encuentro 0.8
 
 Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, Educ.ar y otros.
 
@@ -12,24 +12,20 @@ Página oficial:
     http://encuentro.taniquetil.com.ar/
 
 
-La versión 0.7 (seguimos en beta!) trae los siguientes cambios con respecto a la versión anterior:
+La versión 0.8 trae los siguientes cambios con respecto a la versión anterior:
 
-- El programa Encuentro funciona con todo el contenido de Conectate.
+- Soporte para múltiples fuentes de datos. Ahora también baja los episodios perdidos de la web de Encuentro.
 
-- Se mejoró el título de la columna Duración.
+- Corregido el problema que hacía perder las actualizaciones cuando se reordenaba o filtraba (dando la impresión que los downloads se trababan).
 
-- Notificaciones cuando termina una descarga (configurable).
+- Mejor uso de nombres y directorios al grabar los videos.
 
-- Icono de estado en el systray.
-
-- Mostramos la descripción del episodio al dejar el mouse quieto en la linea.
-
-- Ahora tenemos un menú.
+- Otras pequeñas mejoras y correcciones.
 
 
 La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
 
-    http://launchpad.net/encuentro/trunk/0.7/+download/encuentro-0.7.deb
+    http://launchpad.net/encuentro/trunk/0.8/+download/encuentro-0.8.deb
 
 
 Instalarlo en Arch es sencillo ya que está disponible en AUR, por ejemplo se puede hacer:
@@ -44,7 +40,7 @@ También se puede instalar directamente desde PyPI:
 
 En cualquier otro caso, pueden usar el tarball para instalarlo:
 
-    http://launchpad.net/encuentro/trunk/0.7/+download/encuentro-0.7.tar.gz
+    http://launchpad.net/encuentro/trunk/0.8/+download/encuentro-0.8.tar.gz
 
 
 Si tienen Windows, Fedora o Red Hat, todavía no tenemos un instalador, pero lo pueden instalar o usar desde el tarball, como acabo de indicar.
