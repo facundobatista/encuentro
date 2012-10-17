@@ -30,7 +30,7 @@ La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este
 
 Instalarlo en Arch es sencillo ya que está disponible en AUR, por ejemplo se puede hacer:
 
-    sudo yaourt -S encuentro
+    yaourt -S encuentro
 
 
 También se puede instalar directamente desde PyPI:
