@@ -92,7 +92,7 @@ def retryable(func):
 
 
 def get_url_param(url, param):
-    """ Get the value of the param in the url """
+    """Get the value of the param in the url."""
     return cgi.parse_qs(urllib2.urlparse.urlparse(url)
                                         .query)[param][0]
 

@@ -249,8 +249,8 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_video_9(self):
         html = open("../tests/ej-conect-video_9.html").read()
         res = scrapers_conect.scrap_video(html)
-#        log.write("\n=== res", res
-#        log.write("=== RES", _RES_VIDEO_9
+#        print "\n=== res", res
+#        print "=== RES", _RES_VIDEO_9
         self.assertEqual(res, _RES_VIDEO_9)
 
 
