@@ -34,6 +34,7 @@ with NiceImporter('gtk', 'python-gtk2', '2.16.0'):
 with NiceImporter('twisted', 'python-twisted-bin', '8.2.0'):
     from twisted.internet import gtk2reactor
 gtk2reactor.install()
+import pango
 
 pynotify = None
 with NiceImporter('pynotify', 'python-notify', '0.1.1'):
@@ -391,7 +392,8 @@ class MainUI(object):
             'dialog_quit', 'dialog_quit_label', 'dialog_alert', 'dialog_error',
             'rb_menu', 'rbmenu_play', 'rbmenu_cancel', 'rbmenu_download',
             'menu_download', 'menu_play', 'aboutdialog', 'statusicon',
-            'dialog_upgrade',
+            'dialog_upgrade', 'image_episode', 'button_episode',
+            'textview_episode',
         )
 
         for widget in widgets:
@@ -408,6 +410,13 @@ class MainUI(object):
             column.clear()
             column.pack_end(cell_renderer, expand=True)
             column.add_attribute(cell_renderer, "text", col_number)
+
+        # stuff that needs to be done *once* to get bold letters
+        self.episode_textbuffer = self.textview_episode.get_buffer()
+        texttagtable = self.episode_textbuffer.get_tag_table()
+        self.episode_texttag_bold = gtk.TextTag("bold")
+        self.episode_texttag_bold.set_property("weight", pango.WEIGHT_BOLD)
+        texttagtable.add(self.episode_texttag_bold)
 
         data_file = os.path.join(platform.data_dir, 'encuentro.data')
         self.programs_data = ProgramsData(self, data_file)
@@ -477,6 +486,7 @@ class MainUI(object):
         if not self.config.get('nowizard'):
             wizard.start(self, self._have_config, self._have_metadata)
         self.review_need_something_indicator()
+        self._update_info_panel()
 
     def _have_config(self):
         """Return if some config is needed."""
@@ -896,6 +906,51 @@ class MainUI(object):
     def on_programs_treeview_selection_changed(self, tree_selection):
         """Get all selected rows and adjust buttons accordingly."""
         self._check_download_play_buttons(tree_selection)
+        self._update_info_panel(tree_selection)
+
+    def _update_info_panel(self, tree_selection=None):
+        """Set both buttons state according to the selected episodes."""
+        if tree_selection is None:
+            tree_selection = self.programs_treeview.get_selection()
+            if tree_selection is None:
+                return
+        _, pathlist = tree_selection.get_selected_rows()
+
+        if len(pathlist) == 1:
+            row = self.programs_store[pathlist[0]]
+            episode = self.programs_data[row[6]]  # 6 is the episode number
+
+            # image
+            self.image_episode.set_from_stock(gtk.STOCK_MISSING_IMAGE, 16)
+            self.image_episode.show()
+
+            # all description
+            self.textview_episode.set_justification(gtk.JUSTIFY_LEFT)
+            msg = "\n%s\n\n%s" % (episode.title, episode.description)
+            to_bold = len(episode.title) + 2
+            self.episode_textbuffer.set_text(msg)
+            start = self.episode_textbuffer.get_iter_at_offset(1)
+            end = self.episode_textbuffer.get_iter_at_offset(to_bold)
+            self.episode_textbuffer.apply_tag(self.episode_texttag_bold,
+                                              start, end)
+
+            # action button
+            self.button_episode.show()
+            if episode.state == Status.downloaded:
+                self.button_episode.set_label("Reproducir")
+            elif (episode.state == Status.downloading or
+                  episode.state == Status.waiting):
+                self.button_episode.set_label("Cancelar descarga")
+            else:
+                self.button_episode.set_label("Descargar")
+
+        else:
+            if pathlist:
+                message = u"\n\nSeleccionar sólo un programa para verlo"
+            else:
+                message = u"\n\nSeleccionar un programa para aquí la info"
+            self.episode_textbuffer.set_text(message)
+            self.textview_episode.set_justification(gtk.JUSTIFY_CENTER)
 
     def _check_download_play_buttons(self, tree_selection=None):
         """Set both buttons state according to the selected episodes."""
