@@ -394,9 +394,10 @@ class ImageGetter(object):
         file_name = md5.md5(url).hexdigest() + '.jpg'
         file_fullname = os.path.join(self.cache_dir, file_name)
         if os.path.exists(file_fullname):
-            with open(file_fullname, 'r') as fh:
+            with open(file_fullname, 'rb') as fh:
                 data = fh.read()
             self.callback(path, data)
+            return
 
         def _d_callback(data, path, file_fullname):
             """Cache the image and use the callback."""
