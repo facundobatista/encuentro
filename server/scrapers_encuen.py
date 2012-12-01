@@ -76,6 +76,10 @@ def scrap_programa(html):
                     minutes = None
                 result['duration'] = minutes
 
+        if it.name == 'img':
+            result['image_url'] = it['src']
+            result['image_id'] = helpers.get_url_param(it['src'],'image_id')
+
         if it.name == 'a' and u'Ver / Descargar' in it.text:
             break
 

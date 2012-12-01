@@ -21,10 +21,12 @@
 
 import bz2
 import cPickle
+import cgi
 import json
 import os
 import re
 import time
+import urllib2
 
 
 def save_file(basename, data):
@@ -39,7 +41,6 @@ def save_file(basename, data):
     with open(tmpname, "wb") as fh:
         fh.write(info)
     os.rename(tmpname, bz2name)
-
 
 def sanitize(html):
     """Sanitize html."""
@@ -88,3 +89,27 @@ def retryable(func):
             else:
                 return res
     return _f
+
+
+def get_url_param(url, param):
+    """ Get the value of the param in the url """
+    return cgi.parse_qs(urllib2.urlparse.urlparse(url)
+                                        .query)[param][0]
+
+@retryable
+def save_image(image_url, image_id):
+    """ Download and save the image to disk if not already there """
+    print "Save image:", image_id
+    basename = './images/' + image_id
+    tmpname = basename + '.tmp'
+    jpgname = basename + '.jpg'
+
+    if os.path.exists(jpgname):
+        print "    cached!"
+        return
+
+    data = urllib2.urlopen(image_url).read()
+    with open(tmpname, 'wb') as fh:
+        fh.write(data)
+    os.rename(tmpname, jpgname)
+

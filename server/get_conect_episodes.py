@@ -18,7 +18,6 @@
 
 """Main server process to get all info from Conectate web site."""
 
-import cgi
 import urllib2
 
 # we execute this script from inside the directory; pylint: disable=W0403
@@ -138,10 +137,12 @@ def get_all_data():
     all_data = []
     for i, chan_name, emis_name, title, url in get_episodes():
         info = dict(channel=chan_name, section=emis_name, title=title, url=url)
-        descrip, durat = get_episode_info(i, url)
-        episode_id = cgi.parse_qs(urllib2.urlparse.urlparse(url)
-                                                        .query)['idRecurso'][0]
-        info.update(description=descrip, duration=durat, episode_id=episode_id)
+        descrip, durat, image_url, image_id = get_episode_info(i, url)
+        episode_id = helpers.get_url_param(url, 'idRecurso')
+
+        helpers.save_image(image_url, image_id)
+        info.update(description=descrip, duration=durat, episode_id=episode_id,
+                    image_id=image_id)
         all_data.append(info)
     return all_data
 
