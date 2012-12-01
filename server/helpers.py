@@ -42,6 +42,7 @@ def save_file(basename, data):
         fh.write(info)
     os.rename(tmpname, bz2name)
 
+
 def sanitize(html):
     """Sanitize html."""
     try:
@@ -95,4 +96,3 @@ def get_url_param(url, param):
     """Get the value of the param in the url."""
     return cgi.parse_qs(urllib2.urlparse.urlparse(url)
                                         .query)[param][0]
-

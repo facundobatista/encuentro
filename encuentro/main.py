@@ -74,8 +74,10 @@ def search_normalizer(char):
 
 class Status(object):
     """Status constants."""
-    none, waiting, downloading, downloaded = \
-                                'none waiting downloading downloaded'.split()
+    none = 'none'
+    waiting = 'waiting'
+    downloading = 'downloading'
+    downloaded = 'downloaded'
 
 
 class EpisodeData(object):
@@ -125,8 +127,9 @@ class EpisodeData(object):
         )
 
     def __str__(self):
-        return "<EpisodeData [%s] (%s) %r (%r): %r>" % (self.episode_id,
-                            self.state, self.channel, self.section, self.title)
+        args = (self.episode_id, self.state, self.channel,
+                self.section, self.title)
+        return "<EpisodeData [%s] (%s) %r (%r): %r>" % args
 
     def _filter(self, attrib_name, field_filter):
         """Check if filter is ok and highligh the attribute."""
@@ -213,11 +216,11 @@ class PreferencesUI(object):
         self.entry_user.set_text(self.config_data.get('user', ''))
         self.entry_password.set_text(self.config_data.get('password', ''))
         self.entry_downloaddir.set_text(
-                                    self.config_data.get('downloaddir', ''))
+            self.config_data.get('downloaddir', ''))
         self.checkbutton_autorefresh.set_active(
-                                    self.config_data.get('autorefresh', False))
+            self.config_data.get('autorefresh', False))
         self.checkbutton_notification.set_active(
-                                    self.config_data.get('notification', True))
+            self.config_data.get('notification', True))
 
         if parent_pos is not None:
             x, y = parent_pos
@@ -809,8 +812,8 @@ class MainUI(object):
             platform.open_file(fullpath)
         else:
             logger.warning("Aborted playing, file not found: %r", filename)
-            msg = u"No se encontró el archivo para reproducir: " + repr(
-                                                                    filename)
+            msg = (u"No se encontró el archivo para reproducir: " +
+                   repr(filename))
             self._show_message(self.dialog_error, msg)
             self._update_ep(episode, state=Status.none)
 

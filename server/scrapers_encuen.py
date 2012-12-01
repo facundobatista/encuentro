@@ -86,7 +86,7 @@ def scrap_programa(html):
     result['links'] = links = []
     for a_item in soup.find_all('a'):
         if ("DetallePrograma.verCapitulo" in a_item.get("onclick", []) and
-             a_item.get("class") != ["verDescgr"]):
+                a_item.get("class") != ["verDescgr"]):
             a_text = a_item.text.strip()
             onclick = a_item["onclick"]
             m = re.match(".*DetallePrograma.verCapitulo\((\d+)\).*", onclick)
