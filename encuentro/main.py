@@ -159,7 +159,7 @@ class EpisodeData(object):
         duration = u'?' if self.duration is None else unicode(self.duration)
 
         data = (self.channel, self.section, title, duration,
-                self._get_nice_state(), self.description, self.episode_id)
+                self._get_nice_state(), self.episode_id)
         return data
 
     def _get_nice_state(self):
@@ -396,13 +396,22 @@ class MainUI(object):
             'rb_menu', 'rbmenu_play', 'rbmenu_cancel', 'rbmenu_download',
             'menu_download', 'menu_play', 'aboutdialog', 'statusicon',
             'dialog_upgrade', 'image_episode', 'button_episode',
-            'textview_episode',
+            'textview_episode', 'pane_md_state', 'pane_list_info',
         )
 
         for widget in widgets:
             obj = self.builder.get_object(widget)
             assert obj is not None, '%s must not be None' % widget
             setattr(self, widget, obj)
+
+        # stupid glade! expose signals, handled by hand here because
+        # I need to store the signal for later disconnection
+        _s = self.pane_list_info.connect("expose-event",
+                                         self.on_pane_list_info_expose_event)
+        self.pane_list_info.expose_signal = _s
+        _s = self.pane_md_state.connect("expose-event",
+                                        self.on_pane_md_state_expose_event)
+        self.pane_md_state.expose_signal = _s
 
         # stupid glade! it does not let me put the cell renderer
         # expanded *in the column*
@@ -522,6 +531,8 @@ class MainUI(object):
         """Get info from config and change layouts."""
         if 'mainwin_size' in self.config:
             self.main_window.resize(*self.config['mainwin_size'])
+        else:
+            self.main_window.resize(800, 600)
 
         if 'mainwin_position' in self.config:
             self.main_window.move(*self.config['mainwin_position'])
@@ -531,7 +542,8 @@ class MainUI(object):
             for col, size in zip(treeview_columns, self.config['cols_width']):
                 col.set_fixed_width(size)
         else:
-            width = self.main_window.get_size()[0] // len(treeview_columns)
+            space_left = int(self.main_window.get_size()[0] * 0.7)
+            width = space_left // len(treeview_columns)
             for col in treeview_columns:
                 col.set_fixed_width(width)
 
@@ -544,6 +556,35 @@ class MainUI(object):
                                                   row_align=.5)
             self.programs_treeview.set_cursor(path)
             self.programs_treeview.grab_focus()
+
+        self.on_pane_list_info_expose_event()
+        self.on_pane_md_state_expose_event()
+
+    def on_pane_list_info_expose_event(self, widget=None, event=None):
+        """Pane exposed"""
+        if 'pane_list_info_pos' in self.config:
+            pos = self.config['pane_list_info_pos']
+        else:
+            pos = int(self.main_window.get_size()[0] * 0.7)  # 70% of width
+        self.pane_list_info.set_position(pos)
+        if widget is None:
+            # not called from flying event
+            return
+        self.pane_list_info.disconnect(self.pane_list_info.expose_signal)
+        return True
+
+    def on_pane_md_state_expose_event(self, widget=None, event=None):
+        """Pane exposed"""
+        if 'pane_md_state_pos' in self.config:
+            pos = self.config['pane_md_state_pos']
+        else:
+            pos = int(self.main_window.get_size()[1] * 0.8)  # 80% of height
+        self.pane_md_state.set_position(pos)
+        if widget is None:
+            # not called from flying event
+            return
+        self.pane_md_state.disconnect(self.pane_md_state.expose_signal)
+        return True
 
     def _non_glade_setup(self):
         """Stuff I don't know how to do it in Glade."""
@@ -672,6 +713,9 @@ class MainUI(object):
         if len(pathlist) > 0:
             self.config['selected_row'] = pathlist[0]
 
+        self.config['pane_list_info_pos'] = self.pane_list_info.get_position()
+        self.config['pane_md_state_pos'] = self.pane_md_state.get_position()
+
         with open(self._config_file, 'w') as fh:
             pickle.dump(self.config, fh)
 
@@ -712,13 +756,15 @@ class MainUI(object):
     @defer.inlineCallbacks
     def _queue_download(self, row, path):
         """User indicated to download something."""
-        episode = self.programs_data[row[6]]  # 6 is the episode number
+        episode = self.programs_data[row[5]]  # 5 is the episode number
         logger.debug("Download requested of %s", episode)
         if episode.state != Status.none:
             logger.debug("Download denied, episode %s is not in downloadeable "
                          "state.", episode.episode_id)
             return
         self._update_ep(episode, state=Status.downloading, progress="encolado")
+        self._check_download_play_buttons()
+        self._update_info_panel()
 
         self.episodes_to_download.append(episode)
         if self._downloading:
@@ -747,6 +793,8 @@ class MainUI(object):
                                 filename=filename)
 
             self._check_download_play_buttons()
+            self._update_info_panel()
+
         self._downloading = False
         logger.debug("Downloads: finished")
 
@@ -809,7 +857,7 @@ class MainUI(object):
 
     def _play_episode(self, row):
         """Play an episode."""
-        episode_number = row[6]  # 6 is the episode number
+        episode_number = row[5]  # 5 is the episode number
         episode = self.programs_data[episode_number]
         downloaddir = self.config.get('downloaddir', '')
         filename = os.path.join(downloaddir, episode.filename)
@@ -847,7 +895,7 @@ class MainUI(object):
     def on_programs_treeview_row_activated(self, treeview, path, view_column):
         """Double click on the episode, download or play."""
         row = self.programs_store[path]
-        episode = self.programs_data[row[6]]  # 6 is the episode number
+        episode = self.programs_data[row[5]]  # 5 is the episode number
         logger.debug("Double click in %s", episode)
         if episode.state == Status.downloaded:
             self._play_episode(row)
@@ -867,7 +915,7 @@ class MainUI(object):
         cursor = widget.get_path_at_pos(int(event.x), int(event.y))
         path = cursor[0][0]
         row = self.programs_store[path]
-        episode = self.programs_data[row[6]]  # 6 is the episode number
+        episode = self.programs_data[row[5]]  # 5 is the episode number
         state = episode.state
         if state == Status.downloaded:
             self.rbmenu_play.set_sensitive(True)
@@ -895,7 +943,7 @@ class MainUI(object):
         logger.info("Cancelling download.")
         path = self.programs_treeview.get_cursor()[0]
         row = self.programs_store[path]
-        episode = self.programs_data[row[6]]  # 6 is the episode number
+        episode = self.programs_data[row[5]]  # 5 is the episode number
         self._update_ep(episode, state=Status.downloading,
                         progress="cancelando...")
         self.downloader.cancel()
@@ -921,7 +969,7 @@ class MainUI(object):
 
         if len(pathlist) == 1:
             row = self.programs_store[pathlist[0]]
-            episode = self.programs_data[row[6]]  # 6 is the episode number
+            episode = self.programs_data[row[5]]  # 5 is the episode number
 
             # image
             self.image_episode.set_from_stock(gtk.STOCK_MISSING_IMAGE, 16)
@@ -940,13 +988,21 @@ class MainUI(object):
             # action button
             self.button_episode.show()
             if episode.state == Status.downloaded:
-                self.button_episode.set_label("Reproducir")
+                label = "Reproducir"
+                callback = self.on_rbmenu_play_activate
             elif (episode.state == Status.downloading or
                   episode.state == Status.waiting):
-                self.button_episode.set_label("Cancelar descarga")
+                label = u"Cancelar descarga"
+                callback = self.on_rbmenu_cancel_activate
             else:
-                self.button_episode.set_label("Descargar")
-
+                label = u"Descargar"
+                callback = self.on_rbmenu_download_activate
+            prev_hdler = getattr(self.button_episode, 'conn_handler_id', None)
+            if prev_hdler is not None:
+                self.button_episode.disconnect(prev_hdler)
+            new_hdler = self.button_episode.connect('clicked', callback)
+            self.button_episode.conn_handler_id = new_hdler
+            self.button_episode.set_label(label)
         else:
             if pathlist:
                 message = u"\n\nSeleccionar sólo un programa para verlo"
@@ -968,7 +1024,7 @@ class MainUI(object):
         play_enabled = False
         if len(pathlist) == 1:
             row = self.programs_store[pathlist[0]]
-            episode = self.programs_data[row[6]]  # 6 is the episode number
+            episode = self.programs_data[row[5]]  # 5 is the episode number
             if episode.state == Status.downloaded:
                 play_enabled = True
         self.sensit_grouper.set_sensitive('play', play_enabled)
@@ -979,7 +1035,7 @@ class MainUI(object):
         if self._have_config():
             for path in pathlist:
                 row = self.programs_store[path]
-                episode = self.programs_data[row[6]]  # 6 is the episode number
+                episode = self.programs_data[row[5]]  # 5 is the episode number
                 if episode.state == Status.none:
                     download_enabled = True
                     break
