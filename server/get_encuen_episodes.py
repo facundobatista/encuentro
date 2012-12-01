@@ -161,7 +161,7 @@ def get_all_data():
 def main():
     """Entry point."""
     all_data = get_all_data()
-    helpers.save_file("encuentro-v02", all_data)
+    helpers.save_file("encuentro-v03", all_data)
 
 
 if len(sys.argv) == 2:
