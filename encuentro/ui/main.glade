@@ -1258,7 +1258,6 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
               <object class="GtkScrolledWindow" id="scrolledwindow1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">automatic</property>
                 <property name="vscrollbar_policy">automatic</property>
                 <child>
                   <object class="GtkTreeView" id="programs_treeview">
@@ -1266,7 +1265,6 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                     <property name="can_focus">True</property>
                     <property name="model">programs_store</property>
                     <property name="search_column">0</property>
-                    <property name="tooltip_column">5</property>
                     <signal name="button-press-event" handler="on_programs_treeview_button_press_event" swapped="no"/>
                     <signal name="row-activated" handler="on_programs_treeview_row_activated" swapped="no"/>
                     <child>
@@ -1370,6 +1368,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                   <object class="GtkVBox" id="vbox2">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="spacing">3</property>
                     <child>
                       <object class="GtkImage" id="image_episode">
                         <property name="visible">True</property>
@@ -1397,16 +1396,15 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                     </child>
                     <child>
                       <object class="GtkButton" id="button_episode">
-                        <property name="label">gtk-network</property>
+                        <property name="label">button</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="use_action_appearance">False</property>
-                        <property name="use_stock">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">True</property>
+                        <property name="fill">False</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
@@ -1429,7 +1427,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                         <property name="model">downloads_store</property>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_channel1">
-                            <property name="title">Descargas</property>
+                            <property name="title">Descargas encoladas</property>
                             <property name="clickable">True</property>
                             <property name="alignment">0.5</property>
                             <child>
@@ -1475,8 +1473,6 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
       <!-- column-name duration -->
       <column type="gchararray"/>
       <!-- column-name state -->
-      <column type="gchararray"/>
-      <!-- column-name description -->
       <column type="gchararray"/>
       <!-- column-name episode_id -->
       <column type="gchararray"/>
