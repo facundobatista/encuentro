@@ -962,6 +962,12 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
       <action-widget response="1">button_upgrade_go</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkListStore" id="downloads_store">
+    <columns>
+      <!-- column-name info -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Bajador Encuentro</property>
@@ -1243,103 +1249,210 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
           </packing>
         </child>
         <child>
-          <object class="GtkScrolledWindow" id="scrolledwindow1">
+          <object class="GtkHPaned" id="pane_list_info">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">automatic</property>
-            <property name="vscrollbar_policy">automatic</property>
+            <property name="position">365</property>
+            <property name="position_set">True</property>
             <child>
-              <object class="GtkTreeView" id="programs_treeview">
+              <object class="GtkScrolledWindow" id="scrolledwindow1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="model">programs_store</property>
-                <property name="tooltip_column">5</property>
-                <signal name="button-press-event" handler="on_programs_treeview_button_press_event" swapped="no"/>
-                <signal name="row-activated" handler="on_programs_treeview_row_activated" swapped="no"/>
+                <property name="hscrollbar_policy">automatic</property>
+                <property name="vscrollbar_policy">automatic</property>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn_channel">
-                    <property name="resizable">True</property>
-                    <property name="sizing">fixed</property>
-                    <property name="title">Canal</property>
-                    <property name="clickable">True</property>
-                    <property name="sort_column_id">0</property>
-                    <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
+                  <object class="GtkTreeView" id="programs_treeview">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="model">programs_store</property>
+                    <property name="search_column">0</property>
+                    <property name="tooltip_column">5</property>
+                    <signal name="button-press-event" handler="on_programs_treeview_button_press_event" swapped="no"/>
+                    <signal name="row-activated" handler="on_programs_treeview_row_activated" swapped="no"/>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                      <attributes>
-                        <attribute name="markup">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn_section">
-                    <property name="resizable">True</property>
-                    <property name="sizing">fixed</property>
-                    <property name="title">Sección</property>
-                    <property name="clickable">True</property>
-                    <property name="sort_column_id">1</property>
-                    <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext2"/>
-                      <attributes>
-                        <attribute name="markup">1</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn_title">
-                    <property name="resizable">True</property>
-                    <property name="sizing">fixed</property>
-                    <property name="title">Título</property>
-                    <property name="clickable">True</property>
-                    <property name="sort_column_id">2</property>
-                    <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext4"/>
-                      <attributes>
-                        <attribute name="markup">2</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn_duration">
-                    <property name="resizable">True</property>
-                    <property name="sizing">fixed</property>
-                    <property name="title">Duración [min]</property>
-                    <property name="clickable">True</property>
-                    <property name="alignment">1</property>
-                    <property name="sort_column_id">3</property>
-                    <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext5">
-                        <property name="xalign">1</property>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn_channel">
+                        <property name="resizable">True</property>
+                        <property name="sizing">fixed</property>
+                        <property name="title">Canal</property>
+                        <property name="clickable">True</property>
+                        <property name="sort_column_id">0</property>
+                        <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                          <attributes>
+                            <attribute name="markup">0</attribute>
+                          </attributes>
+                        </child>
                       </object>
-                      <attributes>
-                        <attribute name="text">3</attribute>
-                      </attributes>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn_state">
-                    <property name="resizable">True</property>
-                    <property name="sizing">fixed</property>
-                    <property name="title">Estado</property>
-                    <property name="clickable">True</property>
-                    <property name="sort_column_id">4</property>
-                    <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext6"/>
-                      <attributes>
-                        <attribute name="text">4</attribute>
-                      </attributes>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn_section">
+                        <property name="resizable">True</property>
+                        <property name="sizing">fixed</property>
+                        <property name="title">Sección</property>
+                        <property name="clickable">True</property>
+                        <property name="sort_column_id">1</property>
+                        <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                          <attributes>
+                            <attribute name="markup">1</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn_title">
+                        <property name="resizable">True</property>
+                        <property name="sizing">fixed</property>
+                        <property name="title">Título</property>
+                        <property name="clickable">True</property>
+                        <property name="sort_column_id">2</property>
+                        <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext4"/>
+                          <attributes>
+                            <attribute name="markup">2</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn_duration">
+                        <property name="resizable">True</property>
+                        <property name="sizing">fixed</property>
+                        <property name="title">Duración [min]</property>
+                        <property name="clickable">True</property>
+                        <property name="alignment">1</property>
+                        <property name="sort_column_id">3</property>
+                        <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext5">
+                            <property name="xalign">1</property>
+                          </object>
+                          <attributes>
+                            <attribute name="text">3</attribute>
+                          </attributes>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn_state">
+                        <property name="resizable">True</property>
+                        <property name="sizing">fixed</property>
+                        <property name="title">Estado</property>
+                        <property name="clickable">True</property>
+                        <property name="sort_column_id">4</property>
+                        <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext6"/>
+                          <attributes>
+                            <attribute name="text">4</attribute>
+                          </attributes>
+                        </child>
+                      </object>
                     </child>
                   </object>
                 </child>
               </object>
+              <packing>
+                <property name="resize">True</property>
+                <property name="shrink">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVPaned" id="pane_md_state">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="position">195</property>
+                <property name="position_set">True</property>
+                <child>
+                  <object class="GtkVBox" id="vbox2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkImage" id="image_episode">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-missing-image</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkTextView" id="textview_episode">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="wrap_mode">word-char</property>
+                        <property name="cursor_visible">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="button_episode">
+                        <property name="label">gtk-network</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="resize">False</property>
+                    <property name="shrink">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="scrolledwindow2">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
+                    <child>
+                      <object class="GtkTreeView" id="downloads_treeview">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="model">downloads_store</property>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn_channel1">
+                            <property name="title">Descargas</property>
+                            <property name="clickable">True</property>
+                            <property name="alignment">0.5</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext11"/>
+                              <attributes>
+                                <attribute name="markup">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="resize">True</property>
+                    <property name="shrink">True</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="resize">True</property>
+                <property name="shrink">True</property>
+              </packing>
             </child>
           </object>
           <packing>
