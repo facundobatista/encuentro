@@ -21,6 +21,7 @@
 
 import cgi
 import logging
+import md5
 import os
 import pickle
 
@@ -42,6 +43,7 @@ with NiceImporter('pynotify', 'python-notify', '0.1.1'):
     pynotify.init("Encuentro")
 
 from twisted.internet import reactor, defer
+from twisted.web.client import getPage
 
 from encuentro.network import Downloader, BadCredentialsError, CancelledError
 from encuentro import wizard, platform, update
@@ -93,7 +95,8 @@ class EpisodeData(object):
     }
 
     def __init__(self, channel, section, title, duration, description,
-                 episode_id, url, state=None, progress=None, filename=None):
+                 episode_id, url, image_url, state=None, progress=None,
+                 filename=None):
         self.channel = channel
         self.section = section
         self.title = cgi.escape(title)
@@ -101,6 +104,7 @@ class EpisodeData(object):
         self.description = description
         self.episode_id = episode_id
         self.url = url
+        self.image_url = image_url
         self.state = Status.none if state is None else state
         self.progress = progress
         self.filename = filename
@@ -108,7 +112,8 @@ class EpisodeData(object):
         self.set_filter()
 
     def update(self, channel, section, title, duration, description,
-               episode_id, url, state=None, progress=None, filename=None):
+               episode_id, url, image_url, state=None, progress=None,
+               filename=None):
         """Update the episode data."""
         self.channel = channel
         self.section = section
@@ -117,6 +122,7 @@ class EpisodeData(object):
         self.description = description
         self.episode_id = episode_id
         self.url = url
+        self.image_url = image_url
         self.state = Status.none if state is None else state
         self.progress = progress
         self.filename = filename
@@ -374,6 +380,36 @@ class ProgramsData(object):
             pickle.dump(to_save, fh)
 
 
+class ImageGetter(object):
+    """Image downloader and cache object."""
+
+    def __init__(self, callback):
+        self.callback = callback
+        self.cache_dir = os.path.join(platform.cache_dir, 'encuentro.images')
+        if not os.path.exists(self.cache_dir):
+            os.makedirs(self.cache_dir)
+
+    def get_image(self, path, url):
+        """Get an image and show it using the callback."""
+        file_name = md5.md5(url).hexdigest() + '.jpg'
+        file_fullname = os.path.join(self.cache_dir, file_name)
+        if os.path.exists(file_fullname):
+            with open(file_fullname, 'r') as fh:
+                data = fh.read()
+            self.callback(path, data)
+
+        def _d_callback(data, path, file_fullname):
+            """Cache the image and use the callback."""
+            temp_file_name = file_fullname + '.tmp'
+            with open(temp_file_name,'wb') as fh:
+                fh.write(data)
+            os.rename(temp_file_name, file_fullname)
+            self.callback(path, data)
+
+        d = getPage(url)
+        d.addCallback(_d_callback, path, file_fullname)
+
+
 class MainUI(object):
     """Main GUI class."""
 
@@ -423,6 +459,7 @@ class MainUI(object):
 
         data_file = os.path.join(platform.data_dir, 'encuentro.data')
         self.programs_data = ProgramsData(self, data_file)
+        self.get_image = ImageGetter(self.image_episode_loaded).get_image
         logger.info("Episodes metadata loaded: %s", self.programs_data)
 
         # get config from file, or defaults
@@ -499,6 +536,14 @@ class MainUI(object):
         """Return if metadata is needed."""
         return bool(self.programs_data)
 
+    def image_episode_loaded(self, path, image):
+        """An image has arrived, show it only if the path is correct."""
+        loader = gtk.gdk.PixbufLoader()
+        loader.write(image)
+        self.image_episode.set_from_pixbuf(loader.get_pixbuf())
+        self.image_episode.show()
+        loader.close()
+
     def review_need_something_indicator(self):
         """Start the wizard if needed, or hide the need config button."""
         if not self._have_config() or not self._have_metadata():
@@ -563,7 +608,7 @@ class MainUI(object):
         for d in new_data:
             # v2 of json file
             names = ['channel', 'section', 'title', 'duration', 'description',
-                     'episode_id', 'url']
+                     'episode_id', 'url', 'image_url']
             values = dict((name, d[name]) for name in names)
             episode_id = d['episode_id']
 
@@ -924,6 +969,7 @@ class MainUI(object):
             episode = self.programs_data[row[6]]  # 6 is the episode number
 
             # image
+            self.get_image(pathlist[0], episode.image_url.encode('utf-8'))
             self.image_episode.set_from_stock(gtk.STOCK_MISSING_IMAGE, 16)
             self.image_episode.show()
 

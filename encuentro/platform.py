@@ -29,11 +29,13 @@ if sys.platform == 'win32':
     from win32com.shell import shell, shellcon
     config_dir = shell.SHGetFolderPath(0, shellcon.CSIDL_PROFILE, None, 0)
     data_dir = shell.SHGetFolderPath(0, shellcon.CSIDL_LOCAL_APPDATA, None, 0)
+    cache_dir = data_dir
     del shell, shellcon
 else:
     from xdg import BaseDirectory
     config_dir = BaseDirectory.xdg_config_home
     data_dir = BaseDirectory.xdg_data_home
+    cache_dir = BaseDirectory.xdg_cache_home
     del BaseDirectory
 
 
