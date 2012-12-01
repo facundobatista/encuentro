@@ -73,8 +73,6 @@ def get_episode_info(url):
         u = urllib2.urlopen(url)
         page = u.read()
         info = scrapers_encuen.scrap_programa(page)
-        helpers.save_image(info['image_url'], info['image_id'])
-        del info['image_url']
         episodes_cache.set(url, info)
         print "    ok"
     return info

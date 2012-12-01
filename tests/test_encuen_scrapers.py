@@ -52,7 +52,6 @@ _RES_PROGRAMA_1 = {
     "links": [
         (None, "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=50406"),
     ],
-    'image_id': '36521438-a2b4-4640-986d-be59b5f4b953',
     'image_url': 'http://www.encuentro.gov.ar/repositorio/Imagen/ver?image_id=36521438-a2b4-4640-986d-be59b5f4b953'
 }
 
@@ -65,7 +64,6 @@ _RES_PROGRAMA_2 = {
         (u"Innovar - Capítulo 4", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=102507"),
         (u"Innovar - Capítulo1", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=102504"),
     ],
-    'image_id': '57dcd0e2-cf3b-45ea-b1b5-6e1c3950ce92',
     'image_url': 'http://www.encuentro.gov.ar/repositorio/Imagen/ver?image_id=57dcd0e2-cf3b-45ea-b1b5-6e1c3950ce92',
 }
 
@@ -75,7 +73,6 @@ _RES_PROGRAMA_3 = {
     "links": [
         (None, "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=106892"),
     ],
-    'image_id': '29e41555-dbb7-449e-99d5-4ab991c01eed',
     'image_url': 'http://www.encuentro.gov.ar/repositorio/Imagen/ver?image_id=29e41555-dbb7-449e-99d5-4ab991c01eed'
 }
 

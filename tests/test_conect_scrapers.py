@@ -132,63 +132,54 @@ _RES_VIDEO_1 = (
     u'Si te gusta la naturaleza, este video te va a encantar. Descubr\xed con Eliseo c\xf3mo se plantan las semillas de calabaza y c\xf3mo se encarna una lombriz en un anzuelo.',
     5,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=88fda0d1-9576-4c52-8cec-7dfb23ca5c26',
-    '88fda0d1-9576-4c52-8cec-7dfb23ca5c26'
 )
 
 _RES_VIDEO_2 = (
     u'"Revolución. El Cruce de los Andes" redescubre la figura de uno de los hombres más importantes de nuestra historia, el Gral. José de San Martín y reconstruye la gesta épica más trascendente en la liberación de Latinoamérica. El film, protagonizado por el actor Rodrigo de la Serna y con la dirección de Leandro Ipiña, es una producción conjunta de la Televisión Pública, Canal Encuentro y el INCAA, con el apoyo de la Televisión española (TVE), del gobierno de la provincia de San Juan, y de la Universidad Nacional de San Martín (UNSAM) que se enfoca en aspectos inéditos de la personalidad del prócer.',
     None,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=57573cef-d082-40cd-b4c2-3b2c2cca7ffb',
-    '57573cef-d082-40cd-b4c2-3b2c2cca7ffb',
 )
 
 _RES_VIDEO_3 = (
     u'A través de un viaje a bordo del buque oceanográfico "Puerto Deseado", se documenta el trabajo de relevamiento realizado en varias misiones para elaborar el informe técnico que se presentó a la ONU, en relación a la ampliación de la soberanía territorial en el Atlántico Sur. Este especial incluye entrevistas a los responsables del proyecto COPLA, oceanógrafos, biólogos, marinos y demás personas involucradas. Se ilustra con imágenes registradas del trabajo técnico, tomas subacuáticas/submarinas, cartografía y plataforma submarina, con gráfica y animaciones en 2D y 3D.',
     51,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=b66030c8-6aac-4a06-a9df-cf7c2fcb9d00',
-    'b66030c8-6aac-4a06-a9df-cf7c2fcb9d00',
 )
 
 _RES_VIDEO_4 = (
     u'La Revolución Libertadora y la resistencia peronista, los años de Frondizi y de Onganía, los gobiernos radicales: toda la historia argentina narrada desde un imponente archivo fotográfico, ilustraciones y material audiovisual. El relato permite apreciar los diferentes períodos históricos y cuáles fueron las consecuencias de los sucesos más significativos de la historia argentina del siglo XX, a partir del medio audiovisual como punto de partida para el debate y la reflexión.',
     28,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=6e005e41-ae98-4274-92bb-02fe4fb372ed',
-    '6e005e41-ae98-4274-92bb-02fe4fb372ed',
 )
 
 _RES_VIDEO_5 = (
     u'Este capítulo indaga sobre los mecanismos institucionales con los que cuenta un Estado nacional para administrar los recursos que dispone, cómo los administra y cuál es su función principal en un contexto democrático.',
     26,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=6482af22-61e7-4623-88c3-c55ea0329edd',
-    '6482af22-61e7-4623-88c3-c55ea0329edd',
 )
 
 _RES_VIDEO_6 = (
     u'Mitos, cuentos y leyendas pasan de generación en generación y se recuerdan desde tiempos inmemoriales hasta hoy en día. En este particular taller, Lila y Nico acompañan a su abuelo mientras intenta reparar su auto. El abuelo recuerda muchas historias y comparte con sus nietos charlas, aventuras y experiencias ocurridas en distintos lugares de Latinoamérica. En El taller de historias, se adaptan leyendas latinoamericanas y cuentos folclóricos argentinos para niños de 2 a 5 años. Una forma interesante y divertida de introducir el género al tiempo que se reivindica la transmisión oral y se fortalecen los vínculos intergeneracionales y la identificación con las distintas culturas latinoamericanas.',
     15,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=95735482-d0cf-471b-af5d-15c669e8de19',
-    '95735482-d0cf-471b-af5d-15c669e8de19',
 )
 
 _RES_VIDEO_7 = (
     u'La muestra Game On! El arte del juego se llevó adelante en la gelería de arte Objeto a, en el barrio de Palermo de la Ciudad de Buenos Aires, y educ.ar entrevistó a algunos de sus protagonistas.',
     None,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=32254f8e-9598-4704-9085-15775e54f26d',
-    '32254f8e-9598-4704-9085-15775e54f26d',
 )
 
 _RES_VIDEO_8 = (
     u'En di\xe1logo \xedntimo, Lalo Mir y el \u201cbandoneonista cantor\u201d charlan sobre la milonga, sobre las diferencias de estilo en el tango, sobre la vida. Un encuentro imperdible donde el m\xfasico conmueve al cantar Desencuentro o al improvisar sobre Malena, como ninguno.',
     48,
   'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=82b5d0fb-50ac-4fff-bb63-87e7f1caa00d',
-  '82b5d0fb-50ac-4fff-bb63-87e7f1caa00d',
 )
 
 _RES_VIDEO_9 = (
     u'Con an\xe9cdotas, entrevistados, humor y resoluci\xf3n de problemas, el reconocido matem\xe1tico Adri\xe1n Paenza nos acerca historias que tienen a la matem\xe1tica como protagonista. La serie ofrece un panorama distinto sobre esta disciplina: m\xe1s humano, divertido y cercano a la vida cotidiana. En su cuarta temporada, Alterados por Pi emprende una gira por escuelas a las que Adri\xe1n Paenza lleva sus juegos y acertijos. \xbfEl objetivo? \xa1Demostrar que la matem\xe1tica no es aburrida! Una nueva manera de ense\xf1ar ciencias, de manera l\xfadica y entretenida, que llena las aulas de muchas escuelas p\xfablicas de an\xe9cdotas, historias y humor.',
     28,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=e73b5751-406d-4c25-9440-5dafe32b3bbc',
-    'e73b5751-406d-4c25-9440-5dafe32b3bbc',
 )
 
 

@@ -61,7 +61,6 @@ def scrap_video(html):
     # get the description, can be multipart
     it = soup.find('div', 'capitulo_thumb')
     image_url = it.img['src']
-    image_id = helpers.get_url_param(image_url, 'image_id')
     duration = None
     desc_list = []
     while True:
@@ -93,4 +92,4 @@ def scrap_video(html):
     description = "".join(desc_list).strip()
     description = description.replace(u"\n", u"").replace(u"\r", u"").\
                                 replace(u"\t", u"")
-    return (description, duration, image_url, image_id)
+    return (description, duration, image_url)

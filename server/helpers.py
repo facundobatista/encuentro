@@ -96,20 +96,3 @@ def get_url_param(url, param):
     return cgi.parse_qs(urllib2.urlparse.urlparse(url)
                                         .query)[param][0]
 
-@retryable
-def save_image(image_url, image_id):
-    """ Download and save the image to disk if not already there """
-    print "Save image:", image_id
-    basename = './images/' + image_id
-    tmpname = basename + '.tmp'
-    jpgname = basename + '.jpg'
-
-    if os.path.exists(jpgname):
-        print "    cached!"
-        return
-
-    data = urllib2.urlopen(image_url).read()
-    with open(tmpname, 'wb') as fh:
-        fh.write(data)
-    os.rename(tmpname, jpgname)
-

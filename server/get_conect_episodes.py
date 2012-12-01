@@ -137,12 +137,11 @@ def get_all_data():
     all_data = []
     for i, chan_name, emis_name, title, url in get_episodes():
         info = dict(channel=chan_name, section=emis_name, title=title, url=url)
-        descrip, durat, image_url, image_id = get_episode_info(i, url)
+        descrip, durat, image_url = get_episode_info(i, url)
         episode_id = helpers.get_url_param(url, 'idRecurso')
 
-        helpers.save_image(image_url, image_id)
         info.update(description=descrip, duration=durat, episode_id=episode_id,
-                    image_id=image_id)
+                    image_url=image_url)
         all_data.append(info)
     return all_data
 
