@@ -107,6 +107,7 @@ def get_episodes():
             links = ep_info['links']
             duration = ep_info['duration']
             descrip = ep_info['description']
+            image_url = ep_info['image_url']
 
             if len(links) == 0:
                 print "WARNING: no links"
@@ -120,18 +121,18 @@ def get_episodes():
                 else:
                     section = u"Especial"
 
-                yield section, ep_title, descrip, duration, links[0]
+                yield section, ep_title, descrip, duration, links[0], image_url
             else:
                 section = u"Serie"
                 for link in links:
-                    yield section, ep_title, descrip, duration, link
+                    yield section, ep_title, descrip, duration, link, image_url
 
 
 def get_all_data():
     """Collect all data from the servers."""
     all_data = []
     collected = {}
-    for section, title, descrip, durat, url_data in get_episodes():
+    for section, title, descrip, durat, url_data, image_url in get_episodes():
         subtitle, url = url_data
         if subtitle is not None:
             title = u"%s: %s" % (title, subtitle)
@@ -142,7 +143,7 @@ def get_all_data():
             continue
         info = dict(channel=u"Encuentro", title=title, url=url,
                     section=section, description=descrip, duration=durat,
-                    episode_id=episode_id)
+                    episode_id=episode_id, image_url=image_url)
 
         # check if already collected, verifying all is ok
         if episode_id in collected:
@@ -161,7 +162,7 @@ def get_all_data():
 def main():
     """Entry point."""
     all_data = get_all_data()
-    helpers.save_file("encuentro-v02", all_data)
+    helpers.save_file("encuentro-v03", all_data)
 
 
 if len(sys.argv) == 2:

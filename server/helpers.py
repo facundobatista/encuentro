@@ -21,10 +21,12 @@
 
 import bz2
 import cPickle
+import cgi
 import json
 import os
 import re
 import time
+import urllib2
 
 
 def save_file(basename, data):
@@ -39,7 +41,6 @@ def save_file(basename, data):
     with open(tmpname, "wb") as fh:
         fh.write(info)
     os.rename(tmpname, bz2name)
-
 
 def sanitize(html):
     """Sanitize html."""
@@ -88,3 +89,10 @@ def retryable(func):
             else:
                 return res
     return _f
+
+
+def get_url_param(url, param):
+    """Get the value of the param in the url."""
+    return cgi.parse_qs(urllib2.urlparse.urlparse(url)
+                                        .query)[param][0]
+
