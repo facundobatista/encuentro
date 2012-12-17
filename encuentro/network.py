@@ -24,6 +24,7 @@ import re
 import sys
 import time
 import urllib
+import urlparse
 
 if sys.platform == 'win32':
     # multiprocessing path mangling is not useful for how we are
@@ -41,6 +42,7 @@ from mechanize import Browser
 from encuentro import platform
 
 from twisted.internet import defer, reactor
+from twisted.web.client import HTTPDownloader, PartialDownloadError
 
 URL_BASE = "http://conectate.gov.ar"
 URL_AUTH = ("http://conectate.gov.ar/educar-portal-video-web/"
@@ -199,28 +201,65 @@ class DeferredQueue(Queue):
         return d
 
 
-class Downloader(object):
-    """Episode downloader."""
+class BaseDownloader(object):
+    """Base episode downloader."""
 
     def __init__(self, config):
         self.config = config
-        self._prev_progress = None
-        self.browser_quit = set()
-        logger.info("Downloader inited")
-        self.cancelled = False
 
     def shutdown(self):
         """Quit the download."""
-        for bquit in self.browser_quit:
-            bquit.set()
-        logger.info("Downloader shutdown finished")
+        return self._shutdown()
 
     def cancel(self):
         """Cancel a download."""
+        return self._cancel()
+
+    def _setup_target(self, channel, section, title, extension):
+        """Set up the target file to download."""
+        # build where to save it
+        downloaddir = self.config.get('downloaddir', '')
+        channel = platform.sanitize(channel)
+        section = platform.sanitize(section)
+        title = platform.sanitize(title)
+        fname = os.path.join(downloaddir, channel, section, title + extension)
+
+        # if the directory doesn't exist, create it
+        dirsecc = os.path.dirname(fname)
+        if not os.path.exists(dirsecc):
+            os.makedirs(dirsecc)
+
+        tempf = fname + str(time.time())
+        return fname, tempf
+
+    def download(self, channel, section, title, url, cb_progress):
+        """Download an episode."""
+        return self._download(channel, section, title, url, cb_progress)
+
+
+class ConectarDownloader(BaseDownloader):
+    """Episode downloader for Conectar site."""
+
+    def __init__(self, config):
+        super(ConectarDownloader, self).__init__(config)
+        self._prev_progress = None
+        self.browser_quit = set()
+        self.cancelled = False
+        logger.info("Conectar downloader inited")
+
+    def _shutdown(self):
+        """Quit the download."""
+        for bquit in self.browser_quit:
+            bquit.set()
+        logger.info("Conectar downloader shutdown finished")
+
+    def _cancel(self):
+        """Cancel a download."""
         self.cancelled = True
+        logger.info("Conectar downloader cancelled")
 
     @defer.inlineCallbacks
-    def download(self, canal, seccion, titulo, url, cb_progress):
+    def _download(self, canal, seccion, titulo, url, cb_progress):
         """Descarga una emisión a disco."""
         self.cancelled = False
 
@@ -237,19 +276,7 @@ class Downloader(object):
         brow.start()
 
         # build where to save it
-        downloaddir = self.config.get('downloaddir', '')
-        canal = platform.sanitize(canal)
-        seccion = platform.sanitize(seccion)
-        titulo = platform.sanitize(titulo)
-        fname = os.path.join(downloaddir, canal, seccion, titulo + u".avi")
-
-        # ver si esa seccion existe, sino crearla
-        dirsecc = os.path.dirname(fname)
-        if not os.path.exists(dirsecc):
-            os.makedirs(dirsecc)
-
-        # descargamos en un temporal
-        tempf = fname + str(time.time())
+        fname, tempf = self._setup_target(canal, seccion, titulo, u".avi")
         logger.debug("Downloading to temporal file %r", tempf)
         qoutput.put(tempf)
 
@@ -284,6 +311,124 @@ class Downloader(object):
         defer.returnValue(fname)
 
 
+class GenericDownloader(BaseDownloader):
+    """Episode downloader for a generic site that works with urllib2."""
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': '*/*',
+    }
+
+    def __init__(self, config):
+        super(GenericDownloader, self).__init__(config)
+        self._prev_progress = None
+        self.downloader = None
+        logger.info("Generic downloader inited")
+
+    def _shutdown(self):
+        """Quit the download."""
+        logger.info("Generic downloader shutdown finished")
+
+    def _cancel(self):
+        """Cancel a download."""
+        if self.downloader is not None:
+            self.downloader.cancel()
+            logger.info("Generic downloader cancelled")
+
+    def _parse_url(self, url):
+        """Return host and port from the URL."""
+        urlparts = urlparse.urlparse(url)
+        if urlparts.port is None:
+            if urlparts.scheme == 'http':
+                port = 80
+            elif urlparts.scheme == 'http':
+                port = 80
+            else:
+                raise ValueError("Unknown schema when guessing port: " +
+                                 repr(urlparts.scheme))
+        else:
+            port = int(urlparts.port)
+        return urlparts.hostname, port
+
+    @defer.inlineCallbacks
+    def _download(self, canal, seccion, titulo, url, cb_progress):
+        """Download an episode to disk."""
+        url = str(url)
+        logger.info("Download episode %r", url)
+
+        def report(dloaded, total):
+            """Report download."""
+            size_mb = total // 1024 ** 2
+            perc = dloaded * 100.0 / total
+            m = "%.1f%% (de %d MB)" % (perc, size_mb)
+            if m != self._prev_progress:
+                cb_progress(m)
+                self._prev_progress = m
+
+        class ReportingDownloader(HTTPDownloader):
+            """Customize HTTPDownloader to also report and can be cancelled."""
+            def __init__(self, *args, **kwrgs):
+                self.content_length = None
+                self.downloaded = 0
+                self.connected_client = None
+                self.cancelled = False
+                HTTPDownloader.__init__(self, *args, **kwrgs)
+
+            def gotHeaders(self, headers):
+                """Got headers."""
+                clength = headers.get("content-length", [None])[0]
+                self.content_length = int(clength)
+                HTTPDownloader.gotHeaders(self, headers)
+
+            def pagePart(self, data):
+                """Got part of content."""
+                self.downloaded += len(data)
+                report(self.downloaded, self.content_length)
+                HTTPDownloader.pagePart(self, data)
+
+            def cancel(self):
+                """Cancel."""
+                self.cancelled = True
+                if self.connected_client is not None:
+                    self.connected_client.stopProducing()
+
+            def buildProtocol(self, addr):
+                """Store the protocol built."""
+                p = HTTPDownloader.buildProtocol(self, addr)
+                self.connected_client = p
+                if self.cancelled:
+                    p.stopProducing()
+                return p
+
+        # build where to save it
+        fname, tempf = self._setup_target(canal, seccion, titulo, u".mp4")
+        logger.debug("Downloading to temporal file %r", tempf)
+
+        self.downloader = ReportingDownloader(url, tempf, headers=self.headers)
+        host, port = self._parse_url(url)
+        reactor.connectTCP(host, port, self.downloader)
+        try:
+            yield self.downloader.deferred
+        except PartialDownloadError:
+            if self.downloader.cancelled:
+                raise CancelledError
+            else:
+                raise
+
+        # rename to final name and end
+        logger.info("Downloading done, renaming temp to %r", fname)
+        os.rename(tempf, fname)
+        defer.returnValue(fname)
+
+
+# this is the entry point to get the downloaders for each type
+all_downloaders = {
+    None: ConectarDownloader,
+    'conectar': ConectarDownloader,
+    'generic': GenericDownloader,
+}
+
+
 if __name__ == "__main__":
     h = logging.StreamHandler()
     h.setLevel(logging.DEBUG)
@@ -297,15 +442,17 @@ if __name__ == "__main__":
     test_config = dict(user="lxpdvtnvrqdoa@mailinator.com",
                        password="descargas", downloaddir='.')
 
-    url_episode = "http://conectate.gov.ar/educar-portal-video-web/module/"\
-                  "detalleRecurso/DetalleRecurso.do?modulo=masVotados&"\
-                  "recursoPadreId=50001&idRecurso=50004"
+#    url_episode = "http://conectate.gov.ar/educar-portal-video-web/module/"\
+#                  "detalleRecurso/DetalleRecurso.do?modulo=masVotados&"\
+#                  "recursoPadreId=50001&idRecurso=50004"
+    url_episode = "http://backend.bacua.gob.ar/video.php?v=_173fb17c"
 
     @defer.inlineCallbacks
     def download():
         """Download."""
-        downloader = Downloader(test_config)
-#        reactor.callLater(10, downloader.cancel)
+#        downloader = ConectarDownloader(test_config)
+        downloader = GenericDownloader(test_config)
+#        reactor.callLater(5, downloader.cancel)
         try:
             fname = yield downloader.download("test-ej-canal", "secc", "tit",
                                               url_episode, show)

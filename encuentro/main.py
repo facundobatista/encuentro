@@ -45,7 +45,11 @@ with NiceImporter('pynotify', 'python-notify', '0.1.1'):
 from twisted.internet import reactor, defer
 from twisted.web.client import getPage
 
-from encuentro.network import Downloader, BadCredentialsError, CancelledError
+from encuentro.network import (
+    BadCredentialsError,
+    CancelledError,
+    all_downloaders,
+)
 from encuentro import wizard, platform, update
 
 BASEDIR = os.path.dirname(__file__)
@@ -96,24 +100,28 @@ class EpisodeData(object):
 
     def __init__(self, channel, section, title, duration, description,
                  episode_id, url, image_url, state=None, progress=None,
-                 filename=None):
+                 filename=None, downtype=None):
         self.channel = channel
         self.section = section
         self.title = cgi.escape(title)
         self.duration = duration
         self.description = description
         self.episode_id = episode_id
-        self.url = url
-        self.image_url = image_url
+
+        # urls are bytes!
+        self.url = str(url)
+        self.image_url = str(image_url)
+
         self.state = Status.none if state is None else state
         self.progress = progress
         self.filename = filename
         self.to_filter = None
         self.set_filter()
+        self.downtype = downtype
 
     def update(self, channel, section, title, duration, description,
                episode_id, url, image_url, state=None, progress=None,
-               filename=None):
+               filename=None, downtype=None):
         """Update the episode data."""
         self.channel = channel
         self.section = section
@@ -121,11 +129,15 @@ class EpisodeData(object):
         self.duration = duration
         self.description = description
         self.episode_id = episode_id
-        self.url = url
-        self.image_url = image_url
+
+        # urls are bytes!
+        self.url = str(url)
+        self.image_url = str(image_url)
+
         self.state = Status.none if state is None else state
         self.progress = progress
         self.filename = filename
+        self.downtype = downtype
 
     def set_filter(self):
         """Set the data to filter later."""
@@ -441,15 +453,6 @@ class MainUI(object):
             assert obj is not None, '%s must not be None' % widget
             setattr(self, widget, obj)
 
-        # stupid glade! expose signals, handled by hand here because
-        # I need to store the signal for later disconnection
-        _s = self.pane_list_info.connect("expose-event",
-                                         self.on_pane_list_info_expose_event)
-        self.pane_list_info.expose_signal = _s
-        _s = self.pane_md_state.connect("expose-event",
-                                        self.on_pane_md_state_expose_event)
-        self.pane_md_state.expose_signal = _s
-
         # stupid glade! it does not let me put the cell renderer
         # expanded *in the column*
         columns = self.programs_treeview.get_columns()
@@ -500,7 +503,9 @@ class MainUI(object):
         self.update_dialog = update.UpdateUI(self)
         self.preferences_dialog = PreferencesUI(self, self.config)
 
-        self.downloader = Downloader(self.config)
+        self.downloaders = {}
+        for downtype, dloader_class in all_downloaders.iteritems():
+            self.downloaders[downtype] = dloader_class(self.config)
         self.episodes_to_download = []
         self._downloading = False
 
@@ -603,35 +608,6 @@ class MainUI(object):
             self.programs_treeview.set_cursor(path)
             self.programs_treeview.grab_focus()
 
-        self.on_pane_list_info_expose_event()
-        self.on_pane_md_state_expose_event()
-
-    def on_pane_list_info_expose_event(self, widget=None, event=None):
-        """Pane exposed"""
-        if 'pane_list_info_pos' in self.config:
-            pos = self.config['pane_list_info_pos']
-        else:
-            pos = int(self.main_window.get_size()[0] * 0.7)  # 70% of width
-        self.pane_list_info.set_position(pos)
-        if widget is None:
-            # not called from flying event
-            return
-        self.pane_list_info.disconnect(self.pane_list_info.expose_signal)
-        return True
-
-    def on_pane_md_state_expose_event(self, widget=None, event=None):
-        """Pane exposed"""
-        if 'pane_md_state_pos' in self.config:
-            pos = self.config['pane_md_state_pos']
-        else:
-            pos = int(self.main_window.get_size()[1] * 0.8)  # 80% of height
-        self.pane_md_state.set_position(pos)
-        if widget is None:
-            # not called from flying event
-            return
-        self.pane_md_state.disconnect(self.pane_md_state.expose_signal)
-        return True
-
     def _non_glade_setup(self):
         """Stuff I don't know how to do it in Glade."""
         tree_selection = self.programs_treeview.get_selection()
@@ -650,7 +626,7 @@ class MainUI(object):
         for d in new_data:
             # v2 of json file
             names = ['channel', 'section', 'title', 'duration', 'description',
-                     'episode_id', 'url', 'image_url']
+                     'episode_id', 'url', 'image_url', 'downtype']
             values = dict((name, d[name]) for name in names)
             episode_id = d['episode_id']
 
@@ -767,7 +743,8 @@ class MainUI(object):
 
     def on_main_window_destroy(self, widget, data=None):
         """Stop all other elements than the GUI itself."""
-        self.downloader.shutdown()
+        for downloader in self.downloaders.itervalues():
+            downloader.shutdown()
         reactor.stop()
 
     def on_toolbutton_preferencias_clicked(self, widget, data=None):
@@ -879,9 +856,10 @@ class MainUI(object):
             self._update_ep(episode, progress=progress)
 
         # download!
-        fname = yield self.downloader.download(episode.channel,
-                                               episode.section, episode.title,
-                                               episode.url, update_progress_cb)
+        downloader = self.downloaders[episode.downtype]
+        fname = yield downloader.download(episode.channel,
+                                          episode.section, episode.title,
+                                          episode.url, update_progress_cb)
         episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
                                           episode.title)
         if self.config.get('notification', True) and pynotify is not None:
@@ -992,7 +970,8 @@ class MainUI(object):
         episode = self.programs_data[row[5]]  # 5 is the episode number
         self._update_ep(episode, state=Status.downloading,
                         progress="cancelando...")
-        self.downloader.cancel()
+        downloader = self.downloaders[episode.downtype]
+        downloader.cancel()
 
     def on_rbmenu_download_activate(self, widget):
         """Download an episode."""

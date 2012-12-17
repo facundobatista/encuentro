@@ -29,7 +29,7 @@ from twisted.internet import defer
 from twisted.web import client
 
 
-BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v01.list"
+BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v03.list"
 BASEDIR = os.path.dirname(__file__)
 
 logger = logging.getLogger('encuentro.update')
@@ -109,7 +109,7 @@ class UpdateUI(object):
                          if l and l[0] != '#']
 
         backends = {}
-        for b_name, b_url in backends_list:
+        for b_name, b_dloader, b_url in backends_list:
             logger.info("Downloading backend metadata for %r", b_name)
             tell_user("Descargando la lista de episodios para backend %r..." %
                       (b_name,))
@@ -125,7 +125,11 @@ class UpdateUI(object):
             tell_user("Descomprimiendo el archivo....")
             new_content = bz2.decompress(compressed)
             logger.debug("Downloaded data decompressed ok")
-            backends[b_name] = json.loads(new_content)
+
+            content = json.loads(new_content)
+            for item in content:
+                item['downtype'] = b_dloader
+            backends[b_name] = content
 
         tell_user("Conciliando datos de diferentes backends")
         logger.debug("Merging backends data")
@@ -141,10 +145,13 @@ class UpdateUI(object):
     def _merge(self, backends):
         """Merge content from all backends.
 
-        This is for v01, with only 'encuentro' and 'conectar' data.
+        This is for v03, with only 'encuentro' and 'conectar' data to be
+        really merged, other data just appended.
         """
-        enc_data = dict((x['episode_id'], x) for x in backends['encuentro'])
-        con_data = dict((x['episode_id'], x) for x in backends['conectar'])
+        raw_encuentro_data = backends.pop('encuentro')
+        raw_conectar_data = backends.pop('conectar')
+        enc_data = dict((x['episode_id'], x) for x in raw_encuentro_data)
+        con_data = dict((x['episode_id'], x) for x in raw_conectar_data)
         common = set(enc_data) & set(con_data)
         logger.debug("Merging: encuentro=%d conectar=%d (common=%d)",
                      len(enc_data), len(con_data), len(common))
@@ -179,12 +186,20 @@ class UpdateUI(object):
                 duration = con_ep['duration']
             else:
                 duration = enc_ep['duration']
+            if enc_ep['image_url'] is None:
+                image_url = con_ep['image_url']
+            else:
+                image_url = enc_ep['image_url']
 
             d = dict(episode_id=epid, description=description,
                      duration=duration, url=con_ep['url'],
                      channel=con_ep['channel'], title=con_ep['title'],
-                     section=con_ep['section'])
+                     section=con_ep['section'], image_url=image_url,
+                     downtype=con_ep['downtype'])
             final_data.append(d)
 
+        logger.debug("Merging: appending other data: %s", backends.keys())
+        for data in backends.itervalues():
+            final_data.extend(data)
         logger.debug("Merged, final: %d", len(final_data))
         return final_data
