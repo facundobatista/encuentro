@@ -98,6 +98,10 @@ class EpisodeData(object):
         'progress': 4,     # because any change in these will update the row
     }
 
+    # these is for the attributes to be here when unpickling old instances
+    image_url = None
+    downtype = None
+
     def __init__(self, channel, section, title, duration, description,
                  episode_id, url, image_url, state=None, progress=None,
                  filename=None, downtype=None):
@@ -997,9 +1001,10 @@ class MainUI(object):
             episode = self.programs_data[row[5]]  # 5 is the episode number
 
             # image
-            self.get_image(pathlist[0], episode.image_url.encode('utf-8'))
-            self.image_episode.set_from_stock(gtk.STOCK_MISSING_IMAGE, 16)
-            self.image_episode.show()
+            if episode.image_url is not None:
+                self.get_image(pathlist[0], episode.image_url.encode('utf-8'))
+                self.image_episode.set_from_stock(gtk.STOCK_MISSING_IMAGE, 16)
+                self.image_episode.show()
 
             # all description
             self.textview_episode.set_justification(gtk.JUSTIFY_LEFT)
