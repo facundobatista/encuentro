@@ -45,11 +45,16 @@ def save_file(basename, data):
 
 def sanitize(html):
     """Sanitize html."""
+    # remove the 0xC3 + space sequence, that is surely a bad cut utf8 bytes
+    html = html.replace("\xc3 ", " ")
+
+    # try to decode in utf8, otherwise try in cp1252
     try:
         html.decode("utf8")
     except UnicodeDecodeError:
         html = html.decode("cp1252")
 
+    # remove script stuff
     html = re.sub("<script.*?</script>", "", html, flags=re.S)
     return html
 

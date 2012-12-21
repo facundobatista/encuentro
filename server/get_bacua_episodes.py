@@ -18,11 +18,14 @@
 
 # -*- coding: utf-8 -*-
 
+"""Main server process to get all info from BACUA web site."""
+
 import re
 import urllib2
 
 from bs4 import BeautifulSoup
 
+# we execute this script from inside the directory; pylint: disable=W0403
 import helpers
 
 PAGE_URL = (
@@ -63,7 +66,7 @@ def get_list_pages():
 def scrap_page(html):
     """Scrap the page."""
     contents = []
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(helpers.sanitize(html))
     for i in soup.findAll("div", {"class": "video_muestra_catalogo"}):
         for a_node in i.find_all("a"):
             onclick = a_node.get("onclick", "")
@@ -88,6 +91,7 @@ def scrap_page(html):
 
 @helpers.retryable
 def get_content(page_url):
+    """Get content from a page."""
     print "Getting info for page", page_url
     u = urllib2.urlopen(page_url)
     html = u.read()
@@ -97,6 +101,7 @@ def get_content(page_url):
 
 
 def get_all_data():
+    """Get everything."""
     all_programs = []
     for page_url in get_list_pages():
         contents = get_content(page_url)

@@ -124,6 +124,29 @@ _RES_PAGE_1 = [
     ),
 ]
 
+_RES_PAGE_2 = [
+    dict(
+        title=u"Corazon De Vinilo",
+        description=u"Los Ludomatic, banda de música infantil exitosa en los años 80, se reúne luego de veinte años para ver que sus vidas no son como lo habían imaginado tiempo atrás. Toni, Becca, Marco, Lupe y Ren ...",
+        episode_id="bacua_4e0d053f",
+        duration="?",
+        url="http://backend.bacua.gob.ar/video.php?v=_4e0d053f",
+        section="Micro",
+        channel="Bacua",
+        image_url="http://backend.bacua.gob.ar/img.php?idvideo=4e0d053f",
+    ),
+    dict(
+        title=u"Cordoba Castings",
+        description=u"Córdoba Castings es una empresa dedicada a realizar castings de toda clase, principalmente para otras provincias y el extranjero. Para Nelson, Sergio, Atilio, Ludmila y Pilar la empresa es sólo un a ...",
+        episode_id="bacua_2877c648",
+        duration="?",
+        url="http://backend.bacua.gob.ar/video.php?v=_2877c648",
+        section="Micro",
+        channel="Bacua",
+        image_url="http://backend.bacua.gob.ar/img.php?idvideo=2877c648",
+    ),
+]
+
 
 
 class ScrapersTestCase(unittest.TestCase):
@@ -137,6 +160,11 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_page_1(self):
         html = open("../tests/ej-bacua-page_1.html").read()
         res = get_bacua_episodes.scrap_page(html)
-#        print "\n=== res", res
-#        print "=== RES", _RES_PAGE_1
         self.assertEqual(res, _RES_PAGE_1)
+
+    def test_example_page_2(self):
+        html = open("../tests/ej-bacua-page_2.html").read()
+        res = get_bacua_episodes.scrap_page(html)
+#        print "\n=== res", [sorted(x.items()) for x in res]
+#        print "=== RES", [sorted(x.items()) for x in _RES_PAGE_2]
+        self.assertEqual(res, _RES_PAGE_2)

@@ -418,7 +418,7 @@ class ImageGetter(object):
         def _d_callback(data, path, file_fullname):
             """Cache the image and use the callback."""
             temp_file_name = file_fullname + '.tmp'
-            with open(temp_file_name,'wb') as fh:
+            with open(temp_file_name, 'wb') as fh:
                 fh.write(data)
             os.rename(temp_file_name, file_fullname)
             self.callback(path, data)
