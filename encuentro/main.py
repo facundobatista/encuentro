@@ -30,7 +30,7 @@ from unicodedata import normalize
 from encuentro import NiceImporter
 
 # gtk import and magic to work with twisted
-with NiceImporter('gtk', 'python-gtk2', '2.16.0'):
+with NiceImporter('gtk', 'python-gtk2', '2.22.0'):
     import gtk
 with NiceImporter('twisted', 'python-twisted-bin', '8.2.0'):
     from twisted.internet import gtk2reactor
@@ -450,6 +450,7 @@ class MainUI(object):
             'menu_download', 'menu_play', 'aboutdialog', 'statusicon',
             'dialog_upgrade', 'image_episode', 'button_episode',
             'textview_episode', 'pane_md_state', 'pane_list_info',
+            'image_spinner',
         )
 
         for widget in widgets:
@@ -557,11 +558,21 @@ class MainUI(object):
 
     def image_episode_loaded(self, path, image):
         """An image has arrived, show it only if the path is correct."""
+        # only set the image if the user still have same row selected
+        tree_selection = self.programs_treeview.get_selection()
+        if tree_selection is None:
+            return
+        _, pathlist = tree_selection.get_selected_rows()
+        if pathlist[0] != path:
+            return
+
         loader = gtk.gdk.PixbufLoader()
         loader.write(image)
         self.image_episode.set_from_pixbuf(loader.get_pixbuf())
         self.image_episode.show()
         loader.close()
+        self.image_spinner.stop()
+        self.image_spinner.hide()
 
     def review_need_something_indicator(self):
         """Start the wizard if needed, or hide the need config button."""
@@ -1002,9 +1013,14 @@ class MainUI(object):
 
             # image
             if episode.image_url is not None:
+                # this must be before the get_image call, as it may call
+                # immediately to image_episode_loaded, showing the image and
+                # hiding the spinner
+                self.image_episode.hide()
+                self.image_spinner.show()
+                self.image_spinner.start()
+                # now do call the get_image
                 self.get_image(pathlist[0], episode.image_url.encode('utf-8'))
-                self.image_episode.set_from_stock(gtk.STOCK_MISSING_IMAGE, 16)
-                self.image_episode.show()
 
             # all description
             self.textview_episode.set_justification(gtk.JUSTIFY_LEFT)
@@ -1041,6 +1057,8 @@ class MainUI(object):
                 message = u"\n\nSeleccionar un programa para aquí la info"
             self.episode_textbuffer.set_text(message)
             self.textview_episode.set_justification(gtk.JUSTIFY_CENTER)
+            self.image_episode.hide()
+            self.image_spinner.hide()
 
     def _check_download_play_buttons(self, tree_selection=None):
         """Set both buttons state according to the selected episodes."""

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.18"/>
+  <requires lib="gtk+" version="2.22"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkAboutDialog" id="aboutdialog">
     <property name="can_focus">False</property>
@@ -1370,6 +1370,17 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                     <property name="can_focus">False</property>
                     <property name="spacing">3</property>
                     <child>
+                      <object class="GtkSpinner" id="image_spinner">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
                       <object class="GtkImage" id="image_episode">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -1378,20 +1389,28 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="position">0</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkTextView" id="textview_episode">
+                      <object class="GtkScrolledWindow" id="scrolledwindow3">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="wrap_mode">word-char</property>
-                        <property name="cursor_visible">False</property>
+                        <property name="hscrollbar_policy">automatic</property>
+                        <property name="vscrollbar_policy">automatic</property>
+                        <child>
+                          <object class="GtkTextView" id="textview_episode">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="wrap_mode">word-char</property>
+                            <property name="cursor_visible">False</property>
+                          </object>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">True</property>
                         <property name="fill">True</property>
-                        <property name="position">1</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                     <child>
@@ -1405,7 +1424,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
-                        <property name="position">2</property>
+                        <property name="position">3</property>
                       </packing>
                     </child>
                   </object>
