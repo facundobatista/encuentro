@@ -1,0 +1,449 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>BACUA</title>
+        <link rel="stylesheet" type="text/css" href="Css/main.css" media="all" />
+
+        <link rel="stylesheet" type="text/css" href="Js_Libs/colorbox/example6/colorbox.css" media="all" />
+
+
+
+        <script type="text/javascript" src="Js/jquery.min.js" ></script>
+        <script type="text/javascript" src="Js/funciones_ajax.js" ></script>
+        <script type="text/javascript" src="Js/funciones_ajax_busqueda.js" ></script>
+        <script type="text/javascript" src="Js/min_funciones.js" ></script>
+
+        <!--[if ie]>
+		<link rel="stylesheet" type="text/css" href="Css/min_ie6.css" media="all" />
+	<![endif]-->
+
+    </head>
+    <body>
+
+        <div id="contenedor">
+            <div class="decoContenedorHeader">
+                <div id="contenedorHeader">
+                    <a href="http://www.bacua.gob.ar" title="Ir al Inicio"><img style="float:left" src="Images/layout/logo_bacua.png"  alt="BACUA"  /></a>
+                    <div style="overflow:auto; text-align:right; float:right">
+                    
+                    	<ul style=" margin-top:5px">
+                        	<li style="float:left; margin-left:8px"><a href="http://www.facebook.com/pages/Televisi%C3%B3n-Digital-Abierta-TDA/126652780729126
+" class="newWindow" title="Ir a Bacua en Facebook"><img src="Images/componentes/ico_facebook.png" alt="Icono Facebook" /></a></li>
+                            <li style="float:left; margin-left:8px"><a href="https://twitter.com/#!/tvdigitalar
+" title="Ir a Bacua en Twitter" class="newWindow"><img src="Images/componentes/ico_twitter.png" alt="Icono Twitter" /></a></li>
+							<li style="float:left; margin-left:8px"><a href="http://www.youtube.com/user/tdaargentina
+" title="Ir a Bacua en YouTube" class="newWindow"><img src="Images/componentes/ico_youtube.png" alt="Icono You Tube" /></a></li>
+							<li style="float:left; margin-left:8px"><a href="http://www.flickr.com/photos/tdaenimagenes
+" title="Ir a Bacua en Flickr" class="newWindow"><img src="Images/componentes/ico_flickr.png" alt="Icono Flickr" /></a></li>
+                        </ul>
+                        <!-- <ul class="bakdAcceso" >-->
+                        <!-- </ul> -->
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="decoContenedorNavegacionPrincipal">
+            
+            
+            <ul id="navegacionPrincipal">
+                    <li class="boton mnPpal"><a class="newWindow" href="http://www.tda.gob.ar/">TDA</a></li>
+                    <li class="boton mnPpal"><a class="newWindow" href="http://www.tda.gob.ar/contenidos/consejo_asesor.html">Consejo Asesor</a></li>
+                    <li class="boton mnPpal"><a class="newWindow" href="http://www.mitvdigital.gob.ar/">Mi TV digital</a></li>
+                    <li class="boton active mnPpal"><strong >BACUA</strong>
+                        <ul class="navSecundaria">
+                            <li ><a href="http://www.bacua.gob.ar">Inicio</a></li>
+                            <li ><a href="index.php">Videoteca</a></li>
+                            <li class="select_subMenu"><a href="catalogo.php">Cat&aacute;logo</a></li>
+                            <li ><a href="busqueda.php">B&uacute;squeda</a></li>
+                            <li ><a href="contacto.php">Contacto</a></li>
+                        </ul>
+                    </li>
+                    <li class="boton mnPpal"><a class="newWindow" href="http://www.tda.gob.ar/contenidos/arbol_de_contenidos_universales_argentino.html">ACUA</a></li>
+                    <li class="boton mnPpal"><a class="newWindow" href="http://www.cda.gob.ar">CDA</a></li>
+                    <li class="boton mnPpal"><a class="newWindow" href="http://www.tda.gob.ar/contenidos/programa_polos_audiovisuales.html">POLOS</a></li>
+                </ul>
+            
+            
+            
+              
+            </div>
+            <!-- CONTENIDO: -->
+            <!--BUSCADOR-->
+
+<div id="contenedorGalerias">
+  <div id="busqFiltro">
+    <form style="float:left; display:inline-block"  id="searchForm" action="catalogo.php" method="post" name="buscadorVideos">
+      <span>Búsqueda</span>
+
+      <label class="flota" for="buscador2">Buscador</label>
+      <input id="buscador2" class="inputBuscador2 round" type="text" style="margin-top:2px"  value="" name="buscador" />
+      <label id="busca_btn">
+        <input id="button" class="botonBuscar2" type="image" src="Images/iconos/ico_busqueda.png" value="Buscar" name="button" />
+      </label>
+
+      <span style="margin-left:22px">Ordenar por:</span>
+      <select id="orOptionSelect" name="orOptionSelect" >
+        <option class="round selectBusq" value="title" selected='selected' onclick="catalogo_clickOnOrdenamiento('title')">
+          T&iacute;tulo
+        </option>
+        <option class="round selectBusq" value="director"  onclick="catalogo_clickOnOrdenamiento('director')">
+          Director
+        </option>
+      </select>
+      <input type="hidden" id="idTematica" name="idTematica" value="0" />
+      <input type="hidden" id="ordenamiento" name="ordenamiento" value="title" />
+
+    </form>
+
+  </div>
+
+  <!-- / Parte de Filtros -->
+  <input type="hidden" id="f1" name="f1" value="" />
+  <input type="hidden" id="f2" name="f2" value="" />
+  <input type="hidden" id="f3" name="f3" value="" />
+  <input type="hidden" id="f4" name="f4" value="" />
+  <input type="hidden" id="or" name="or" value="" />
+  <div id="contenedorFiltros" > </div>
+  <div id="contenedorVideoBusqueda" class="clearfix">
+    <h3 class="flota">Videos</h3>
+    <form method="post" action="index.php" id="videoForm">
+      <input type="hidden" name="hashvideo"  id="hashvideo"  value="" />
+      <input type="hidden" name="idtematica" id="idtematica" value="" />
+    </form>
+
+
+
+    <!-- / Reproducción -->
+  </div>
+  <div class="clear"></div>
+
+
+
+  <!-- GALERIA DE VIDEOS -->
+
+  <!-- muestra de videos -->
+
+  <div id="contenedorGalerias_catalogo">
+    <h2>Galería de videos</h2>
+    <!-- Menú temas -->
+    <ul class="menuGalerias round">
+      <li class="categoria_default_activo">
+        <a href="#" onclick="catalogo_clickOnTematica('0')" title=" Todas"> Todas</a>
+      </li>
+      <li class="categoria_animacion">
+        <a href="#" onclick="catalogo_clickOnTematica('22')" title="Animación">Animación</a>
+      </li>
+      <li class="categoria_arte">
+        <a href="#" onclick="catalogo_clickOnTematica('1')" title="Arte y cultura">Arte y cultura</a>
+      </li>
+      <li class="categoria_ciencia">
+        <a href="#" onclick="catalogo_clickOnTematica('11')" title="Ciencia y Tec.">Ciencia y Tec.</a>
+      </li>
+      <li class="categoria_sociales">
+        <a href="#" onclick="catalogo_clickOnTematica('12')" title="Ciencias sociales">Ciencias sociales</a>
+      </li>
+      <li class="categoria_deporte">
+        <a href="#" onclick="catalogo_clickOnTematica('5')" title="Deporte">Deporte</a>
+      </li>
+      <li class="categoria_derechos">
+        <a href="#" onclick="catalogo_clickOnTematica('20')" title="Derechos humanos">Derechos humanos</a>
+      </li>
+      <li class="categoria_didactico">
+        <a href="#" onclick="catalogo_clickOnTematica('31')" title="Didáctico / educativo">Didáctico / educativo</a>
+      </li>
+      <li class="categoria_default">
+        <a href="#" onclick="catalogo_clickOnTematica('40')" title="Didactico/educativo">Didactico/educativo</a>
+      </li>
+      <li class="categoria_documental">
+        <a href="#" onclick="catalogo_clickOnTematica('24')" title="Documental">Documental</a>
+      </li>
+      <li class="categoria_ecologia">
+        <a href="#" onclick="catalogo_clickOnTematica('3')" title="Ecología">Ecología</a>
+      </li>
+      <li class="categoria_educacion">
+        <a href="#" onclick="catalogo_clickOnTematica('4')" title="Educación">Educación</a>
+      </li>
+      <li class="categoria_ficcion">
+        <a href="#" onclick="catalogo_clickOnTematica('13')" title="Ficción">Ficción</a>
+      </li>
+      <li class="categoria_gastronomia">
+        <a href="#" onclick="catalogo_clickOnTematica('2')" title="Gastronomía">Gastronomía</a>
+      </li>
+      <li class="categoria_historia">
+        <a href="#" onclick="catalogo_clickOnTematica('6')" title="Historia">Historia</a>
+      </li>
+      <li class="categoria_humor">
+        <a href="#" onclick="catalogo_clickOnTematica('7')" title="Humor">Humor</a>
+      </li>
+      <li class="categoria_identidad">
+        <a href="#" onclick="catalogo_clickOnTematica('26')" title="Identidad / Género">Identidad / Género</a>
+      </li>
+      <li class="categoria_infancia">
+        <a href="#" onclick="catalogo_clickOnTematica('9')" title="Infancia">Infancia</a>
+      </li>
+      <li class="categoria_informacion">
+        <a href="#" onclick="catalogo_clickOnTematica('27')" title="Informativo">Informativo</a>
+      </li>
+      <li class="categoria_musica">
+        <a href="#" onclick="catalogo_clickOnTematica('28')" title="Música">Música</a>
+      </li>
+      <li class="categoria_salud">
+        <a href="#" onclick="catalogo_clickOnTematica('21')" title="Salud">Salud</a>
+      </li>
+      <li class="categoria_sociedad">
+        <a href="#" onclick="catalogo_clickOnTematica('10')" title="Sociedad">Sociedad</a>
+      </li>
+      <li class="categoria_viaje">
+        <a href="#" onclick="catalogo_clickOnTematica('8')" title="Viajes">Viajes</a>
+      </li>
+      <li class="categoria_default">
+        <a href="#" onclick="catalogo_clickOnTematica('30')" title="Videoclip">Videoclip</a>
+      </li>
+    </ul>
+    <!-- / Menú temas -->
+
+
+
+
+
+    <div id="contenedorVideoMuestras" style="width:600px" class="clearfix">
+      <h3 class="flota">Videos</h3>
+      <div class="video_muestra_catalogo" style="overflow: hidden !important">
+        <!--a onclick="mostrarReproductor('0','4e0d053f')"-->
+        <a href="#" onclick="javascript:verVideo('0','4e0d053f','1')" >
+          <img src="img_140-v1-4e0d053f.png" alt="Titulo del corto" class="imgMuestra_catalogo" />
+        </a>
+        <div class="info_video_catalogo"> 
+          <h4>CORAZON DE VINILO  </h4>
+          <h5>Luciano Delprato | Pa...</h5>
+          <h5 class="sinopsis_cat">Los Ludomatic, banda de música infantil exitosa en los años 80, se reúne luego de veinte años para ver que sus vidas no son como lo habían imaginado tiempo atrás. Toni, Becca, Marco, Lupe y Ren� ...</h5><br/>
+          <!-- <h6 class="v_muestra_tiempo_cat"><span class="flota">Duración</span>00:24:57:15</h6> -->
+          <ul class="video_muestras_herramientas">
+            <li style="background-color:#0170a5; color:#FFF; font-size:0.8em; padding:0.2em 0.3em; height:14px">A001161</li>
+            <li><a class="example5" href="videoinfo.php?idvideo=4e0d053f" title="Ver más información">
+                <img alt="Icono de Información" src="Images/iconos/icono_informacion.png" />
+              </a></li>
+          </ul>
+          <h5 class="sinopsis_cat"><i>Video fisico: Si</i></h5>
+        </div>
+      </div>
+      <div class="video_muestra_catalogo" style="overflow: hidden !important">
+        <!--a onclick="mostrarReproductor('0','2877c648')"-->
+        <a href="#" onclick="javascript:verVideo('0','2877c648','1')" >
+          <img src="img_140-v1-2877c648.png" alt="Titulo del corto" class="imgMuestra_catalogo" />
+        </a>
+        <div class="info_video_catalogo"> 
+          <h4>CORDOBA CASTINGS   </h4>
+          <h5>Javier Correa Cácere...</h5>
+          <h5 class="sinopsis_cat">Córdoba Castings es una empresa dedicada a realizar castings de toda clase, principalmente para otras provincias y el extranjero. Para Nelson, Sergio, Atilio, Ludmila y Pilar la empresa es sólo un a ...</h5><br/>
+          <!-- <h6 class="v_muestra_tiempo_cat"><span class="flota">Duración</span>00:25:16:04</h6> -->
+          <ul class="video_muestras_herramientas">
+            <li style="background-color:#0170a5; color:#FFF; font-size:0.8em; padding:0.2em 0.3em; height:14px">A001180</li>
+            <li><a class="example5" href="videoinfo.php?idvideo=2877c648" title="Ver más información">
+                <img alt="Icono de Información" src="Images/iconos/icono_informacion.png" />
+              </a></li>
+          </ul>
+          <h5 class="sinopsis_cat"><i>Video fisico: Si</i></h5>
+        </div>
+      </div>
+      <div class="video_muestra_catalogo" style="overflow: hidden !important">
+        <!--a onclick="mostrarReproductor('0','a62d30f4')"-->
+            <img src="img_140-v1-a62d30f4.png" alt="Titulo del corto" class="imgMuestra_catalogo" />
+        <div class="info_video_catalogo"> 
+          <h4>CORTORAMA </h4>
+          <h5>Federico Borobio, Die...</h5>
+          <h5 class="sinopsis_cat">Programa de ficción tragicómico donde cada emisión relata la travesía del capitán Logan y su ayudante el gato Mr. Ripley. El instructivo que lo devolverá a la tierra se encuentra mezclado con ci ...</h5><br/>
+          <!-- <h6 class="v_muestra_tiempo_cat"><span class="flota">Duración</span>00:48:34:00</h6> -->
+          <ul class="video_muestras_herramientas">
+            <li style="background-color:#0170a5; color:#FFF; font-size:0.8em; padding:0.2em 0.3em; height:14px">A000172</li>
+            <li><a class="example5" href="videoinfo.php?idvideo=a62d30f4" title="Ver más información">
+                <img alt="Icono de Información" src="Images/iconos/icono_informacion.png" />
+              </a></li>
+          </ul>
+          <h5 class="sinopsis_cat"><i>Video fisico: No</i></h5>
+        </div>
+      </div>
+      <div class="video_muestra_catalogo" style="overflow: hidden !important">
+        <!--a onclick="mostrarReproductor('0','6463c28e')"-->
+            <img src="img_140-v1-6463c28e.png" alt="Titulo del corto" class="imgMuestra_catalogo" />
+        <div class="info_video_catalogo"> 
+          <h4>Crónica de viaje</h4>
+          <h5>Néstor Ruggeri</h5>
+          <h5 class="sinopsis_cat">Un hombre recorre la provincia de Río Negro y documenta las personas y lugares que conoce en su viaje.</h5><br/>
+          <!-- <h6 class="v_muestra_tiempo_cat"><span class="flota">Duración</span>00:27:08:18</h6> -->
+          <ul class="video_muestras_herramientas">
+            <li style="background-color:#0170a5; color:#FFF; font-size:0.8em; padding:0.2em 0.3em; height:14px">A000424</li>
+            <li><a class="example5" href="videoinfo.php?idvideo=6463c28e" title="Ver más información">
+                <img alt="Icono de Información" src="Images/iconos/icono_informacion.png" />
+              </a></li>
+          </ul>
+          <h5 class="sinopsis_cat"><i>Video fisico: No</i></h5>
+        </div>
+      </div>
+
+
+
+
+
+    </div>
+    <!-- / FIN muestra de videos -->
+
+  </div>
+
+
+
+  <div class="videos_cargados_catalogo">
+
+<!--
+    <div class="tit_carga_catalogo">
+      últimos videos cargados
+    </div>
+-->
+
+  </div>
+
+
+  <!-- FIN GALERIA DE VIDEOS -->
+
+  <!-- PAGINADOR -->
+  <div class="clear"></div>
+  <div class="pagina">
+                <p class="info_resultado_busca">
+                    Página <strong>15</strong> de <strong>74</strong>. Resultado totales: <strong>294</strong>
+                </p>
+                <div id="navegacao_busca">
+                  <a href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=1">Primero</a> |  <a href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=14">Anterior</a>  <a class="numPaginador selectPag" href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=15">15</a> <a class="numPaginador " href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=16">16</a> <a class="numPaginador " href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=17">17</a> <a class="numPaginador " href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=18">18</a> <a class="numPaginador " href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=19">19</a> <a class="numPaginador " href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=20">20</a> <a class="numPaginador " href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=21">21</a> <a class="numPaginador " href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=22">22</a> <a class="numPaginador " href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=23">23</a> <a class="numPaginador " href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=24">24</a>  <a href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=16">Siguiente</a> |  <a href="catalogo.php?buscador=&ordenamiento=title&idTematica=0&amp;page=74">Ultimo</a>
+            </div>
+        </div> 
+
+
+</div>
+<script type="text/javascript">
+  jQuery.fn.Limpia = function () {
+    return this.each(function () {
+      // tomamos el valor actual del input
+      var currentValue = $(this).val();
+      // en el focus() comparamos si es el mismo por defecto, y si es asi lo vaciamos
+      $(this).focus(function () {
+        if ($(this).val() == currentValue) {
+          $(this).val('');
+        };
+      });
+      // en el blur, si el usuario dejo el value vacio, lo volvemos a restablecer
+      $(this).blur(function () {
+        if ($(this).val() == '') {
+          $(this).val(currentValue);
+        };
+      });
+    });
+  }
+
+
+  if($('#buscador2').val()==''){$('#buscador2').val("Buscar videos"); $('#buscador2').Limpia();}
+
+</script>
+
+<!-- FIN BUSCADOR-->
+            <div id="pie">
+            
+            <div class="decoFooter">            </div>
+            
+                
+                <div class="conFoot">
+                    <div style="width:960px; margin:0 auto; text-align:left">
+                    <a href="http://www.argentina.ar/" class="newWindow"><img  src="Images/layout/logo_argentina.png" alt="Logo Argentina con vos, siempre."  /></a>
+                        <a href="http://www.presidencia.gov.ar/" class="newWindow"><img  src="Images/layout/logo_presidencia.png" alt="Logo Presidencia de la Nación Argentina."  /></a>
+                        <a href="http://institucional.minplan.gov.ar/" class="newWindow"><img src="Images/layout/logo_ministerio.png" alt="Logo Ministerio de Planificación Federal Inversión Pública y Servicios."  /></a>
+                        <a href="http://www.tda.gob.ar/contenidos/consejo_asesor.html" class="newWindow"><img  src="Images/layout/logo_consejo.png" alt="Logo Consejo Asesor."  /></a>
+                        <a href="http://www.tda.gob.ar/contenidos/home.html" class="newWindow"><img  src="Images/layout/logo_tda.png" alt="Logo Televisión Digital Argentina."  /></a>
+                        
+                    </div>
+                </div>
+
+                <div class="contieneFooter">
+
+                    <p>Queda expresamente prohibida toda difusión, modificación, copia, transmisión, reproducción y/o distribución total o parcial de los contenidos audiovisuales del presente sitio web, en cualquier forma y/o por cualquier medio, sin la previa autorización escrita del Consejo Asesor del Sistema Argentino de Televisión Digital Terrestre actuante en la órbita del MINISTERIO DE PLANIFICACIÓN FEDERAL, INVERSIÓN PÚBLICA Y SERVICIOS.</p>
+
+                    <!--<div class="footUno">
+                    <h2>Información del Documento</h2>
+                    <p>Todos los derechos reservados 2003–2010. República Argentina, Ministerio de Planificación Federal, Inversión Pública y Servicios.</p><br />
+                    <p>Área Sistemas, Subsecretaría de Coordinación y Control de Gestión Hipólito Yrigoyen 250; Código Postal: C1086AAB, CABA; República Argentina.</p>
+                    </div>
+
+                    <div class="footDos" style="margin-right:12px ">
+                    <h2>Seguinos en:</h2>
+
+                    </div>
+
+                    <div class="footDos">
+                    <h2>Contactanos:</h2>
+                    </div>-->
+
+
+
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="Js_Libs/colorbox/colorbox/jquery.colorbox-min.js" ></script>
+        <script type="text/javascript" src="Js_Libs/jwplayer/jwplayer.js" ></script>
+        <script type="text/javascript">
+            //<![CDATA[
+            $(document).ready(function(){
+        //Examples of how to assign the ColorBox event to elements
+        $(".example5").colorbox({transition: "elastic",width:"500px",title: true, height:"520px", speed: 200, close: "<img src=\"Images/layout/cerrar_modal.png\" alt=\"Cerrar ventana\" title=\"Cerrar ventana\" />", initialWidth: "300", initialHeight: "300px", opacity: 0.5,fixed: true,scrolling: false, preloading: true});
+    });
+            //]]>
+        </script>
+        
+ <script type="text/javascript">
+	/* Abre enlaces en una nueva ventana
+		Para que funcione hay que asignar la
+		clase CSS 'newWindow', de otro modo
+		no funciona.
+		
+		Automáticamente está asignada a los 
+		Archivos PDF.
+---------------------------------------------------*/
+
+// Abre en ventana nueva
+	$(document).ready(function() {
+		$('.newWindow').click( 
+			function(){
+				window.open( $(this).attr('href')); return false;
+			}
+		)
+	});
+
+
+</script>
+
+
+ <script type="text/javascript">
+$(document).ready(function(){
+   //   $.agregar('js/funciones_min.js','js');
+   $.agregar('Css/min_non_w3_compilant.css','css@Screen');
+});
+   </script> 
+   
+   
+<script type="text/javascript">
+//<![CDATA[ 
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-15583315-6']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  //]]> 
+
+</script>
+       
+        
+    </body>
+</html>
