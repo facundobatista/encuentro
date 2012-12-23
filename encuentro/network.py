@@ -86,8 +86,11 @@ class MiBrowser(Process):
         """Get the content handler to download."""
         # open base url
         browser.open(self.url)
-
+        logger.debug("Browser download, getting html")
         html = self._get_html(browser)
+        logger.debug("Browser download, got html len %d", len(html))
+
+        # get the new url
         url_items = dict(base=URL_BASE)
         for token in "urlDescarga idRecurso fileId".split():
             re_str = 'id="%s" value="([^"]*)"' % (token,)
@@ -102,13 +105,13 @@ class MiBrowser(Process):
         auth = urllib.urlencode(dict(usuario=usr, clave=psw))
         browser.open(URL_AUTH, data=auth)
 
-        logger.debug("Opening final url")
+        logger.debug("Opening final url %s", new_url)
         content = browser.open(new_url)
         try:
             # pylint: disable=W0212
             filesize = int(content._headers['content-length'])
         except KeyError:
-            pass
+            logger.debug("No content information")
         else:
             logger.debug("Got content! filesize: %d", filesize)
             return content, filesize
@@ -149,6 +152,7 @@ class MiBrowser(Process):
 
         # get the filename and download
         fname = self.input_queue.get(browser)
+        logger.debug("Browser download to %r", fname)
         try:
             content, filesize = self._get_download_content(browser)
         except Exception, e:
@@ -179,14 +183,20 @@ class DeferredQueue(Queue):
     def deferred_get(self):
         """Return a deferred that is triggered when data."""
         d = defer.Deferred()
+        attempts = [None] * 6
 
         def check():
             """Check if we have data and transmit it."""
             try:
                 data = self.get(block=False)
             except Empty:
-                # no data, check again later
-                reactor.callLater(self._reactor_period, check)
+                # no data, check again later, unless we had too many attempts
+                attempts.pop()
+                if attempts:
+                    reactor.callLater(self._reactor_period, check)
+                else:
+                    # finish without data, for external loop to do checks
+                    d.callback(None)
             else:
                 # have some data, let's check if there's more
                 all_data = [data]
@@ -286,14 +296,21 @@ class ConectarDownloader(BaseDownloader):
         logger.info("Downloader started receiving bytes")
         while True:
             # get all data and just use the last item
-            data = (yield qinput.deferred_get())[-1]
+            payload = yield qinput.deferred_get()
             if self.cancelled:
                 logger.debug("Cancelled! Quit browser, wait, and clean.")
                 bquit.set()
                 yield qinput.deferred_get()
-                os.remove(tempf)
+                if os.path.exists(tempf):
+                    os.remove(tempf)
                 logger.debug("Cancelled! Cleaned up.")
                 raise CancelledError()
+
+            # special situations
+            if payload is None:
+                # no data, let's try again
+                continue
+            data = payload[-1]
             if isinstance(data, Exception):
                 raise data
             if data == DONE_TOKEN:
