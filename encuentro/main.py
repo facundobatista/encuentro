@@ -399,15 +399,20 @@ class DownloadingList(object):
         self.queue = []
         self.current = -1
         self.downloading = False
-        # FIXME: que al hacer click en la linea de la cosa de descargas,
-        # se ponga la linea que corresponde a la izq
+        self.paths_relation = {}  # for paths of both treeviews
 
-    def append(self, episode):
+    def append(self, episode, programs_path):
         """Appens and episode to the list."""
-        it = self.store.append((episode.title, u"Encolado"))
+        # title, state, active
+        it = self.store.append((episode.title, u"Encolado", True))
         self.queue.append((episode, it))
         episode.state = Status.downloading
-        # FIXME: que vaya al final!!
+
+        # always show the last line
+        row = self.store[-1]
+        self.treeview.scroll_to_cell(row.path)
+
+        self.paths_relation[row.path] = programs_path
 
     def prepare(self):
         """Set up everything for next download."""
@@ -439,9 +444,9 @@ class DownloadingList(object):
             gui_msg = error
             end_state = Status.none
         self.store.set_value(it, 1, gui_msg)
+        self.store.set_value(it, 2, False)  # deactivate the row
         episode.state = end_state
         self.downloading = False
-        # FIXME: que al terminar se pongan los textos en "apagadito"
 
     def cancel(self):
         """The download is being cancelled."""
@@ -817,7 +822,7 @@ class MainUI(object):
             return
 
         # queue
-        self.episodes_download.append(episode)
+        self.episodes_download.append(episode, path)
         self._check_download_play_buttons()
         self._update_info_panel()
         if self.episodes_download.downloading:
@@ -939,6 +944,16 @@ class MainUI(object):
         widget._order = new_order
         widget.set_sort_indicator(True)
         widget.set_sort_order(new_order)
+
+    def on_downloads_treeview_button_press_event(self, widget, event):
+        """Simple button click."""
+        cursor = widget.get_path_at_pos(int(event.x), int(event.y))
+        programs_path = self.episodes_download.paths_relation[cursor[0]]
+        tv = self.programs_treeview
+        tv.scroll_to_cell(programs_path, row_align=0.5, use_align=True)
+        selection = tv.get_selection()
+        selection.unselect_all()
+        selection.select_path(programs_path)
 
     def on_programs_treeview_row_activated(self, treeview, path, view_column):
         """Double click on the episode, download or play."""

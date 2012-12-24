@@ -968,6 +968,8 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
       <column type="gchararray"/>
       <!-- column-name info -->
       <column type="gchararray"/>
+      <!-- column-name active -->
+      <column type="gboolean"/>
     </columns>
   </object>
   <object class="GtkWindow" id="main_window">
@@ -1447,6 +1449,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                         <property name="can_focus">True</property>
                         <property name="model">downloads_store</property>
                         <property name="headers_clickable">False</property>
+                        <signal name="button-press-event" handler="on_downloads_treeview_button_press_event" swapped="no"/>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_channel1">
                             <property name="resizable">True</property>
@@ -1454,6 +1457,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext11"/>
                               <attributes>
+                                <attribute name="sensitive">2</attribute>
                                 <attribute name="text">0</attribute>
                               </attributes>
                             </child>
@@ -1466,6 +1470,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext3"/>
                               <attributes>
+                                <attribute name="sensitive">2</attribute>
                                 <attribute name="text">1</attribute>
                               </attributes>
                             </child>
