@@ -89,14 +89,6 @@ class Status(object):
 
 class EpisodeData(object):
     """Episode data."""
-    _liststore_order = {
-        'channel': 0,
-        'section': 1,
-        'title': 2,
-        'duration': 3,
-        'state': 4,        # note that state and progress both point to row 4,
-        'progress': 4,     # because any change in these will update the row
-    }
 
     # these is for the attributes to be here when unpickling old instances
     image_url = None
@@ -179,37 +171,8 @@ class EpisodeData(object):
                 return
 
         duration = u'?' if self.duration is None else unicode(self.duration)
-
-        data = (self.channel, self.section, title, duration,
-                self._get_nice_state(), self.episode_id)
+        data = self.channel, self.section, title, duration, "", self.episode_id
         return data
-
-    def _get_nice_state(self):
-        """A nicer state wording."""
-        if self.state == Status.none:
-            state = ''
-        elif self.state == Status.waiting:
-            state = 'Esperando'
-        elif self.state == Status.downloading:
-            state = 'Descargando: %s' % self.progress
-        elif self.state == Status.downloaded:
-            state = 'Terminado'
-        else:
-            raise ValueError("Bad state value: %r" % (self.state,))
-        return state
-
-    def update_row(self, row, **kwargs):
-        """Update own attributes and value in the row."""
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-            try:
-                pos = self._liststore_order[k]
-            except KeyError:
-                pass  # not a shown value
-            else:
-                if k == 'state' or k == 'progress':
-                    v = self._get_nice_state()
-                row[pos] = v
 
 
 class PreferencesUI(object):
@@ -427,6 +390,74 @@ class ImageGetter(object):
         d.addCallback(_d_callback, path, file_fullname)
 
 
+class DownloadingList(object):
+    """Handle the list to download and its GUI reflection."""
+
+    def __init__(self, treeview, store):
+        self.treeview = treeview
+        self.store = store
+        self.queue = []
+        self.current = -1
+        self.downloading = False
+        # FIXME: que al hacer click en la linea de la cosa de descargas,
+        # se ponga la linea que corresponde a la izq
+
+    def append(self, episode):
+        """Appens and episode to the list."""
+        it = self.store.append((episode.title, u"Encolado"))
+        self.queue.append((episode, it))
+        episode.state = Status.downloading
+        # FIXME: que vaya al final!!
+
+    def prepare(self):
+        """Set up everything for next download."""
+        self.downloading = True
+        self.current += 1
+        episode, _ = self.queue[self.current]
+        return episode
+
+    def start(self):
+        """Download started."""
+        episode, it = self.queue[self.current]
+        self.store.set_value(it, 1, u"Comenzando")
+        episode.state = Status.downloading
+
+    def progress(self, progress):
+        """Advance the progress indicator."""
+        _, it = self.queue[self.current]
+        self.store.set_value(it, 1, u"Descargando: %s" % progress)
+
+    def end(self, error=None):
+        """Mark episode as downloaded."""
+        episode, it = self.queue[self.current]
+        if error is None:
+            # downloaded OK
+            gui_msg = "Terminado ok"
+            end_state = Status.downloaded
+        else:
+            # something bad happened
+            gui_msg = error
+            end_state = Status.none
+        self.store.set_value(it, 1, gui_msg)
+        episode.state = end_state
+        self.downloading = False
+        # FIXME: que al terminar se pongan los textos en "apagadito"
+
+    def cancel(self):
+        """The download is being cancelled."""
+        _, it = self.queue[self.current]
+        self.store.set_value(it, 1, u"Cancelando")
+
+    def pending(self):
+        """Return the pending downloads quantity (including current)."""
+        # remaining after current one
+        q = len(self.queue) - self.current - 1
+        # if we're still downloading current one, add it to the count
+        if self.downloading:
+            q += 1
+        return q
+
+
 class MainUI(object):
     """Main GUI class."""
 
@@ -450,7 +481,7 @@ class MainUI(object):
             'menu_download', 'menu_play', 'aboutdialog', 'statusicon',
             'dialog_upgrade', 'image_episode', 'button_episode',
             'textview_episode', 'pane_md_state', 'pane_list_info',
-            'image_spinner',
+            'image_spinner', 'downloads_treeview', 'downloads_store',
         )
 
         for widget in widgets:
@@ -511,8 +542,8 @@ class MainUI(object):
         self.downloaders = {}
         for downtype, dloader_class in all_downloaders.iteritems():
             self.downloaders[downtype] = dloader_class(self.config)
-        self.episodes_to_download = []
-        self._downloading = False
+        self.episodes_download = DownloadingList(self.downloads_treeview,
+                                                 self.downloads_store)
 
         # widget sensitiviness
         self.sensit_grouper = sg = SensitiveGrouper()
@@ -563,7 +594,7 @@ class MainUI(object):
         if tree_selection is None:
             return
         _, pathlist = tree_selection.get_selected_rows()
-        if pathlist[0] != path:
+        if not pathlist or pathlist[0] != path:
             return
 
         loader = gtk.gdk.PixbufLoader()
@@ -663,13 +694,11 @@ class MainUI(object):
                    for i in range(self.programs_store.get_n_columns())]
         prv_order_col, prv_order_dir = self.programs_store.get_sort_column_id()
 
-        relat = self.update_relationship = {}
         new_liststore = gtk.ListStore(*columns)
         for p in self.programs_data.values():
             data = p.get_row_data(field_filter)
             if data is not None:
-                treeiter = new_liststore.append(data)
-                relat[p.episode_id] = treeiter
+                new_liststore.append(data)
 
         if prv_order_col is not None:
             new_liststore.set_sort_column_id(prv_order_col, prv_order_dir)
@@ -688,22 +717,16 @@ class MainUI(object):
     def _close(self):
         """Still time to decide if want to close or not."""
         logger.info("Attempt to close the program")
-        for idx, program in self.programs_data.items():
-            state = program.state
-            if state == Status.waiting or state == Status.downloading:
-                logger.debug("Active (%s) download: %s", state, program)
-                break
-        else:
+        pending = self.episodes_download.pending()
+        if not pending:
             # all fine, save all and quit
             logger.info("Saving states and quitting")
             self._save_states()
             return False
+        logger.debug("Still %d active downloads when trying to quit", pending)
 
         # stuff pending
-        # we *sure* have idx and program; pylint: disable=W0631
-        logger.info("Active downloads! %s (%r)", idx, program.title)
-        m = (u"Al menos un programa está todavía en proceso de descarga!\n\n"
-             u"Episodio %s: %s\n" % (idx, program.title))
+        m = u"Hay programas todavía en proceso de descarga!"
         self.dialog_quit_label.set_text(m)
         opt_quit = self.dialog_quit.run()
         self.dialog_quit.hide()
@@ -783,14 +806,6 @@ class MainUI(object):
             self._queue_download(row, path)
     on_menu_download_activate = on_toolbutton_download_clicked
 
-    def _update_ep(self, episode, **kwargs):
-        """Update and episode (if being shown) with those args."""
-        # after the yield, the row may have changed, so we get it again
-        treeiter = self.update_relationship.get(episode.episode_id)
-        if treeiter is not None:
-            row = self.programs_store[treeiter]
-            episode.update_row(row, **kwargs)
-
     @defer.inlineCallbacks
     def _queue_download(self, row, path):
         """User indicated to download something."""
@@ -800,40 +815,38 @@ class MainUI(object):
             logger.debug("Download denied, episode %s is not in downloadeable "
                          "state.", episode.episode_id)
             return
-        self._update_ep(episode, state=Status.downloading, progress="encolado")
+
+        # queue
+        self.episodes_download.append(episode)
         self._check_download_play_buttons()
         self._update_info_panel()
-
-        self.episodes_to_download.append(episode)
-        if self._downloading:
+        if self.episodes_download.downloading:
             return
 
         logger.debug("Downloads: starting")
-        self._downloading = True
-        while self.episodes_to_download:
-            episode = self.episodes_to_download.pop(0)
+        while self.episodes_download.pending():
+            episode = self.episodes_download.prepare()
             try:
                 filename, episode = yield self._episode_download(episode)
             except CancelledError:
                 logger.debug("Got a CancelledError!")
-                self._update_ep(episode, state=Status.none)
+                self.episodes_download.end(error=u"Cancelado")
             except BadCredentialsError:
                 logger.debug("Bad credentials error!")
                 self._show_message(self.dialog_alert)
-                self._update_ep(episode, state=Status.none)
+                self.episodes_download.end(error=u"Error con las credenciales")
             except Exception, e:
                 logger.debug("Unknown download error: %s", e)
                 self._show_message(self.dialog_error, str(e))
-                self._update_ep(episode, state=Status.none)
+                self.episodes_download.end(error=u"Error: " + str(e))
             else:
                 logger.debug("Episode downloaded: %s", episode)
-                self._update_ep(episode, state=Status.downloaded,
-                                filename=filename)
+                self.episodes_download.end()
+                episode.filename = filename
 
             self._check_download_play_buttons()
             self._update_info_panel()
 
-        self._downloading = False
         logger.debug("Downloads: finished")
 
     def _show_message(self, dialog, text=None):
@@ -863,18 +876,14 @@ class MainUI(object):
     def _episode_download(self, episode):
         """Effectively download an episode."""
         logger.debug("Effectively downloading episode %s", episode.episode_id)
-        self._update_ep(episode, state=Status.downloading,
-                        progress="comenzando...")
-
-        def update_progress_cb(progress):
-            """Update the progress and refreshes the treeview."""
-            self._update_ep(episode, progress=progress)
+        self.episodes_download.start()
 
         # download!
         downloader = self.downloaders[episode.downtype]
         fname = yield downloader.download(episode.channel,
                                           episode.section, episode.title,
-                                          episode.url, update_progress_cb)
+                                          episode.url,
+                                          self.episodes_download.progress)
         episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
                                           episode.title)
         if self.config.get('notification', True) and pynotify is not None:
@@ -912,7 +921,7 @@ class MainUI(object):
             msg = (u"No se encontró el archivo para reproducir: " +
                    repr(filename))
             self._show_message(self.dialog_error, msg)
-            self._update_ep(episode, state=Status.none)
+            episode.state = Status.none
 
     def on_any_treeviewcolumn_clicked(self, widget, data=None):
         """Clicked on the column title.
@@ -983,8 +992,7 @@ class MainUI(object):
         path = self.programs_treeview.get_cursor()[0]
         row = self.programs_store[path]
         episode = self.programs_data[row[5]]  # 5 is the episode number
-        self._update_ep(episode, state=Status.downloading,
-                        progress="cancelando...")
+        self.episodes_download.cancel()
         downloader = self.downloaders[episode.downtype]
         downloader.cancel()
 

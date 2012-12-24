@@ -964,6 +964,8 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
   </object>
   <object class="GtkListStore" id="downloads_store">
     <columns>
+      <!-- column-name title -->
+      <column type="gchararray"/>
       <!-- column-name info -->
       <column type="gchararray"/>
     </columns>
@@ -1365,39 +1367,39 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                 <property name="position">195</property>
                 <property name="position_set">True</property>
                 <child>
-                  <object class="GtkVBox" id="vbox2">
+                  <object class="GtkScrolledWindow" id="scrolledwindow3">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="spacing">3</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
                     <child>
-                      <object class="GtkSpinner" id="image_spinner">
+                      <object class="GtkVBox" id="vbox2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkImage" id="image_episode">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="stock">gtk-missing-image</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkScrolledWindow" id="scrolledwindow3">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hscrollbar_policy">automatic</property>
-                        <property name="vscrollbar_policy">automatic</property>
+                        <property name="spacing">3</property>
+                        <child>
+                          <object class="GtkSpinner" id="image_spinner">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="image_episode">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="stock">gtk-missing-image</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
                         <child>
                           <object class="GtkTextView" id="textview_episode">
                             <property name="visible">True</property>
@@ -1405,27 +1407,27 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                             <property name="wrap_mode">word-char</property>
                             <property name="cursor_visible">False</property>
                           </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="button_episode">
+                            <property name="label">button</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="use_action_appearance">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">3</property>
+                          </packing>
                         </child>
                       </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="button_episode">
-                        <property name="label">button</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <property name="use_action_appearance">False</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">3</property>
-                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -1444,15 +1446,27 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="model">downloads_store</property>
+                        <property name="headers_clickable">False</property>
                         <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn_channel1">
-                            <property name="title">Descargas encoladas</property>
-                            <property name="clickable">True</property>
-                            <property name="alignment">0.5</property>
+                            <property name="resizable">True</property>
+                            <property name="title">Descargando...</property>
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext11"/>
                               <attributes>
-                                <attribute name="markup">0</attribute>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                            <property name="resizable">True</property>
+                            <property name="title" translatable="yes">Estado</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext3"/>
+                              <attributes>
+                                <attribute name="text">1</attribute>
                               </attributes>
                             </child>
                           </object>
