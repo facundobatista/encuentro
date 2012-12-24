@@ -59,6 +59,15 @@ logger = logging.getLogger('encuentro.main')
 _normalize_cache = {}
 
 
+# columns number in the liststore
+STORE_POS_DURATION = 3
+STORE_POS_EPIS = 4
+STORE_POS_COLOR = 5
+
+# the background color for when the episode is finished
+DOWNLOADED_COLOR = "light green"
+
+
 def prepare_to_filter(text):
     """Prepare a text to filter.
 
@@ -159,8 +168,12 @@ class EpisodeData(object):
                          t[pos1:pos2] + '</span>' + t[pos2:])
         return True, result
 
-    def get_row_data(self, field_filter):
+    def get_row_data(self, field_filter, only_downloaded):
         """Return the data for the liststore row."""
+        if only_downloaded and self.state != Status.downloaded:
+            # want only finished donwloads, and this didn't
+            return
+
         if field_filter == '':
             title = self.title
         else:
@@ -171,7 +184,12 @@ class EpisodeData(object):
                 return
 
         duration = u'?' if self.duration is None else unicode(self.duration)
-        data = self.channel, self.section, title, duration, "", self.episode_id
+        if self.state == Status.downloaded:
+            color = DOWNLOADED_COLOR
+        else:
+            color = None
+        data = (self.channel, self.section, title, duration,
+                self.episode_id, color)
         return data
 
 
@@ -446,6 +464,7 @@ class DownloadingList(object):
         self.store.set_value(it, 1, gui_msg)
         self.store.set_value(it, 2, False)  # deactivate the row
         episode.state = end_state
+        episode.color = DOWNLOADED_COLOR
         self.downloading = False
 
     def cancel(self):
@@ -487,6 +506,7 @@ class MainUI(object):
             'dialog_upgrade', 'image_episode', 'button_episode',
             'textview_episode', 'pane_md_state', 'pane_list_info',
             'image_spinner', 'downloads_treeview', 'downloads_store',
+            'filter_entry', 'checkbutton_filterdloaded',
         )
 
         for widget in widgets:
@@ -497,12 +517,11 @@ class MainUI(object):
         # stupid glade! it does not let me put the cell renderer
         # expanded *in the column*
         columns = self.programs_treeview.get_columns()
-        for col_number in (3, 4):
-            column = columns[col_number]
-            cell_renderer = column.get_cell_renderers()[0]
-            column.clear()
-            column.pack_end(cell_renderer, expand=True)
-            column.add_attribute(cell_renderer, "text", col_number)
+        column = columns[STORE_POS_DURATION]
+        cell_renderer = column.get_cell_renderers()[0]
+        column.clear()
+        column.pack_end(cell_renderer, expand=True)
+        column.add_attribute(cell_renderer, "text", STORE_POS_DURATION)
 
         # stuff that needs to be done *once* to get bold letters
         self.episode_textbuffer = self.textview_episode.get_buffer()
@@ -567,8 +586,8 @@ class MainUI(object):
         self.main_window.set_icon_list(*icons)
         self.statusicon.set_from_pixbuf(icons[0])
 
-        self.update_relationship = None
         self._non_glade_setup()
+        self.episodes_iters = {}
         self.refresh_treeview()
         self.main_window.show()
         self._restore_layout()
@@ -577,6 +596,7 @@ class MainUI(object):
         if 'autorefresh' in self.config and self.config['autorefresh']:
             self.update_dialog.update(self._restore_layout)
 
+        self.finished = False
         logger.debug("Main UI started ok")
 
         if not self.config.get('nowizard'):
@@ -693,17 +713,19 @@ class MainUI(object):
         self.refresh_treeview()
         self._save_states()
 
-    def refresh_treeview(self, field_filter=''):
+    def refresh_treeview(self, field_filter='', only_downloaded=False):
         """Update the liststore of the programs."""
         columns = [self.programs_store.get_column_type(i)
                    for i in range(self.programs_store.get_n_columns())]
         prv_order_col, prv_order_dir = self.programs_store.get_sort_column_id()
 
         new_liststore = gtk.ListStore(*columns)
+        self.episodes_iters = {}
         for p in self.programs_data.values():
-            data = p.get_row_data(field_filter)
+            data = p.get_row_data(field_filter, only_downloaded)
             if data is not None:
-                new_liststore.append(data)
+                titer = new_liststore.append(data)
+                self.episodes_iters[p.episode_id] = titer
 
         if prv_order_col is not None:
             new_liststore.set_sort_column_id(prv_order_col, prv_order_dir)
@@ -712,12 +734,13 @@ class MainUI(object):
         # pograms_store was defined before, yes! pylint: disable=W0201
         self.programs_store = new_liststore
 
-    def on_filter_entry_changed(self, widget, data=None):
+    def on_filter_changed(self, widget, data=None):
         """Filter the rows for something."""
-        text = widget.get_text().decode('utf8')
+        text = self.filter_entry.get_text().decode('utf8')
         text = prepare_to_filter(text)
         text = cgi.escape(text)
-        self.refresh_treeview(text)
+        only_downloaded = self.checkbutton_filterdloaded.get_active()
+        self.refresh_treeview(text, only_downloaded)
 
     def _close(self):
         """Still time to decide if want to close or not."""
@@ -786,6 +809,7 @@ class MainUI(object):
 
     def on_main_window_destroy(self, widget, data=None):
         """Stop all other elements than the GUI itself."""
+        self.finished = True
         for downloader in self.downloaders.itervalues():
             downloader.shutdown()
         reactor.stop()
@@ -814,7 +838,7 @@ class MainUI(object):
     @defer.inlineCallbacks
     def _queue_download(self, row, path):
         """User indicated to download something."""
-        episode = self.programs_data[row[5]]  # 5 is the episode number
+        episode = self.programs_data[row[STORE_POS_EPIS]]
         logger.debug("Download requested of %s", episode)
         if episode.state != Status.none:
             logger.debug("Download denied, episode %s is not in downloadeable "
@@ -849,6 +873,12 @@ class MainUI(object):
                 self.episodes_download.end()
                 episode.filename = filename
 
+            # update the color to show it finished
+            titer = self.episodes_iters[episode.episode_id]
+            row = self.programs_store[titer]
+            row[STORE_POS_COLOR] = DOWNLOADED_COLOR
+
+            # update panel info and buttons
             self._check_download_play_buttons()
             self._update_info_panel()
 
@@ -856,6 +886,9 @@ class MainUI(object):
 
     def _show_message(self, dialog, text=None):
         """Show different download errors."""
+        if self.finished:
+            logger.debug("Ignoring message: %r (%s)", text, dialog)
+            return
         logger.debug("Showing a message: %r (%s)", text, dialog)
 
         # error text can be produced by windows, try to to sanitize it
@@ -910,7 +943,7 @@ class MainUI(object):
 
     def _play_episode(self, row):
         """Play an episode."""
-        episode_number = row[5]  # 5 is the episode number
+        episode_number = row[STORE_POS_EPIS]
         episode = self.programs_data[episode_number]
         downloaddir = self.config.get('downloaddir', '')
         filename = os.path.join(downloaddir, episode.filename)
@@ -927,6 +960,7 @@ class MainUI(object):
                    repr(filename))
             self._show_message(self.dialog_error, msg)
             episode.state = Status.none
+            episode.color = None
 
     def on_any_treeviewcolumn_clicked(self, widget, data=None):
         """Clicked on the column title.
@@ -958,7 +992,7 @@ class MainUI(object):
     def on_programs_treeview_row_activated(self, treeview, path, view_column):
         """Double click on the episode, download or play."""
         row = self.programs_store[path]
-        episode = self.programs_data[row[5]]  # 5 is the episode number
+        episode = self.programs_data[row[STORE_POS_EPIS]]
         logger.debug("Double click in %s", episode)
         if episode.state == Status.downloaded:
             self._play_episode(row)
@@ -978,7 +1012,7 @@ class MainUI(object):
         cursor = widget.get_path_at_pos(int(event.x), int(event.y))
         path = cursor[0][0]
         row = self.programs_store[path]
-        episode = self.programs_data[row[5]]  # 5 is the episode number
+        episode = self.programs_data[row[STORE_POS_EPIS]]
         state = episode.state
         if state == Status.downloaded:
             self.rbmenu_play.set_sensitive(True)
@@ -1006,7 +1040,7 @@ class MainUI(object):
         logger.info("Cancelling download.")
         path = self.programs_treeview.get_cursor()[0]
         row = self.programs_store[path]
-        episode = self.programs_data[row[5]]  # 5 is the episode number
+        episode = self.programs_data[row[STORE_POS_EPIS]]
         self.episodes_download.cancel()
         downloader = self.downloaders[episode.downtype]
         downloader.cancel()
@@ -1032,7 +1066,7 @@ class MainUI(object):
 
         if len(pathlist) == 1:
             row = self.programs_store[pathlist[0]]
-            episode = self.programs_data[row[5]]  # 5 is the episode number
+            episode = self.programs_data[row[STORE_POS_EPIS]]
 
             # image
             if episode.image_url is not None:
@@ -1096,7 +1130,7 @@ class MainUI(object):
         play_enabled = False
         if len(pathlist) == 1:
             row = self.programs_store[pathlist[0]]
-            episode = self.programs_data[row[5]]  # 5 is the episode number
+            episode = self.programs_data[row[STORE_POS_EPIS]]
             if episode.state == Status.downloaded:
                 play_enabled = True
         self.sensit_grouper.set_sensitive('play', play_enabled)
@@ -1107,7 +1141,7 @@ class MainUI(object):
         if self._have_config():
             for path in pathlist:
                 row = self.programs_store[path]
-                episode = self.programs_data[row[5]]  # 5 is the episode number
+                episode = self.programs_data[row[STORE_POS_EPIS]]
                 if episode.state == Status.none:
                     download_enabled = True
                     break

@@ -972,6 +972,22 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
       <column type="gboolean"/>
     </columns>
   </object>
+  <object class="GtkListStore" id="programs_store">
+    <columns>
+      <!-- column-name channel -->
+      <column type="gchararray"/>
+      <!-- column-name section -->
+      <column type="gchararray"/>
+      <!-- column-name title -->
+      <column type="gchararray"/>
+      <!-- column-name duration -->
+      <column type="gchararray"/>
+      <!-- column-name episode_id -->
+      <column type="gchararray"/>
+      <!-- column-name bgcolor -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Bajador Encuentro</property>
@@ -1187,6 +1203,23 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                     <property name="can_focus">False</property>
                     <property name="spacing">6</property>
                     <child>
+                      <object class="GtkCheckButton" id="checkbutton_filterdloaded">
+                        <property name="label" translatable="yes">Sólo descargados</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="on_filter_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="pack_type">end</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
                       <object class="GtkEntry" id="filter_entry">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -1198,13 +1231,13 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
                         <property name="secondary_icon_sensitive">True</property>
-                        <signal name="changed" handler="on_filter_entry_changed" swapped="no"/>
+                        <signal name="changed" handler="on_filter_changed" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="pack_type">end</property>
-                        <property name="position">0</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
@@ -1219,7 +1252,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                         <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="pack_type">end</property>
-                        <property name="position">1</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                   </object>
@@ -1282,6 +1315,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext1"/>
                           <attributes>
+                            <attribute name="cell-background">5</attribute>
                             <attribute name="markup">0</attribute>
                           </attributes>
                         </child>
@@ -1298,6 +1332,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext2"/>
                           <attributes>
+                            <attribute name="cell-background">5</attribute>
                             <attribute name="markup">1</attribute>
                           </attributes>
                         </child>
@@ -1314,6 +1349,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext4"/>
                           <attributes>
+                            <attribute name="cell-background">5</attribute>
                             <attribute name="markup">2</attribute>
                           </attributes>
                         </child>
@@ -1333,23 +1369,8 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
                             <property name="xalign">1</property>
                           </object>
                           <attributes>
+                            <attribute name="cell-background">5</attribute>
                             <attribute name="text">3</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="treeviewcolumn_state">
-                        <property name="resizable">True</property>
-                        <property name="sizing">fixed</property>
-                        <property name="title">Estado</property>
-                        <property name="clickable">True</property>
-                        <property name="sort_column_id">4</property>
-                        <signal name="clicked" handler="on_any_treeviewcolumn_clicked" swapped="no"/>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext6"/>
-                          <attributes>
-                            <attribute name="text">4</attribute>
                           </attributes>
                         </child>
                       </object>
@@ -1499,22 +1520,6 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a configurar nuev
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkListStore" id="programs_store">
-    <columns>
-      <!-- column-name channel -->
-      <column type="gchararray"/>
-      <!-- column-name section -->
-      <column type="gchararray"/>
-      <!-- column-name title -->
-      <column type="gchararray"/>
-      <!-- column-name duration -->
-      <column type="gchararray"/>
-      <!-- column-name state -->
-      <column type="gchararray"/>
-      <!-- column-name episode_id -->
-      <column type="gchararray"/>
-    </columns>
   </object>
   <object class="GtkMenu" id="rb_menu">
     <property name="visible">True</property>
