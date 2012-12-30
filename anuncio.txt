@@ -1,9 +1,9 @@
 
-Encuentro 0.8
+Encuentro 0.9
 
-Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, Educ.ar y otros.
+Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, BACUA, Educ.ar y otros.
 
-Notar que este programa no distribuye contenido directamente, sino que permite un mejor uso personal de esos contenidos.  Por favor, referirse al sitio web de Conectate (conectate.gov.ar) para saber qué se puede y qué no se puede hacer con los contenidos de ese sitio.
+Notar que este programa no distribuye contenido directamente, sino que permite un mejor uso personal de esos contenidos.  Por favor, referirse a los sitios web correspondientes para saber qué se puede y qué no se puede hacer con los contenidos de tales sitios.
 
 http://encuentro.taniquetil.com.ar/imgs/title.png
 
@@ -12,20 +12,21 @@ Página oficial:
     http://encuentro.taniquetil.com.ar/
 
 
-La versión 0.8 trae los siguientes cambios con respecto a la versión anterior:
+La versión 0.9 trae los siguientes cambios con respecto a la versión anterior:
 
-- Soporte para múltiples fuentes de datos. Ahora también baja los episodios perdidos de la web de Encuentro.
+- Hay un nuevo backend! Banco Audiovisual de Contenidos Universales Argentino http://www.bacua.gob.ar/
 
-- Corregido el problema que hacía perder las actualizaciones cuando se reordenaba o filtraba (dando la impresión que los downloads se trababan).
+- Se muestran imágenes para cada episodio
 
-- Mejor uso de nombres y directorios al grabar los videos.
+- Hay una cola explícita de descargas, mostrando los estados de todas las transferencias
 
-- Otras pequeñas mejoras y correcciones.
+- Las descargas terminadas se pueden filtrar por separado
 
+- Mejor manejo de las cancelaciones, más logging, y otras pequeñas mejoras y correcciones
 
 La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
 
-    http://launchpad.net/encuentro/trunk/0.8/+download/encuentro-0.8.deb
+    http://launchpad.net/encuentro/trunk/0.9/+download/encuentro-0.9.deb
 
 
 Instalarlo en Arch es sencillo ya que está disponible en AUR, por ejemplo se puede hacer:
@@ -40,7 +41,7 @@ También se puede instalar directamente desde PyPI:
 
 En cualquier otro caso, pueden usar el tarball para instalarlo:
 
-    http://launchpad.net/encuentro/trunk/0.8/+download/encuentro-0.8.tar.gz
+    http://launchpad.net/encuentro/trunk/0.9/+download/encuentro-0.9.tar.gz
 
 
 Si tienen Windows, Fedora o Red Hat, todavía no tenemos un instalador, pero lo pueden instalar o usar desde el tarball, como acabo de indicar.
