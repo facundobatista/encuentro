@@ -22,6 +22,14 @@
 import sys
 import os
 
+# special import before any other imports to configure GUI
+import sip
+for name in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
+    sip.setapi(name, 2)   # API v2 FTW!
+
+from PyQt4.QtGui import QApplication
+
+
 # this will be replaced at install time
 INSTALLED_BASE_DIR = "@ INSTALLED_BASE_DIR @"
 
@@ -45,12 +53,18 @@ else:
 if project_basedir not in sys.path:
     sys.path.insert(0, project_basedir)
 
+verbose = len(sys.argv) > 1 and sys.argv[1] == '-v'
+
 from encuentro import logger
-logger.set_up()
+logger.set_up(verbose)
 
-from encuentro.main import MainUI
+from encuentro.ui.main import MainUI
 
-from twisted.internet import reactor
+app = QApplication(sys.argv)
+just_store_for_qt_magic_to_work = MainUI(version)
+sys.exit(app.exec_())
 
-MainUI(version)
-reactor.run()
+# FIXME: remove this later
+#from twisted.internet import reactor
+#MainUI(version)
+#reactor.run()

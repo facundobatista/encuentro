@@ -52,7 +52,7 @@ def get_filename():
                         'encuentro', 'encuentro.log')
 
 
-def set_up():
+def set_up(verbose):
     """Set up the logging."""
 
     logfile = get_filename()
@@ -67,6 +67,12 @@ def set_up():
                                   "%(levelname)-8s %(message)s")
     handler.setFormatter(formatter)
     logger.setLevel(logging.DEBUG)
+
+    if verbose:
+        handler = logging.StreamHandler()
+        logger.addHandler(handler)
+        handler.setFormatter(formatter)
+        logger.setLevel(logging.DEBUG)
 
     # hook the exception handler
     sys.excepthook = exception_handler
