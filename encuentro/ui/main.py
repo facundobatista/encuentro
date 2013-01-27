@@ -16,8 +16,9 @@ from encuentro.ui import central_panel
 class MainUI(QMainWindow):
     """Main UI."""
 
-    def __init__(self, version):
+    def __init__(self, version, reactor_stop):
         super(MainUI, self).__init__()
+        self.reactor_stop = reactor_stop
         self.resize(800, 600)  # FIXME: this comes from config
         self.move(300, 300)   # FIXME: this comes from config
         self.setWindowTitle('Encuentro')
@@ -97,3 +98,7 @@ class MainUI(QMainWindow):
         toolbar.addWidget(QLineEdit())
         # FIXME: connect signal
         toolbar.addWidget(QCheckBox(u"Sólo descargados"))
+
+    def closeEvent(self, event):
+        """All is being closed."""
+        self.reactor_stop()

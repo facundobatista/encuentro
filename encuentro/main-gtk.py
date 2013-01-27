@@ -21,7 +21,6 @@
 
 import cgi
 import logging
-import md5
 import os
 import pickle
 
@@ -42,7 +41,6 @@ with NiceImporter('pynotify', 'python-notify', '0.1.1'):
     pynotify.init("Encuentro")
 
 from twisted.internet import reactor, defer
-from twisted.web.client import getPage
 
 from encuentro.network import (
     BadCredentialsError,
@@ -153,37 +151,6 @@ class SensitiveGrouper(object):
         toolb.set_tooltip(self._tooltips, tip_text)
 
 
-
-
-class ImageGetter(object):
-    """Image downloader and cache object."""
-
-    def __init__(self, callback):
-        self.callback = callback
-        self.cache_dir = os.path.join(platform.cache_dir, 'encuentro.images')
-        if not os.path.exists(self.cache_dir):
-            os.makedirs(self.cache_dir)
-
-    def get_image(self, path, url):
-        """Get an image and show it using the callback."""
-        file_name = md5.md5(url).hexdigest() + '.jpg'
-        file_fullname = os.path.join(self.cache_dir, file_name)
-        if os.path.exists(file_fullname):
-            with open(file_fullname, 'rb') as fh:
-                data = fh.read()
-            self.callback(path, data)
-            return
-
-        def _d_callback(data, path, file_fullname):
-            """Cache the image and use the callback."""
-            temp_file_name = file_fullname + '.tmp'
-            with open(temp_file_name, 'wb') as fh:
-                fh.write(data)
-            os.rename(temp_file_name, file_fullname)
-            self.callback(path, data)
-
-        d = getPage(url)
-        d.addCallback(_d_callback, path, file_fullname)
 
 
 class DownloadingList(object):
@@ -310,7 +277,7 @@ class MainUI(object):
 
 #M        data_file = os.path.join(platform.data_dir, 'encuentro.data')
 #M        self.programs_data = ProgramsData(self, data_file)
-        self.get_image = ImageGetter(self.image_episode_loaded).get_image
+#M        self.get_image = ImageGetter(self.image_episode_loaded).get_image
 #M        logger.info("Episodes metadata loaded: %s", self.programs_data)
 
         # get config from file, or defaults
@@ -390,23 +357,23 @@ class MainUI(object):
         """Return if metadata is needed."""
         return bool(self.programs_data)
 
-    def image_episode_loaded(self, path, image):
-        """An image has arrived, show it only if the path is correct."""
-        # only set the image if the user still have same row selected
-        tree_selection = self.programs_treeview.get_selection()
-        if tree_selection is None:
-            return
-        _, pathlist = tree_selection.get_selected_rows()
-        if not pathlist or pathlist[0] != path:
-            return
-
-        loader = gtk.gdk.PixbufLoader()
-        loader.write(image)
-        self.image_episode.set_from_pixbuf(loader.get_pixbuf())
-        self.image_episode.show()
-        loader.close()
-        self.image_spinner.stop()
-        self.image_spinner.hide()
+#M    def image_episode_loaded(self, path, image):
+#M        """An image has arrived, show it only if the path is correct."""
+#M        # only set the image if the user still have same row selected
+#M        tree_selection = self.programs_treeview.get_selection()
+#M        if tree_selection is None:
+#M            return
+#M        _, pathlist = tree_selection.get_selected_rows()
+#M        if not pathlist or pathlist[0] != path:
+#M            return
+#M
+#M        loader = gtk.gdk.PixbufLoader()
+#M        loader.write(image)
+#M        self.image_episode.set_from_pixbuf(loader.get_pixbuf())
+#M        self.image_episode.show()
+#M        loader.close()
+#M        self.image_spinner.stop()
+#M        self.image_spinner.hide()
 
     def review_need_something_indicator(self):
         """Start the wizard if needed, or hide the need config button."""
@@ -834,66 +801,66 @@ class MainUI(object):
         self._check_download_play_buttons(tree_selection)
         self._update_info_panel(tree_selection)
 
-    def _update_info_panel(self, tree_selection=None):
-        """Set both buttons state according to the selected episodes."""
-        if tree_selection is None:
-            tree_selection = self.programs_treeview.get_selection()
-            if tree_selection is None:
-                return
-        _, pathlist = tree_selection.get_selected_rows()
-
-        if len(pathlist) == 1:
-            row = self.programs_store[pathlist[0]]
-            episode = self.programs_data[row[STORE_POS_EPIS]]
-
-            # image
-            if episode.image_url is not None:
-                # this must be before the get_image call, as it may call
-                # immediately to image_episode_loaded, showing the image and
-                # hiding the spinner
-                self.image_episode.hide()
-                self.image_spinner.show()
-                self.image_spinner.start()
-                # now do call the get_image
-                self.get_image(pathlist[0], episode.image_url.encode('utf-8'))
-
-            # all description
-            self.textview_episode.set_justification(gtk.JUSTIFY_LEFT)
-            msg = "\n%s\n\n%s" % (episode.title, episode.description)
-            to_bold = len(episode.title) + 2
-            self.episode_textbuffer.set_text(msg)
-            start = self.episode_textbuffer.get_iter_at_offset(1)
-            end = self.episode_textbuffer.get_iter_at_offset(to_bold)
-            self.episode_textbuffer.apply_tag(self.episode_texttag_bold,
-                                              start, end)
-
-            # action button
-            self.button_episode.show()
-            if episode.state == Status.downloaded:
-                label = "Reproducir"
-                callback = self.on_rbmenu_play_activate
-            elif (episode.state == Status.downloading or
-                  episode.state == Status.waiting):
-                label = u"Cancelar descarga"
-                callback = self.on_rbmenu_cancel_activate
-            else:
-                label = u"Descargar"
-                callback = self.on_rbmenu_download_activate
-            prev_hdler = getattr(self.button_episode, 'conn_handler_id', None)
-            if prev_hdler is not None:
-                self.button_episode.disconnect(prev_hdler)
-            new_hdler = self.button_episode.connect('clicked', callback)
-            self.button_episode.conn_handler_id = new_hdler
-            self.button_episode.set_label(label)
-        else:
-            if pathlist:
-                message = u"\n\nSeleccionar sólo un programa para verlo"
-            else:
-                message = u"\n\nSeleccionar un programa para aquí la info"
-            self.episode_textbuffer.set_text(message)
-            self.textview_episode.set_justification(gtk.JUSTIFY_CENTER)
-            self.image_episode.hide()
-            self.image_spinner.hide()
+#M    def _update_info_panel(self, tree_selection=None):
+#M        """Set both buttons state according to the selected episodes."""
+#M        if tree_selection is None:
+#M            tree_selection = self.programs_treeview.get_selection()
+#M            if tree_selection is None:
+#M                return
+#M        _, pathlist = tree_selection.get_selected_rows()
+#M
+#M        if len(pathlist) == 1:
+#M            row = self.programs_store[pathlist[0]]
+#M            episode = self.programs_data[row[STORE_POS_EPIS]]
+#M
+#M            # image
+#M            if episode.image_url is not None:
+#M                # this must be before the get_image call, as it may call
+#M                # immediately to image_episode_loaded, showing the image and
+#M                # hiding the spinner
+#M                self.image_episode.hide()
+#M                self.image_spinner.show()
+#M                self.image_spinner.start()
+#M                # now do call the get_image
+#M                self.get_image(pathlist[0], episode.image_url.encode('utf-8'))
+#M
+#M            # all description
+#M            self.textview_episode.set_justification(gtk.JUSTIFY_LEFT)
+#M            msg = "\n%s\n\n%s" % (episode.title, episode.description)
+#M            to_bold = len(episode.title) + 2
+#M            self.episode_textbuffer.set_text(msg)
+#M            start = self.episode_textbuffer.get_iter_at_offset(1)
+#M            end = self.episode_textbuffer.get_iter_at_offset(to_bold)
+#M            self.episode_textbuffer.apply_tag(self.episode_texttag_bold,
+#M                                              start, end)
+#M
+#M            # action button
+#M            self.button_episode.show()
+#M            if episode.state == Status.downloaded:
+#M                label = "Reproducir"
+#M                callback = self.on_rbmenu_play_activate
+#M            elif (episode.state == Status.downloading or
+#M                  episode.state == Status.waiting):
+#M                label = u"Cancelar descarga"
+#M                callback = self.on_rbmenu_cancel_activate
+#M            else:
+#M                label = u"Descargar"
+#M                callback = self.on_rbmenu_download_activate
+#M            prev_hdler = getattr(self.button_episode, 'conn_handler_id', None)
+#M            if prev_hdler is not None:
+#M                self.button_episode.disconnect(prev_hdler)
+#M            new_hdler = self.button_episode.connect('clicked', callback)
+#M            self.button_episode.conn_handler_id = new_hdler
+#M            self.button_episode.set_label(label)
+#M        else:
+#M            if pathlist:
+#M                message = u"\n\nSeleccionar sólo un programa para verlo"
+#M            else:
+#M                message = u"\n\nSeleccionar un programa para aquí la info"
+#M            self.episode_textbuffer.set_text(message)
+#M            self.textview_episode.set_justification(gtk.JUSTIFY_CENTER)
+#M            self.image_episode.hide()
+#M            self.image_spinner.hide()
 
     def _check_download_play_buttons(self, tree_selection=None):
         """Set both buttons state according to the selected episodes."""

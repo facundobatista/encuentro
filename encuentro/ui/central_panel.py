@@ -7,6 +7,7 @@ import os
 from PyQt4.QtGui import (
     QHBoxLayout,
     QLabel,
+    QPixmap,
     QPushButton,
     QSplitter,
     QTableView,
@@ -16,7 +17,7 @@ from PyQt4.QtGui import (
 )
 from PyQt4.QtCore import Qt, QAbstractTableModel, SIGNAL
 
-from encuentro import data, platform
+from encuentro import data, platform, image
 
 
 class EpisodesModel(QAbstractTableModel):
@@ -95,6 +96,9 @@ class EpisodesView(QTableView):
         # set horizontal header properties
         hh = self.horizontalHeader()
         hh.setStretchLastSection(True)
+        # FIXME: the one to stretch should be the title column
+
+        # FIXME: the duration column should be right-aligned
 
         # set column width to fit contents
         self.resizeColumnsToContents()
@@ -116,15 +120,21 @@ class EpisodeInfo(QWidget):
     def __init__(self):
         super(EpisodeInfo, self).__init__()
 
+        self.current_episode = None
         layout = QVBoxLayout(self)
 
-        # the image
-        # FIXME: agregar imagen y todo eso
+        # FIXME: add a spinner, here
+
+        # the image and its getter
+        self.image_episode = QLabel()
+        self.image_episode.hide()
+        layout.addWidget(self.image_episode, alignment=Qt.AlignCenter)
+        self.get_image = image.ImageGetter(self.image_episode_loaded).get_image
 
         # text area
-        self.text_edit = te = QTextEdit(
-            u"Seleccionar un programa para ver aquí la info.")
-        te.setReadOnly(True)
+        self.text_edit = QTextEdit(
+                u"Seleccionar un programa para ver aquí la info.")
+        self.text_edit.setReadOnly(True)
         layout.addWidget(self.text_edit)
 
         # the button
@@ -132,22 +142,42 @@ class EpisodeInfo(QWidget):
         self.button.hide()
         layout.addWidget(self.button)
 
+    def image_episode_loaded(self, episode_id, image_path):
+        """An image has arrived, show it only if the path is correct."""
+        # only set the image if the user still have the same episode selected
+        if self.current_episode != episode_id:
+            return
+
+        # load the image and show it
+        pixmap = QPixmap(image_path)
+        self.image_episode.setPixmap(pixmap)
+        self.image_episode.show()
+
+        # hide the spinner
+        # FIXME: hide the spinner
+#        self.image_spinner.stop()
+#        self.image_spinner.hide()
+
     def update(self, episode):
         """Update all the episode info."""
-#        # image
-#        if episode.image_url is not None:
-#            # this must be before the get_image call, as it may call
-#            # immediately to image_episode_loaded, showing the image and
-#            # hiding the spinner
-#            self.image_episode.hide()
+        self.current_episode = episode.episode_id
+
+        # image
+        if episode.image_url is not None:
+            # this must be before the get_image call, as it may call
+            # immediately to image_episode_loaded, showing the image and
+            # hiding the spinner
+            # FIXME: we need to put a spinner here until we get the image
+            self.image_episode.hide()
 #            self.image_spinner.show()
 #            self.image_spinner.start()
-#            # now do call the get_image
-#            self.get_image(pathlist[0], episode.image_url.encode('utf-8'))
+            # now do call the get_image
+            self.get_image(episode.episode_id,
+                           episode.image_url.encode('utf-8'))
 
         # all description
-#        self.textview_episode.set_justification(gtk.JUSTIFY_LEFT)
-        msg = "<center><h3>%s</h3></center><br/><br/>%s" % (episode.title, episode.description)
+        msg = "<center><h3>%s</h3></center><br/><br/>%s" % (
+                episode.title, episode.description)
         self.text_edit.setHtml(msg)
 
         # action button
