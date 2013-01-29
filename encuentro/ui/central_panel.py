@@ -7,7 +7,6 @@ import os
 from PyQt4.QtGui import (
     QHBoxLayout,
     QLabel,
-    QListView,
     QPixmap,
     QPushButton,
     QSplitter,
@@ -16,13 +15,15 @@ from PyQt4.QtGui import (
     QVBoxLayout,
     QWidget,
 )
-from PyQt4.QtCore import Qt, QAbstractTableModel, SIGNAL, QAbstractListModel
+from PyQt4.QtCore import Qt, QAbstractTableModel, SIGNAL
 
 from encuentro import data, platform, image
 
 
-class DownloadsModel(QAbstractListModel):
+class DownloadsModel(QAbstractTableModel):
     """The model of the downloads queue."""
+
+    _headers = (u"Descargando...", u"Estado")
 
     def __init__(self, view_parent):
         super(DownloadsModel, self).__init__(view_parent)
@@ -32,21 +33,23 @@ class DownloadsModel(QAbstractListModel):
         """The count of rows."""
         return len(self._data)
 
+    def columnCount(self, parent):
+        """The count of columns."""
+        return len(self._headers)
+
     def data(self, index, role):
         """Well, the data"""
         if not index.isValid():
             return
         if role != Qt.DisplayRole:
             return
-        return self._data[index.row()]
+        return self._data[index.row()][index.column()]
 
     def headerData(self, col, orientation, role):
         """The header data."""
         # FIXME: the header is not there!!
-        print "======= HD", col, orientation, role
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            assert col == 1
-            return u"Descargas"
+            return self._headers[col]
 
     def flags(self, index):
         """Behaviour."""
@@ -54,7 +57,7 @@ class DownloadsModel(QAbstractListModel):
         return Qt.ItemIsEnabled
 
 
-class DownloadsView(QListView):
+class DownloadsView(QTableView):
     """The downloads queue."""
 
     def __init__(self, main_window):
@@ -63,6 +66,16 @@ class DownloadsView(QListView):
 
         self.model = DownloadsModel(self)
         self.setModel(self.model)
+
+        # hide grid
+        self.setShowGrid(False)
+
+        hh = self.horizontalHeader()
+        hh.setStretchLastSection(True)
+        # FIXME: the first column should be the "stretched" one
+
+        # hide vertical header
+        self.verticalHeader().setVisible(False)
 
         # connect the signals
         self.clicked.connect(self.on_signal_clicked)
@@ -170,6 +183,10 @@ class EpisodesView(QTableView):
         # selected (no more than one)
         episode = self.model.get_episode(model_index)
         self.episode_info.update(episode)
+
+        # FIXME: need to put the functionality of "right button", that will
+        # create a dialog with "Ver episodio", "Cancelar descarga" and
+        # "Descargar", activated and deactivated as should
 
 
 class EpisodeInfo(QWidget):
