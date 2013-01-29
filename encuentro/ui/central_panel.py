@@ -7,6 +7,7 @@ import os
 from PyQt4.QtGui import (
     QHBoxLayout,
     QLabel,
+    QListView,
     QPixmap,
     QPushButton,
     QSplitter,
@@ -15,13 +16,64 @@ from PyQt4.QtGui import (
     QVBoxLayout,
     QWidget,
 )
-from PyQt4.QtCore import Qt, QAbstractTableModel, SIGNAL
+from PyQt4.QtCore import Qt, QAbstractTableModel, SIGNAL, QAbstractListModel
 
 from encuentro import data, platform, image
 
 
+class DownloadsModel(QAbstractListModel):
+    """The model of the downloads queue."""
+
+    def __init__(self, view_parent):
+        super(DownloadsModel, self).__init__(view_parent)
+        self._data = []
+
+    def rowCount(self, parent):
+        """The count of rows."""
+        return len(self._data)
+
+    def data(self, index, role):
+        """Well, the data"""
+        if not index.isValid():
+            return
+        if role != Qt.DisplayRole:
+            return
+        return self._data[index.row()]
+
+    def headerData(self, col, orientation, role):
+        """The header data."""
+        # FIXME: the header is not there!!
+        print "======= HD", col, orientation, role
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            assert col == 1
+            return u"Descargas"
+
+    def flags(self, index):
+        """Behaviour."""
+        # FIXME: when clicking on anywhere, the whole row should look "selected"
+        return Qt.ItemIsEnabled
+
+
+class DownloadsView(QListView):
+    """The downloads queue."""
+
+    def __init__(self, main_window):
+        self.main_window = main_window
+        super(DownloadsView, self).__init__()
+
+        self.model = DownloadsModel(self)
+        self.setModel(self.model)
+
+        # connect the signals
+        self.clicked.connect(self.on_signal_clicked)
+
+    def on_signal_clicked(self, model_index):
+        """The view was clicked."""
+        # FIXME: need to point in the EpisodesView to this episode
+
+
 class EpisodesModel(QAbstractTableModel):
-    """It's the model."""
+    """The model of the episodes list."""
 
     _headers = (u"Canal", u"Sección", u"Título", u"Duración [min]")
     _row_getter = operator.attrgetter('channel', 'section',
@@ -70,6 +122,7 @@ class EpisodesModel(QAbstractTableModel):
 
     def flags(self, index):
         """Behaviour."""
+        # FIXME: when clicking on anywhere, the whole row should look "selected"
         return Qt.ItemIsEnabled
 
 
@@ -109,8 +162,12 @@ class EpisodesView(QTableView):
         # connect the signals
         self.clicked.connect(self.on_signal_clicked)
 
+        # FIXME: we should allow multiple selections
+
     def on_signal_clicked(self, model_index):
         """The view was clicked."""
+        # FIXME: we should call get episode only when the view has a single row
+        # selected (no more than one)
         episode = self.model.get_episode(model_index)
         self.episode_info.update(episode)
 
@@ -216,7 +273,7 @@ class BigPanel(QWidget):
         right_split = QSplitter(Qt.Vertical)
         episode_info = EpisodeInfo()
         right_split.addWidget(episode_info)
-        right_split.addWidget(QLabel("aca va la download queue"))
+        right_split.addWidget(DownloadsView(main_window))
 
         # main split
         main_split = QSplitter(Qt.Horizontal)
