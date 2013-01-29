@@ -12,6 +12,48 @@ from PyQt4.QtGui import (
 
 from encuentro.ui import central_panel
 
+# FIXME: need an About dialog, connected to the proper signals below
+#   title: Encuentro <version>
+#   comments: Simple programa que permite buscar, descargar y ver
+#             contenido del canal Encuentro y otros.
+#   smaller: Copyright 2010-2013 Facundo  Batista
+#   url: http://encuentro.taniquetil.com.ar
+#   somewhere (maybe with a button), the license: the content of LICENSE.txt
+
+# FIXME: need to put an icon that looks nice in alt-tab, taskbar, unity, etc
+
+# FIXME: need to make Encuentro "iconizable"
+
+# FIXME: need a Warning dialog for when the user needs config
+#   text: El usuario o clave configurados es incorrecto, o el
+#         episodio no está disponible!
+#   button1: Configurar...
+#   button2: Aceptar
+
+# FIXME: need a generic Error dialog for when something goes wrong
+#   text: by code
+#   button1: Aceptar
+#   button2: by code, if needed
+#   button3: by code, if needed
+
+# FIXME: need a Quit dialog, for when user wants to quit but there's
+# stuff still going on
+#   text: by code
+#   button1: No quiero salir
+#   button2: Sí, salir!
+
+# FIXME: need a dialog for when the user needs to upgrade
+#   title: El contenido debe actualizarse
+#   text: Esta nueva versión del programa Encuentro sólo funciona con contenido
+#         actualizado, lo cual le permitirá trabajar con programas del canal
+#         Encuentro y de otros nuevos canales, pero deberá configurarlo
+#         nuevamente y perderá la posibilidad de ver directactamente los videos
+#         ya descargados (los cuales permanecerán en su disco). \n\n Haga click
+#         en Continuar y podrá ver el Wizard que lo ayudará a configurar
+#         nuevamente el programa.
+#   button1: Salir del programa
+#   button2: Continuar
+
 
 class MainUI(QMainWindow):
     """Main UI."""
@@ -98,6 +140,9 @@ class MainUI(QMainWindow):
         toolbar.addWidget(QLineEdit())
         # FIXME: connect signal
         toolbar.addWidget(QCheckBox(u"Sólo descargados"))
+
+        # FIXME: we need here at the end a warning "!" sign that will be
+        # visible if configuration still needs to be done
 
     def closeEvent(self, event):
         """All is being closed."""
