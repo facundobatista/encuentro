@@ -62,68 +62,6 @@ STORE_POS_COLOR = 5
 
 
 
-
-
-
-
-class PreferencesUI(object):
-    """Preferences GUI."""
-
-    def __init__(self, main, config_data):
-        self.main = main
-        self.config_data = config_data
-
-        self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(BASEDIR,
-                                                'ui', 'preferences.glade'))
-        self.builder.connect_signals(self)
-
-        widgets = (
-            'dialog', 'entry_user', 'entry_password', 'entry_downloaddir',
-            'checkbutton_autorefresh', 'checkbutton_notification',
-        )
-
-        for widget in widgets:
-            obj = self.builder.get_object(widget)
-            assert obj is not None, '%s must not be None' % widget
-            setattr(self, widget, obj)
-
-    def run(self, parent_pos=None):
-        """Show the dialog."""
-        self.entry_user.set_text(self.config_data.get('user', ''))
-        self.entry_password.set_text(self.config_data.get('password', ''))
-        self.entry_downloaddir.set_text(
-            self.config_data.get('downloaddir', ''))
-        self.checkbutton_autorefresh.set_active(
-            self.config_data.get('autorefresh', False))
-        self.checkbutton_notification.set_active(
-            self.config_data.get('notification', True))
-
-        if parent_pos is not None:
-            x, y = parent_pos
-            self.dialog.move(x + 50, y + 50)
-        self.main.main_window.set_sensitive(False)
-        self.dialog.run()
-
-    def on_dialog_destroy(self, widget, data=None):
-        """Save the data and hide the dialog."""
-        usr = self.entry_user.get_text()
-        password = self.entry_password.get_text()
-        downloaddir = self.entry_downloaddir.get_text()
-        autorefresh = self.checkbutton_autorefresh.get_active()
-        notification = self.checkbutton_notification.get_active()
-        new_cfg = dict(user=usr, password=password, downloaddir=downloaddir,
-                       autorefresh=autorefresh, notification=notification)
-
-        logger.info("Updating preferences config: %s", new_cfg)
-        self.config_data.update(new_cfg)
-        self.main.main_window.set_sensitive(True)
-        self.dialog.hide()
-
-    on_dialog_response = on_dialog_close = on_dialog_destroy
-    on_button_clicked = on_dialog_destroy
-
-
 class SensitiveGrouper(object):
     """Centralize sensitiviness and tooltip management."""
     _tooltips = gtk.Tooltips()
