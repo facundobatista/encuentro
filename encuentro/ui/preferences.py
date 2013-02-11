@@ -123,6 +123,8 @@ class PreferencesDialog(QDialog):
 
         layout = QHBoxLayout(self)
         layout.addWidget(tabbed)
+        # FIXME: we should put a "close" button for this (redundant, but for
+        # those users without a window close button)
 
     def save_config(self):
         """Save all config."""
