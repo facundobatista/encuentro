@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 # FIXME: header y eso
 
+import pickle
 import logging
 
 from PyQt4.QtGui import (
@@ -141,7 +142,6 @@ class PreferencesDialog(QDialog):
 
 if __name__ == '__main__':
     import os
-    import pickle
     import sys
 
     project_basedir = os.path.abspath(os.path.dirname(os.path.dirname(
