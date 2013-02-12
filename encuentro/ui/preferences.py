@@ -7,11 +7,13 @@ import logging
 from PyQt4.QtGui import (
     QCheckBox,
     QDialog,
+    QDialogButtonBox,
     QGridLayout,
     QHBoxLayout,
     QLabel,
     QLineEdit,
     QTabWidget,
+    QVBoxLayout,
     QWidget,
 )
 from PyQt4.QtCore import Qt
@@ -109,6 +111,7 @@ class PreferencesDialog(QDialog):
     """The dialog for preferences."""
     def __init__(self):
         super(PreferencesDialog, self).__init__()
+        vbox = QVBoxLayout(self)
         self._config_file = os.path.join(platform.config_dir, 'encuentro.conf')
         if os.path.exists(self._config_file):
             with open(self._config_file, 'rb') as fh:
@@ -116,16 +119,16 @@ class PreferencesDialog(QDialog):
         else:
             self.config_data = {}
 
-        tabbed = QTabWidget(self)
+        tabbed = QTabWidget()
         self.gp = GeneralPreferences(self.config_data)
         tabbed.addTab(self.gp, u"General")
         self.cp = ConectatePreferences(self.config_data)
         tabbed.addTab(self.cp, u"Conectate")
+        vbox.addWidget(tabbed)
 
-        layout = QHBoxLayout(self)
-        layout.addWidget(tabbed)
-        # FIXME: we should put a "close" button for this (redundant, but for
-        # those users without a window close button)
+        bbox = QDialogButtonBox(QDialogButtonBox.Ok)
+        bbox.accepted.connect(self.accept)
+        vbox.addWidget(bbox)
 
     def save_config(self):
         """Save all config."""

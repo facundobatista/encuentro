@@ -5,11 +5,12 @@ import logging
 
 from PyQt4.QtGui import (
     QDialog,
+    QDialogButtonBox,
     QLabel,
     QPlainTextEdit,
     QVBoxLayout,
 )
-from PyQt4.QtCore import QTimer
+from PyQt4.QtCore import QObject, SIGNAL
 
 logger = logging.getLogger('encuentro.preferences')
 
@@ -25,12 +26,10 @@ class UpdateDialog(QDialog):
         self.text = QPlainTextEdit()
         self.text.setReadOnly(True)
         vbox.addWidget(self.text)
-        # FIXME: we should put a "cancel" button that will signal cancellation
-        # (the same if user closes the window) to the code that uses this
 
-    def append(self, text):
-        """Append some text to the dialog."""
-        self.text.appendPlainText(text.strip())
+        bbox = QDialogButtonBox(QDialogButtonBox.Cancel)
+        bbox.rejected.connect(self.reject)
+        vbox.addWidget(bbox)
 
 
 if __name__ == '__main__':
