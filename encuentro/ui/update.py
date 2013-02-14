@@ -10,10 +10,6 @@ from PyQt4.QtGui import (
     QPlainTextEdit,
     QVBoxLayout,
 )
-from PyQt4.QtCore import QObject, SIGNAL
-
-logger = logging.getLogger('encuentro.preferences')
-
 
 
 class UpdateDialog(QDialog):
