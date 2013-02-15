@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011-2012 Facundo Batista
+# Copyright 2011-2013 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -16,85 +16,46 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-"""Update GUI and code."""
+"""Update the episodes metadata."""
 
 import bz2
 import json
 import logging
-import os
-
-import gtk
 
 from twisted.internet import defer
 from twisted.web import client
 
+from encuentro.ui import update
 
 BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v03.list"
-BASEDIR = os.path.dirname(__file__)
 
 logger = logging.getLogger('encuentro.update')
 
 
-class UpdateUI(object):
-    """Update GUI."""
+class UpdateEpisodes(object):
+    """Update the episodes info."""
 
-    def __init__(self, main):
-        self.main = main
-        self.closed = False
+    def __init__(self, main_window):
+        self.main_window = main_window
+        self.dialog = update.UpdateDialog()
+        self.dialog.run() # FIXME: aca no es run, ver como levantar el dialogo y seguir en control
 
-        self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(BASEDIR,
-                                                'ui', 'update.glade'))
-        self.builder.connect_signals(self)
+        self._update(lambda *t: self.dialog.append(u" ".join(map(unicode, t))))
 
-        widgets = (
-            'dialog', 'textview', 'cancel_button',
-        )
-
-        for widget in widgets:
-            obj = self.builder.get_object(widget)
-            assert obj is not None, '%s must not be None' % widget
-            setattr(self, widget, obj)
-
-    def tview_insert(self, text):
-        """Insert something in the textview's buffer."""
-        _buffer = self.textview.get_buffer()
-        _buffer.insert(_buffer.get_end_iter(), text)
-        while gtk.events_pending():
-            gtk.main_iteration()
-
-    def run(self, parent_pos=None):
-        """Show the dialog."""
-        self.closed = False
-        if parent_pos is not None:
-            x, y = parent_pos
-            self.dialog.move(x + 50, y + 50)
-
-        self._update(lambda *text:
-                     self.tview_insert(" ".join(map(str, text)) + '\n'))
-        self.main.main_window.set_sensitive(False)
-        self.dialog.run()
-        self.textview.get_buffer().set_text("")
-
-    def on_dialog_destroy(self, widget, data=None):
-        """Hide the dialog."""
-        self.main.main_window.set_sensitive(True)
-        self.closed = True
-        self.dialog.hide()
-    on_dialog_response = on_dialog_close = on_dialog_destroy
+        # FIXME: ver si algo como esto se necesita... (es en el caso de cerrar
+        # y abrir el dialogo antes de que termine, para borrar lo anterior?)
+        # self.textview.get_buffer().set_text("")
 
     @defer.inlineCallbacks
     def update(self, refresh_gui):
         """Trigger an update in background."""
-        dummy = lambda *text: None
-        yield self._update(dummy)
+        # FIXME: esto no esta probado, ver como se integra
+        yield self._update(lambda *text: None)
         refresh_gui()
 
     @defer.inlineCallbacks
     def _update(self, tell_user):
         """Update the content from server."""
-        self.closed = False
-
         logger.info("Downloading backend list")
         tell_user("Descargando la lista de backends...")
         try:
@@ -103,7 +64,7 @@ class UpdateUI(object):
             logger.error("Problem when downloading backends: %s", e)
             tell_user("Hubo un PROBLEMA al bajar la lista de backends:", e)
             return
-        if self.closed:
+        if self.dialog.closed:
             return
         backends_list = [l.strip().split() for l in backends_file.split("\n")
                          if l and l[0] != '#']
@@ -119,7 +80,7 @@ class UpdateUI(object):
                 logger.error("Problem when downloading episodes: %s", e)
                 tell_user("Hubo un PROBLEMA al bajar los episodios: ", e)
                 return
-            if self.closed:
+            if self.dialog.closed:
                 return
 
             tell_user("Descomprimiendo el archivo....")
@@ -137,10 +98,10 @@ class UpdateUI(object):
 
         tell_user("Actualizando los datos internos....")
         logger.debug("Updating internal metadata (%d)", len(new_data))
-        self.main.merge_episode_data(new_data)
+        self.main_window.merge_episode_data(new_data)
 
         tell_user(u"¡Todo terminado bien!")
-        self.on_dialog_destroy(None)
+        self.dialog.accept()  # FIXME: revisar que esto ciertamente cierre el dialogo
 
     def _merge(self, backends):
         """Merge content from all backends.
