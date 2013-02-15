@@ -51,16 +51,20 @@ STEPS = [
 
 class WizardDialog(QDialog):
     """The dialog for update."""
-    def __init__(self):
+    def __init__(self, main_window, have_episodes, have_config):
         super(WizardDialog, self).__init__()
+        self.main_window = main_window
+        self.have_episodes = have_episodes
+        self.have_config = have_config
+
         vbox = QVBoxLayout(self)
 
+        # label and checkbox
         self.main_text = QLabel(u"init text")
         vbox.addWidget(self.main_text)
-
-        # FIXME: need to store this in self?
         self.notthisagain = QCheckBox(u"No mostrar nuevamente esta ayuda")
         vbox.addWidget(self.notthisagain)
+        # FIXME: poner signal que dispare self._notthisagain_toggled
 
         # buttons
         bbox = QDialogButtonBox()
@@ -73,6 +77,17 @@ class WizardDialog(QDialog):
         vbox.addWidget(bbox)
 
         self._move(0)
+
+        # FIXME: que en el momento de cerrarse el dialogo, se llame a:
+        #   self.main.review_need_something_indicator()
+
+    def _notthisagain_toggled(self, *a):
+        """The "not this again" checkbutton togled state."""
+        print "====== a", a
+        # FIXME: code this, something very similar to:
+        # new_state = widget.get_active()
+        # logger.info("Configuring 'nowizard' to %s", new_state)
+        # self.main.config['nowizard'] = new_state
 
     def _move(self, step):
         """The engine for the wizard steps."""
@@ -92,6 +107,7 @@ class WizardDialog(QDialog):
             self.navbut_next.setText(u"Siguiente")
             self.navbut_next.clicked.disconnect()
             self.navbut_next.clicked.connect(lambda: self._move(1))
+            # FIXME: poner el checkbox
         elif step == len(STEPS) - 1:
             self.navbut_prev.setEnabled(True)
             self.navbut_prev.clicked.disconnect()
@@ -99,6 +115,7 @@ class WizardDialog(QDialog):
             self.navbut_next.setText(u"Terminar")
             self.navbut_next.clicked.disconnect()
             self.navbut_next.clicked.connect(self.accept)
+            # FIXME: sacar el checkbox
         else:
             self.navbut_prev.setEnabled(True)
             self.navbut_prev.clicked.disconnect()
@@ -106,6 +123,7 @@ class WizardDialog(QDialog):
             self.navbut_next.setText(u"Siguiente")
             self.navbut_next.clicked.disconnect()
             self.navbut_next.clicked.connect(lambda: self._move(step + 1))
+            # FIXME: sacar el checkbox
 
         # adjust main text and action button
         self.main_text.setText(text)
@@ -122,19 +140,29 @@ class WizardDialog(QDialog):
 
     def _act_configure(self, *a):
         """Open the config dialog."""
-        # FIXME code this
+        # FIXME code this, something very similar to:
+        # self.main.preferences_dialog.run(self.window.get_position())
 
     def _act_update(self, *a):
         """Open the update dialog."""
-        # FIXME code this
+        # FIXME code this, something very similar to:
+        # self.main.update_dialog.run(self.window.get_position())
 
     def _ign_episode(self):
         """Tell if the episode step should be ignored."""
-        # FIXME: code this
+        # FIXME: code this, something very similar to:
+        #return self.have_episodes()
 
     def _ign_config(self):
         """Tell if the configure step should be ignored."""
-        # FIXME: code this
+        # FIXME: code this, something very similar to:
+        #return self.have_config()
+
+
+def start(main_window, have_config, have_episodes):
+    """Start a Wizard UI only if needed."""
+    if not have_config() or not have_episodes():
+        WizardDialog(main_window, have_config, have_episodes)
 
 
 if __name__ == '__main__':
@@ -143,6 +171,6 @@ if __name__ == '__main__':
     from PyQt4.QtGui import QApplication
     app = QApplication(sys.argv)
 
-    frame = WizardDialog()
+    frame = WizardDialog(main)
     frame.show()
     frame.exec_()

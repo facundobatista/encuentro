@@ -1,3 +1,4 @@
+# FIXME: header y eso
 
 import cgi
 import logging
@@ -92,9 +93,7 @@ class EpisodeData(object):
 
     def set_filter(self):
         """Set the data to filter later."""
-        self.to_filter = dict(
-            title=prepare_to_filter(self.title),
-        )
+        self.to_filter = dict(title=prepare_to_filter(self.title))
 
     def __str__(self):
         args = (self.episode_id, self.state, self.channel,
