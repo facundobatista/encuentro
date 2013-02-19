@@ -1,22 +1,3 @@
-# -*- coding: utf8 -*-
-
-# Copyright 2011-2012 Facundo Batista
-#
-# This program is free software: you can redistribute it and/or modify it
-# under the terms of the GNU General Public License version 3, as published
-# by the Free Software Foundation.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranties of
-# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
-# PURPOSE.  See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# For further info, check  https://launchpad.net/encuentro
-
-"""Main Encuentro code."""
 
 
 import cgi
@@ -25,20 +6,7 @@ import os
 import pickle
 
 
-from encuentro import NiceImporter
-
-# gtk import and magic to work with twisted
-with NiceImporter('gtk', 'python-gtk2', '2.22.0'):
-    import gtk
-with NiceImporter('twisted', 'python-twisted-bin', '8.2.0'):
-    from twisted.internet import gtk2reactor
-gtk2reactor.install()
 import pango
-
-pynotify = None
-with NiceImporter('pynotify', 'python-notify', '0.1.1'):
-    import pynotify
-    pynotify.init("Encuentro")
 
 from twisted.internet import reactor, defer
 
@@ -51,7 +19,6 @@ from encuentro import wizard, platform, update
 
 BASEDIR = os.path.dirname(__file__)
 
-logger = logging.getLogger('encuentro.main')
 
 
 
@@ -59,35 +26,6 @@ logger = logging.getLogger('encuentro.main')
 STORE_POS_DURATION = 3
 STORE_POS_EPIS = 4
 STORE_POS_COLOR = 5
-
-
-
-class SensitiveGrouper(object):
-    """Centralize sensitiviness and tooltip management."""
-    _tooltips = gtk.Tooltips()
-
-    def __init__(self):
-        self.items = {}
-
-    def add(self, reference, toolb, menub, active_ttip, alternate_ttip):
-        """Add an item.
-
-        All items born with sensitiveness in False.
-        """
-        self.items[reference] = (toolb, menub, active_ttip, alternate_ttip)
-        toolb.set_sensitive(False)
-        menub.set_sensitive(False)
-
-    def set_sensitive(self, reference, sensitiviness):
-        """Set sensitiviness."""
-        toolb, menub, active_ttip, alternate_ttip = self.items[reference]
-        toolb.set_sensitive(sensitiviness)
-        menub.set_sensitive(sensitiviness)
-
-        # set a different tooltip to the toolbar button
-        tip_text = (alternate_ttip, active_ttip)[int(sensitiviness)]
-        toolb.set_tooltip(self._tooltips, tip_text)
-
 
 
 
@@ -168,80 +106,7 @@ class DownloadingList(object):
 class MainUI(object):
     """Main GUI class."""
 
-    _config_file = os.path.join(platform.config_dir, 'encuentro.conf')
-    print "Using configuration file:", repr(_config_file)
-
     def __init__(self, version):
-        self.version = version
-        self.main_window_active = None  # means active, see docstring below
-
-        self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(BASEDIR,
-                                                'ui', 'main.glade'))
-        self.builder.connect_signals(self)
-
-        widgets = (
-            'main_window', 'programs_store', 'programs_treeview', 'toolbar',
-            'toolbutton_play', 'toolbutton_download', 'toolbutton_needconfig',
-            'dialog_quit', 'dialog_quit_label', 'dialog_alert', 'dialog_error',
-            'rb_menu', 'rbmenu_play', 'rbmenu_cancel', 'rbmenu_download',
-            'menu_download', 'menu_play', 'aboutdialog', 'statusicon',
-            'dialog_upgrade', 'image_episode', 'button_episode',
-            'textview_episode', 'pane_md_state', 'pane_list_info',
-            'image_spinner', 'downloads_treeview', 'downloads_store',
-            'filter_entry', 'checkbutton_filterdloaded',
-        )
-
-        for widget in widgets:
-            obj = self.builder.get_object(widget)
-            assert obj is not None, '%s must not be None' % widget
-            setattr(self, widget, obj)
-
-        # stupid glade! it does not let me put the cell renderer
-        # expanded *in the column*
-        columns = self.programs_treeview.get_columns()
-        column = columns[STORE_POS_DURATION]
-        cell_renderer = column.get_cell_renderers()[0]
-        column.clear()
-        column.pack_end(cell_renderer, expand=True)
-        column.add_attribute(cell_renderer, "text", STORE_POS_DURATION)
-
-        # stuff that needs to be done *once* to get bold letters
-        self.episode_textbuffer = self.textview_episode.get_buffer()
-        texttagtable = self.episode_textbuffer.get_tag_table()
-        self.episode_texttag_bold = gtk.TextTag("bold")
-        self.episode_texttag_bold.set_property("weight", pango.WEIGHT_BOLD)
-        texttagtable.add(self.episode_texttag_bold)
-
-#M        data_file = os.path.join(platform.data_dir, 'encuentro.data')
-#M        self.programs_data = ProgramsData(self, data_file)
-#M        self.get_image = ImageGetter(self.image_episode_loaded).get_image
-#M        logger.info("Episodes metadata loaded: %s", self.programs_data)
-
-        # get config from file, or defaults
-        if os.path.exists(self._config_file):
-            with open(self._config_file) as fh:
-                self.config = pickle.load(fh)
-                if self.programs_data.reset_config_from_migration:
-                    self.config['user'] = ''
-                    self.config['password'] = ''
-                    self.config.pop('cols_width', None)
-                    self.config.pop('cols_order', None)
-                    self.config.pop('selected_row', None)
-        else:
-            self.config = {}
-
-        # log the config, but without user and pass
-        safecfg = self.config.copy()
-        if 'user' in safecfg:
-            safecfg['user'] = '<hidden>'
-        if 'password' in safecfg:
-            safecfg['password'] = '<hidden>'
-        logger.debug("Configuration loaded: %s", safecfg)
-
-        # we have a default for download dir
-        if not self.config.get('downloaddir'):
-            self.config['downloaddir'] = platform.get_download_dir()
 
         self.update_dialog = update.UpdateUI(self)
         self.preferences_dialog = PreferencesUI(self, self.config)
@@ -252,15 +117,6 @@ class MainUI(object):
         self.episodes_download = DownloadingList(self.downloads_treeview,
                                                  self.downloads_store)
 
-        # widget sensitiviness
-        self.sensit_grouper = sg = SensitiveGrouper()
-        sg.add('play', self.toolbutton_play, self.menu_play, u"Reproducir",
-               u"Reproducir - El episodio debe estar descargado para "
-               u"poder verlo.")
-        sg.add('download', self.toolbutton_download, self.menu_download,
-               u"Descargar", u"Descargar - No se puede descargar si ya está "
-               u"descargado o falta alguna configuración en el programa.")
-
         # icons
         icons = []
         for size in (16, 32, 48, 64, 128):
@@ -269,18 +125,12 @@ class MainUI(object):
         self.main_window.set_icon_list(*icons)
         self.statusicon.set_from_pixbuf(icons[0])
 
-        self._non_glade_setup()
         self.episodes_iters = {}
         self.refresh_treeview()
         self.main_window.show()
-        self._restore_layout()
 
-        # update stuff if needed to
-        if 'autorefresh' in self.config and self.config['autorefresh']:
-            self.update_dialog.update(self._restore_layout)
 
         self.finished = False
-        logger.debug("Main UI started ok")
 
         if not self.config.get('nowizard'):
             wizard.start(self, self._have_config, self._have_metadata)
@@ -294,24 +144,6 @@ class MainUI(object):
     def _have_metadata(self):
         """Return if metadata is needed."""
         return bool(self.programs_data)
-
-#M    def image_episode_loaded(self, path, image):
-#M        """An image has arrived, show it only if the path is correct."""
-#M        # only set the image if the user still have same row selected
-#M        tree_selection = self.programs_treeview.get_selection()
-#M        if tree_selection is None:
-#M            return
-#M        _, pathlist = tree_selection.get_selected_rows()
-#M        if not pathlist or pathlist[0] != path:
-#M            return
-#M
-#M        loader = gtk.gdk.PixbufLoader()
-#M        loader.write(image)
-#M        self.image_episode.set_from_pixbuf(loader.get_pixbuf())
-#M        self.image_episode.show()
-#M        loader.close()
-#M        self.image_spinner.stop()
-#M        self.image_spinner.hide()
 
     def review_need_something_indicator(self):
         """Start the wizard if needed, or hide the need config button."""
@@ -331,49 +163,6 @@ class MainUI(object):
     def on_toolbutton_needconfig_clicked(self, widget, data=None):
         """The 'need config' toolbar button was clicked, open the wizard."""
         wizard.start(self, self._have_config, self._have_metadata)
-
-    def _restore_layout(self):
-        """Get info from config and change layouts."""
-        if 'mainwin_size' in self.config:
-            self.main_window.resize(*self.config['mainwin_size'])
-        else:
-            self.main_window.resize(800, 600)
-
-        if 'mainwin_position' in self.config:
-            self.main_window.move(*self.config['mainwin_position'])
-
-        treeview_columns = self.programs_treeview.get_columns()
-        if 'cols_width' in self.config:
-            for col, size in zip(treeview_columns, self.config['cols_width']):
-                col.set_fixed_width(size)
-        else:
-            space_left = int(self.main_window.get_size()[0] * 0.7)
-            width = space_left // len(treeview_columns)
-            for col in treeview_columns:
-                col.set_fixed_width(width)
-
-        if 'cols_order' in self.config:
-            self.programs_store.set_sort_column_id(*self.config['cols_order'])
-
-        if 'selected_row' in self.config:
-            path = self.config['selected_row']
-            self.programs_treeview.scroll_to_cell(path, use_align=True,
-                                                  row_align=.5)
-            self.programs_treeview.set_cursor(path)
-            self.programs_treeview.grab_focus()
-
-    def _non_glade_setup(self):
-        """Stuff I don't know how to do it in Glade."""
-        tree_selection = self.programs_treeview.get_selection()
-
-        # enable treeview multiple selection
-        tree_selection.set_mode(gtk.SELECTION_MULTIPLE)
-
-        # connect the selection 'changed' signal; note that this is different
-        # to get the 'treeview cursor changed' signal from Glade, as the result
-        # for get_selected_rows() is not the same
-        tree_selection.connect('changed',
-                               self.on_programs_treeview_selection_changed)
 
     def merge_episode_data(self, new_data):
         """Merge new data to current programs data."""
@@ -567,31 +356,6 @@ class MainUI(object):
 
         logger.debug("Downloads: finished")
 
-    def _show_message(self, dialog, text=None):
-        """Show different download errors."""
-        if self.finished:
-            logger.debug("Ignoring message: %r (%s)", text, dialog)
-            return
-        logger.debug("Showing a message: %r (%s)", text, dialog)
-
-        # error text can be produced by windows, try to to sanitize it
-        if isinstance(text, str):
-            try:
-                text = text.decode("utf8")
-            except UnicodeDecodeError:
-                try:
-                    text = text.decode("latin1")
-                except UnicodeDecodeError:
-                    text = repr(text)
-
-        if text is not None:
-            hbox = dialog.get_children()[0].get_children()[0]
-            label = hbox.get_children()[1].get_children()[0]
-            label.set_text(text)
-        configure = dialog.run()
-        dialog.hide()
-        if configure == 1:
-            self.preferences_dialog.run(self.main_window.get_position())
 
     @defer.inlineCallbacks
     def _episode_download(self, episode):
@@ -739,67 +503,6 @@ class MainUI(object):
         self._check_download_play_buttons(tree_selection)
         self._update_info_panel(tree_selection)
 
-#M    def _update_info_panel(self, tree_selection=None):
-#M        """Set both buttons state according to the selected episodes."""
-#M        if tree_selection is None:
-#M            tree_selection = self.programs_treeview.get_selection()
-#M            if tree_selection is None:
-#M                return
-#M        _, pathlist = tree_selection.get_selected_rows()
-#M
-#M        if len(pathlist) == 1:
-#M            row = self.programs_store[pathlist[0]]
-#M            episode = self.programs_data[row[STORE_POS_EPIS]]
-#M
-#M            # image
-#M            if episode.image_url is not None:
-#M                # this must be before the get_image call, as it may call
-#M                # immediately to image_episode_loaded, showing the image and
-#M                # hiding the spinner
-#M                self.image_episode.hide()
-#M                self.image_spinner.show()
-#M                self.image_spinner.start()
-#M                # now do call the get_image
-#M                self.get_image(pathlist[0], episode.image_url.encode('utf-8'))
-#M
-#M            # all description
-#M            self.textview_episode.set_justification(gtk.JUSTIFY_LEFT)
-#M            msg = "\n%s\n\n%s" % (episode.title, episode.description)
-#M            to_bold = len(episode.title) + 2
-#M            self.episode_textbuffer.set_text(msg)
-#M            start = self.episode_textbuffer.get_iter_at_offset(1)
-#M            end = self.episode_textbuffer.get_iter_at_offset(to_bold)
-#M            self.episode_textbuffer.apply_tag(self.episode_texttag_bold,
-#M                                              start, end)
-#M
-#M            # action button
-#M            self.button_episode.show()
-#M            if episode.state == Status.downloaded:
-#M                label = "Reproducir"
-#M                callback = self.on_rbmenu_play_activate
-#M            elif (episode.state == Status.downloading or
-#M                  episode.state == Status.waiting):
-#M                label = u"Cancelar descarga"
-#M                callback = self.on_rbmenu_cancel_activate
-#M            else:
-#M                label = u"Descargar"
-#M                callback = self.on_rbmenu_download_activate
-#M            prev_hdler = getattr(self.button_episode, 'conn_handler_id', None)
-#M            if prev_hdler is not None:
-#M                self.button_episode.disconnect(prev_hdler)
-#M            new_hdler = self.button_episode.connect('clicked', callback)
-#M            self.button_episode.conn_handler_id = new_hdler
-#M            self.button_episode.set_label(label)
-#M        else:
-#M            if pathlist:
-#M                message = u"\n\nSeleccionar sólo un programa para verlo"
-#M            else:
-#M                message = u"\n\nSeleccionar un programa para aquí la info"
-#M            self.episode_textbuffer.set_text(message)
-#M            self.textview_episode.set_justification(gtk.JUSTIFY_CENTER)
-#M            self.image_episode.hide()
-#M            self.image_spinner.hide()
-
     def _check_download_play_buttons(self, tree_selection=None):
         """Set both buttons state according to the selected episodes."""
         if tree_selection is None:
@@ -829,31 +532,3 @@ class MainUI(object):
                     download_enabled = True
                     break
         self.sensit_grouper.set_sensitive('download', download_enabled)
-
-    def on_menu_about_activate(self, widget):
-        """Show the 'About of' dialog."""
-        self.aboutdialog.set_property('version', str(self.version))
-        self.aboutdialog.run()
-        self.aboutdialog.hide()
-
-    def on_statusicon_activate(self, *a):
-        """Switch visibility for the main window.
-
-        The 'main_window_active' is None if window should be active, or the
-        last position when hidden (so it's properly restored then).
-        """
-        if self.main_window_active is None:
-            # was active, let's hide
-            self.main_window_active = self.main_window.get_position()
-            self.main_window.hide()
-        else:
-            # we have the stored position!
-            position = self.main_window_active
-            self.main_window_active = None
-            self.main_window.show()
-            self.main_window.move(*position)
-
-
-if __name__ == '__main__':
-    MainUI(2)
-    reactor.run()

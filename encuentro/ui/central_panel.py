@@ -287,12 +287,14 @@ class BigPanel(QWidget):
         layout = QHBoxLayout(self)
 
         # split on the right
+        # FIXME: this splitter should remember its position between starts
         right_split = QSplitter(Qt.Vertical)
         episode_info = EpisodeInfo()
         right_split.addWidget(episode_info)
         right_split.addWidget(DownloadsView(main_window))
 
         # main split
+        # FIXME: this splitter should remember its position between starts
         main_split = QSplitter(Qt.Horizontal)
         main_split.addWidget(EpisodesView(main_window, episode_info))
         main_split.addWidget(right_split)

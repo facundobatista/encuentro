@@ -1,5 +1,8 @@
 # -*- coding: UTF-8 -*-
 
+import os
+import pickle
+
 from PyQt4.QtGui import (
     QAction,
     QCheckBox,
@@ -10,10 +13,14 @@ from PyQt4.QtGui import (
     qApp,
 )
 
+from encuentro import platform
 from encuentro.ui import central_panel
 
+logger = logging.getLogger('encuentro.main')
+
+
 # FIXME: need an About dialog, connected to the proper signals below
-#   title: Encuentro <version>
+#   title: Encuentro <version>   <-- need to receive the version when exec'ed
 #   comments: Simple programa que permite buscar, descargar y ver
 #             contenido del canal Encuentro y otros.
 #   smaller: Copyright 2010-2013 Facundo  Batista
@@ -54,22 +61,64 @@ from encuentro.ui import central_panel
 #   button1: Salir del programa
 #   button2: Continuar
 
+# FIXME: set up a status icon, when the icon is clicked the main window should
+# appear or disappear, keeping the position and size of the position after
+# the sequence
+
+# FIXME: when a line is selected, and all the episodes are refreshed, the
+# selected row must keep selected
+
 
 class MainUI(QMainWindow):
     """Main UI."""
 
+    _config_file = os.path.join(platform.config_dir, 'encuentro.conf')
+    print "Using configuration file:", repr(_config_file)
+
     def __init__(self, version, reactor_stop):
         super(MainUI, self).__init__()
         self.reactor_stop = reactor_stop
-        self.resize(800, 600)  # FIXME: this comes from config
-        self.move(300, 300)   # FIXME: this comes from config
+        # FIXME: size and positions should remain the same between starts
+        self.resize(800, 600)
+        self.move(300, 300)
         self.setWindowTitle('Encuentro')
 
+        self.config = self._load_config()
+
+        # finish all gui stuff
         self._menubar()
-
         self.setCentralWidget(central_panel.BigPanel(self))
-
         self.show()
+        logger.debug("Main UI started ok")
+
+    def _load_config(self):
+        """Load the config from disk."""
+        # get config from file, or defaults
+        if os.path.exists(self._config_file):
+            with open(self._config_file) as fh:
+                config = pickle.load(fh)
+                # FIXME: need this param from programs data!
+                if self.programs_data.reset_config_from_migration:
+                    config['user'] = ''
+                    config['password'] = ''
+                    config.pop('cols_width', None)
+                    config.pop('cols_order', None)
+                    config.pop('selected_row', None)
+        else:
+            config = {}
+
+        # log the config, but without user and pass
+        safecfg = config.copy()
+        if 'user' in safecfg:
+            safecfg['user'] = '<hidden>'
+        if 'password' in safecfg:
+            safecfg['password'] = '<hidden>'
+        logger.debug("Configuration loaded: %s", safecfg)
+
+        # we have a default for download dir
+        if not config.get('downloaddir'):
+            config['downloaddir'] = platform.get_download_dir()
+        return config
 
     def _menubar(self):
         """Set up the menu bar."""
@@ -124,6 +173,11 @@ class MainUI(QMainWindow):
         menu_prog.addAction(self.action_play)
 
         # toolbar for buttons
+        # FIXME: put tooltips here, for these buttons
+        # - play, active: u"Reproducir"
+        # - play, disabled: u"Reproducir - El episodio debe estar descargado para poder verlo."
+        # - download, active: u"Descargar"
+        # - download, disabled: u"Descargar - No se puede descargar si ya está descargado o falta alguna configuración en el programa."
         toolbar = self.addToolBar('main')
         toolbar.addAction(self.action_download)
         toolbar.addAction(self.action_play)
@@ -147,3 +201,31 @@ class MainUI(QMainWindow):
     def closeEvent(self, event):
         """All is being closed."""
         self.reactor_stop()
+
+    def _show_message(self, dialog, text=None):
+        """Show different download errors."""
+        # FIXME: reconvert all this method!!
+        if self.finished:
+            logger.debug("Ignoring message: %r (%s)", text, dialog)
+            return
+        logger.debug("Showing a message: %r (%s)", text, dialog)
+
+        # error text can be produced by windows, try to to sanitize it
+        if isinstance(text, str):
+            try:
+                text = text.decode("utf8")
+            except UnicodeDecodeError:
+                try:
+                    text = text.decode("latin1")
+                except UnicodeDecodeError:
+                    text = repr(text)
+
+        if text is not None:
+            hbox = dialog.get_children()[0].get_children()[0]
+            label = hbox.get_children()[1].get_children()[0]
+            label.set_text(text)
+        configure = dialog.run()
+        dialog.hide()
+        if configure == 1:
+            self.preferences_dialog.run(self.main_window.get_position())
+

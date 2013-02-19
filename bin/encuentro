@@ -23,11 +23,11 @@ import sys
 import os
 
 # special import before any other imports to configure GUI
+# FIXME: see if we can put NiceImporter here
+# FIXME: see if we can put this code in __init__ or main.py
 import sip
 for name in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
     sip.setapi(name, 2)   # API v2 FTW!
-
-from PyQt4.QtGui import QApplication
 
 
 # this will be replaced at install time
@@ -54,17 +54,5 @@ if project_basedir not in sys.path:
     sys.path.insert(0, project_basedir)
     sys.path.insert(1, os.path.join(project_basedir, 'qtreactor'))
 
-verbose = len(sys.argv) > 1 and sys.argv[1] == '-v'
-
-from encuentro import logger
-logger.set_up(verbose)
-
-
-# the order of the lines hereafter are very precise, don't mess with them
-app = QApplication(sys.argv)
-import qt4reactor
-qt4reactor.install()
-from encuentro.ui.main import MainUI
-from twisted.internet import reactor
-reactor.callWhenRunning(MainUI, version, reactor.stop)
-reactor.run()
+from encuentro import main
+main.start(version)
