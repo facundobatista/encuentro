@@ -1,12 +1,8 @@
 
-
 import cgi
-import logging
 import os
 import pickle
 
-
-import pango
 
 from twisted.internet import reactor, defer
 
@@ -117,33 +113,14 @@ class MainUI(object):
         self.episodes_download = DownloadingList(self.downloads_treeview,
                                                  self.downloads_store)
 
-        # icons
-        icons = []
-        for size in (16, 32, 48, 64, 128):
-            iconfile = os.path.join(BASEDIR, 'logos', 'icon-%d.png' % (size,))
-            icons.append(gtk.gdk.pixbuf_new_from_file(iconfile))
-        self.main_window.set_icon_list(*icons)
-        self.statusicon.set_from_pixbuf(icons[0])
-
         self.episodes_iters = {}
         self.refresh_treeview()
-        self.main_window.show()
-
-
         self.finished = False
 
         if not self.config.get('nowizard'):
             wizard.start(self, self._have_config, self._have_metadata)
         self.review_need_something_indicator()
         self._update_info_panel()
-
-    def _have_config(self):
-        """Return if some config is needed."""
-        return self.config.get('user') and self.config.get('password')
-
-    def _have_metadata(self):
-        """Return if metadata is needed."""
-        return bool(self.programs_data)
 
     def review_need_something_indicator(self):
         """Start the wizard if needed, or hide the need config button."""
@@ -242,10 +219,6 @@ class MainUI(object):
                 program.state = Status.none
         self._save_states()
         return False
-
-    def on_main_window_delete_event(self, widget, event):
-        """Windows was deleted."""
-        return self._close()
 
     def on_menu_quit_activate(self, widget):
         """Quit from the menu."""

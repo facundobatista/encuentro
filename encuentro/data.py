@@ -7,6 +7,7 @@ import pickle
 
 from unicodedata import normalize
 
+from encuentro.ui import dialogs
 
 logger = logging.getLogger('encuentro.data')
 
@@ -195,17 +196,16 @@ class ProgramsData(object):
         if self.version == 0:
             # migrate! actually, from 0, no migration is possible, we
             # need to tell the user the ugly truth
-            self.version = self.last_programs_version
-            # FIXME implementar esto
-            dialog = self.main_window.dialog_upgrade
-            go_on = dialog.run()
-            dialog.hide()
+            # FIXME: test both paths here
+            dlg = dialogs.ForceUpgradeDialog()
+            go_on = dlg.exec_()
             if not go_on:
                 exit()
             # if user accessed to go on, don't really need to migrate
             # anything, as *all* the code is to support the new metadata
             # version only, so just remove it and mark the usr/pass config
             # to be removed
+            self.version = self.last_programs_version
             self.reset_config_from_migration = True
             self.data = {}
             return

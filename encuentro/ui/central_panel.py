@@ -92,11 +92,9 @@ class EpisodesModel(QAbstractTableModel):
     _row_getter = operator.attrgetter('channel', 'section',
                                       'title', 'duration', 'episode_id')
 
-    def __init__(self, view_parent):
+    def __init__(self, view_parent, programs_data):
         super(EpisodesModel, self).__init__(view_parent)
-
-        data_file = os.path.join(platform.data_dir, 'encuentro.data')
-        self.episodes = data.ProgramsData(self, data_file)
+        self.episodes = programs_data
         self._data = [self._row_getter(e) for e in self.episodes.values()]
 
     def get_episode(self, index):
@@ -147,7 +145,7 @@ class EpisodesView(QTableView):
         self.episode_info = episode_info
         super(EpisodesView, self).__init__()
 
-        self.model = EpisodesModel(self)
+        self.model = EpisodesModel(self, self.main_window.programs_data)
         self.setModel(self.model)
 
         # set the minimum size

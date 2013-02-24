@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 
+import logging
 import os
 import pickle
 
@@ -13,7 +14,7 @@ from PyQt4.QtGui import (
     qApp,
 )
 
-from encuentro import platform
+from encuentro import platform, data
 from encuentro.ui import central_panel
 
 logger = logging.getLogger('encuentro.main')
@@ -49,18 +50,6 @@ logger = logging.getLogger('encuentro.main')
 #   button1: No quiero salir
 #   button2: Sí, salir!
 
-# FIXME: need a dialog for when the user needs to upgrade
-#   title: El contenido debe actualizarse
-#   text: Esta nueva versión del programa Encuentro sólo funciona con contenido
-#         actualizado, lo cual le permitirá trabajar con programas del canal
-#         Encuentro y de otros nuevos canales, pero deberá configurarlo
-#         nuevamente y perderá la posibilidad de ver directactamente los videos
-#         ya descargados (los cuales permanecerán en su disco). \n\n Haga click
-#         en Continuar y podrá ver el Wizard que lo ayudará a configurar
-#         nuevamente el programa.
-#   button1: Salir del programa
-#   button2: Continuar
-
 # FIXME: set up a status icon, when the icon is clicked the main window should
 # appear or disappear, keeping the position and size of the position after
 # the sequence
@@ -74,6 +63,7 @@ class MainUI(QMainWindow):
 
     _config_file = os.path.join(platform.config_dir, 'encuentro.conf')
     print "Using configuration file:", repr(_config_file)
+    _programs_file = os.path.join(platform.data_dir, 'encuentro.data')
 
     def __init__(self, version, reactor_stop):
         super(MainUI, self).__init__()
@@ -83,6 +73,7 @@ class MainUI(QMainWindow):
         self.move(300, 300)
         self.setWindowTitle('Encuentro')
 
+        self.programs_data = data.ProgramsData(self, self._programs_file)
         self.config = self._load_config()
 
         # finish all gui stuff
@@ -97,7 +88,6 @@ class MainUI(QMainWindow):
         if os.path.exists(self._config_file):
             with open(self._config_file) as fh:
                 config = pickle.load(fh)
-                # FIXME: need this param from programs data!
                 if self.programs_data.reset_config_from_migration:
                     config['user'] = ''
                     config['password'] = ''
@@ -119,6 +109,14 @@ class MainUI(QMainWindow):
         if not config.get('downloaddir'):
             config['downloaddir'] = platform.get_download_dir()
         return config
+
+    def _have_config(self):
+        """Return if some config is needed."""
+        return self.config.get('user') and self.config.get('password')
+
+    def _have_metadata(self):
+        """Return if metadata is needed."""
+        return bool(self.programs_data)
 
     def _menubar(self):
         """Set up the menu bar."""
