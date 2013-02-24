@@ -10,12 +10,13 @@ from PyQt4.QtGui import (
     QLabel,
     QLineEdit,
     QMainWindow,
+    QPushButton,
     QStyle,
     qApp,
 )
 
 from encuentro import platform, data
-from encuentro.ui import central_panel
+from encuentro.ui import central_panel, wizard
 
 logger = logging.getLogger('encuentro.main')
 
@@ -193,8 +194,36 @@ class MainUI(QMainWindow):
         # FIXME: connect signal
         toolbar.addWidget(QCheckBox(u"Sólo descargados"))
 
-        # FIXME: we need here at the end a warning "!" sign that will be
-        # visible if configuration still needs to be done
+        # FIXME: we need to change this text for just a "!" sign image
+        self.needsomething_button = QPushButton("Need config!")
+        self.needsomething_button.clicked.connect(self._start_wizard)
+        toolbar.addWidget(self.needsomething_button)
+        if not self.config.get('nowizard'):
+            self._start_wizard()
+        self._review_need_something_indicator()
+
+    def _start_wizard(self, _):
+        """Start the wizard if needed."""
+        if not self._have_config() or not self._have_metadata():
+            dlg = wizard.WizardDialog(self, self._have_config,
+                                      self._have_metadata)
+            dlg.exec_()
+        self._review_need_something_indicator()
+
+    def _review_need_something_indicator(self):
+        """Hide/show/enable/disable different indicators if need sth."""
+        if not self._have_config() or not self._have_metadata():
+            # config needed, put the alert if not there
+            if not self.needsomething_button.isVisible():
+                self.needsomething_button.show()
+            # also turn off the download button
+            self.action_download.setEnabled(False)
+        else:
+            # no config needed, remove the alert if there
+            if self.needsomething_button.isVisible():
+                self.needsomething_button.hide()
+            # also turn on the download button
+            self.action_download.setEnabled(True)
 
     def closeEvent(self, event):
         """All is being closed."""

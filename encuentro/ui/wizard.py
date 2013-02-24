@@ -76,6 +76,7 @@ class WizardDialog(QDialog):
         bbox.addButton(self.navbut_next, QDialogButtonBox.ActionRole)
         vbox.addWidget(bbox)
 
+        self.show()
         self._move(0)
 
         # FIXME: que en el momento de cerrarse el dialogo, se llame a:
@@ -128,11 +129,9 @@ class WizardDialog(QDialog):
         # adjust main text and action button
         self.main_text.setText(text)
         if act_label is None:
-            # FIXME: aca realmente sacar el boton, no solo desactivarlo
-            self.navbut_actn.setEnabled(False)
+            self.navbut_actn.hide()
         else:
-            # FIXME: aca realmente agregar el boton, no solo activarlo
-            self.navbut_actn.setEnabled(True)
+            self.navbut_actn.show()
             self.navbut_actn.setText(act_label)
             method_to_call = getattr(self, "_act_" + act_func)
             self.navbut_actn.clicked.disconnect()
@@ -158,11 +157,6 @@ class WizardDialog(QDialog):
         # FIXME: code this, something very similar to:
         #return self.have_config()
 
-
-def start(main_window, have_config, have_episodes):
-    """Start a Wizard UI only if needed."""
-    if not have_config() or not have_episodes():
-        WizardDialog(main_window, have_config, have_episodes)
 
 
 if __name__ == '__main__':
