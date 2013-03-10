@@ -122,46 +122,6 @@ class MainUI(object):
         self.review_need_something_indicator()
         self._update_info_panel()
 
-    def review_need_something_indicator(self):
-        """Start the wizard if needed, or hide the need config button."""
-        if not self._have_config() or not self._have_metadata():
-            # config needed, put the alert if not there
-            if not self.toolbutton_needconfig.get_property("visible"):
-                self.toolbutton_needconfig.show()
-            # also turn off the download button
-            self.sensit_grouper.set_sensitive('download', False)
-        else:
-            # no config needed, remove the alert if there
-            if self.toolbutton_needconfig.get_property("visible"):
-                self.toolbutton_needconfig.hide()
-            # also turn on the download button
-            self.sensit_grouper.set_sensitive('download', True)
-
-    def on_toolbutton_needconfig_clicked(self, widget, data=None):
-        """The 'need config' toolbar button was clicked, open the wizard."""
-        wizard.start(self, self._have_config, self._have_metadata)
-
-    def merge_episode_data(self, new_data):
-        """Merge new data to current programs data."""
-        for d in new_data:
-            # v2 of json file
-            names = ['channel', 'section', 'title', 'duration', 'description',
-                     'episode_id', 'url', 'image_url', 'downtype']
-            values = dict((name, d[name]) for name in names)
-            episode_id = d['episode_id']
-
-            try:
-                ed = self.programs_data[episode_id]
-            except KeyError:
-                ed = EpisodeData(**values)
-                self.programs_data[episode_id] = ed
-            else:
-                ed.update(**values)
-
-        # refresh the treeview and save the data
-        self.refresh_treeview()
-        self._save_states()
-
     def refresh_treeview(self, field_filter='', only_downloaded=False):
         """Update the liststore of the programs."""
         columns = [self.programs_store.get_column_type(i)

@@ -15,7 +15,7 @@ from PyQt4.QtGui import (
     qApp,
 )
 
-from encuentro import platform, data
+from encuentro import platform, data, update
 from encuentro.ui import central_panel, wizard
 
 logger = logging.getLogger('encuentro.main')
@@ -79,7 +79,8 @@ class MainUI(QMainWindow):
 
         # finish all gui stuff
         self._menubar()
-        self.setCentralWidget(central_panel.BigPanel(self))
+        self.big_panel = central_panel.BigPanel(self)
+        self.setCentralWidget(self.big_panel)
         self.show()
         logger.debug("Main UI started ok")
 
@@ -131,6 +132,7 @@ class MainUI(QMainWindow):
         action_reload = QAction(icon, '&Refrescar', self)
         action_reload.setShortcut('Ctrl+R')
         action_reload.setStatusTip(u'Recarga la lista de programas')
+        action_reload.triggered.connect(self._refresh_episodes)
         menu_appl.addAction(action_reload)
 
         # FIXME: set an icon for preferences
@@ -202,7 +204,7 @@ class MainUI(QMainWindow):
             self._start_wizard()
         self._review_need_something_indicator()
 
-    def _start_wizard(self, _):
+    def _start_wizard(self, _=None):
         """Start the wizard if needed."""
         if not self._have_config() or not self._have_metadata():
             dlg = wizard.WizardDialog(self, self._have_config,
@@ -256,3 +258,6 @@ class MainUI(QMainWindow):
         if configure == 1:
             self.preferences_dialog.run(self.main_window.get_position())
 
+    def _refresh_episodes(self, _):
+        """Update and refresh episodes."""
+        update.UpdateEpisodes(self)

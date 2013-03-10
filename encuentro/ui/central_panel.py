@@ -14,14 +14,19 @@ from PyQt4.QtGui import (
     QTextEdit,
     QVBoxLayout,
     QWidget,
+    QTreeWidget,
+    QTreeWidgetItem,
 )
-from PyQt4.QtCore import Qt, QAbstractTableModel, SIGNAL
+from PyQt4.QtCore import Qt, QAbstractTableModel
 
-from encuentro import data, platform, image
+from encuentro import data, image
 
+# user role for a QTreeWidgetItem
+EPISODE = 33
 
 class DownloadsModel(QAbstractTableModel):
     """The model of the downloads queue."""
+    # FIXME: convert this (merging with View) to a QTreeWidget
 
     _headers = (u"Descargando...", u"Estado")
 
@@ -59,6 +64,7 @@ class DownloadsModel(QAbstractTableModel):
 
 class DownloadsView(QTableView):
     """The downloads queue."""
+    # FIXME: convert this (merging with Model) to a QTreeWidget
 
     def __init__(self, main_window):
         self.main_window = main_window
@@ -82,90 +88,42 @@ class DownloadsView(QTableView):
 
     def on_signal_clicked(self, model_index):
         """The view was clicked."""
-        # FIXME: need to point in the EpisodesView to this episode
+        # FIXME: need to point in the EpisodesWidget to this episode
 
 
-class EpisodesModel(QAbstractTableModel):
-    """The model of the episodes list."""
+class EpisodesWidget(QTreeWidget):
+    # FIXME: need to put the functionality of "right button", that will
+    # create a dialog with "Ver episodio", "Cancelar descarga" and
+    # "Descargar", activated and deactivated as should
+    """The list of episodes info."""
 
-    _headers = (u"Canal", u"Sección", u"Título", u"Duración [min]")
     _row_getter = operator.attrgetter('channel', 'section',
-                                      'title', 'duration', 'episode_id')
-
-    def __init__(self, view_parent, programs_data):
-        super(EpisodesModel, self).__init__(view_parent)
-        self.episodes = programs_data
-        self._data = [self._row_getter(e) for e in self.episodes.values()]
-
-    def get_episode(self, index):
-        """Return an episode pointed by the index."""
-        episode_id = self._data[index.row()][4]
-        return self.episodes[episode_id]
-
-    def rowCount(self, parent):
-        """The count of rows."""
-        return len(self._data)
-
-    def columnCount(self, parent):
-        """The count of columns."""
-        return len(self._headers)
-
-    def data(self, index, role):
-        """Well, the data"""
-        if not index.isValid():
-            return
-        if role != Qt.DisplayRole:
-            return
-        return self._data[index.row()][index.column()]
-
-    def headerData(self, col, orientation, role):
-        """The header data."""
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return self._headers[col]
-
-    def sort(self, ncol, order):
-        """Sort table by given column number."""
-        self.emit(SIGNAL("layoutAboutToBeChanged()"))
-        key = operator.itemgetter(ncol)
-        reverse = order == Qt.DescendingOrder
-        self._data = sorted(self._data, key=key, reverse=reverse)
-        self.emit(SIGNAL("layoutChanged()"))
-
-    def flags(self, index):
-        """Behaviour."""
-        # FIXME: when clicking on anywhere, the whole row should look "selected"
-        return Qt.ItemIsEnabled
-
-
-class EpisodesView(QTableView):
-    """The list of episodes."""
+                                      'title', 'duration')
 
     def __init__(self, main_window, episode_info):
         self.main_window = main_window
         self.episode_info = episode_info
-        super(EpisodesView, self).__init__()
+        super(EpisodesWidget, self).__init__(main_window)
+        self.setMinimumSize(600, 300)
 
-        self.model = EpisodesModel(self, self.main_window.programs_data)
-        self.setModel(self.model)
+#        # FIXME: the duration column should be right-aligned
+        _headers = (u"Canal", u"Sección", u"Título", u"Duración [min]")
+        self.setColumnCount(len(_headers))
+        self.setHeaderLabels(_headers)
+        header = self.header()
+        header.setStretchLastSection(False)
+        header.setResizeMode(2, header.Stretch)
+        episodes = list(self.main_window.programs_data.values())
+        print "======= data at init:", len(episodes)
 
-        # set the minimum size
-        self.setMinimumSize(400, 300)
-
-        # hide grid
-        self.setShowGrid(False)
-
-        # hide vertical header
-        self.verticalHeader().setVisible(False)
-
-        # set horizontal header properties
-        hh = self.horizontalHeader()
-        hh.setStretchLastSection(True)
-        # FIXME: the one to stretch should be the title column
-
-        # FIXME: the duration column should be right-aligned
-
-        # set column width to fit contents
-        self.resizeColumnsToContents()
+        self._item_map = {}
+        for i, e in enumerate(episodes):
+            item = QTreeWidgetItem([unicode(v) for v in self._row_getter(e)])
+            item.episode_id = e.episode_id
+            self._item_map[e.episode_id] = item
+            self.addTopLevelItem(item)
+            if i == 100:
+                break
 
         # enable sorting
         self.setSortingEnabled(True)
@@ -178,13 +136,22 @@ class EpisodesView(QTableView):
     def on_signal_clicked(self, model_index):
         """The view was clicked."""
         # FIXME: we should call get episode only when the view has a single row
-        # selected (no more than one)
-        episode = self.model.get_episode(model_index)
+        item = self.currentItem()
+        episode = self.main_window.programs_data[item.episode_id]
         self.episode_info.update(episode)
 
-        # FIXME: need to put the functionality of "right button", that will
-        # create a dialog with "Ver episodio", "Cancelar descarga" and
-        # "Descargar", activated and deactivated as should
+    def update_episode(self, episode):
+        """Update episode with new info"""
+        item = self._item_map[episode.episode_id]
+        for i, v in enumerate(self._row_getter(episode)):
+           item.setText(i, unicode(v))
+
+    def add_episode(self, episode):
+        """Update episode with new info"""
+        item = QTreeWidgetItem([unicode(v) for v in self._row_getter(episode)])
+        item.episode_id = episode.episode_id
+        self._item_map[episode.episode_id] = item
+        self.addTopLevelItem(item)
 
 
 class EpisodeInfo(QWidget):
@@ -294,6 +261,7 @@ class BigPanel(QWidget):
         # main split
         # FIXME: this splitter should remember its position between starts
         main_split = QSplitter(Qt.Horizontal)
-        main_split.addWidget(EpisodesView(main_window, episode_info))
+        self.episodes = EpisodesWidget(main_window, episode_info)
+        main_split.addWidget(self.episodes)
         main_split.addWidget(right_split)
         layout.addWidget(main_split)

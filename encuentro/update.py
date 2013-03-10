@@ -25,7 +25,7 @@ import logging
 from twisted.internet import defer
 from twisted.web import client
 
-from encuentro.ui import update
+from encuentro.ui import dialogs
 
 BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v03.list"
 
@@ -37,9 +37,12 @@ class UpdateEpisodes(object):
 
     def __init__(self, main_window):
         self.main_window = main_window
-        self.dialog = update.UpdateDialog()
-        self.dialog.run() # FIXME: aca no es run, ver como levantar el dialogo y seguir en control
 
+        # instantiate the dialog to report actions to the user
+        self.dialog = dialogs.UpdateDialog()
+        self.dialog.show()
+
+        # get the elements
         self._update(lambda *t: self.dialog.append(u" ".join(map(unicode, t))))
 
         # FIXME: ver si algo como esto se necesita... (es en el caso de cerrar
@@ -98,7 +101,8 @@ class UpdateEpisodes(object):
 
         tell_user("Actualizando los datos internos....")
         logger.debug("Updating internal metadata (%d)", len(new_data))
-        self.main_window.merge_episode_data(new_data)
+        self.main_window.programs_data.merge(
+                new_data, self.main_window.big_panel.episodes)
 
         tell_user(u"¡Todo terminado bien!")
         self.dialog.accept()  # FIXME: revisar que esto ciertamente cierre el dialogo

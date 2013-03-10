@@ -146,7 +146,7 @@ class ProgramsData(object):
     last_programs_version = 1
 
     def __init__(self, main_window, filename):
-        self.main_window = main_window
+        self.main_window = main_window  # FIXME: check if this is needed
         self.filename = filename
         print "Using data file:", repr(filename)
 
@@ -156,6 +156,26 @@ class ProgramsData(object):
         self.load()
         self.migrate()
         logger.info("Episodes metadata loaded (total %d)", len(self.data))
+
+    def merge(self, new_data, episodes_widget):
+        """Merge new data to current programs data."""
+        for d in new_data:
+            # v2 of json file
+            names = ['channel', 'section', 'title', 'duration', 'description',
+                     'episode_id', 'url', 'image_url', 'downtype']
+            values = dict((name, d[name]) for name in names)
+            episode_id = d['episode_id']
+
+            try:
+                ed = self.data[episode_id]
+            except KeyError:
+                ed = EpisodeData(**values)
+                episodes_widget.add_episode(ed)
+                self.data[episode_id] = ed
+            else:
+                ed.update(**values)
+                episodes_widget.update_episode(ed)
+        self.save()
 
     def load(self):
         """Load the data from the file."""
