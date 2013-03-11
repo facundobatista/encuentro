@@ -44,3 +44,4 @@ class ImageGetter(object):
         logger.debug("Need to download the image")
         d = getPage(url)
         d.addCallback(_d_callback, episode_id, file_fullname)
+        # FIXME: add an errback to log on error

@@ -55,9 +55,6 @@ logger = logging.getLogger('encuentro.main')
 # appear or disappear, keeping the position and size of the position after
 # the sequence
 
-# FIXME: when a line is selected, and all the episodes are refreshed, the
-# selected row must keep selected
-
 
 class MainUI(QMainWindow):
     """Main UI."""
@@ -128,7 +125,6 @@ class MainUI(QMainWindow):
         menu_appl = menubar.addMenu(u'&Aplicación')
 
         icon = self.style().standardIcon(QStyle.SP_BrowserReload)
-        # FIXME: connect signal
         action_reload = QAction(icon, '&Refrescar', self)
         action_reload.setShortcut('Ctrl+R')
         action_reload.setStatusTip(u'Recarga la lista de programas')
@@ -161,17 +157,21 @@ class MainUI(QMainWindow):
         menu_prog = menubar.addMenu(u'&Programa')
 
         icon = self.style().standardIcon(QStyle.SP_ArrowDown)
-        # FIXME: connect signal
         self.action_download = QAction(icon, '&Descargar', self)
         self.action_download.setShortcut('Ctrl+D')
         self.action_download.setStatusTip(u'Descarga el programa de la web')
+        self.action_download.triggered.connect(self._download_episode)
         menu_prog.addAction(self.action_download)
+        # FIXME: al arrancar, como no hay fila seleccionada, no debería estar
+        # el 'descargar' habilitado
 
         icon = self.style().standardIcon(QStyle.SP_MediaPlay)
         # FIXME: connect signal
         self.action_play = QAction(icon, '&Reproducir', self)
         self.action_play.setStatusTip(u'Reproduce el programa')
         menu_prog.addAction(self.action_play)
+        # FIXME: al arrancar, como no hay fila seleccionada, no debería estar
+        # el 'play' habilitado
 
         # toolbar for buttons
         # FIXME: put tooltips here, for these buttons
@@ -261,3 +261,8 @@ class MainUI(QMainWindow):
     def _refresh_episodes(self, _):
         """Update and refresh episodes."""
         update.UpdateEpisodes(self)
+
+    def _download_episode(self, a):
+        """Download an episode."""
+        print "======== a", a
+        import pdb;pdb.set_trace()
