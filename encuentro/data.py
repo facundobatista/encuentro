@@ -7,12 +7,15 @@ import pickle
 
 from unicodedata import normalize
 
+from PyQt4.QtGui import QColor
+
 from encuentro.ui import dialogs
 
 logger = logging.getLogger('encuentro.data')
 
+# FIXME: move this to central_panel
 # the background color for when the episode is finished
-DOWNLOADED_COLOR = "light green"
+DOWNLOADED_COLOR = QColor("light green")
 
 
 class Status(object):
@@ -116,6 +119,7 @@ class EpisodeData(object):
 
     def get_row_data(self, field_filter, only_downloaded):
         """Return the data for the liststore row."""
+        # FIXME: see if this goes away after we implement "filter"
         if only_downloaded and self.state != Status.downloaded:
             # want only finished donwloads, and this didn't
             return

@@ -4,6 +4,8 @@ import logging
 import os
 import pickle
 
+import pynotify
+
 from PyQt4.QtGui import (
     QAction,
     QCheckBox,
@@ -14,9 +16,16 @@ from PyQt4.QtGui import (
     QStyle,
     qApp,
 )
+from twisted.internet import defer
 
 from encuentro import platform, data, update
-from encuentro.ui import central_panel, wizard
+from encuentro.data import Status
+from encuentro.network import (
+    BadCredentialsError,
+    CancelledError,
+    all_downloaders,
+)
+from encuentro.ui import central_panel, wizard, preferences
 
 logger = logging.getLogger('encuentro.main')
 
@@ -74,9 +83,15 @@ class MainUI(QMainWindow):
         self.programs_data = data.ProgramsData(self, self._programs_file)
         self.config = self._load_config()
 
+        self.downloaders = {}
+        for downtype, dloader_class in all_downloaders.iteritems():
+            self.downloaders[downtype] = dloader_class(self.config)
+
         # finish all gui stuff
         self._menubar()
         self.big_panel = central_panel.BigPanel(self)
+        self.episodes_list = self.big_panel.episodes
+        self.episodes_download = self.big_panel.downloads_widget
         self.setCentralWidget(self.big_panel)
         self.show()
         logger.debug("Main UI started ok")
@@ -133,7 +148,7 @@ class MainUI(QMainWindow):
 
         # FIXME: set an icon for preferences
         action_preferences = QAction(u'&Preferencias', self)
-        # FIXME: connect signal
+        action_preferences.triggered.connect(self._preferences)
         action_preferences.setStatusTip(
             u'Configurar distintos parámetros del programa')
         menu_appl.addAction(action_preferences)
@@ -216,19 +231,25 @@ class MainUI(QMainWindow):
         """Hide/show/enable/disable different indicators if need sth."""
         if not self._have_config() or not self._have_metadata():
             # config needed, put the alert if not there
+            # FIXME: este isVisible no anda
             if not self.needsomething_button.isVisible():
+                print "======= boton oculto, lo prendemos"
                 self.needsomething_button.show()
             # also turn off the download button
             self.action_download.setEnabled(False)
         else:
             # no config needed, remove the alert if there
+            print "========= no conf needed!"
+            # FIXME: este isVisible no anda
             if self.needsomething_button.isVisible():
+                print "======= boton visible, lo escondemos"
                 self.needsomething_button.hide()
             # also turn on the download button
             self.action_download.setEnabled(True)
 
     def closeEvent(self, event):
         """All is being closed."""
+        self.programs_data.save()
         self.reactor_stop()
 
     def _show_message(self, dialog, text=None):
@@ -262,7 +283,104 @@ class MainUI(QMainWindow):
         """Update and refresh episodes."""
         update.UpdateEpisodes(self)
 
-    def _download_episode(self, a):
-        """Download an episode."""
-        print "======== a", a
-        import pdb;pdb.set_trace()
+    def _download_episode(self, _):
+        """Download the episode(s)."""
+        items = self.episodes_list.selectedItems()
+        for item in items:
+            episode = self.programs_data[item.episode_id]
+            print "======== Download episode", episode
+            self._queue_download(episode)
+
+    @defer.inlineCallbacks
+    def _queue_download(self, episode):
+        """User indicated to download something."""
+        logger.debug("Download requested of %s", episode)
+        if episode.state != Status.none:
+            logger.debug("Download denied, episode %s is not in downloadeable "
+                         "state.", episode.episode_id)
+            return
+
+        # queue
+        self.episodes_download.append(episode)
+        self.check_download_play_buttons()
+        if self.episodes_download.downloading:
+            return
+
+        logger.debug("Downloads: starting")
+        while self.episodes_download.pending():
+            episode = self.episodes_download.prepare()
+            try:
+                filename, episode = yield self._episode_download(episode)
+            except CancelledError:
+                logger.debug("Got a CancelledError!")
+                self.episodes_download.end(error=u"Cancelado")
+            except BadCredentialsError:
+                logger.debug("Bad credentials error!")
+                self._show_message(self.dialog_alert)
+                self.episodes_download.end(error=u"Error con las credenciales")
+            except Exception, e:
+                logger.debug("Unknown download error: %s", e)
+                self._show_message(self.dialog_error, str(e))
+                self.episodes_download.end(error=u"Error: " + str(e))
+            else:
+                logger.debug("Episode downloaded: %s", episode)
+                self.episodes_download.end()
+                episode.filename = filename
+
+            # check buttons
+            self.check_download_play_buttons()
+
+        logger.debug("Downloads: finished")
+
+    @defer.inlineCallbacks
+    def _episode_download(self, episode):
+        """Effectively download an episode."""
+        logger.debug("Effectively downloading episode %s", episode.episode_id)
+        self.episodes_download.start()
+
+        # download!
+        downloader = self.downloaders[episode.downtype]
+        fname = yield downloader.download(episode.channel,
+                                          episode.section, episode.title,
+                                          episode.url,
+                                          self.episodes_download.progress)
+        episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
+                                          episode.title)
+        if self.config.get('notification', True) and pynotify is not None:
+            n = pynotify.Notification(u"Descarga finalizada", episode_name)
+            n.show()
+        defer.returnValue((fname, episode))
+
+    def _preferences(self, _):
+        """Open the preferences dialog."""
+        dlg = preferences.PreferencesDialog()
+        dlg.exec_()
+        # FIXME: el dialogo debería grabar solo cuando lo cierran
+        dlg.save_config()
+        self._review_need_something_indicator()
+
+    def check_download_play_buttons(self):
+        """Set both buttons state according to the selected episodes."""
+        items = self.episodes_list.selectedItems()
+        if not items:
+            return
+
+        # 'play' button should be enabled if only one row is selected and
+        # its state is 'downloaded'
+        play_enabled = False
+        if len(items) == 1:
+            episode = self.programs_data[items[0].episode_id]
+            if episode.state == Status.downloaded:
+                play_enabled = True
+        self.action_play.setEnabled(play_enabled)
+
+        # 'download' button should be enabled if at least one of the selected
+        # rows is in 'none' state, and if config is ok
+        download_enabled = False
+        if self._have_config():
+            for item in items:
+                episode = self.programs_data[item.episode_id]
+                if episode.state == Status.none:
+                    download_enabled = True
+                    break
+        self.action_download.setEnabled(download_enabled)

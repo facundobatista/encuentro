@@ -2,7 +2,6 @@
 # -*- coding: UTF-8 -*-
 
 import operator
-import os
 
 from PyQt4.QtGui import (
     QHBoxLayout,
@@ -10,78 +9,36 @@ from PyQt4.QtGui import (
     QPixmap,
     QPushButton,
     QSplitter,
-    QTableView,
     QTextEdit,
     QVBoxLayout,
     QWidget,
     QTreeWidget,
     QTreeWidgetItem,
 )
-from PyQt4.QtCore import Qt, QAbstractTableModel
+from PyQt4.QtCore import Qt
 
 from encuentro import data, image
-
-# user role for a QTreeWidgetItem
-EPISODE = 33
-
-class DownloadsModel(QAbstractTableModel):
-    """The model of the downloads queue."""
-    # FIXME: convert this (merging with View) to a QTreeWidget
-
-    _headers = (u"Descargando...", u"Estado")
-
-    def __init__(self, view_parent):
-        super(DownloadsModel, self).__init__(view_parent)
-        self._data = []
-
-    def rowCount(self, parent):
-        """The count of rows."""
-        return len(self._data)
-
-    def columnCount(self, parent):
-        """The count of columns."""
-        return len(self._headers)
-
-    def data(self, index, role):
-        """Well, the data"""
-        if not index.isValid():
-            return
-        if role != Qt.DisplayRole:
-            return
-        return self._data[index.row()][index.column()]
-
-    def headerData(self, col, orientation, role):
-        """The header data."""
-        # FIXME: the header is not there!!
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return self._headers[col]
-
-    def flags(self, index):
-        """Behaviour."""
-        # FIXME: when clicking on anywhere, the whole row should look "selected"
-        return Qt.ItemIsEnabled
+from encuentro.data import Status
 
 
-class DownloadsView(QTableView):
+class DownloadsWidget(QTreeWidget):
     """The downloads queue."""
-    # FIXME: convert this (merging with Model) to a QTreeWidget
 
-    def __init__(self, main_window):
-        self.main_window = main_window
-        super(DownloadsView, self).__init__()
+    def __init__(self, main_window, episodes_widget):
+        self.main_window = main_window  # FIXME: ver si este se necesita
+        self.episodes_widget = episodes_widget
+        super(DownloadsWidget, self).__init__(main_window)
 
-        self.model = DownloadsModel(self)
-        self.setModel(self.model)
+        _headers = (u"Descargando...", u"Estado")
+        self.setColumnCount(len(_headers))
+        self.setHeaderLabels(_headers)
+#        header = self.header()
+#        header.setStretchLastSection(False)
+#        header.setResizeMode(0, header.Stretch)
 
-        # hide grid
-        self.setShowGrid(False)
-
-        hh = self.horizontalHeader()
-        hh.setStretchLastSection(True)
-        # FIXME: the first column should be the "stretched" one
-
-        # hide vertical header
-        self.verticalHeader().setVisible(False)
+        self.queue = []
+        self.current = -1
+        self.downloading = False
 
         # connect the signals
         self.clicked.connect(self.on_signal_clicked)
@@ -89,6 +46,71 @@ class DownloadsView(QTableView):
     def on_signal_clicked(self, model_index):
         """The view was clicked."""
         # FIXME: need to point in the EpisodesWidget to this episode
+
+    def append(self, episode):
+        """Append an episode to the downloads list."""
+        # add to the list in the GUI
+        item = QTreeWidgetItem((episode.title, u"Encolado"))
+        item.episode_id = episode.episode_id
+        self.queue.append((episode, item))
+        self.addTopLevelItem(item)
+
+        # fix episode state
+        episode.state = Status.downloading
+
+        # always show the last line
+        # FIXME: hacer esto! algo muy similar a
+        #row = self.store[-1]
+        #self.treeview.scroll_to_cell(row.path)
+
+    def prepare(self):
+        """Set up everything for next download."""
+        self.downloading = True
+        self.current += 1
+        episode, _ = self.queue[self.current]
+        return episode
+
+    def start(self):
+        """Download started."""
+        episode, item = self.queue[self.current]
+        item.setText(1, u"Comenzando")  # FIXME: revisar que esto lo actualice
+        episode.state = Status.downloading
+
+    def progress(self, progress):
+        """Advance the progress indicator."""
+        _, item = self.queue[self.current]
+        item.setText(1, u"Descargando: %s" % progress)  # FIXME: revisar que esto lo actualice
+
+    def end(self, error=None):
+        """Mark episode as downloaded."""
+        episode, item = self.queue[self.current]
+        if error is None:
+            # downloaded OK
+            gui_msg = u"Terminado ok"
+            end_state = Status.downloaded
+        else:
+            # something bad happened
+            gui_msg = unicode(error)
+            end_state = Status.none
+        item.setText(1, gui_msg)  # FIXME: revisar que esto lo actualice
+        item.setDisabled(True)   # FIXME: revisar que esto de el efecto de "apagado"
+        episode.state = end_state
+        self.episodes_widget.set_color(episode, data.DOWNLOADED_COLOR)
+        self.downloading = False
+
+    def cancel(self):
+        """The download is being cancelled."""
+        _, item = self.queue[self.current]
+        item.setText(1, u"Cancelando")  # FIXME: revisar que esto lo actualice
+
+    def pending(self):
+        """Return the pending downloads quantity (including current)."""
+        # remaining after current one
+        q = len(self.queue) - self.current - 1
+        # if we're still downloading current one, add it to the count
+        if self.downloading:
+            q += 1
+        return q
 
 
 class EpisodesWidget(QTreeWidget):
@@ -122,8 +144,8 @@ class EpisodesWidget(QTreeWidget):
             item.episode_id = e.episode_id
             self._item_map[e.episode_id] = item
             self.addTopLevelItem(item)
-            if i == 100:
-                break
+            if e.state == Status.downloaded:
+                self.set_color(e, data.DOWNLOADED_COLOR)
 
         # enable sorting
         self.setSortingEnabled(True)
@@ -132,6 +154,7 @@ class EpisodesWidget(QTreeWidget):
         self.clicked.connect(self.on_signal_clicked)
 
         # FIXME: we should allow multiple selections
+        # FIXME: double click should trigger some action
 
     def on_signal_clicked(self, model_index):
         """The view was clicked."""
@@ -139,6 +162,7 @@ class EpisodesWidget(QTreeWidget):
         item = self.currentItem()
         episode = self.main_window.programs_data[item.episode_id]
         self.episode_info.update(episode)
+        self.main_window.check_download_play_buttons()
 
     def update_episode(self, episode):
         """Update episode with new info"""
@@ -150,8 +174,16 @@ class EpisodesWidget(QTreeWidget):
         """Update episode with new info"""
         item = QTreeWidgetItem([unicode(v) for v in self._row_getter(episode)])
         item.episode_id = episode.episode_id
+        item.setBackgroundColor(episode.color)
         self._item_map[episode.episode_id] = item
         self.addTopLevelItem(item)
+
+    def set_color(self, episode, color):
+        """Set the background color for an episode."""
+        episode.color = color
+        item = self._item_map[episode.episode_id]
+        for i in xrange(item.columnCount()):
+            item.setBackgroundColor(i, color)
 
 
 class EpisodeInfo(QWidget):
@@ -251,17 +283,20 @@ class BigPanel(QWidget):
 
         layout = QHBoxLayout(self)
 
+        # get this before, as it be used when creating other sutff
+        episode_info = EpisodeInfo()
+        self.episodes = EpisodesWidget(main_window, episode_info)
+
         # split on the right
         # FIXME: this splitter should remember its position between starts
         right_split = QSplitter(Qt.Vertical)
-        episode_info = EpisodeInfo()
         right_split.addWidget(episode_info)
-        right_split.addWidget(DownloadsView(main_window))
+        self.downloads_widget = DownloadsWidget(main_window, self.episodes)
+        right_split.addWidget(self.downloads_widget)
 
         # main split
         # FIXME: this splitter should remember its position between starts
         main_split = QSplitter(Qt.Horizontal)
-        self.episodes = EpisodesWidget(main_window, episode_info)
         main_split.addWidget(self.episodes)
         main_split.addWidget(right_split)
         layout.addWidget(main_split)

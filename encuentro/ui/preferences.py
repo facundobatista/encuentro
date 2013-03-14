@@ -1,7 +1,9 @@
 # -*- coding: utf8 -*-
 # FIXME: header y eso
 
+import os
 import pickle
+import sys
 import logging
 
 from PyQt4.QtGui import (
@@ -17,6 +19,8 @@ from PyQt4.QtGui import (
     QWidget,
 )
 from PyQt4.QtCore import Qt
+
+from encuentro import platform
 
 logger = logging.getLogger('encuentro.preferences')
 
@@ -144,13 +148,10 @@ class PreferencesDialog(QDialog):
 
 
 if __name__ == '__main__':
-    import os
-    import sys
 
     project_basedir = os.path.abspath(os.path.dirname(os.path.dirname(
                                             os.path.realpath(sys.argv[0]))))
     sys.path.insert(0, project_basedir)
-    import platform
 
     from PyQt4.QtGui import QApplication
     app = QApplication(sys.argv)

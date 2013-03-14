@@ -4,99 +4,12 @@ import os
 import pickle
 
 
-from twisted.internet import reactor, defer
+from twisted.internet import reactor
 
-from encuentro.network import (
-    BadCredentialsError,
-    CancelledError,
-    all_downloaders,
-)
 from encuentro import wizard, platform, update
 
 BASEDIR = os.path.dirname(__file__)
 
-
-
-
-# columns number in the liststore
-STORE_POS_DURATION = 3
-STORE_POS_EPIS = 4
-STORE_POS_COLOR = 5
-
-
-
-class DownloadingList(object):
-    """Handle the list to download and its GUI reflection."""
-
-    def __init__(self, treeview, store):
-        self.treeview = treeview
-        self.store = store
-        self.queue = []
-        self.current = -1
-        self.downloading = False
-        self.paths_relation = {}  # for paths of both treeviews
-
-    def append(self, episode, programs_path):
-        """Appens and episode to the list."""
-        # title, state, active
-        it = self.store.append((episode.title, u"Encolado", True))
-        self.queue.append((episode, it))
-        episode.state = Status.downloading
-
-        # always show the last line
-        row = self.store[-1]
-        self.treeview.scroll_to_cell(row.path)
-
-        self.paths_relation[row.path] = programs_path
-
-    def prepare(self):
-        """Set up everything for next download."""
-        self.downloading = True
-        self.current += 1
-        episode, _ = self.queue[self.current]
-        return episode
-
-    def start(self):
-        """Download started."""
-        episode, it = self.queue[self.current]
-        self.store.set_value(it, 1, u"Comenzando")
-        episode.state = Status.downloading
-
-    def progress(self, progress):
-        """Advance the progress indicator."""
-        _, it = self.queue[self.current]
-        self.store.set_value(it, 1, u"Descargando: %s" % progress)
-
-    def end(self, error=None):
-        """Mark episode as downloaded."""
-        episode, it = self.queue[self.current]
-        if error is None:
-            # downloaded OK
-            gui_msg = "Terminado ok"
-            end_state = Status.downloaded
-        else:
-            # something bad happened
-            gui_msg = error
-            end_state = Status.none
-        self.store.set_value(it, 1, gui_msg)
-        self.store.set_value(it, 2, False)  # deactivate the row
-        episode.state = end_state
-        episode.color = DOWNLOADED_COLOR
-        self.downloading = False
-
-    def cancel(self):
-        """The download is being cancelled."""
-        _, it = self.queue[self.current]
-        self.store.set_value(it, 1, u"Cancelando")
-
-    def pending(self):
-        """Return the pending downloads quantity (including current)."""
-        # remaining after current one
-        q = len(self.queue) - self.current - 1
-        # if we're still downloading current one, add it to the count
-        if self.downloading:
-            q += 1
-        return q
 
 
 class MainUI(object):
@@ -105,7 +18,6 @@ class MainUI(object):
     def __init__(self, version):
 
         self.update_dialog = update.UpdateUI(self)
-        self.preferences_dialog = PreferencesUI(self, self.config)
 
         self.downloaders = {}
         for downtype, dloader_class in all_downloaders.iteritems():
@@ -218,96 +130,6 @@ class MainUI(object):
         for downloader in self.downloaders.itervalues():
             downloader.shutdown()
         reactor.stop()
-
-    def on_toolbutton_preferencias_clicked(self, widget, data=None):
-        """Open the preference dialog."""
-        self.preferences_dialog.run(self.main_window.get_position())
-        self.review_need_something_indicator()
-    on_menu_preferences_activate = on_toolbutton_preferencias_clicked
-
-    def on_toolbutton_update_clicked(self, widget, data=None):
-        """Open the preference dialog."""
-        self.update_dialog.run(self.main_window.get_position())
-        self.review_need_something_indicator()
-    on_menu_update_activate = on_toolbutton_update_clicked
-
-    def on_toolbutton_download_clicked(self, widget, data=None):
-        """Download the episode(s)."""
-        tree_selection = self.programs_treeview.get_selection()
-        _, pathlist = tree_selection.get_selected_rows()
-        for path in pathlist:
-            row = self.programs_store[path]
-            self._queue_download(row, path)
-    on_menu_download_activate = on_toolbutton_download_clicked
-
-    @defer.inlineCallbacks
-    def _queue_download(self, row, path):
-        """User indicated to download something."""
-        episode = self.programs_data[row[STORE_POS_EPIS]]
-        logger.debug("Download requested of %s", episode)
-        if episode.state != Status.none:
-            logger.debug("Download denied, episode %s is not in downloadeable "
-                         "state.", episode.episode_id)
-            return
-
-        # queue
-        self.episodes_download.append(episode, path)
-        self._check_download_play_buttons()
-        self._update_info_panel()
-        if self.episodes_download.downloading:
-            return
-
-        logger.debug("Downloads: starting")
-        while self.episodes_download.pending():
-            episode = self.episodes_download.prepare()
-            try:
-                filename, episode = yield self._episode_download(episode)
-            except CancelledError:
-                logger.debug("Got a CancelledError!")
-                self.episodes_download.end(error=u"Cancelado")
-            except BadCredentialsError:
-                logger.debug("Bad credentials error!")
-                self._show_message(self.dialog_alert)
-                self.episodes_download.end(error=u"Error con las credenciales")
-            except Exception, e:
-                logger.debug("Unknown download error: %s", e)
-                self._show_message(self.dialog_error, str(e))
-                self.episodes_download.end(error=u"Error: " + str(e))
-            else:
-                logger.debug("Episode downloaded: %s", episode)
-                self.episodes_download.end()
-                episode.filename = filename
-
-            # update the color to show it finished
-            titer = self.episodes_iters[episode.episode_id]
-            row = self.programs_store[titer]
-            row[STORE_POS_COLOR] = DOWNLOADED_COLOR
-
-            # update panel info and buttons
-            self._check_download_play_buttons()
-            self._update_info_panel()
-
-        logger.debug("Downloads: finished")
-
-
-    @defer.inlineCallbacks
-    def _episode_download(self, episode):
-        """Effectively download an episode."""
-        logger.debug("Effectively downloading episode %s", episode.episode_id)
-        self.episodes_download.start()
-
-        # download!
-        downloader = self.downloaders[episode.downtype]
-        fname = yield downloader.download(episode.channel,
-                                          episode.section, episode.title,
-                                          episode.url,
-                                          self.episodes_download.progress)
-        episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
-                                          episode.title)
-        if self.config.get('notification', True) and pynotify is not None:
-            n = pynotify.Notification(u"Descarga finalizada", episode_name)
-            n.show()
-        defer.returnValue((fname, episode))
 
     def on_toolbutton_play_clicked(self, widget, data=None):
         """Play the episode."""
@@ -436,32 +258,3 @@ class MainUI(object):
         self._check_download_play_buttons(tree_selection)
         self._update_info_panel(tree_selection)
 
-    def _check_download_play_buttons(self, tree_selection=None):
-        """Set both buttons state according to the selected episodes."""
-        if tree_selection is None:
-            tree_selection = self.programs_treeview.get_selection()
-            if tree_selection is None:
-                return
-        _, pathlist = tree_selection.get_selected_rows()
-
-        # 'play' button should be enabled if only one row is selected and
-        # its state is 'downloaded'
-        play_enabled = False
-        if len(pathlist) == 1:
-            row = self.programs_store[pathlist[0]]
-            episode = self.programs_data[row[STORE_POS_EPIS]]
-            if episode.state == Status.downloaded:
-                play_enabled = True
-        self.sensit_grouper.set_sensitive('play', play_enabled)
-
-        # 'download' button should be enabled if at least one of the selected
-        # rows is in 'none' state, and if config is ok
-        download_enabled = False
-        if self._have_config():
-            for path in pathlist:
-                row = self.programs_store[path]
-                episode = self.programs_data[row[STORE_POS_EPIS]]
-                if episode.state == Status.none:
-                    download_enabled = True
-                    break
-        self.sensit_grouper.set_sensitive('download', download_enabled)
