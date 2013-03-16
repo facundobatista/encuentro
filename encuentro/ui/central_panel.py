@@ -28,13 +28,11 @@ class DownloadsWidget(QTreeWidget):
         self.main_window = main_window  # FIXME: ver si este se necesita
         self.episodes_widget = episodes_widget
         super(DownloadsWidget, self).__init__(main_window)
+        # FIXME: the columns width should be rememembered between starts
 
         _headers = (u"Descargando...", u"Estado")
         self.setColumnCount(len(_headers))
         self.setHeaderLabels(_headers)
-#        header = self.header()
-#        header.setStretchLastSection(False)
-#        header.setResizeMode(0, header.Stretch)
 
         self.queue = []
         self.current = -1
@@ -45,7 +43,8 @@ class DownloadsWidget(QTreeWidget):
 
     def on_signal_clicked(self, model_index):
         """The view was clicked."""
-        # FIXME: need to point in the EpisodesWidget to this episode
+        # FIXME: need to point in the EpisodesWidget to this episode (and of
+        #     course refresh the episode info)
 
     def append(self, episode):
         """Append an episode to the downloads list."""
@@ -127,8 +126,13 @@ class EpisodesWidget(QTreeWidget):
         self.episode_info = episode_info
         super(EpisodesWidget, self).__init__(main_window)
         self.setMinimumSize(600, 300)
+        # FIXME: the columns width should be rememembered between starts
+        # FIXME: the columns order ("how the table is sorted") should be
+        #     remembered between starts
+        # FIXME: the row selected should be remembered between starts (and
+        #     after start it should be shown what is selected)
 
-#        # FIXME: the duration column should be right-aligned
+        # FIXME: the duration column should be right-aligned
         _headers = (u"Canal", u"Sección", u"Título", u"Duración [min]")
         self.setColumnCount(len(_headers))
         self.setHeaderLabels(_headers)

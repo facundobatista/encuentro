@@ -12,6 +12,7 @@ from PyQt4.QtGui import (
     QLabel,
     QLineEdit,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QStyle,
     qApp,
@@ -75,6 +76,7 @@ class MainUI(QMainWindow):
     def __init__(self, version, reactor_stop):
         super(MainUI, self).__init__()
         self.reactor_stop = reactor_stop
+        self.finished = False
         # FIXME: size and positions should remain the same between starts
         self.resize(800, 600)
         self.move(300, 300)
@@ -249,8 +251,43 @@ class MainUI(QMainWindow):
 
     def closeEvent(self, event):
         """All is being closed."""
-        self.programs_data.save()
-        self.reactor_stop()
+        if self._should_close():
+            # self._save_states()  FIXME: if we need to save states, the call is here
+            self.finished = True
+            self.programs_data.save()
+            for downloader in self.downloaders.itervalues():
+                downloader.shutdown()
+            self.reactor_stop()
+        else:
+            event.ignore()
+
+    def _should_close(self):
+        """Still time to decide if want to close or not."""
+        logger.info("Attempt to close the program")
+        pending = self.episodes_download.pending()
+        if not pending:
+            # all fine, save all and quit
+            logger.info("Saving states and quitting")
+            return True
+        logger.debug("Still %d active downloads when trying to quit", pending)
+
+        # stuff pending
+        m = (u"Hay programas todavía en proceso de descarga!\n"
+             u"¿Seguro quiere salir del programa?")
+        QMB = QMessageBox
+        dlg = QMB(u"Guarda!", m, QMB.Question, QMB.Yes, QMB.No, QMB.NoButton)
+        opt = dlg.exec_()
+        if opt != QMB.Yes:
+            logger.info("Quit cancelled")
+            return False
+
+        # quit anyway, put all downloading and pending episodes to none
+        logger.info("Fixing episodes, saving state and exiting")
+        for program in self.programs_data.values():
+            state = program.state
+            if state == Status.waiting or state == Status.downloading:
+                program.state = Status.none
+        return True
 
     def _show_message(self, dialog, text=None):
         """Show different download errors."""

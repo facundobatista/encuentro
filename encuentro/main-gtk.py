@@ -1,38 +1,11 @@
-
 import cgi
 import os
-import pickle
 
-
-from twisted.internet import reactor
-
-from encuentro import wizard, platform, update
-
-BASEDIR = os.path.dirname(__file__)
-
+from encuentro import platform
 
 
 class MainUI(object):
     """Main GUI class."""
-
-    def __init__(self, version):
-
-        self.update_dialog = update.UpdateUI(self)
-
-        self.downloaders = {}
-        for downtype, dloader_class in all_downloaders.iteritems():
-            self.downloaders[downtype] = dloader_class(self.config)
-        self.episodes_download = DownloadingList(self.downloads_treeview,
-                                                 self.downloads_store)
-
-        self.episodes_iters = {}
-        self.refresh_treeview()
-        self.finished = False
-
-        if not self.config.get('nowizard'):
-            wizard.start(self, self._have_config, self._have_metadata)
-        self.review_need_something_indicator()
-        self._update_info_panel()
 
     def refresh_treeview(self, field_filter='', only_downloaded=False):
         """Update the liststore of the programs."""
@@ -62,74 +35,6 @@ class MainUI(object):
         text = cgi.escape(text)
         only_downloaded = self.checkbutton_filterdloaded.get_active()
         self.refresh_treeview(text, only_downloaded)
-
-    def _close(self):
-        """Still time to decide if want to close or not."""
-        logger.info("Attempt to close the program")
-        pending = self.episodes_download.pending()
-        if not pending:
-            # all fine, save all and quit
-            logger.info("Saving states and quitting")
-            self._save_states()
-            return False
-        logger.debug("Still %d active downloads when trying to quit", pending)
-
-        # stuff pending
-        m = u"Hay programas todavía en proceso de descarga!"
-        self.dialog_quit_label.set_text(m)
-        opt_quit = self.dialog_quit.run()
-        self.dialog_quit.hide()
-        if not opt_quit:
-            logger.info("Quit cancelled")
-            return True
-
-        # quit anyway, put all downloading and pending episodes to none
-        logger.info("Fixing episodes, saving state and exiting")
-        for program in self.programs_data.values():
-            state = program.state
-            if state == Status.waiting or state == Status.downloading:
-                program.state = Status.none
-        self._save_states()
-        return False
-
-    def on_menu_quit_activate(self, widget):
-        """Quit from the menu."""
-        # strange semantics because we use the same True/False that does the
-        # trick for event propagation
-        abort_close = self._close()
-        if not abort_close:
-            self.on_main_window_destroy(None)
-
-    def _save_states(self):
-        """Dump all states and info to disk."""
-        self.programs_data.save()
-
-        self.config['mainwin_size'] = self.main_window.get_size()
-        self.config['mainwin_position'] = self.main_window.get_position()
-        treeview_columns = self.programs_treeview.get_columns()
-        self.config['cols_width'] = [c.get_width() for c in treeview_columns]
-
-        cols_order = self.programs_store.get_sort_column_id()
-        if cols_order != (None, None):
-            self.config['cols_order'] = cols_order
-
-        tree_selection = self.programs_treeview.get_selection()
-        _, pathlist = tree_selection.get_selected_rows()
-        if len(pathlist) > 0:
-            self.config['selected_row'] = pathlist[0]
-
-        self.config['pane_list_info_pos'] = self.pane_list_info.get_position()
-        self.config['pane_md_state_pos'] = self.pane_md_state.get_position()
-
-        with open(self._config_file, 'w') as fh:
-            pickle.dump(self.config, fh)
-
-    def on_main_window_destroy(self, widget, data=None):
-        """Stop all other elements than the GUI itself."""
-        self.finished = True
-        for downloader in self.downloaders.itervalues():
-            downloader.shutdown()
-        reactor.stop()
 
     def on_toolbutton_play_clicked(self, widget, data=None):
         """Play the episode."""
@@ -163,33 +68,6 @@ class MainUI(object):
             self._show_message(self.dialog_error, msg)
             episode.state = Status.none
             episode.color = None
-
-    def on_any_treeviewcolumn_clicked(self, widget, data=None):
-        """Clicked on the column title.
-
-        Note that the received widget is the column itself.
-        """
-        # get previous order and calculate new one for current column
-        prev_order = getattr(widget, '_order', None)
-        if prev_order is None or prev_order == gtk.SORT_DESCENDING:
-            new_order = gtk.SORT_ASCENDING
-        else:
-            new_order = gtk.SORT_DESCENDING
-
-        # store the order and handle indicator
-        widget._order = new_order
-        widget.set_sort_indicator(True)
-        widget.set_sort_order(new_order)
-
-    def on_downloads_treeview_button_press_event(self, widget, event):
-        """Simple button click."""
-        cursor = widget.get_path_at_pos(int(event.x), int(event.y))
-        programs_path = self.episodes_download.paths_relation[cursor[0]]
-        tv = self.programs_treeview
-        tv.scroll_to_cell(programs_path, row_align=0.5, use_align=True)
-        selection = tv.get_selection()
-        selection.unselect_all()
-        selection.select_path(programs_path)
 
     def on_programs_treeview_row_activated(self, treeview, path, view_column):
         """Double click on the episode, download or play."""
