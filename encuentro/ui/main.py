@@ -177,15 +177,15 @@ class MainUI(QMainWindow):
         self.action_download = QAction(icon, '&Descargar', self)
         self.action_download.setShortcut('Ctrl+D')
         self.action_download.setStatusTip(u'Descarga el programa de la web')
-        self.action_download.triggered.connect(self._download_episode)
+        self.action_download.triggered.connect(self.download_episode)
         menu_prog.addAction(self.action_download)
         # FIXME: al arrancar, como no hay fila seleccionada, no debería estar
         # el 'descargar' habilitado
 
         icon = self.style().standardIcon(QStyle.SP_MediaPlay)
-        # FIXME: connect signal
         self.action_play = QAction(icon, '&Reproducir', self)
         self.action_play.setStatusTip(u'Reproduce el programa')
+        self.action_play.triggered.connect(self.play_episode)
         menu_prog.addAction(self.action_play)
         # FIXME: al arrancar, como no hay fila seleccionada, no debería estar
         # el 'play' habilitado
@@ -291,7 +291,7 @@ class MainUI(QMainWindow):
 
     def _show_message(self, dialog, text=None):
         """Show different download errors."""
-        # FIXME: reconvert all this method!!
+        # FIXME: reconvert all this method!! and check all who calls this
         if self.finished:
             logger.debug("Ignoring message: %r (%s)", text, dialog)
             return
@@ -320,12 +320,11 @@ class MainUI(QMainWindow):
         """Update and refresh episodes."""
         update.UpdateEpisodes(self)
 
-    def _download_episode(self, _):
+    def download_episode(self, _=None):
         """Download the episode(s)."""
         items = self.episodes_list.selectedItems()
         for item in items:
             episode = self.programs_data[item.episode_id]
-            print "======== Download episode", episode
             self._queue_download(episode)
 
     @defer.inlineCallbacks
@@ -350,7 +349,7 @@ class MainUI(QMainWindow):
                 filename, episode = yield self._episode_download(episode)
             except CancelledError:
                 logger.debug("Got a CancelledError!")
-                self.episodes_download.end(error=u"Cancelado")
+                self.episodes_download.end(error=u"Cancelao")
             except BadCredentialsError:
                 logger.debug("Bad credentials error!")
                 self._show_message(self.dialog_alert)
@@ -421,3 +420,41 @@ class MainUI(QMainWindow):
                     download_enabled = True
                     break
         self.action_download.setEnabled(download_enabled)
+
+    def play_episode(self, _=None):
+        """Play the selected episode."""
+        items = self.episodes_list.selectedItems()
+        if len(items) != 1:
+            raise ValueError("Wrong call to play_episode, with %d selections"
+                             % len(items))
+        item = items[0]
+        episode = self.programs_data[item.episode_id]
+        downloaddir = self.config.get('downloaddir', '')
+        filename = os.path.join(downloaddir, episode.filename)
+
+        logger.info("Play requested of %s", episode)
+        if os.path.exists(filename):
+            # pass file:// url with absolute path
+            fullpath = 'file://' + os.path.abspath(filename)
+            logger.info("Playing %r", fullpath)
+            platform.open_file(fullpath)
+        else:
+            logger.warning("Aborted playing, file not found: %r", filename)
+            msg = (u"No se encontró el archivo para reproducir: " +
+                   repr(filename))
+            self._show_message(self.dialog_error, msg)
+            episode.state = Status.none
+            episode.color = None
+
+    def cancel_download(self):
+        """Cancel the downloading of an episode."""
+        items = self.episodes_list.selectedItems()
+        if len(items) != 1:
+            raise ValueError("Wrong call to cancel_download, with %d "
+                             "selections" % len(items))
+        item = items[0]
+        episode = self.programs_data[item.episode_id]
+        logger.info("Cancelling download of %s", episode)
+        self.episodes_download.cancel()
+        downloader = self.downloaders[episode.downtype]
+        downloader.cancel()

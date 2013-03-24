@@ -6,14 +6,15 @@ import operator
 from PyQt4.QtGui import (
     QHBoxLayout,
     QLabel,
+    QMenu,
     QPixmap,
     QPushButton,
     QSplitter,
     QTextEdit,
-    QVBoxLayout,
-    QWidget,
     QTreeWidget,
     QTreeWidgetItem,
+    QVBoxLayout,
+    QWidget,
 )
 from PyQt4.QtCore import Qt
 
@@ -72,13 +73,13 @@ class DownloadsWidget(QTreeWidget):
     def start(self):
         """Download started."""
         episode, item = self.queue[self.current]
-        item.setText(1, u"Comenzando")  # FIXME: revisar que esto lo actualice
+        item.setText(1, u"Comenzando")
         episode.state = Status.downloading
 
     def progress(self, progress):
         """Advance the progress indicator."""
         _, item = self.queue[self.current]
-        item.setText(1, u"Descargando: %s" % progress)  # FIXME: revisar que esto lo actualice
+        item.setText(1, u"Descargando: %s" % progress)
 
     def end(self, error=None):
         """Mark episode as downloaded."""
@@ -100,7 +101,7 @@ class DownloadsWidget(QTreeWidget):
     def cancel(self):
         """The download is being cancelled."""
         _, item = self.queue[self.current]
-        item.setText(1, u"Cancelando")  # FIXME: revisar que esto lo actualice
+        item.setText(1, u"Cancelado")
 
     def pending(self):
         """Return the pending downloads quantity (including current)."""
@@ -156,9 +157,23 @@ class EpisodesWidget(QTreeWidget):
 
         # connect the signals
         self.clicked.connect(self.on_signal_clicked)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.on_right_button)
 
         # FIXME: we should allow multiple selections
-        # FIXME: double click should trigger some action
+
+        # FIXME: double click should trigger some action, something like
+        #  logger.debug("Double click in %s", episode)
+        #  if episode.state == Status.downloaded:
+        #      self._play_episode(row)
+        #  elif episode.state == Status.none:
+        #      if self._have_config():
+        #          self._queue_download(row, path)
+        #      else:
+        #          logger.debug("Not starting download because no config.")
+        #          t = (u"No se puede arrancar una descarga porque la "
+        #               u"configuración está incompleta.")
+        #          self._show_message(self.dialog_alert, t)
 
     def on_signal_clicked(self, model_index):
         """The view was clicked."""
@@ -167,6 +182,34 @@ class EpisodesWidget(QTreeWidget):
         episode = self.main_window.programs_data[item.episode_id]
         self.episode_info.update(episode)
         self.main_window.check_download_play_buttons()
+
+    def on_right_button(self, point):
+        """Right button was pressed, build a menu."""
+        item = self.currentItem()
+        episode = self.main_window.programs_data[item.episode_id]
+        menu = QMenu()
+        act_play = menu.addAction(u"&Reproducir",
+                self.main_window.play_episode)
+        act_cancel = menu.addAction(u"&Cancelar descarga",
+                self.main_window.cancel_download)
+        act_download = menu.addAction(u"&Descargar",
+                self.main_window.download_episode)
+
+        # set menu options according status
+        state = episode.state
+        if state == Status.downloaded:
+            act_play.setEnabled(True)
+            act_cancel.setEnabled(False)
+            act_download.setEnabled(False)
+        elif state == Status.downloading or state == Status.waiting:
+            act_play.setEnabled(False)
+            act_cancel.setEnabled(True)
+            act_download.setEnabled(False)
+        elif state == Status.none:
+            act_play.setEnabled(False)
+            act_cancel.setEnabled(False)
+            act_download.setEnabled(True)
+        menu.exec_(self.viewport().mapToGlobal(point))
 
     def update_episode(self, episode):
         """Update episode with new info"""
