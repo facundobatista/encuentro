@@ -121,6 +121,7 @@ class EpisodesWidget(QTreeWidget):
 
     _row_getter = operator.attrgetter('channel', 'section',
                                       'title', 'duration')
+    _title_column = 2
 
     def __init__(self, main_window, episode_info):
         self.main_window = main_window
@@ -141,7 +142,6 @@ class EpisodesWidget(QTreeWidget):
         header.setStretchLastSection(False)
         header.setResizeMode(2, header.Stretch)
         episodes = list(self.main_window.programs_data.values())
-        print "======= data at init:", len(episodes)
 
         self._item_map = {}
         for i, e in enumerate(episodes):
@@ -231,6 +231,30 @@ class EpisodesWidget(QTreeWidget):
         item = self._item_map[episode.episode_id]
         for i in xrange(item.columnCount()):
             item.setBackgroundColor(i, color)
+
+    def set_filter(self, text, only_downloaded=False):
+        """Apply a filter to the episodes list."""
+        for episode_id, item in self._item_map.iteritems():
+            episode = self.main_window.programs_data[episode_id]
+            if episode.should_filter(text, only_downloaded):
+                item.setHidden(True)
+            else:
+                item.setHidden(False)
+                if text:
+                    # filtering by text, so highlight
+                    t = episode.title
+                    # FIXME: see how we can put some color here
+                    #pos1 = t.find(text)
+                    #pos2 = pos1 + len(text)
+                    #result = ''.join(t[:pos1] + '<span background="yellow">' +
+                    #                 t[pos1:pos2] + '</span>' + t[pos2:])
+                    # hint:     jbmolher answer in
+                    # http://stackoverflow.com/questions/1956542/how-to-make-item-view-render-rich-html-text-in-qt
+                    result = t
+                    item.setText(self._title_column, result)
+                else:
+                    # no highlighting
+                    item.setText(self._title_column, episode.title)
 
 
 class EpisodeInfo(QWidget):

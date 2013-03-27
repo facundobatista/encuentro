@@ -26,25 +26,26 @@ class Status(object):
     downloaded = 'downloaded'
 
 
-_normalize_cache = {}
-def search_normalizer(char):
-    """Normalize always to one char length."""
-    try:
-        return _normalize_cache[char]
-    except KeyError:
-        norm = normalize('NFKD', char).encode('ASCII', 'ignore').lower()
-        if not norm:
-            norm = '?'
-        _normalize_cache[char] = norm
-        return norm
-
-
-def prepare_to_filter(text):
-    """Prepare a text to filter.
-
-    It receives unicode, but return simple lowercase ascii.
-    """
-    return ''.join(search_normalizer(c) for c in text)
+# FIXME: see if we need this to implement "nice filtering"
+#_normalize_cache = {}
+#def search_normalizer(char):
+#    """Normalize always to one char length."""
+#    try:
+#        return _normalize_cache[char]
+#    except KeyError:
+#        norm = normalize('NFKD', char).encode('ASCII', 'ignore').lower()
+#        if not norm:
+#            norm = '?'
+#        _normalize_cache[char] = norm
+#        return norm
+#
+#
+#def prepare_to_filter(text):
+#    """Prepare a text to filter.
+#
+#    It receives unicode, but return simple lowercase ascii.
+#    """
+#    return ''.join(search_normalizer(c) for c in text)
 
 
 class EpisodeData(object):
@@ -72,7 +73,6 @@ class EpisodeData(object):
         self.progress = progress
         self.filename = filename
         self.to_filter = None
-        self.set_filter()
         self.downtype = downtype
 
     def update(self, channel, section, title, duration, description,
@@ -95,52 +95,20 @@ class EpisodeData(object):
         self.filename = filename
         self.downtype = downtype
 
-    def set_filter(self):
-        """Set the data to filter later."""
-        self.to_filter = dict(title=prepare_to_filter(self.title))
+    def should_filter(self, text, only_downloaded):
+        """Tell if the episode should be filtered out."""
+        if text not in self.title:
+            return True, None
+        if only_downloaded and self.state != Status.downloaded:
+            return True, None
+
+        # don't filter! let's check what to highlight
+        return False
 
     def __str__(self):
         args = (self.episode_id, self.state, self.channel,
                 self.section, self.title)
         return "<EpisodeData [%s] (%s) %r (%r): %r>" % args
-
-    def _filter(self, attrib_name, field_filter):
-        """Check if filter is ok and highligh the attribute."""
-        attrib_to_search = self.to_filter[attrib_name]
-        t = attrib_real = getattr(self, attrib_name)
-        pos1 = attrib_to_search.find(field_filter)
-        if pos1 == -1:
-            return False, attrib_real
-
-        pos2 = pos1 + len(field_filter)
-        result = ''.join(t[:pos1] + '<span background="yellow">' +
-                         t[pos1:pos2] + '</span>' + t[pos2:])
-        return True, result
-
-    def get_row_data(self, field_filter, only_downloaded):
-        """Return the data for the liststore row."""
-        # FIXME: see if this goes away after we implement "filter"
-        if only_downloaded and self.state != Status.downloaded:
-            # want only finished donwloads, and this didn't
-            return
-
-        if field_filter == '':
-            title = self.title
-        else:
-            # it's being filtered
-            found_title, title = self._filter('title', field_filter)
-            if not found_title:
-                # not matched any, don't show the row
-                return
-
-        duration = u'?' if self.duration is None else unicode(self.duration)
-        if self.state == Status.downloaded:
-            color = DOWNLOADED_COLOR
-        else:
-            color = None
-        data = (self.channel, self.section, title, duration,
-                self.episode_id, color)
-        return data
 
 
 class ProgramsData(object):

@@ -209,7 +209,9 @@ class MainUI(QMainWindow):
         toolbar = self.addToolBar('')
         toolbar.addWidget(QLabel(u"Filtro: "))
         # FIXME: connect signal
-        toolbar.addWidget(QLineEdit())
+        filter_line = QLineEdit()
+        filter_line.textChanged.connect(self.on_filter_changed)
+        toolbar.addWidget(filter_line)
         # FIXME: connect signal
         toolbar.addWidget(QCheckBox(u"Sólo descargados"))
 
@@ -229,22 +231,35 @@ class MainUI(QMainWindow):
             dlg.exec_()
         self._review_need_something_indicator()
 
+    def on_filter_changed(self, new_text):
+        """The filter text has changed, apply it in the episodes list."""
+        # FIXME: aca no depender de que se recibe, porque el checkbox tambien
+        # va a apuntar aca, sino que tomar el texto y el estado del checkbox
+        # y llamar a set filter con ambas cosas
+
+        # FIXME: ver que tenemos que normalizar el texto para que la busqueda
+        # matchee mejor:
+        # text = prepare_to_filter(text)
+
+        # FIXME: en funcion de como ponemos el color resaltado, ver si tenemos
+        # que escapar cosas como &:
+        # text = cgi.escape(text)
+
+        self.episodes_list.set_filter(new_text)
+
     def _review_need_something_indicator(self):
         """Hide/show/enable/disable different indicators if need sth."""
         if not self._have_config() or not self._have_metadata():
             # config needed, put the alert if not there
             # FIXME: este isVisible no anda
             if not self.needsomething_button.isVisible():
-                print "======= boton oculto, lo prendemos"
                 self.needsomething_button.show()
             # also turn off the download button
             self.action_download.setEnabled(False)
         else:
             # no config needed, remove the alert if there
-            print "========= no conf needed!"
             # FIXME: este isVisible no anda
             if self.needsomething_button.isVisible():
-                print "======= boton visible, lo escondemos"
                 self.needsomething_button.hide()
             # also turn on the download button
             self.action_download.setEnabled(True)
