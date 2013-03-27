@@ -58,8 +58,7 @@ class NiceImporter(object):
                                     version=self.version)
 
 
-# test some packages! gtk and twisted are controlled in main.py, as they
-# import order is critical because of the reactor
+# test the packages
 # pylint: disable=W0611
 
 with NiceImporter('xdg', 'python-xdg', '0.15'):
