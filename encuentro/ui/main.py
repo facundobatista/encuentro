@@ -51,6 +51,16 @@ from encuentro.ui import central_panel, wizard, preferences
 
 logger = logging.getLogger('encuentro.main')
 
+# tooltips for buttons enabled and disabled
+TTIP_PLAY_E = u'Reproducir el programa'
+TTIP_PLAY_D = (
+    u"Reproducir - El episodio debe estar descargado para poder verlo."
+)
+TTIP_DOWNLOAD_E = u'Descargar el programa de la web'
+TTIP_DOWNLOAD_D = (
+    u"Descargar - No se puede descargar si ya está descargado o falta "
+    u"alguna configuración en el programa."
+)
 
 # FIXME: need an About dialog, connected to the proper signals below
 #   title: Encuentro <version>   <-- need to receive the version when exec'ed
@@ -147,14 +157,14 @@ class MainUI(QMainWindow):
         icon = self.style().standardIcon(QStyle.SP_BrowserReload)
         action_reload = QAction(icon, '&Refrescar', self)
         action_reload.setShortcut('Ctrl+R')
-        action_reload.setStatusTip(u'Recarga la lista de programas')
+        action_reload.setToolTip(u'Recarga la lista de programas')
         action_reload.triggered.connect(self._refresh_episodes)
         menu_appl.addAction(action_reload)
 
         # FIXME: set an icon for preferences
         action_preferences = QAction(u'&Preferencias', self)
         action_preferences.triggered.connect(self._preferences)
-        action_preferences.setStatusTip(
+        action_preferences.setToolTip(
             u'Configurar distintos parámetros del programa')
         menu_appl.addAction(action_preferences)
 
@@ -163,13 +173,13 @@ class MainUI(QMainWindow):
         # FIXME: set an icon for about
         _act = QAction('&Acerca de', self)
         # FIXME: connect signal
-        _act.setStatusTip(u'Muestra información de la aplicación')
+        _act.setToolTip(u'Muestra información de la aplicación')
         menu_appl.addAction(_act)
 
         icon = self.style().standardIcon(QStyle.SP_DialogCloseButton)
         _act = QAction(icon, '&Salir', self)
         _act.setShortcut('Ctrl+Q')
-        _act.setStatusTip(u'Sale de la aplicación')
+        _act.setToolTip(u'Sale de la aplicación')
         _act.triggered.connect(qApp.quit)
         menu_appl.addAction(_act)
 
@@ -179,26 +189,19 @@ class MainUI(QMainWindow):
         icon = self.style().standardIcon(QStyle.SP_ArrowDown)
         self.action_download = QAction(icon, '&Descargar', self)
         self.action_download.setShortcut('Ctrl+D')
-        self.action_download.setStatusTip(u'Descarga el programa de la web')
+        self.action_download.setEnabled(False)
+        self.action_download.setToolTip(TTIP_DOWNLOAD_D)
         self.action_download.triggered.connect(self.download_episode)
         menu_prog.addAction(self.action_download)
-        # FIXME: al arrancar, como no hay fila seleccionada, no debería estar
-        # el 'descargar' habilitado
 
         icon = self.style().standardIcon(QStyle.SP_MediaPlay)
         self.action_play = QAction(icon, '&Reproducir', self)
-        self.action_play.setStatusTip(u'Reproduce el programa')
+        self.action_play.setEnabled(False)
+        self.action_play.setToolTip(TTIP_PLAY_D)
         self.action_play.triggered.connect(self.play_episode)
         menu_prog.addAction(self.action_play)
-        # FIXME: al arrancar, como no hay fila seleccionada, no debería estar
-        # el 'play' habilitado
 
         # toolbar for buttons
-        # FIXME: put tooltips here, for these buttons
-        # - play, active: u"Reproducir"
-        # - play, disabled: u"Reproducir - El episodio debe estar descargado para poder verlo."
-        # - download, active: u"Descargar"
-        # - download, disabled: u"Descargar - No se puede descargar si ya está descargado o falta alguna configuración en el programa."
         toolbar = self.addToolBar('main')
         toolbar.addAction(self.action_download)
         toolbar.addAction(self.action_play)
@@ -254,18 +257,13 @@ class MainUI(QMainWindow):
         """Hide/show/enable/disable different indicators if need sth."""
         if not self._have_config() or not self._have_metadata():
             # config needed, put the alert if not there
-            # FIXME: este isVisible no anda
-            if not self.needsomething_button.isVisible():
-                self.needsomething_button.show()
-            # also turn off the download button
-            self.action_download.setEnabled(False)
+            # FIXME: check this show works ok
+            self.needsomething_button.show()
         else:
             # no config needed, remove the alert if there
-            # FIXME: este isVisible no anda
-            if self.needsomething_button.isVisible():
-                self.needsomething_button.hide()
+            # FIXME: this hide() is NOT WORKING!!
+            self.needsomething_button.hide()
             # also turn on the download button
-            self.action_download.setEnabled(True)
 
     def closeEvent(self, event):
         """All is being closed."""
@@ -425,6 +423,8 @@ class MainUI(QMainWindow):
             if episode.state == Status.downloaded:
                 play_enabled = True
         self.action_play.setEnabled(play_enabled)
+        ttip = TTIP_PLAY_E if play_enabled else TTIP_PLAY_D
+        self.action_play.setToolTip(ttip)
 
         # 'download' button should be enabled if at least one of the selected
         # rows is in 'none' state, and if config is ok
@@ -435,7 +435,9 @@ class MainUI(QMainWindow):
                 if episode.state == Status.none:
                     download_enabled = True
                     break
+        ttip = TTIP_DOWNLOAD_E if download_enabled else TTIP_DOWNLOAD_D
         self.action_download.setEnabled(download_enabled)
+        self.action_download.setToolTip(ttip)
 
     def play_episode(self, _=None):
         """Play the selected episode."""
