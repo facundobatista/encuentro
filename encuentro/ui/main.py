@@ -18,12 +18,14 @@
 
 """The main window."""
 
-
 import logging
 import os
 import pickle
 
-import pynotify
+try:
+    import pynotify
+except ImportError:
+    pynotify = None
 
 from PyQt4.QtGui import (
     QAction,
@@ -61,24 +63,6 @@ logger = logging.getLogger('encuentro.main')
 # FIXME: need to put an icon that looks nice in alt-tab, taskbar, unity, etc
 
 # FIXME: need to make Encuentro "iconizable"
-
-# FIXME: need a Warning dialog for when the user needs config
-#   text: El usuario o clave configurados es incorrecto, o el
-#         episodio no está disponible!
-#   button1: Configurar...
-#   button2: Aceptar
-
-# FIXME: need a generic Error dialog for when something goes wrong
-#   text: by code
-#   button1: Aceptar
-#   button2: by code, if needed
-#   button3: by code, if needed
-
-# FIXME: need a Quit dialog, for when user wants to quit but there's
-# stuff still going on
-#   text: by code
-#   button1: No quiero salir
-#   button2: Sí, salir!
 
 # FIXME: set up a status icon, when the icon is clicked the main window should
 # appear or disappear, keeping the position and size of the position after
@@ -323,13 +307,12 @@ class MainUI(QMainWindow):
                 program.state = Status.none
         return True
 
-    def _show_message(self, dialog, text=None):
-        """Show different download errors."""
-        # FIXME: reconvert all this method!! and check all who calls this
+    def _show_message(self, err_type, text):
+        """Show different messages to the user."""
         if self.finished:
-            logger.debug("Ignoring message: %r (%s)", text, dialog)
+            logger.debug("Ignoring message: %r", text)
             return
-        logger.debug("Showing a message: %r (%s)", text, dialog)
+        logger.debug("Showing a message: %r", text)
 
         # error text can be produced by windows, try to to sanitize it
         if isinstance(text, str):
@@ -341,14 +324,10 @@ class MainUI(QMainWindow):
                 except UnicodeDecodeError:
                     text = repr(text)
 
-        if text is not None:
-            hbox = dialog.get_children()[0].get_children()[0]
-            label = hbox.get_children()[1].get_children()[0]
-            label.set_text(text)
-        configure = dialog.run()
-        dialog.hide()
-        if configure == 1:
-            self.preferences_dialog.run(self.main_window.get_position())
+        QMB = QMessageBox
+        dlg = QMB(u"Atención: " + err_type, text, QMB.Warning,
+                  QMB.Ok, QMB.NoButton, QMB.NoButton)
+        dlg.exec_()
 
     def _refresh_episodes(self, _):
         """Update and refresh episodes."""
@@ -386,11 +365,14 @@ class MainUI(QMainWindow):
                 self.episodes_download.end(error=u"Cancelao")
             except BadCredentialsError:
                 logger.debug("Bad credentials error!")
-                self._show_message(self.dialog_alert)
-                self.episodes_download.end(error=u"Error con las credenciales")
+                msg = (u"Error con las credenciales: hay que configurar "
+                       u"usuario y clave correctos")
+                self._show_message('BadCredentialsError', msg)
+                self.episodes_download.end(error=msg)
             except Exception, e:
                 logger.debug("Unknown download error: %s", e)
-                self._show_message(self.dialog_error, str(e))
+                err_type = e.__class__.__name__
+                self._show_message(err_type, str(e))
                 self.episodes_download.end(error=u"Error: " + str(e))
             else:
                 logger.debug("Episode downloaded: %s", episode)
@@ -476,7 +458,7 @@ class MainUI(QMainWindow):
             logger.warning("Aborted playing, file not found: %r", filename)
             msg = (u"No se encontró el archivo para reproducir: " +
                    repr(filename))
-            self._show_message(self.dialog_error, msg)
+            self._show_message('Error al reproducir', msg)
             episode.state = Status.none
             episode.color = None
 
