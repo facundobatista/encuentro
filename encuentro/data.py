@@ -1,4 +1,20 @@
-# FIXME: header y eso
+# Copyright 2013 Facundo Batista
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3, as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranties of
+# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+# PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# For further info, check  https://launchpad.net/encuentro
+
+"""Classes to interface to and persist the episodes data."""
 
 import cgi
 import logging
@@ -7,15 +23,9 @@ import pickle
 
 from unicodedata import normalize
 
-from PyQt4.QtGui import QColor
-
 from encuentro.ui import dialogs
 
 logger = logging.getLogger('encuentro.data')
-
-# FIXME: move this to central_panel
-# the background color for when the episode is finished
-DOWNLOADED_COLOR = QColor("light green")
 
 
 class Status(object):
@@ -26,26 +36,25 @@ class Status(object):
     downloaded = 'downloaded'
 
 
-# FIXME: see if we need this to implement "nice filtering"
-#_normalize_cache = {}
-#def search_normalizer(char):
-#    """Normalize always to one char length."""
-#    try:
-#        return _normalize_cache[char]
-#    except KeyError:
-#        norm = normalize('NFKD', char).encode('ASCII', 'ignore').lower()
-#        if not norm:
-#            norm = '?'
-#        _normalize_cache[char] = norm
-#        return norm
-#
-#
-#def prepare_to_filter(text):
-#    """Prepare a text to filter.
-#
-#    It receives unicode, but return simple lowercase ascii.
-#    """
-#    return ''.join(search_normalizer(c) for c in text)
+_normalize_cache = {}
+def _search_normalizer(char):
+    """Normalize always to one char length."""
+    try:
+        return _normalize_cache[char]
+    except KeyError:
+        norm = normalize('NFKD', char).encode('ASCII', 'ignore').lower()
+        if not norm:
+            norm = '?'
+        _normalize_cache[char] = norm
+        return norm
+
+
+def prepare_to_filter(text):
+    """Prepare a text to filter.
+
+    It receives unicode, but return simple lowercase ascii.
+    """
+    return ''.join(_search_normalizer(c) for c in text)
 
 
 class EpisodeData(object):
@@ -75,6 +84,9 @@ class EpisodeData(object):
         self.to_filter = None
         self.downtype = downtype
 
+        # cache the processed title
+        self._normalized_title = prepare_to_filter(self.title)
+
     def update(self, channel, section, title, duration, description,
                episode_id, url, image_url, state=None, progress=None,
                filename=None, downtype=None):
@@ -97,7 +109,10 @@ class EpisodeData(object):
 
     def should_filter(self, text, only_downloaded):
         """Tell if the episode should be filtered out."""
-        if text not in self.title:
+        # check if we have it, because unpickled object will not
+        if not hasattr(self, '_normalized_title'):
+            self._normalized_title = prepare_to_filter(self.title)
+        if prepare_to_filter(text) not in self._normalized_title:
             return True, None
         if only_downloaded and self.state != Status.downloaded:
             return True, None
@@ -118,7 +133,7 @@ class ProgramsData(object):
     last_programs_version = 1
 
     def __init__(self, main_window, filename):
-        self.main_window = main_window  # FIXME: check if this is needed
+        self.main_window = main_window
         self.filename = filename
         print "Using data file:", repr(filename)
 
@@ -186,13 +201,13 @@ class ProgramsData(object):
 
         # migrate
         if self.version == 0:
-            # migrate! actually, from 0, no migration is possible, we
+            # actually, from 0, no migration is possible, we
             # need to tell the user the ugly truth
-            # FIXME: test both paths here
             dlg = dialogs.ForceUpgradeDialog()
-            go_on = dlg.exec_()
-            if not go_on:
-                exit()
+            should_quit = dlg.exec_()
+            if should_quit:
+                self.main_window.shutdown()
+                return
             # if user accessed to go on, don't really need to migrate
             # anything, as *all* the code is to support the new metadata
             # version only, so just remove it and mark the usr/pass config

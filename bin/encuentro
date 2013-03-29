@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-#
-# Copyright 2011 Facundo Batista
+# Copyright 2011-2013 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -21,14 +20,6 @@
 
 import sys
 import os
-
-# special import before any other imports to configure GUI
-# FIXME: see if we can put NiceImporter here
-# FIXME: see if we can put this code in __init__ or main.py
-import sip
-for name in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
-    sip.setapi(name, 2)   # API v2 FTW!
-
 
 # this will be replaced at install time
 INSTALLED_BASE_DIR = "@ INSTALLED_BASE_DIR @"

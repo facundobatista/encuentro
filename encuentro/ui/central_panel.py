@@ -1,9 +1,27 @@
-# FIXME: add copyright stuff here and in all the other windows
 # -*- coding: UTF-8 -*-
+
+# Copyright 2013 Facundo Batista
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3, as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranties of
+# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+# PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# For further info, check  https://launchpad.net/encuentro
+
+"""Central panels in the main window, the content part of all the interface."""
 
 import operator
 
 from PyQt4.QtGui import (
+    QColor,
     QHBoxLayout,
     QLabel,
     QMenu,
@@ -95,7 +113,7 @@ class DownloadsWidget(QTreeWidget):
         item.setText(1, gui_msg)  # FIXME: revisar que esto lo actualice
         item.setDisabled(True)   # FIXME: revisar que esto de el efecto de "apagado"
         episode.state = end_state
-        self.episodes_widget.set_color(episode, data.DOWNLOADED_COLOR)
+        self.episodes_widget.set_color(episode)
         self.downloading = False
 
     def cancel(self):
@@ -149,8 +167,7 @@ class EpisodesWidget(QTreeWidget):
             item.episode_id = e.episode_id
             self._item_map[e.episode_id] = item
             self.addTopLevelItem(item)
-            if e.state == Status.downloaded:
-                self.set_color(e, data.DOWNLOADED_COLOR)
+            self.set_color(e)
 
         # enable sorting
         self.setSortingEnabled(True)
@@ -221,13 +238,16 @@ class EpisodesWidget(QTreeWidget):
         """Update episode with new info"""
         item = QTreeWidgetItem([unicode(v) for v in self._row_getter(episode)])
         item.episode_id = episode.episode_id
-        item.setBackgroundColor(episode.color)
         self._item_map[episode.episode_id] = item
+        self.set_color(episode)
         self.addTopLevelItem(item)
 
-    def set_color(self, episode, color):
-        """Set the background color for an episode."""
-        episode.color = color
+    def set_color(self, episode):
+        """Set the background color for an episode (if needed)."""
+        if episode.state == Status.downloaded:
+            color = QColor("light green")
+        else:
+            color = QColor("white")
         item = self._item_map[episode.episode_id]
         for i in xrange(item.columnCount()):
             item.setBackgroundColor(i, color)
