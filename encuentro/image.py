@@ -57,7 +57,12 @@ class ImageGetter(object):
             os.rename(temp_file_name, file_fullname)
             self.callback(episode_id, file_fullname)
 
+        def _d_errback(failure):
+            """Log the problem."""
+            logger.error("Problem getting image: %s",
+                         failure.getErrorMessage())
+
         logger.debug("Need to download the image")
         d = getPage(url)
         d.addCallback(_d_callback, episode_id, file_fullname)
-        # FIXME: add an errback to log on error
+        d.addErrback(_d_errback)
