@@ -103,11 +103,14 @@ class MainUI(QMainWindow):
             self.downloaders[downtype] = dloader_class(self.config)
 
         # finish all gui stuff
-        self._menubar()
         self.big_panel = central_panel.BigPanel(self)
         self.episodes_list = self.big_panel.episodes
         self.episodes_download = self.big_panel.downloads_widget
         self.setCentralWidget(self.big_panel)
+
+        # the setting of menubar should be almost in the end, because it may
+        # trigger the wizard, which needs big_panel and etc.
+        self._menubar()
         self.show()
         logger.debug("Main UI started ok")
 
@@ -144,11 +147,11 @@ class MainUI(QMainWindow):
             config['downloaddir'] = platform.get_download_dir()
         return config
 
-    def _have_config(self):
+    def have_config(self):
         """Return if some config is needed."""
         return self.config.get('user') and self.config.get('password')
 
-    def _have_metadata(self):
+    def have_metadata(self):
         """Return if metadata is needed."""
         return bool(self.programs_data)
 
@@ -163,12 +166,12 @@ class MainUI(QMainWindow):
         action_reload = QAction(icon, '&Refrescar', self)
         action_reload.setShortcut('Ctrl+R')
         action_reload.setToolTip(u'Recarga la lista de programas')
-        action_reload.triggered.connect(self._refresh_episodes)
+        action_reload.triggered.connect(self.refresh_episodes)
         menu_appl.addAction(action_reload)
 
         # FIXME: set an icon for preferences
         action_preferences = QAction(u'&Preferencias', self)
-        action_preferences.triggered.connect(self._preferences)
+        action_preferences.triggered.connect(self.open_preferences)
         action_preferences.setToolTip(
             u'Configurar distintos parámetros del programa')
         menu_appl.addAction(action_preferences)
@@ -237,9 +240,8 @@ class MainUI(QMainWindow):
 
     def _start_wizard(self, _=None):
         """Start the wizard if needed."""
-        if not self._have_config() or not self._have_metadata():
-            dlg = wizard.WizardDialog(self, self._have_config,
-                                      self._have_metadata)
+        if not self.have_config() or not self.have_metadata():
+            dlg = wizard.WizardDialog(self)
             dlg.exec_()
         self._review_need_something_indicator()
 
@@ -251,8 +253,8 @@ class MainUI(QMainWindow):
 
     def _review_need_something_indicator(self):
         """Hide/show/enable/disable different indicators if need sth."""
-        needsomething = bool(not self._have_config() or
-                             not self._have_metadata())
+        needsomething = bool(not self.have_config() or
+                             not self.have_metadata())
         self.needsomething_alert.setVisible(needsomething)
 
     def shutdown(self):
@@ -333,7 +335,7 @@ class MainUI(QMainWindow):
                   QMB.Ok, QMB.NoButton, QMB.NoButton)
         dlg.exec_()
 
-    def _refresh_episodes(self, _):
+    def refresh_episodes(self, _=None):
         """Update and refresh episodes."""
         update.UpdateEpisodes(self)
 
@@ -407,7 +409,7 @@ class MainUI(QMainWindow):
             n.show()
         defer.returnValue((fname, episode))
 
-    def _preferences(self, _):
+    def open_preferences(self, _=None):
         """Open the preferences dialog."""
         dlg = preferences.PreferencesDialog()
         dlg.exec_()
@@ -435,7 +437,7 @@ class MainUI(QMainWindow):
         # 'download' button should be enabled if at least one of the selected
         # rows is in 'none' state, and if config is ok
         download_enabled = False
-        if self._have_config():
+        if self.have_config():
             for item in items:
                 episode = self.programs_data[item.episode_id]
                 if episode.state == Status.none:

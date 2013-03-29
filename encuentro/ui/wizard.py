@@ -67,12 +67,9 @@ STEPS = [
 
 class WizardDialog(QDialog):
     """The dialog for update."""
-    def __init__(self, main_window, have_episodes, have_config):
+    def __init__(self, main_window):
         super(WizardDialog, self).__init__()
         self.main_window = main_window
-        self.have_episodes = have_episodes
-        self.have_config = have_config
-
         vbox = QVBoxLayout(self)
 
         # label and checkbox
@@ -95,6 +92,7 @@ class WizardDialog(QDialog):
         vbox.addWidget(bbox)
 
         self.show()
+        self.step = 0
         self._move(0)
 
     def _notthisagain_toggled(self, state):
@@ -102,41 +100,43 @@ class WizardDialog(QDialog):
         logger.info("Configuring 'nowizard' to %s", state)
         self.main_window.config['nowizard'] = state
 
-    def _move(self, step):
+    def _move(self, delta_step):
         """The engine for the wizard steps."""
-        logger.debug("Entering into step %d", step)
-        (text, ign_func, act_label, act_func) = STEPS[step]
+        self.step += delta_step
+        logger.debug("Entering into step %d", self.step)
+        (text, ign_func, act_label, act_func) = STEPS[self.step]
         # if this step should be ignored, just leave
         if ign_func is not None:
             m = getattr(self, "_ign_" + ign_func)
             if m():
-                return
+                # keep going
+                return self._move(delta_step)
 
         # adjust navigation buttons
         # FIXME: corregir que luego de apretarlos, estos botones lucen como
         # "todavía apretados" en la ventana siguiente
-        if step == 0:
+        if self.step == 0:
             self.navbut_prev.setEnabled(False)
             self.navbut_next.setText(u"Siguiente")
             self.navbut_next.clicked.disconnect()
             self.navbut_next.clicked.connect(lambda: self._move(1))
-            # FIXME: poner el checkbox
-        elif step == len(STEPS) - 1:
+            self.notthisagain.show()
+        elif self.step == len(STEPS) - 1:
             self.navbut_prev.setEnabled(True)
             self.navbut_prev.clicked.disconnect()
-            self.navbut_prev.clicked.connect(lambda: self._move(step - 1))
+            self.navbut_prev.clicked.connect(lambda: self._move(-1))
             self.navbut_next.setText(u"Terminar")
             self.navbut_next.clicked.disconnect()
             self.navbut_next.clicked.connect(self.accept)
-            # FIXME: sacar el checkbox
+            self.notthisagain.hide()
         else:
             self.navbut_prev.setEnabled(True)
             self.navbut_prev.clicked.disconnect()
-            self.navbut_prev.clicked.connect(lambda: self._move(step - 1))
+            self.navbut_prev.clicked.connect(lambda: self._move(-1))
             self.navbut_next.setText(u"Siguiente")
             self.navbut_next.clicked.disconnect()
-            self.navbut_next.clicked.connect(lambda: self._move(step + 1))
-            # FIXME: sacar el checkbox
+            self.navbut_next.clicked.connect(lambda: self._move(1))
+            self.notthisagain.hide()
 
         # adjust main text and action button
         self.main_text.setText(text)
@@ -149,26 +149,21 @@ class WizardDialog(QDialog):
             self.navbut_actn.clicked.disconnect()
             self.navbut_actn.clicked.connect(method_to_call)
 
-    def _act_configure(self, *a):
+    def _act_configure(self, _):
         """Open the config dialog."""
-        # FIXME code this, something very similar to:
-        # self.main.preferences_dialog.run(self.window.get_position())
+        self.main_window.open_preferences()
 
     def _act_update(self, *a):
         """Open the update dialog."""
-        # FIXME code this, something very similar to:
-        # self.main.update_dialog.run(self.window.get_position())
+        self.main_window.refresh_episodes()
 
     def _ign_episode(self):
         """Tell if the episode step should be ignored."""
-        # FIXME: code this, something very similar to:
-        #return self.have_episodes()
+        return self.main_window.have_metadata()
 
     def _ign_config(self):
         """Tell if the configure step should be ignored."""
-        # FIXME: code this, something very similar to:
-        #return self.have_config()
-
+        return self.main_window.have_config()
 
 
 if __name__ == '__main__':
