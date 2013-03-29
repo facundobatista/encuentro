@@ -111,11 +111,16 @@ class MainUI(QMainWindow):
         self.show()
         logger.debug("Main UI started ok")
 
+    def _save_config(self):
+        """Save the config to disk."""
+        with open(self._config_file, 'wb') as fh:
+            pickle.dump(self.config, fh)
+
     def _load_config(self):
         """Load the config from disk."""
         # get config from file, or defaults
         if os.path.exists(self._config_file):
-            with open(self._config_file) as fh:
+            with open(self._config_file, 'rb') as fh:
                 config = pickle.load(fh)
                 if self.programs_data.reset_config_from_migration:
                     config['user'] = ''
@@ -257,6 +262,7 @@ class MainUI(QMainWindow):
         extra precautions about which attributes we have.
         """
         # self._save_states()  FIXME: if we need to save states, the call is here
+        self._save_config()
         self.finished = True
 
         programs_data = getattr(self, 'programs_data', None)

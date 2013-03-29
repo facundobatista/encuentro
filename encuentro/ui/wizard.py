@@ -78,9 +78,11 @@ class WizardDialog(QDialog):
         # label and checkbox
         self.main_text = QLabel(u"init text")
         vbox.addWidget(self.main_text)
-        self.notthisagain = QCheckBox(u"No mostrar nuevamente esta ayuda")
+        self.notthisagain = QCheckBox(u"No mostrar automáticamente esta ayuda")
+        nowizard = self.main_window.config.get('nowizard', False)
+        self.notthisagain.setCheckState(nowizard)
+        self.notthisagain.stateChanged.connect(self._notthisagain_toggled)
         vbox.addWidget(self.notthisagain)
-        # FIXME: poner signal que dispare self._notthisagain_toggled
 
         # buttons
         bbox = QDialogButtonBox()
@@ -95,16 +97,10 @@ class WizardDialog(QDialog):
         self.show()
         self._move(0)
 
-        # FIXME: que en el momento de cerrarse el dialogo, se llame a:
-        #   self.main.review_need_something_indicator()
-
-    def _notthisagain_toggled(self, *a):
+    def _notthisagain_toggled(self, state):
         """The "not this again" checkbutton togled state."""
-        print "====== a", a
-        # FIXME: code this, something very similar to:
-        # new_state = widget.get_active()
-        # logger.info("Configuring 'nowizard' to %s", new_state)
-        # self.main.config['nowizard'] = new_state
+        logger.info("Configuring 'nowizard' to %s", state)
+        self.main_window.config['nowizard'] = state
 
     def _move(self, step):
         """The engine for the wizard steps."""
