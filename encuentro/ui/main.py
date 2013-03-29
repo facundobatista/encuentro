@@ -221,10 +221,11 @@ class MainUI(QMainWindow):
         # FIXME: connect signal
         toolbar.addWidget(QCheckBox(u"Sólo descargados"))
 
-        # FIXME: we need to change this text for just a "!" sign image
-        self.needsomething_button = QPushButton("Need config!")
-        self.needsomething_button.clicked.connect(self._start_wizard)
-        toolbar.addWidget(self.needsomething_button)
+        icon = self.style().standardIcon(QStyle.SP_MessageBoxWarning)
+        m = u"Necesita configurar algo; haga click aquí para abrir el wizard"
+        self.needsomething_alert = QAction(icon, m, self)
+        self.needsomething_alert.triggered.connect(self._start_wizard)
+        toolbar.addAction(self.needsomething_alert)
         if not self.config.get('nowizard'):
             self._start_wizard()
         self._review_need_something_indicator()
@@ -255,15 +256,9 @@ class MainUI(QMainWindow):
 
     def _review_need_something_indicator(self):
         """Hide/show/enable/disable different indicators if need sth."""
-        if not self._have_config() or not self._have_metadata():
-            # config needed, put the alert if not there
-            # FIXME: check this show works ok
-            self.needsomething_button.show()
-        else:
-            # no config needed, remove the alert if there
-            # FIXME: this hide() is NOT WORKING!!
-            self.needsomething_button.hide()
-            # also turn on the download button
+        needsomething = bool(not self._have_config() or
+                             not self._have_metadata())
+        self.needsomething_alert.setVisible(needsomething)
 
     def closeEvent(self, event):
         """All is being closed."""
