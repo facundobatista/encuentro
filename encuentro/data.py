@@ -42,26 +42,25 @@ class Status(object):
     downloaded = 'downloaded'
 
 
-# FIXME: see if we need this to implement "nice filtering"
-#_normalize_cache = {}
-#def search_normalizer(char):
-#    """Normalize always to one char length."""
-#    try:
-#        return _normalize_cache[char]
-#    except KeyError:
-#        norm = normalize('NFKD', char).encode('ASCII', 'ignore').lower()
-#        if not norm:
-#            norm = '?'
-#        _normalize_cache[char] = norm
-#        return norm
-#
-#
-#def prepare_to_filter(text):
-#    """Prepare a text to filter.
-#
-#    It receives unicode, but return simple lowercase ascii.
-#    """
-#    return ''.join(search_normalizer(c) for c in text)
+_normalize_cache = {}
+def _search_normalizer(char):
+    """Normalize always to one char length."""
+    try:
+        return _normalize_cache[char]
+    except KeyError:
+        norm = normalize('NFKD', char).encode('ASCII', 'ignore').lower()
+        if not norm:
+            norm = '?'
+        _normalize_cache[char] = norm
+        return norm
+
+
+def prepare_to_filter(text):
+    """Prepare a text to filter.
+
+    It receives unicode, but return simple lowercase ascii.
+    """
+    return ''.join(_search_normalizer(c) for c in text)
 
 
 class EpisodeData(object):
@@ -91,6 +90,9 @@ class EpisodeData(object):
         self.to_filter = None
         self.downtype = downtype
 
+        # cache the processed title
+        self._normalized_title = prepare_to_filter(self.title)
+
     def update(self, channel, section, title, duration, description,
                episode_id, url, image_url, state=None, progress=None,
                filename=None, downtype=None):
@@ -113,7 +115,10 @@ class EpisodeData(object):
 
     def should_filter(self, text, only_downloaded):
         """Tell if the episode should be filtered out."""
-        if text not in self.title:
+        # check if we have it, because unpickled object will not
+        if not hasattr(self, '_normalized_title'):
+            self._normalized_title = prepare_to_filter(self.title)
+        if prepare_to_filter(text) not in self._normalized_title:
             return True, None
         if only_downloaded and self.state != Status.downloaded:
             return True, None

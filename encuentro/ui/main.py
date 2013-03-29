@@ -214,12 +214,12 @@ class MainUI(QMainWindow):
         # right of the window
         toolbar = self.addToolBar('')
         toolbar.addWidget(QLabel(u"Filtro: "))
-        # FIXME: connect signal
-        filter_line = QLineEdit()
-        filter_line.textChanged.connect(self.on_filter_changed)
-        toolbar.addWidget(filter_line)
-        # FIXME: connect signal
-        toolbar.addWidget(QCheckBox(u"Sólo descargados"))
+        self.filter_line = QLineEdit()
+        self.filter_line.textChanged.connect(self.on_filter_changed)
+        toolbar.addWidget(self.filter_line)
+        self.filter_cbox = QCheckBox(u"Sólo descargados")
+        self.filter_cbox.stateChanged.connect(self.on_filter_changed)
+        toolbar.addWidget(self.filter_cbox)
 
         icon = self.style().standardIcon(QStyle.SP_MessageBoxWarning)
         m = u"Necesita configurar algo; haga click aquí para abrir el wizard"
@@ -238,21 +238,11 @@ class MainUI(QMainWindow):
             dlg.exec_()
         self._review_need_something_indicator()
 
-    def on_filter_changed(self, new_text):
+    def on_filter_changed(self, _):
         """The filter text has changed, apply it in the episodes list."""
-        # FIXME: aca no depender de que se recibe, porque el checkbox tambien
-        # va a apuntar aca, sino que tomar el texto y el estado del checkbox
-        # y llamar a set filter con ambas cosas
-
-        # FIXME: ver que tenemos que normalizar el texto para que la busqueda
-        # matchee mejor:
-        # text = prepare_to_filter(text)
-
-        # FIXME: en funcion de como ponemos el color resaltado, ver si tenemos
-        # que escapar cosas como &:
-        # text = cgi.escape(text)
-
-        self.episodes_list.set_filter(new_text)
+        text = self.filter_line.text()
+        cbox = self.filter_cbox.checkState()
+        self.episodes_list.set_filter(text, cbox)
 
     def _review_need_something_indicator(self):
         """Hide/show/enable/disable different indicators if need sth."""
