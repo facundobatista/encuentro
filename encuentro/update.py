@@ -38,27 +38,30 @@ class UpdateEpisodes(object):
     def __init__(self, main_window):
         self.main_window = main_window
 
-        # instantiate the dialog to report actions to the user
-        self.dialog = dialogs.UpdateDialog()
-        self.dialog.show()
-
-        # get the elements
-        self._update(lambda *t: self.dialog.append(u" ".join(map(unicode, t))))
-
-        # FIXME: ver si algo como esto se necesita... (es en el caso de cerrar
-        # y abrir el dialogo antes de que termine, para borrar lo anterior?)
-        # self.textview.get_buffer().set_text("")
+        # instantiate the dialog to report actions to the user and get elements
+        dialog = dialogs.UpdateDialog()
+        dialog.show()
+        self._update(dialog)
 
     @defer.inlineCallbacks
     def update(self, refresh_gui):
         """Trigger an update in background."""
         # FIXME: esto no esta probado, ver como se integra
-        yield self._update(lambda *text: None)
+        yield self._update()
         refresh_gui()
 
     @defer.inlineCallbacks
-    def _update(self, tell_user):
-        """Update the content from server."""
+    def _update(self, dialog=None):
+        """Update the content from server.
+
+        If we have a dialog (interactive update), check frequently if
+        it was closed, so we stop working for that request.
+        """
+        if dialog:
+            tell_user = lambda *t: dialog.append(u" ".join(map(unicode, t)))
+        else:
+            tell_user = lambda *t: None
+
         logger.info("Downloading backend list")
         tell_user("Descargando la lista de backends...")
         try:
@@ -67,7 +70,7 @@ class UpdateEpisodes(object):
             logger.error("Problem when downloading backends: %s", e)
             tell_user("Hubo un PROBLEMA al bajar la lista de backends:", e)
             return
-        if self.dialog.closed:
+        if dialog and dialog.closed:
             return
         backends_list = [l.strip().split() for l in backends_file.split("\n")
                          if l and l[0] != '#']
@@ -83,7 +86,7 @@ class UpdateEpisodes(object):
                 logger.error("Problem when downloading episodes: %s", e)
                 tell_user("Hubo un PROBLEMA al bajar los episodios: ", e)
                 return
-            if self.dialog.closed:
+            if dialog and dialog.closed:
                 return
 
             tell_user("Descomprimiendo el archivo....")
@@ -95,6 +98,8 @@ class UpdateEpisodes(object):
                 item['downtype'] = b_dloader
             backends[b_name] = content
 
+        if dialog and dialog.closed:
+            return
         tell_user("Conciliando datos de diferentes backends")
         logger.debug("Merging backends data")
         new_data = self._merge(backends)
@@ -105,7 +110,8 @@ class UpdateEpisodes(object):
                 new_data, self.main_window.big_panel.episodes)
 
         tell_user(u"¡Todo terminado bien!")
-        self.dialog.accept()  # FIXME: revisar que esto ciertamente cierre el dialogo
+        if dialog:
+            dialog.accept()
 
     def _merge(self, backends):
         """Merge content from all backends.

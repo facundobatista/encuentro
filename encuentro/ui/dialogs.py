@@ -66,9 +66,8 @@ class UpdateDialog(QDialog):
         super(UpdateDialog, self).__init__()
         vbox = QVBoxLayout(self)
         self.closed = False
-        # FIXME: cuando el dialogo se cierre, tiene que poner el self.closed en True
-        # FIXME: que sea modal
-        # FIXME: hacerlo más ancho, sabemos que hay mensajes largos
+        self.setModal(True)
+        self.resize(500, 250)
 
         vbox.addWidget(QLabel(u"Actualización de la lista de episodios:"))
         self.text = QPlainTextEdit()
@@ -82,6 +81,10 @@ class UpdateDialog(QDialog):
     def append(self, text):
         """Append some text in the dialog."""
         self.text.appendPlainText(text.strip())
+
+    def closeEvent(self, event):
+        """It was closed."""
+        self.closed = True
 
 
 if __name__ == '__main__':
