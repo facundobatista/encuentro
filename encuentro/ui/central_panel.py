@@ -21,6 +21,7 @@
 import operator
 
 from PyQt4.QtGui import (
+    QColor,
     QHBoxLayout,
     QLabel,
     QMenu,
@@ -112,7 +113,7 @@ class DownloadsWidget(QTreeWidget):
         item.setText(1, gui_msg)  # FIXME: revisar que esto lo actualice
         item.setDisabled(True)   # FIXME: revisar que esto de el efecto de "apagado"
         episode.state = end_state
-        self.episodes_widget.set_color(episode, data.DOWNLOADED_COLOR)
+        self.episodes_widget.set_color(episode)
         self.downloading = False
 
     def cancel(self):
@@ -166,8 +167,7 @@ class EpisodesWidget(QTreeWidget):
             item.episode_id = e.episode_id
             self._item_map[e.episode_id] = item
             self.addTopLevelItem(item)
-            if e.state == Status.downloaded:
-                self.set_color(e, data.DOWNLOADED_COLOR)
+            self.set_color(e)
 
         # enable sorting
         self.setSortingEnabled(True)
@@ -238,13 +238,16 @@ class EpisodesWidget(QTreeWidget):
         """Update episode with new info"""
         item = QTreeWidgetItem([unicode(v) for v in self._row_getter(episode)])
         item.episode_id = episode.episode_id
-        item.setBackgroundColor(episode.color)
         self._item_map[episode.episode_id] = item
+        self.set_color(episode)
         self.addTopLevelItem(item)
 
-    def set_color(self, episode, color):
-        """Set the background color for an episode."""
-        episode.color = color
+    def set_color(self, episode):
+        """Set the background color for an episode (if needed)."""
+        if episode.state == Status.downloaded:
+            color = QColor("light green")
+        else:
+            color = QColor("white")
         item = self._item_map[episode.episode_id]
         for i in xrange(item.columnCount()):
             item.setBackgroundColor(i, color)

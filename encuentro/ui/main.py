@@ -86,9 +86,9 @@ class MainUI(QMainWindow):
     print "Using configuration file:", repr(_config_file)
     _programs_file = os.path.join(platform.data_dir, 'encuentro.data')
 
-    def __init__(self, version, reactor_stop):
+    def __init__(self, version, app_quit):
         super(MainUI, self).__init__()
-        self.reactor_stop = reactor_stop
+        self.app_quit = app_quit
         self.finished = False
         # FIXME: size and positions should remain the same between starts
         self.resize(800, 600)
@@ -250,15 +250,30 @@ class MainUI(QMainWindow):
                              not self._have_metadata())
         self.needsomething_alert.setVisible(needsomething)
 
+    def shutdown(self):
+        """Stop everything and quit.
+
+        This shutdown con be called at any time, even on init, so we have
+        extra precautions about which attributes we have.
+        """
+        # self._save_states()  FIXME: if we need to save states, the call is here
+        self.finished = True
+
+        programs_data = getattr(self, 'programs_data', None)
+        if programs_data is not None:
+            programs_data.save()
+
+        downloaders = getattr(self, 'downloaders', {})
+        for downloader in downloaders.itervalues():
+            downloader.shutdown()
+
+        # bye bye
+        self.app_quit()
+
     def closeEvent(self, event):
         """All is being closed."""
         if self._should_close():
-            # self._save_states()  FIXME: if we need to save states, the call is here
-            self.finished = True
-            self.programs_data.save()
-            for downloader in self.downloaders.itervalues():
-                downloader.shutdown()
-            self.reactor_stop()
+            self.shutdown()
         else:
             event.ignore()
 
@@ -447,7 +462,7 @@ class MainUI(QMainWindow):
                    repr(filename))
             self._show_message('Error al reproducir', msg)
             episode.state = Status.none
-            episode.color = None
+            self.episodes_list.set_color(episode)
 
     def cancel_download(self):
         """Cancel the downloading of an episode."""

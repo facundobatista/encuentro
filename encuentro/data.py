@@ -23,15 +23,9 @@ import pickle
 
 from unicodedata import normalize
 
-from PyQt4.QtGui import QColor
-
 from encuentro.ui import dialogs
 
 logger = logging.getLogger('encuentro.data')
-
-# FIXME: move this to central_panel
-# the background color for when the episode is finished
-DOWNLOADED_COLOR = QColor("light green")
 
 
 class Status(object):
@@ -139,7 +133,7 @@ class ProgramsData(object):
     last_programs_version = 1
 
     def __init__(self, main_window, filename):
-        self.main_window = main_window  # FIXME: check if this is needed
+        self.main_window = main_window
         self.filename = filename
         print "Using data file:", repr(filename)
 
@@ -207,13 +201,13 @@ class ProgramsData(object):
 
         # migrate
         if self.version == 0:
-            # migrate! actually, from 0, no migration is possible, we
+            # actually, from 0, no migration is possible, we
             # need to tell the user the ugly truth
-            # FIXME: test both paths here
             dlg = dialogs.ForceUpgradeDialog()
-            go_on = dlg.exec_()
-            if not go_on:
-                exit()
+            should_quit = dlg.exec_()
+            if should_quit:
+                self.main_window.shutdown()
+                return
             # if user accessed to go on, don't really need to migrate
             # anything, as *all* the code is to support the new metadata
             # version only, so just remove it and mark the usr/pass config

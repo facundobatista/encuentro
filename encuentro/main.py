@@ -37,10 +37,17 @@ def start(version):
 
     # the order of the lines hereafter are very precise, don't mess with them
     app = QApplication(sys.argv)
-    print "Qt Application started", app
     import qt4reactor
     qt4reactor.install()
     from encuentro.ui.main import MainUI
     from twisted.internet import reactor
-    reactor.callWhenRunning(MainUI, version, reactor.stop)
+
+    def quit():
+        """Quit."""
+        # FIXME: if twisted is used (try reloading episodes), this doesn't
+        # really terminates the program, :/
+        app.quit()
+        reactor.stop()
+
+    reactor.callWhenRunning(MainUI, version, quit)
     reactor.run()
