@@ -34,13 +34,13 @@ from PyQt4.QtGui import (
     QLineEdit,
     QMainWindow,
     QMessageBox,
-    QPushButton,
     QStyle,
     qApp,
 )
 from twisted.internet import defer
 
 from encuentro import platform, data, update
+from encuentro.config import config
 from encuentro.data import Status
 from encuentro.network import (
     BadCredentialsError,
@@ -82,8 +82,6 @@ TTIP_DOWNLOAD_D = (
 class MainUI(QMainWindow):
     """Main UI."""
 
-    _config_file = os.path.join(platform.config_dir, 'encuentro.conf')
-    print "Using configuration file:", repr(_config_file)
     _programs_file = os.path.join(platform.data_dir, 'encuentro.data')
 
     def __init__(self, version, app_quit):
@@ -96,11 +94,11 @@ class MainUI(QMainWindow):
         self.setWindowTitle('Encuentro')
 
         self.programs_data = data.ProgramsData(self, self._programs_file)
-        self.config = self._load_config()
+        self._load_config()
 
         self.downloaders = {}
         for downtype, dloader_class in all_downloaders.iteritems():
-            self.downloaders[downtype] = dloader_class(self.config)
+            self.downloaders[downtype] = dloader_class()
 
         # finish all gui stuff
         self.big_panel = central_panel.BigPanel(self)
@@ -114,25 +112,11 @@ class MainUI(QMainWindow):
         self.show()
         logger.debug("Main UI started ok")
 
-    def _save_config(self):
-        """Save the config to disk."""
-        with open(self._config_file, 'wb') as fh:
-            pickle.dump(self.config, fh)
-
     def _load_config(self):
         """Load the config from disk."""
-        # get config from file, or defaults
-        if os.path.exists(self._config_file):
-            with open(self._config_file, 'rb') as fh:
-                config = pickle.load(fh)
-                if self.programs_data.reset_config_from_migration:
-                    config['user'] = ''
-                    config['password'] = ''
-                    config.pop('cols_width', None)
-                    config.pop('cols_order', None)
-                    config.pop('selected_row', None)
-        else:
-            config = {}
+        fname = os.path.join(platform.config_dir, 'encuentro.conf')
+        print "Using configuration file:", repr(fname)
+        config.init(fname)
 
         # log the config, but without user and pass
         safecfg = config.copy()
@@ -145,11 +129,10 @@ class MainUI(QMainWindow):
         # we have a default for download dir
         if not config.get('downloaddir'):
             config['downloaddir'] = platform.get_download_dir()
-        return config
 
     def have_config(self):
         """Return if some config is needed."""
-        return self.config.get('user') and self.config.get('password')
+        return config.get('user') and config.get('password')
 
     def have_metadata(self):
         """Return if metadata is needed."""
@@ -234,7 +217,7 @@ class MainUI(QMainWindow):
         self.needsomething_alert = QAction(icon, m, self)
         self.needsomething_alert.triggered.connect(self._start_wizard)
         toolbar.addAction(self.needsomething_alert)
-        if not self.config.get('nowizard'):
+        if not config.get('nowizard'):
             self._start_wizard()
         self._review_need_something_indicator()
 
@@ -264,7 +247,7 @@ class MainUI(QMainWindow):
         extra precautions about which attributes we have.
         """
         # self._save_states()  FIXME: if we need to save states, the call is here
-        self._save_config()
+        config.save()
         self.finished = True
 
         programs_data = getattr(self, 'programs_data', None)
@@ -404,7 +387,7 @@ class MainUI(QMainWindow):
                                           self.episodes_download.progress)
         episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
                                           episode.title)
-        if self.config.get('notification', True) and pynotify is not None:
+        if config.get('notification', True) and pynotify is not None:
             n = pynotify.Notification(u"Descarga finalizada", episode_name)
             n.show()
         defer.returnValue((fname, episode))
@@ -455,7 +438,7 @@ class MainUI(QMainWindow):
                              % len(items))
         item = items[0]
         episode = self.programs_data[item.episode_id]
-        downloaddir = self.config.get('downloaddir', '')
+        downloaddir = config.get('downloaddir', '')
         filename = os.path.join(downloaddir, episode.filename)
 
         logger.info("Play requested of %s", episode)

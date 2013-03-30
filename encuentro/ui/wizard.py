@@ -28,6 +28,8 @@ from PyQt4.QtGui import (
     QVBoxLayout,
 )
 
+from encuentro.config import config
+
 logger = logging.getLogger('encuentro.wizard')
 
 TEXT_INIT = u"""
@@ -76,7 +78,7 @@ class WizardDialog(QDialog):
         self.main_text = QLabel(u"init text")
         vbox.addWidget(self.main_text)
         self.notthisagain = QCheckBox(u"No mostrar automáticamente esta ayuda")
-        nowizard = self.main_window.config.get('nowizard', False)
+        nowizard = config.get('nowizard', False)
         self.notthisagain.setCheckState(nowizard)
         self.notthisagain.stateChanged.connect(self._notthisagain_toggled)
         vbox.addWidget(self.notthisagain)
@@ -98,7 +100,7 @@ class WizardDialog(QDialog):
     def _notthisagain_toggled(self, state):
         """The "not this again" checkbutton togled state."""
         logger.info("Configuring 'nowizard' to %s", state)
-        self.main_window.config['nowizard'] = state
+        config['nowizard'] = state
 
     def _move(self, delta_step):
         """The engine for the wizard steps."""
