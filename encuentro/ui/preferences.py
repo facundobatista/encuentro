@@ -28,7 +28,6 @@ from PyQt4.QtGui import (
     QDialog,
     QDialogButtonBox,
     QGridLayout,
-    QHBoxLayout,
     QLabel,
     QLineEdit,
     QTabWidget,
@@ -46,13 +45,13 @@ URL_CONECTATE = (
 )
 
 
-
 class GeneralPreferences(QWidget):
     """The general preferences input."""
     def __init__(self, config_data):
         super(GeneralPreferences, self).__init__()
         grid = QGridLayout(self)
         grid.setSpacing(20)
+        grid.setColumnStretch(1, 10)
 
         l = QLabel(
                 u"<b>Ingresá el directorio donde descargar los videos...</b>")
@@ -63,8 +62,6 @@ class GeneralPreferences(QWidget):
         prv = config_data.get('downloaddir', '')
         self.downloaddir_entry = QLineEdit(prv)
         grid.addWidget(self.downloaddir_entry, 1, 1, 2, 2)
-        # FIXME: the text entry is too separated of the "descarga en" subtitle,
-        # it should automatically use more of the width
 
         self.autoreload_checkbox = QCheckBox(
                 u"Recargar automáticamente la lista de episodios al iniciar")
@@ -93,6 +90,7 @@ class ConectatePreferences(QWidget):
         super(ConectatePreferences, self).__init__()
         grid = QGridLayout(self)
         grid.setSpacing(20)
+        grid.setColumnStretch(1, 10)
 
         l = QLabel(u"<b>Ingresá tus datos del portal Conectate:</b>")
         l.setTextFormat(Qt.RichText)
@@ -102,19 +100,14 @@ class ConectatePreferences(QWidget):
         prv = config_data.get('user', '')
         self.user_entry = QLineEdit(prv)
         grid.addWidget(self.user_entry, 1, 1, 2, 2)
-        # FIXME: the text entry is too separated of the "descarga en" subtitle,
-        # it should automatically use more of the width
 
         grid.addWidget(QLabel(u"Contraseña:"), 2, 0, 3, 1)
         prv = config_data.get('password', '')
         self.password_entry = QLineEdit(prv)
         grid.addWidget(self.password_entry, 2, 1, 3, 2)
-        # FIXME: the text entry is too separated of the "descarga en" subtitle,
-        # it should automatically use more of the width
 
         l = QLabel(u'Si no tenés estos datos, <a href="%s">registrate aquí'
                    u'</a>' % (URL_CONECTATE,))
-        # FIXME: make this link to automaticall open the browser with it
         l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         l.setTextFormat(Qt.RichText)
         l.setOpenExternalLinks(True)
