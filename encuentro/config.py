@@ -25,6 +25,8 @@ import pickle
 class _Config(dict):
     """The configuration."""
 
+    SYSTEM = 'system'
+
     def __init__(self):
         self._fname = None
 
@@ -32,12 +34,17 @@ class _Config(dict):
         """Initialize and load config."""
         self._fname = fname
         if not os.path.exists(fname):
-            # default to an empty dict
+            # default to an almost empty dict
+            self[self.SYSTEM] = {}
             return
 
         with open(fname, 'rb') as fh:
             saved_dict = pickle.load(fh)
         self.update(saved_dict)
+
+        # for compatibility, put the system container if not there
+        if self.SYSTEM not in self:
+            self[self.SYSTEM] = {}
 
     def save(self):
         """Save the config to disk."""

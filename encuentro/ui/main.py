@@ -20,7 +20,6 @@
 
 import logging
 import os
-import pickle
 
 try:
     import pynotify
@@ -47,7 +46,7 @@ from encuentro.network import (
     CancelledError,
     all_downloaders,
 )
-from encuentro.ui import central_panel, wizard, preferences
+from encuentro.ui import central_panel, wizard, preferences, remembering
 
 logger = logging.getLogger('encuentro.main')
 
@@ -79,7 +78,7 @@ TTIP_DOWNLOAD_D = (
 # the sequence
 
 
-class MainUI(QMainWindow):
+class MainUI(remembering.RememberingMainWindow):
     """Main UI."""
 
     _programs_file = os.path.join(platform.data_dir, 'encuentro.data')
@@ -88,13 +87,10 @@ class MainUI(QMainWindow):
         super(MainUI, self).__init__()
         self.app_quit = app_quit
         self.finished = False
-        # FIXME: size and positions should remain the same between starts
-        self.resize(800, 600)
-        self.move(300, 300)
         self.setWindowTitle('Encuentro')
 
         self.programs_data = data.ProgramsData(self, self._programs_file)
-        self._load_config()
+        self._touch_config()
 
         self.downloaders = {}
         for downtype, dloader_class in all_downloaders.iteritems():
@@ -112,12 +108,8 @@ class MainUI(QMainWindow):
         self.show()
         logger.debug("Main UI started ok")
 
-    def _load_config(self):
-        """Load the config from disk."""
-        fname = os.path.join(platform.config_dir, 'encuentro.conf')
-        print "Using configuration file:", repr(fname)
-        config.init(fname)
-
+    def _touch_config(self):
+        """Do some config processing."""
         # log the config, but without user and pass
         safecfg = config.copy()
         if 'user' in safecfg:
@@ -129,6 +121,14 @@ class MainUI(QMainWindow):
         # we have a default for download dir
         if not config.get('downloaddir'):
             config['downloaddir'] = platform.get_download_dir()
+
+        # maybe clean some config
+        if self.programs_data.reset_config_from_migration:
+            config['user'] = ''
+            config['password'] = ''
+            config.pop('cols_width', None)
+            config.pop('cols_order', None)
+            config.pop('selected_row', None)
 
     def have_config(self):
         """Return if some config is needed."""
@@ -263,6 +263,7 @@ class MainUI(QMainWindow):
 
     def closeEvent(self, event):
         """All is being closed."""
+        super(MainUI, self).closeEvent(event)
         if self._should_close():
             self.shutdown()
         else:

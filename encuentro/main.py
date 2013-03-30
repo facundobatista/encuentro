@@ -16,9 +16,11 @@
 
 """Main entry point, and initialization of everything we can."""
 
+import os
 import sys
 
-from encuentro import logger
+from encuentro import logger, platform
+from encuentro.config import config
 
 # we put here EpisodeData only for legacy reasons: unpickle of old pickles
 # will try to load EpisodeData from this namespace
@@ -34,6 +36,11 @@ def start(version):
     pynotify.init("Encuentro")
     verbose = len(sys.argv) > 1 and sys.argv[1] == '-v'
     logger.set_up(verbose)
+
+    # set up config
+    fname = os.path.join(platform.config_dir, 'encuentro.conf')
+    print "Using configuration file:", repr(fname)
+    config.init(fname)
 
     # the order of the lines hereafter are very precise, don't mess with them
     app = QApplication(sys.argv)
