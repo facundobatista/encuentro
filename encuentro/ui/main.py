@@ -39,7 +39,7 @@ from PyQt4.QtGui import (
 from twisted.internet import defer
 
 from encuentro import platform, data, update
-from encuentro.config import config
+from encuentro.config import config, signal
 from encuentro.data import Status
 from encuentro.network import (
     BadCredentialsError,
@@ -246,7 +246,7 @@ class MainUI(remembering.RememberingMainWindow):
         This shutdown con be called at any time, even on init, so we have
         extra precautions about which attributes we have.
         """
-        # self._save_states()  FIXME: if we need to save states, the call is here
+        signal.emit('save_state')
         config.save()
         self.finished = True
 
@@ -263,7 +263,6 @@ class MainUI(remembering.RememberingMainWindow):
 
     def closeEvent(self, event):
         """All is being closed."""
-        super(MainUI, self).closeEvent(event)
         if self._should_close():
             self.shutdown()
         else:

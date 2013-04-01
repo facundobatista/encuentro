@@ -54,4 +54,25 @@ class _Config(dict):
             pickle.dump(raw_dict, fh)
 
 
+class _Signal(object):
+    """Custom signals.
+
+    Decorate a function to be called when signal is emitted.
+    """
+
+    def __init__(self):
+        self.store = {}
+
+    def register(self, method):
+        """Register a method."""
+        self.store.setdefault(method.__name__, []).append(method)
+
+    def emit(self, name):
+        """Call the registered methods."""
+        meths = self.store.get(name, [])
+        for meth in meths:
+            meth()
+
+
 config = _Config()
+signal = _Signal()

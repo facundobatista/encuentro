@@ -27,7 +27,6 @@ from PyQt4.QtGui import (
     QMenu,
     QPixmap,
     QPushButton,
-    QSplitter,
     QTextEdit,
     QTreeWidget,
     QTreeWidgetItem,
@@ -38,6 +37,7 @@ from PyQt4.QtCore import Qt
 
 from encuentro import data, image
 from encuentro.data import Status
+from encuentro.ui import remembering
 
 
 class DownloadsWidget(QTreeWidget):
@@ -379,15 +379,13 @@ class BigPanel(QWidget):
         self.episodes = EpisodesWidget(main_window, episode_info)
 
         # split on the right
-        # FIXME: this splitter should remember its position between starts
-        right_split = QSplitter(Qt.Vertical)
+        right_split = remembering.RememberingSplitter(Qt.Vertical, 'right')
         right_split.addWidget(episode_info)
         self.downloads_widget = DownloadsWidget(main_window, self.episodes)
         right_split.addWidget(self.downloads_widget)
 
         # main split
-        # FIXME: this splitter should remember its position between starts
-        main_split = QSplitter(Qt.Horizontal)
+        main_split = remembering.RememberingSplitter(Qt.Horizontal, 'main')
         main_split.addWidget(self.episodes)
         main_split.addWidget(right_split)
         layout.addWidget(main_split)

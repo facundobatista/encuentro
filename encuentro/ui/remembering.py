@@ -20,9 +20,10 @@
 
 from PyQt4.QtGui import (
     QMainWindow,
+    QSplitter,
 )
 
-from encuentro.config import config
+from encuentro.config import config, signal
 
 SYSTEM = config.SYSTEM
 
@@ -32,6 +33,7 @@ class RememberingMainWindow(QMainWindow):
 
     def __init__(self):
         super(RememberingMainWindow, self).__init__()
+        signal.register(self.save_state)
         cname = self.__class__.__name__
         conf = config[SYSTEM].get(cname, {})
         prv_size = conf.get('size', (800, 600))
@@ -39,7 +41,7 @@ class RememberingMainWindow(QMainWindow):
         self.resize(*prv_size)
         self.move(*prv_pos)
 
-    def closeEvent(self, _):
+    def save_state(self):
         """Save what to remember."""
         qsize = self.size()
         size = qsize.width(), qsize.height()
@@ -50,4 +52,23 @@ class RememberingMainWindow(QMainWindow):
         config[SYSTEM][cname] = to_save
 
 
+class RememberingSplitter(QSplitter):
+    """A Splitter that remembers position."""
 
+    def __init__(self, type_, name):
+        super(RememberingSplitter, self).__init__(type_)
+        signal.register(self.save_state)
+        cname = self.__class__.__name__
+        self._name = '-'.join((cname, name))
+
+    def addWidget(self, *args, **kwargs):
+        """Overwrite just to set sizes after adding the widget."""
+        super(RememberingSplitter, self).addWidget(*args, **kwargs)
+        sizes = config[SYSTEM].get(self._name)
+        if sizes is not None:
+            self.setSizes(sizes)
+
+    def save_state(self):
+        """Save what to remember."""
+        sizes = self.sizes()
+        config[SYSTEM][self._name] = sizes
