@@ -21,6 +21,7 @@
 import operator
 
 from PyQt4.QtGui import (
+    QAbstractItemView,
     QColor,
     QHBoxLayout,
     QLabel,
@@ -43,10 +44,9 @@ from encuentro.ui import remembering
 class DownloadsWidget(QTreeWidget):
     """The downloads queue."""
 
-    def __init__(self, main_window, episodes_widget):
-        self.main_window = main_window  # FIXME: ver si este se necesita
+    def __init__(self, episodes_widget):
         self.episodes_widget = episodes_widget
-        super(DownloadsWidget, self).__init__(main_window)
+        super(DownloadsWidget, self).__init__()
         # FIXME: the columns width should be rememembered between starts
 
         _headers = (u"Descargando...", u"Estado")
@@ -60,10 +60,10 @@ class DownloadsWidget(QTreeWidget):
         # connect the signals
         self.clicked.connect(self.on_signal_clicked)
 
-    def on_signal_clicked(self, model_index):
+    def on_signal_clicked(self, _):
         """The view was clicked."""
-        # FIXME: need to point in the EpisodesWidget to this episode (and of
-        #     course refresh the episode info)
+        item = self.currentItem()
+        self.episodes_widget.show(item.episode_id)
 
     def append(self, episode):
         """Append an episode to the downloads list."""
@@ -72,14 +72,10 @@ class DownloadsWidget(QTreeWidget):
         item.episode_id = episode.episode_id
         self.queue.append((episode, item))
         self.addTopLevelItem(item)
+        self.setCurrentItem(item)
 
         # fix episode state
         episode.state = Status.downloading
-
-        # always show the last line
-        # FIXME: hacer esto! algo muy similar a
-        #row = self.store[-1]
-        #self.treeview.scroll_to_cell(row.path)
 
     def prepare(self):
         """Set up everything for next download."""
@@ -110,8 +106,8 @@ class DownloadsWidget(QTreeWidget):
             # something bad happened
             gui_msg = unicode(error)
             end_state = Status.none
-        item.setText(1, gui_msg)  # FIXME: revisar que esto lo actualice
-        item.setDisabled(True)   # FIXME: revisar que esto de el efecto de "apagado"
+        item.setText(1, gui_msg)
+        item.setDisabled(True)
         episode.state = end_state
         self.episodes_widget.set_color(episode)
         self.downloading = False
@@ -144,7 +140,7 @@ class EpisodesWidget(QTreeWidget):
     def __init__(self, main_window, episode_info):
         self.main_window = main_window
         self.episode_info = episode_info
-        super(EpisodesWidget, self).__init__(main_window)
+        super(EpisodesWidget, self).__init__()
         self.setMinimumSize(600, 300)
         # FIXME: the columns width should be rememembered between starts
         # FIXME: the columns order ("how the table is sorted") should be
@@ -171,13 +167,12 @@ class EpisodesWidget(QTreeWidget):
 
         # enable sorting
         self.setSortingEnabled(True)
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         # connect the signals
         self.clicked.connect(self.on_signal_clicked)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.on_right_button)
-
-        # FIXME: we should allow multiple selections
 
         # FIXME: double click should trigger some action, something like
         #  logger.debug("Double click in %s", episode)
@@ -192,11 +187,20 @@ class EpisodesWidget(QTreeWidget):
         #               u"configuración está incompleta.")
         #          self._show_message(self.dialog_alert, t)
 
-    def on_signal_clicked(self, model_index):
+    def show(self, episode_id):
+        """Show the row for the requested episode."""
+        item = self._item_map[episode_id]
+        self.setCurrentItem(item)
+        self._adjust_gui(episode_id)
+
+    def on_signal_clicked(self, _):
         """The view was clicked."""
-        # FIXME: we should call get episode only when the view has a single row
         item = self.currentItem()
-        episode = self.main_window.programs_data[item.episode_id]
+        self._adjust_gui(item.episode_id)
+
+    def _adjust_gui(self, episode_id):
+        """Adjust the rest of the GUI for this episode."""
+        episode = self.main_window.programs_data[episode_id]
         self.episode_info.update(episode)
         self.main_window.check_download_play_buttons()
 
@@ -381,7 +385,7 @@ class BigPanel(QWidget):
         # split on the right
         right_split = remembering.RememberingSplitter(Qt.Vertical, 'right')
         right_split.addWidget(episode_info)
-        self.downloads_widget = DownloadsWidget(main_window, self.episodes)
+        self.downloads_widget = DownloadsWidget(self.episodes)
         right_split.addWidget(self.downloads_widget)
 
         # main split
