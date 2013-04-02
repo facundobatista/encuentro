@@ -18,9 +18,11 @@
 
 """The remembering widgets."""
 
+from PyQt4.QtCore import Qt
 from PyQt4.QtGui import (
     QMainWindow,
     QSplitter,
+    QTreeWidget,
 )
 
 from encuentro.config import config, signal
@@ -34,12 +36,19 @@ class RememberingMainWindow(QMainWindow):
     def __init__(self):
         super(RememberingMainWindow, self).__init__()
         signal.register(self.save_state)
-        cname = self.__class__.__name__
-        conf = config[SYSTEM].get(cname, {})
-        prv_size = conf.get('size', (800, 600))
-        prv_pos = conf.get('pos', (300, 300))
-        self.resize(*prv_size)
-        self.move(*prv_pos)
+        self._name = self.__class__.__name__
+        self._initted = False
+
+    def showEvent(self, event):
+        """Know when it was shown, load config."""
+        if not self._initted:
+            self._initted = True
+            conf = config[SYSTEM].get(self._name, {})
+            prv_size = conf.get('size', (800, 600))
+            prv_pos = conf.get('pos', (300, 300))
+            self.resize(*prv_size)
+            self.move(*prv_pos)
+        super(RememberingMainWindow, self).showEvent(event)
 
     def save_state(self):
         """Save what to remember."""
@@ -48,8 +57,7 @@ class RememberingMainWindow(QMainWindow):
         qpos = self.pos()
         pos = qpos.x(), qpos.y()
         to_save = dict(pos=pos, size=size)
-        cname = self.__class__.__name__
-        config[SYSTEM][cname] = to_save
+        config[SYSTEM][self._name] = to_save
 
 
 class RememberingSplitter(QSplitter):
@@ -60,15 +68,64 @@ class RememberingSplitter(QSplitter):
         signal.register(self.save_state)
         cname = self.__class__.__name__
         self._name = '-'.join((cname, name))
+        self._initted = False
 
-    def addWidget(self, *args, **kwargs):
-        """Overwrite just to set sizes after adding the widget."""
-        super(RememberingSplitter, self).addWidget(*args, **kwargs)
-        sizes = config[SYSTEM].get(self._name)
-        if sizes is not None:
-            self.setSizes(sizes)
+    def showEvent(self, event):
+        """Know when it was shown, load config."""
+        if not self._initted:
+            self._initted = True
+            sizes = config[SYSTEM].get(self._name)
+            if sizes is not None:
+                self.setSizes(sizes)
+        super(RememberingSplitter, self).showEvent(event)
 
     def save_state(self):
         """Save what to remember."""
         sizes = self.sizes()
         config[SYSTEM][self._name] = sizes
+
+
+class RememberingTreeWidget(QTreeWidget):
+    """A TreeWidget that remembers visual stuff."""
+
+    def __init__(self, name):
+        super(RememberingTreeWidget, self).__init__()
+        signal.register(self.save_state)
+        cname = self.__class__.__name__
+        self._name = '-'.join((cname, name))
+        self._initted = False
+
+    def showEvent(self, event):
+        """Know when it was shown, load config."""
+        if not self._initted:
+            self._initted = True
+            info = config[SYSTEM].get(self._name)
+            if info is not None:
+                cols_w = info['cols_w']
+                for i, w in enumerate(cols_w):
+                    self.setColumnWidth(i, w)
+                s_enabled = info['s_enabled']
+                self.setSortingEnabled(s_enabled)
+                if s_enabled:
+                    s_column = info['s_column']
+                    s_order = info['s_order']
+                    ordr = Qt.AscendingOrder if s_order else Qt.DescendingOrder
+                    self.sortItems(s_column, ordr)
+
+        super(RememberingTreeWidget, self).showEvent(event)
+
+    def save_state(self):
+        """Save what to remember."""
+        cols_w = [self.columnWidth(i) for i in xrange(self.columnCount())]
+        s_enabled = self.isSortingEnabled()
+        s_column = self.sortColumn()
+        c = self.topLevelItemCount()
+        if c < 2:  # less than two records, no point in sorting
+            s_order = True
+        else:
+            val_first = self.topLevelItem(0).text(s_column)
+            val_last = self.topLevelItem(c - 1).text(s_column)
+            s_order = val_first > val_last
+        info = dict(cols_w=cols_w, s_enabled=s_enabled,
+                    s_column=s_column, s_order=s_order)
+        config[SYSTEM][self._name] = info

@@ -41,13 +41,12 @@ from encuentro.data import Status
 from encuentro.ui import remembering
 
 
-class DownloadsWidget(QTreeWidget):
+class DownloadsWidget(remembering.RememberingTreeWidget):
     """The downloads queue."""
 
     def __init__(self, episodes_widget):
         self.episodes_widget = episodes_widget
-        super(DownloadsWidget, self).__init__()
-        # FIXME: the columns width should be rememembered between starts
+        super(DownloadsWidget, self).__init__('downloads')
 
         _headers = (u"Descargando...", u"Estado")
         self.setColumnCount(len(_headers))
@@ -127,10 +126,7 @@ class DownloadsWidget(QTreeWidget):
         return q
 
 
-class EpisodesWidget(QTreeWidget):
-    # FIXME: need to put the functionality of "right button", that will
-    # create a dialog with "Ver episodio", "Cancelar descarga" and
-    # "Descargar", activated and deactivated as should
+class EpisodesWidget(remembering.RememberingTreeWidget):
     """The list of episodes info."""
 
     _row_getter = operator.attrgetter('channel', 'section',
@@ -140,13 +136,8 @@ class EpisodesWidget(QTreeWidget):
     def __init__(self, main_window, episode_info):
         self.main_window = main_window
         self.episode_info = episode_info
-        super(EpisodesWidget, self).__init__()
+        super(EpisodesWidget, self).__init__('episodes')
         self.setMinimumSize(600, 300)
-        # FIXME: the columns width should be rememembered between starts
-        # FIXME: the columns order ("how the table is sorted") should be
-        #     remembered between starts
-        # FIXME: the row selected should be remembered between starts (and
-        #     after start it should be shown what is selected)
 
         # FIXME: the duration column should be right-aligned
         _headers = (u"Canal", u"Sección", u"Título", u"Duración [min]")
