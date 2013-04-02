@@ -18,6 +18,7 @@
 
 """Central panels in the main window, the content part of all the interface."""
 
+import logging
 import operator
 
 from PyQt4.QtGui import (
@@ -29,7 +30,6 @@ from PyQt4.QtGui import (
     QPixmap,
     QPushButton,
     QTextEdit,
-    QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
@@ -39,6 +39,8 @@ from PyQt4.QtCore import Qt
 from encuentro import data, image
 from encuentro.data import Status
 from encuentro.ui import remembering
+
+logger = logging.getLogger("encuentro.centralpanel")
 
 
 class DownloadsWidget(remembering.RememberingTreeWidget):
@@ -139,7 +141,6 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         super(EpisodesWidget, self).__init__('episodes')
         self.setMinimumSize(600, 300)
 
-        # FIXME: the duration column should be right-aligned
         _headers = (u"Canal", u"Sección", u"Título", u"Duración [min]")
         self.setColumnCount(len(_headers))
         self.setHeaderLabels(_headers)
@@ -152,6 +153,7 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         for i, e in enumerate(episodes):
             item = QTreeWidgetItem([unicode(v) for v in self._row_getter(e)])
             item.episode_id = e.episode_id
+            item.setTextAlignment(3, Qt.AlignRight)
             self._item_map[e.episode_id] = item
             self.addTopLevelItem(item)
             self.set_color(e)
@@ -164,19 +166,7 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         self.clicked.connect(self.on_signal_clicked)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.on_right_button)
-
-        # FIXME: double click should trigger some action, something like
-        #  logger.debug("Double click in %s", episode)
-        #  if episode.state == Status.downloaded:
-        #      self._play_episode(row)
-        #  elif episode.state == Status.none:
-        #      if self._have_config():
-        #          self._queue_download(row, path)
-        #      else:
-        #          logger.debug("Not starting download because no config.")
-        #          t = (u"No se puede arrancar una descarga porque la "
-        #               u"configuración está incompleta.")
-        #          self._show_message(self.dialog_alert, t)
+        self.itemDoubleClicked.connect(self.on_double_click)
 
     def show(self, episode_id):
         """Show the row for the requested episode."""
@@ -188,6 +178,21 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         """The view was clicked."""
         item = self.currentItem()
         self._adjust_gui(item.episode_id)
+
+    def on_double_click(self, item, col):
+        """Double click."""
+        episode = self.main_window.programs_data[item.episode_id]
+        logger.debug("Double click in %s", episode)
+        if episode.state == Status.downloaded:
+            self.main_window.play_episode(episode)
+        elif episode.state == Status.none:
+            if self.main_window.have_config():
+                self.main_window.queue_download(episode)
+            else:
+                logger.debug("Not starting download because no config.")
+                t = (u"No se puede arrancar una descarga porque la "
+                     u"configuración está incompleta.")
+                self.main_window.show_message(u'Falta configuración', t)
 
     def _adjust_gui(self, episode_id):
         """Adjust the rest of the GUI for this episode."""
@@ -233,6 +238,7 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         """Update episode with new info"""
         item = QTreeWidgetItem([unicode(v) for v in self._row_getter(episode)])
         item.episode_id = episode.episode_id
+        item.setTextAlignment(3, Qt.AlignRight)
         self._item_map[episode.episode_id] = item
         self.set_color(episode)
         self.addTopLevelItem(item)

@@ -189,7 +189,7 @@ class MainUI(remembering.RememberingMainWindow):
         self.action_play = QAction(icon, '&Reproducir', self)
         self.action_play.setEnabled(False)
         self.action_play.setToolTip(TTIP_PLAY_D)
-        self.action_play.triggered.connect(self.play_episode)
+        self.action_play.triggered.connect(self.on_play_action)
         menu_prog.addAction(self.action_play)
 
         # toolbar for buttons
@@ -296,7 +296,7 @@ class MainUI(remembering.RememberingMainWindow):
                 program.state = Status.none
         return True
 
-    def _show_message(self, err_type, text):
+    def show_message(self, err_type, text):
         """Show different messages to the user."""
         if self.finished:
             logger.debug("Ignoring message: %r", text)
@@ -327,10 +327,10 @@ class MainUI(remembering.RememberingMainWindow):
         items = self.episodes_list.selectedItems()
         for item in items:
             episode = self.programs_data[item.episode_id]
-            self._queue_download(episode)
+            self.queue_download(episode)
 
     @defer.inlineCallbacks
-    def _queue_download(self, episode):
+    def queue_download(self, episode):
         """User indicated to download something."""
         logger.debug("Download requested of %s", episode)
         if episode.state != Status.none:
@@ -351,17 +351,17 @@ class MainUI(remembering.RememberingMainWindow):
                 filename, episode = yield self._episode_download(episode)
             except CancelledError:
                 logger.debug("Got a CancelledError!")
-                self.episodes_download.end(error=u"Cancelao")
+                self.episodes_download.end(error=u"Cancelado")
             except BadCredentialsError:
                 logger.debug("Bad credentials error!")
                 msg = (u"Error con las credenciales: hay que configurar "
                        u"usuario y clave correctos")
-                self._show_message('BadCredentialsError', msg)
+                self.show_message('BadCredentialsError', msg)
                 self.episodes_download.end(error=msg)
             except Exception, e:
                 logger.debug("Unknown download error: %s", e)
                 err_type = e.__class__.__name__
-                self._show_message(err_type, str(e))
+                self.show_message(err_type, str(e))
                 self.episodes_download.end(error=u"Error: " + str(e))
             else:
                 logger.debug("Episode downloaded: %s", episode)
@@ -430,7 +430,7 @@ class MainUI(remembering.RememberingMainWindow):
         self.action_download.setEnabled(download_enabled)
         self.action_download.setToolTip(ttip)
 
-    def play_episode(self, _=None):
+    def on_play_action(self, _=None):
         """Play the selected episode."""
         items = self.episodes_list.selectedItems()
         if len(items) != 1:
@@ -438,6 +438,10 @@ class MainUI(remembering.RememberingMainWindow):
                              % len(items))
         item = items[0]
         episode = self.programs_data[item.episode_id]
+        self.play_episode(episode)
+
+    def play_episode(self, episode):
+        """Play an episode."""
         downloaddir = config.get('downloaddir', '')
         filename = os.path.join(downloaddir, episode.filename)
 
@@ -451,7 +455,7 @@ class MainUI(remembering.RememberingMainWindow):
             logger.warning("Aborted playing, file not found: %r", filename)
             msg = (u"No se encontró el archivo para reproducir: " +
                    repr(filename))
-            self._show_message('Error al reproducir', msg)
+            self.show_message('Error al reproducir', msg)
             episode.state = Status.none
             self.episodes_list.set_color(episode)
 
