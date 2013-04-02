@@ -118,7 +118,7 @@ setup(
 
     packages=["encuentro"],
     package_data={
-        "encuentro": ["ui/*.glade", "logos/icon-*.png"],
+        "encuentro": ["ui/media/*", "logos/icon-*.png"],
         "": ["encuentro.desktop", "source_encuentro.py", "version.txt"],
     },
     scripts=["bin/encuentro"],

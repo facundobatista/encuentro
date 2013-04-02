@@ -27,6 +27,7 @@ from PyQt4.QtGui import (
     QHBoxLayout,
     QLabel,
     QMenu,
+    QMovie,
     QPixmap,
     QPushButton,
     QTextEdit,
@@ -39,6 +40,7 @@ from PyQt4.QtCore import Qt
 from encuentro import data, image
 from encuentro.data import Status
 from encuentro.ui import remembering
+from encuentro.ui.throbber import Throbber
 
 logger = logging.getLogger("encuentro.centralpanel")
 
@@ -286,7 +288,10 @@ class EpisodeInfo(QWidget):
         self.current_episode = None
         layout = QVBoxLayout(self)
 
-        # FIXME: add a spinner, here
+        # a throbber, that we don't initially show
+        self.throbber = Throbber()
+        layout.addWidget(self.throbber)
+        self.throbber.hide()
 
         # the image and its getter
         self.image_episode = QLabel()
@@ -316,10 +321,8 @@ class EpisodeInfo(QWidget):
         self.image_episode.setPixmap(pixmap)
         self.image_episode.show()
 
-        # hide the spinner
-        # FIXME: hide the spinner
-#        self.image_spinner.stop()
-#        self.image_spinner.hide()
+        # hide the throbber
+        self.throbber.hide()
 
     def update(self, episode):
         """Update all the episode info."""
@@ -328,12 +331,10 @@ class EpisodeInfo(QWidget):
         # image
         if episode.image_url is not None:
             # this must be before the get_image call, as it may call
-            # immediately to image_episode_loaded, showing the image and
-            # hiding the spinner
-            # FIXME: we need to put a spinner here until we get the image
+            # immediately to image_episode_loaded (showing the image and
+            # hiding the throber)
             self.image_episode.hide()
-#            self.image_spinner.show()
-#            self.image_spinner.start()
+            self.throbber.show()
             # now do call the get_image
             self.get_image(episode.episode_id,
                            episode.image_url.encode('utf-8'))
