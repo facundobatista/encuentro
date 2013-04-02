@@ -44,6 +44,8 @@ from encuentro import platform
 from twisted.internet import defer, reactor
 from twisted.web.client import HTTPDownloader, PartialDownloadError
 
+from encuentro.config import config
+
 URL_BASE = "http://conectate.gov.ar"
 URL_AUTH = ("http://conectate.gov.ar/educar-portal-video-web/"
             "module/login/loginAjax.do")
@@ -214,9 +216,6 @@ class DeferredQueue(Queue):
 class BaseDownloader(object):
     """Base episode downloader."""
 
-    def __init__(self, config):
-        self.config = config
-
     def shutdown(self):
         """Quit the download."""
         return self._shutdown()
@@ -228,7 +227,7 @@ class BaseDownloader(object):
     def _setup_target(self, channel, section, title, extension):
         """Set up the target file to download."""
         # build where to save it
-        downloaddir = self.config.get('downloaddir', '')
+        downloaddir = config.get('downloaddir', '')
         channel = platform.sanitize(channel)
         section = platform.sanitize(section)
         title = platform.sanitize(title)
@@ -250,8 +249,8 @@ class BaseDownloader(object):
 class ConectarDownloader(BaseDownloader):
     """Episode downloader for Conectar site."""
 
-    def __init__(self, config):
-        super(ConectarDownloader, self).__init__(config)
+    def __init__(self):
+        super(ConectarDownloader, self).__init__()
         self._prev_progress = None
         self.browser_quit = set()
         self.cancelled = False
@@ -278,8 +277,8 @@ class ConectarDownloader(BaseDownloader):
         qoutput = Queue()
         bquit = Event()
         self.browser_quit.add(bquit)
-        authuser = self.config.get('user', '')
-        authpass = self.config.get('password', '')
+        authuser = config.get('user', '')
+        authpass = config.get('password', '')
 
         logger.info("Download episode %r: browser started", url)
         brow = MiBrowser(authuser, authpass, url, qoutput, qinput, bquit)
@@ -336,8 +335,8 @@ class GenericDownloader(BaseDownloader):
         'Accept': '*/*',
     }
 
-    def __init__(self, config):
-        super(GenericDownloader, self).__init__(config)
+    def __init__(self):
+        super(GenericDownloader, self).__init__()
         self._prev_progress = None
         self.downloader = None
         logger.info("Generic downloader inited")
@@ -456,8 +455,9 @@ if __name__ == "__main__":
         """Show progress."""
         print "Avance:", avance
 
-    test_config = dict(user="lxpdvtnvrqdoa@mailinator.com",
-                       password="descargas", downloaddir='.')
+    # overwrite config for the test
+    config = dict(user="lxpdvtnvrqdoa@mailinator.com",
+                  password="descargas", downloaddir='.')
 
 #    url_episode = "http://conectate.gov.ar/educar-portal-video-web/module/"\
 #                  "detalleRecurso/DetalleRecurso.do?modulo=masVotados&"\
@@ -467,8 +467,8 @@ if __name__ == "__main__":
     @defer.inlineCallbacks
     def download():
         """Download."""
-#        downloader = ConectarDownloader(test_config)
-        downloader = GenericDownloader(test_config)
+#        downloader = ConectarDownloader(config)
+        downloader = GenericDownloader(config)
 #        reactor.callLater(5, downloader.cancel)
         try:
             fname = yield downloader.download("test-ej-canal", "secc", "tit",

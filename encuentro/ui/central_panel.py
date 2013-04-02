@@ -18,18 +18,19 @@
 
 """Central panels in the main window, the content part of all the interface."""
 
+import logging
 import operator
 
 from PyQt4.QtGui import (
+    QAbstractItemView,
     QColor,
     QHBoxLayout,
     QLabel,
     QMenu,
+    QMovie,
     QPixmap,
     QPushButton,
-    QSplitter,
     QTextEdit,
-    QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
@@ -38,16 +39,18 @@ from PyQt4.QtCore import Qt
 
 from encuentro import data, image
 from encuentro.data import Status
+from encuentro.ui import remembering
+from encuentro.ui.throbber import Throbber
+
+logger = logging.getLogger("encuentro.centralpanel")
 
 
-class DownloadsWidget(QTreeWidget):
+class DownloadsWidget(remembering.RememberingTreeWidget):
     """The downloads queue."""
 
-    def __init__(self, main_window, episodes_widget):
-        self.main_window = main_window  # FIXME: ver si este se necesita
+    def __init__(self, episodes_widget):
         self.episodes_widget = episodes_widget
-        super(DownloadsWidget, self).__init__(main_window)
-        # FIXME: the columns width should be rememembered between starts
+        super(DownloadsWidget, self).__init__('downloads')
 
         _headers = (u"Descargando...", u"Estado")
         self.setColumnCount(len(_headers))
@@ -60,10 +63,10 @@ class DownloadsWidget(QTreeWidget):
         # connect the signals
         self.clicked.connect(self.on_signal_clicked)
 
-    def on_signal_clicked(self, model_index):
+    def on_signal_clicked(self, _):
         """The view was clicked."""
-        # FIXME: need to point in the EpisodesWidget to this episode (and of
-        #     course refresh the episode info)
+        item = self.currentItem()
+        self.episodes_widget.show(item.episode_id)
 
     def append(self, episode):
         """Append an episode to the downloads list."""
@@ -72,14 +75,10 @@ class DownloadsWidget(QTreeWidget):
         item.episode_id = episode.episode_id
         self.queue.append((episode, item))
         self.addTopLevelItem(item)
+        self.setCurrentItem(item)
 
         # fix episode state
         episode.state = Status.downloading
-
-        # always show the last line
-        # FIXME: hacer esto! algo muy similar a
-        #row = self.store[-1]
-        #self.treeview.scroll_to_cell(row.path)
 
     def prepare(self):
         """Set up everything for next download."""
@@ -110,8 +109,8 @@ class DownloadsWidget(QTreeWidget):
             # something bad happened
             gui_msg = unicode(error)
             end_state = Status.none
-        item.setText(1, gui_msg)  # FIXME: revisar que esto lo actualice
-        item.setDisabled(True)   # FIXME: revisar que esto de el efecto de "apagado"
+        item.setText(1, gui_msg)
+        item.setDisabled(True)
         episode.state = end_state
         self.episodes_widget.set_color(episode)
         self.downloading = False
@@ -131,10 +130,7 @@ class DownloadsWidget(QTreeWidget):
         return q
 
 
-class EpisodesWidget(QTreeWidget):
-    # FIXME: need to put the functionality of "right button", that will
-    # create a dialog with "Ver episodio", "Cancelar descarga" and
-    # "Descargar", activated and deactivated as should
+class EpisodesWidget(remembering.RememberingTreeWidget):
     """The list of episodes info."""
 
     _row_getter = operator.attrgetter('channel', 'section',
@@ -144,15 +140,9 @@ class EpisodesWidget(QTreeWidget):
     def __init__(self, main_window, episode_info):
         self.main_window = main_window
         self.episode_info = episode_info
-        super(EpisodesWidget, self).__init__(main_window)
+        super(EpisodesWidget, self).__init__('episodes')
         self.setMinimumSize(600, 300)
-        # FIXME: the columns width should be rememembered between starts
-        # FIXME: the columns order ("how the table is sorted") should be
-        #     remembered between starts
-        # FIXME: the row selected should be remembered between starts (and
-        #     after start it should be shown what is selected)
 
-        # FIXME: the duration column should be right-aligned
         _headers = (u"Canal", u"Sección", u"Título", u"Duración [min]")
         self.setColumnCount(len(_headers))
         self.setHeaderLabels(_headers)
@@ -165,52 +155,66 @@ class EpisodesWidget(QTreeWidget):
         for i, e in enumerate(episodes):
             item = QTreeWidgetItem([unicode(v) for v in self._row_getter(e)])
             item.episode_id = e.episode_id
+            item.setTextAlignment(3, Qt.AlignRight)
             self._item_map[e.episode_id] = item
             self.addTopLevelItem(item)
             self.set_color(e)
 
         # enable sorting
         self.setSortingEnabled(True)
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         # connect the signals
         self.clicked.connect(self.on_signal_clicked)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.on_right_button)
+        self.itemDoubleClicked.connect(self.on_double_click)
 
-        # FIXME: we should allow multiple selections
+    def show(self, episode_id):
+        """Show the row for the requested episode."""
+        item = self._item_map[episode_id]
+        self.setCurrentItem(item)
+        self._adjust_gui(episode_id)
 
-        # FIXME: double click should trigger some action, something like
-        #  logger.debug("Double click in %s", episode)
-        #  if episode.state == Status.downloaded:
-        #      self._play_episode(row)
-        #  elif episode.state == Status.none:
-        #      if self._have_config():
-        #          self._queue_download(row, path)
-        #      else:
-        #          logger.debug("Not starting download because no config.")
-        #          t = (u"No se puede arrancar una descarga porque la "
-        #               u"configuración está incompleta.")
-        #          self._show_message(self.dialog_alert, t)
-
-    def on_signal_clicked(self, model_index):
+    def on_signal_clicked(self, _):
         """The view was clicked."""
-        # FIXME: we should call get episode only when the view has a single row
         item = self.currentItem()
+        self._adjust_gui(item.episode_id)
+
+    def on_double_click(self, item, col):
+        """Double click."""
         episode = self.main_window.programs_data[item.episode_id]
+        logger.debug("Double click in %s", episode)
+        if episode.state == Status.downloaded:
+            self.main_window.play_episode(episode)
+        elif episode.state == Status.none:
+            if self.main_window.have_config():
+                self.main_window.queue_download(episode)
+            else:
+                logger.debug("Not starting download because no config.")
+                t = (u"No se puede arrancar una descarga porque la "
+                     u"configuración está incompleta.")
+                self.main_window.show_message(u'Falta configuración', t)
+
+    def _adjust_gui(self, episode_id):
+        """Adjust the rest of the GUI for this episode."""
+        episode = self.main_window.programs_data[episode_id]
         self.episode_info.update(episode)
         self.main_window.check_download_play_buttons()
 
     def on_right_button(self, point):
         """Right button was pressed, build a menu."""
         item = self.currentItem()
+        self._adjust_gui(item.episode_id)
         episode = self.main_window.programs_data[item.episode_id]
         menu = QMenu()
+        mw = self.main_window
         act_play = menu.addAction(u"&Reproducir",
-                self.main_window.play_episode)
+                lambda: mw.play_episode(episode))
         act_cancel = menu.addAction(u"&Cancelar descarga",
-                self.main_window.cancel_download)
+                lambda: mw.cancel_download(episode))
         act_download = menu.addAction(u"&Descargar",
-                self.main_window.download_episode)
+                lambda: mw.queue_download(episode))
 
         # set menu options according status
         state = episode.state
@@ -238,6 +242,7 @@ class EpisodesWidget(QTreeWidget):
         """Update episode with new info"""
         item = QTreeWidgetItem([unicode(v) for v in self._row_getter(episode)])
         item.episode_id = episode.episode_id
+        item.setTextAlignment(3, Qt.AlignRight)
         self._item_map[episode.episode_id] = item
         self.set_color(episode)
         self.addTopLevelItem(item)
@@ -276,16 +281,28 @@ class EpisodesWidget(QTreeWidget):
                     # no highlighting
                     item.setText(self._title_column, episode.title)
 
+        # clear the selection to get consistent behaviour (because otherwise
+        # something will keep selected when widening the filter, or nothing
+        # will be selected when the filter gets more restrict)
+        self.clearSelection()
+
+        # now nothing is selected, so clear the episode info
+        self.episode_info.clear()
+
 
 class EpisodeInfo(QWidget):
     """Show the episode at the right."""
-    def __init__(self):
+    def __init__(self, main_window):
+        self.main_window = main_window
         super(EpisodeInfo, self).__init__()
 
         self.current_episode = None
         layout = QVBoxLayout(self)
 
-        # FIXME: add a spinner, here
+        # a throbber, that we don't initially show
+        self.throbber = Throbber()
+        layout.addWidget(self.throbber)
+        self.throbber.hide()
 
         # the image and its getter
         self.image_episode = QLabel()
@@ -301,6 +318,7 @@ class EpisodeInfo(QWidget):
 
         # the button
         self.button = QPushButton()
+        self.button.connected = False
         self.button.hide()
         layout.addWidget(self.button)
 
@@ -315,10 +333,16 @@ class EpisodeInfo(QWidget):
         self.image_episode.setPixmap(pixmap)
         self.image_episode.show()
 
-        # hide the spinner
-        # FIXME: hide the spinner
-#        self.image_spinner.stop()
-#        self.image_spinner.hide()
+        # hide the throbber
+        self.throbber.hide()
+
+    def clear(self):
+        """Clear the episode info panel."""
+        self.throbber.hide()
+        self.image_episode.hide()
+        msg = u"Seleccionar un programa para ver aquí la info."
+        self.text_edit.setText(msg)
+        self.button.hide()
 
     def update(self, episode):
         """Update all the episode info."""
@@ -327,12 +351,10 @@ class EpisodeInfo(QWidget):
         # image
         if episode.image_url is not None:
             # this must be before the get_image call, as it may call
-            # immediately to image_episode_loaded, showing the image and
-            # hiding the spinner
-            # FIXME: we need to put a spinner here until we get the image
+            # immediately to image_episode_loaded (showing the image and
+            # hiding the throber)
             self.image_episode.hide()
-#            self.image_spinner.show()
-#            self.image_spinner.start()
+            self.throbber.show()
             # now do call the get_image
             self.get_image(episode.episode_id,
                            episode.image_url.encode('utf-8'))
@@ -346,23 +368,26 @@ class EpisodeInfo(QWidget):
         self.button.show()
         if episode.state == data.Status.downloaded:
             label = "Reproducir"
-#            callback = self.on_rbmenu_play_activate
+            func = self.main_window.play_episode
         elif (episode.state == data.Status.downloading or
               episode.state == data.Status.waiting):
             label = u"Cancelar descarga"
-#            callback = self.on_rbmenu_cancel_activate
+            func = self.main_window.cancel_download
         else:
             label = u"Descargar"
-#            callback = self.on_rbmenu_download_activate
-        self.button.setText(label)
+            func = self.main_window.download_episode
 
-        # FIXME: connect button signals correctly
-#        prev_hdler = getattr(self.button_episode, 'conn_handler_id', None)
-#        if prev_hdler is not None:
-#            self.button_episode.disconnect(prev_hdler)
-#        new_hdler = self.button_episode.connect('clicked', callback)
-#        self.button_episode.conn_handler_id = new_hdler
-#        self.button_episode.set_label(label)
+        def _exec(func, episode):
+            """Execute a function on the episode and update its info."""
+            func(episode)
+            self.update(episode)
+
+        # set button text, disconnect if should, and connect new func
+        self.button.setText(label)
+        if self.button.connected:
+            self.button.clicked.disconnect()
+        self.button.connected = True
+        self.button.clicked.connect(lambda: _exec(func, episode))
 
 
 class BigPanel(QWidget):
@@ -375,19 +400,17 @@ class BigPanel(QWidget):
         layout = QHBoxLayout(self)
 
         # get this before, as it be used when creating other sutff
-        episode_info = EpisodeInfo()
+        episode_info = EpisodeInfo(main_window)
         self.episodes = EpisodesWidget(main_window, episode_info)
 
         # split on the right
-        # FIXME: this splitter should remember its position between starts
-        right_split = QSplitter(Qt.Vertical)
+        right_split = remembering.RememberingSplitter(Qt.Vertical, 'right')
         right_split.addWidget(episode_info)
-        self.downloads_widget = DownloadsWidget(main_window, self.episodes)
+        self.downloads_widget = DownloadsWidget(self.episodes)
         right_split.addWidget(self.downloads_widget)
 
         # main split
-        # FIXME: this splitter should remember its position between starts
-        main_split = QSplitter(Qt.Horizontal)
+        main_split = remembering.RememberingSplitter(Qt.Horizontal, 'main')
         main_split.addWidget(self.episodes)
         main_split.addWidget(right_split)
         layout.addWidget(main_split)
