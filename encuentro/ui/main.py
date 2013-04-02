@@ -234,6 +234,10 @@ class MainUI(remembering.RememberingMainWindow):
         cbox = self.filter_cbox.checkState()
         self.episodes_list.set_filter(text, cbox)
 
+        # after applying filter, nothing is selected, so check buttons
+        # (easiest way to clean them all)
+        self.check_download_play_buttons()
+
     def _review_need_something_indicator(self):
         """Hide/show/enable/disable different indicators if need sth."""
         needsomething = bool(not self.have_config() or
@@ -403,8 +407,6 @@ class MainUI(remembering.RememberingMainWindow):
     def check_download_play_buttons(self):
         """Set both buttons state according to the selected episodes."""
         items = self.episodes_list.selectedItems()
-        if not items:
-            return
 
         # 'play' button should be enabled if only one row is selected and
         # its state is 'downloaded'
@@ -459,15 +461,10 @@ class MainUI(remembering.RememberingMainWindow):
             episode.state = Status.none
             self.episodes_list.set_color(episode)
 
-    def cancel_download(self):
+    def cancel_download(self, episode):
         """Cancel the downloading of an episode."""
-        items = self.episodes_list.selectedItems()
-        if len(items) != 1:
-            raise ValueError("Wrong call to cancel_download, with %d "
-                             "selections" % len(items))
-        item = items[0]
-        episode = self.programs_data[item.episode_id]
         logger.info("Cancelling download of %s", episode)
         self.episodes_download.cancel()
         downloader = self.downloaders[episode.downtype]
         downloader.cancel()
+        episode.state = Status.none

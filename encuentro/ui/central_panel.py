@@ -205,14 +205,16 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
     def on_right_button(self, point):
         """Right button was pressed, build a menu."""
         item = self.currentItem()
+        self._adjust_gui(item.episode_id)
         episode = self.main_window.programs_data[item.episode_id]
         menu = QMenu()
+        mw = self.main_window
         act_play = menu.addAction(u"&Reproducir",
-                self.main_window.play_episode)
+                lambda: mw.play_episode(episode))
         act_cancel = menu.addAction(u"&Cancelar descarga",
-                self.main_window.cancel_download)
+                lambda: mw.cancel_download(episode))
         act_download = menu.addAction(u"&Descargar",
-                self.main_window.download_episode)
+                lambda: mw.queue_download(episode))
 
         # set menu options according status
         state = episode.state
@@ -279,10 +281,19 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
                     # no highlighting
                     item.setText(self._title_column, episode.title)
 
+        # clear the selection to get consistent behaviour (because otherwise
+        # something will keep selected when widening the filter, or nothing
+        # will be selected when the filter gets more restrict)
+        self.clearSelection()
+
+        # now nothing is selected, so clear the episode info
+        self.episode_info.clear()
+
 
 class EpisodeInfo(QWidget):
     """Show the episode at the right."""
-    def __init__(self):
+    def __init__(self, main_window):
+        self.main_window = main_window
         super(EpisodeInfo, self).__init__()
 
         self.current_episode = None
@@ -307,6 +318,7 @@ class EpisodeInfo(QWidget):
 
         # the button
         self.button = QPushButton()
+        self.button.connected = False
         self.button.hide()
         layout.addWidget(self.button)
 
@@ -323,6 +335,14 @@ class EpisodeInfo(QWidget):
 
         # hide the throbber
         self.throbber.hide()
+
+    def clear(self):
+        """Clear the episode info panel."""
+        self.throbber.hide()
+        self.image_episode.hide()
+        msg = u"Seleccionar un programa para ver aquí la info."
+        self.text_edit.setText(msg)
+        self.button.hide()
 
     def update(self, episode):
         """Update all the episode info."""
@@ -348,23 +368,26 @@ class EpisodeInfo(QWidget):
         self.button.show()
         if episode.state == data.Status.downloaded:
             label = "Reproducir"
-#            callback = self.on_rbmenu_play_activate
+            func = self.main_window.play_episode
         elif (episode.state == data.Status.downloading or
               episode.state == data.Status.waiting):
             label = u"Cancelar descarga"
-#            callback = self.on_rbmenu_cancel_activate
+            func = self.main_window.cancel_download
         else:
             label = u"Descargar"
-#            callback = self.on_rbmenu_download_activate
-        self.button.setText(label)
+            func = self.main_window.download_episode
 
-        # FIXME: connect button signals correctly
-#        prev_hdler = getattr(self.button_episode, 'conn_handler_id', None)
-#        if prev_hdler is not None:
-#            self.button_episode.disconnect(prev_hdler)
-#        new_hdler = self.button_episode.connect('clicked', callback)
-#        self.button_episode.conn_handler_id = new_hdler
-#        self.button_episode.set_label(label)
+        def _exec(func, episode):
+            """Execute a function on the episode and update its info."""
+            func(episode)
+            self.update(episode)
+
+        # set button text, disconnect if should, and connect new func
+        self.button.setText(label)
+        if self.button.connected:
+            self.button.clicked.disconnect()
+        self.button.connected = True
+        self.button.clicked.connect(lambda: _exec(func, episode))
 
 
 class BigPanel(QWidget):
@@ -377,7 +400,7 @@ class BigPanel(QWidget):
         layout = QHBoxLayout(self)
 
         # get this before, as it be used when creating other sutff
-        episode_info = EpisodeInfo()
+        episode_info = EpisodeInfo(main_window)
         self.episodes = EpisodesWidget(main_window, episode_info)
 
         # split on the right
