@@ -22,6 +22,12 @@
 
 import sys
 
+# special import before any other imports to configure GUI to use API 2
+import sip
+for name in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
+    sip.setapi(name, 2)   # API v2 FTW!
+
+
 IMPORT_MSG = u"""
 ERROR! Problema al importar %(module)r
 
@@ -58,11 +64,12 @@ class NiceImporter(object):
                                     version=self.version)
 
 
-# test some packages! gtk and twisted are controlled in main.py, as they
-# import order is critical because of the reactor
+# test the packages
 # pylint: disable=W0611
 
 with NiceImporter('xdg', 'python-xdg', '0.15'):
     import xdg
 with NiceImporter('mechanize', 'python-mechanize', '0.1.11'):
     import mechanize
+with NiceImporter('pynotify', 'python-notify', '0.1.1'):
+    import pynotify

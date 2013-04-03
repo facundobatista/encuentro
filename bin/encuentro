@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-#
-# Copyright 2011 Facundo Batista
+# Copyright 2011-2013 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -44,13 +43,7 @@ else:
 
 if project_basedir not in sys.path:
     sys.path.insert(0, project_basedir)
+    sys.path.insert(1, os.path.join(project_basedir, 'qtreactor'))
 
-from encuentro import logger
-logger.set_up()
-
-from encuentro.main import MainUI
-
-from twisted.internet import reactor
-
-MainUI(version)
-reactor.run()
+from encuentro import main
+main.start(version)
