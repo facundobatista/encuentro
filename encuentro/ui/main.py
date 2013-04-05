@@ -403,8 +403,7 @@ class MainUI(remembering.RememberingMainWindow):
         """Open the preferences dialog."""
         dlg = preferences.PreferencesDialog()
         dlg.exec_()
-        # FIXME: el dialogo debería grabar solo cuando lo cierran
-        dlg.save_config()
+        # after dialog closes, config changed, so review indicators
         self._review_need_something_indicator()
 
     def check_download_play_buttons(self):

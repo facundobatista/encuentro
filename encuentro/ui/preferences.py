@@ -19,7 +19,6 @@
 """The preferences dialog."""
 
 import os
-import pickle
 import sys
 import logging
 
@@ -36,7 +35,6 @@ from PyQt4.QtGui import (
 )
 from PyQt4.QtCore import Qt
 
-from encuentro import platform
 from encuentro.config import config
 
 logger = logging.getLogger('encuentro.preferences')
@@ -137,10 +135,16 @@ class PreferencesDialog(QDialog):
 
         bbox = QDialogButtonBox(QDialogButtonBox.Ok)
         bbox.accepted.connect(self.accept)
+        bbox.accepted.connect(self._save)
         vbox.addWidget(bbox)
 
-    def save_config(self):
-        """Save config from tabs."""
+    def closeEvent(self, event):
+        """Save and close."""
+        self._save()
+        super(PreferencesDialog, self).closeEvent(event)
+
+    def _save(self):
+        """Just save."""
         # get it from tabs
         config.update(self.gp.get_config())
         config.update(self.cp.get_config())
