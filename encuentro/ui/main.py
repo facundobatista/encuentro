@@ -31,10 +31,8 @@ from PyQt4.QtGui import (
     QCheckBox,
     QLabel,
     QLineEdit,
-    QMainWindow,
     QMessageBox,
     QStyle,
-    qApp,
 )
 from twisted.internet import defer
 
@@ -152,8 +150,8 @@ class MainUI(remembering.RememberingMainWindow):
         action_reload.triggered.connect(self.refresh_episodes)
         menu_appl.addAction(action_reload)
 
-        # FIXME: set an icon for preferences
-        action_preferences = QAction(u'&Preferencias', self)
+        icon = self.style().standardIcon(QStyle.SP_FileDialogDetailedView)
+        action_preferences = QAction(icon, u'&Preferencias', self)
         action_preferences.triggered.connect(self.open_preferences)
         action_preferences.setToolTip(
             u'Configurar distintos parámetros del programa')
@@ -161,8 +159,8 @@ class MainUI(remembering.RememberingMainWindow):
 
         menu_appl.addSeparator()
 
-        # FIXME: set an icon for about
-        _act = QAction('&Acerca de', self)
+        icon = self.style().standardIcon(QStyle.SP_MessageBoxInformation)
+        _act = QAction(icon, '&Acerca de', self)
         # FIXME: connect signal
         _act.setToolTip(u'Muestra información de la aplicación')
         menu_appl.addAction(_act)
@@ -171,7 +169,7 @@ class MainUI(remembering.RememberingMainWindow):
         _act = QAction(icon, '&Salir', self)
         _act.setShortcut('Ctrl+Q')
         _act.setToolTip(u'Sale de la aplicación')
-        _act.triggered.connect(qApp.quit)
+        _act.triggered.connect(self.on_close)
         menu_appl.addAction(_act)
 
         # program menu
@@ -264,6 +262,11 @@ class MainUI(remembering.RememberingMainWindow):
 
         # bye bye
         self.app_quit()
+
+    def on_close(self, _):
+        """Close signal."""
+        if self._should_close():
+            self.shutdown()
 
     def closeEvent(self, event):
         """All is being closed."""
