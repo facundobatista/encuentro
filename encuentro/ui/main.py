@@ -44,7 +44,13 @@ from encuentro.network import (
     CancelledError,
     all_downloaders,
 )
-from encuentro.ui import central_panel, wizard, preferences, remembering
+from encuentro.ui import (
+    central_panel,
+    preferences,
+    remembering,
+    systray,
+    wizard,
+)
 
 logger = logging.getLogger('encuentro.main')
 
@@ -75,13 +81,6 @@ Versión %s<br/>
 """
 
 
-# FIXME: need to make Encuentro "iconizable"
-
-# FIXME: set up a status icon, when the icon is clicked the main window should
-# appear or disappear, keeping the position and size of the position after
-# the sequence
-
-
 class MainUI(remembering.RememberingMainWindow):
     """Main UI."""
 
@@ -110,6 +109,8 @@ class MainUI(remembering.RememberingMainWindow):
         # the setting of menubar should be almost in the end, because it may
         # trigger the wizard, which needs big_panel and etc.
         self._menubar()
+
+        systray.show(self)
         self.show()
         logger.debug("Main UI started ok")
 
@@ -168,7 +169,7 @@ class MainUI(remembering.RememberingMainWindow):
 
         icon = self.style().standardIcon(QStyle.SP_MessageBoxInformation)
         _act = QAction(icon, '&Acerca de', self)
-        _act.triggered.connect(self._open_about_dialog)
+        _act.triggered.connect(self.open_about_dialog)
         _act.setToolTip(u'Muestra información de la aplicación')
         menu_appl.addAction(_act)
 
@@ -478,9 +479,8 @@ class MainUI(remembering.RememberingMainWindow):
         downloader.cancel()
         episode.state = Status.none
 
-    def _open_about_dialog(self):
+    def open_about_dialog(self):
         """Show the about dialog."""
-        # FIXME: this should include an icon automatically
         title = "Encuentro v" + self.version
         text = ABOUT_TEXT % (self.version,)
         QMessageBox.about(self, title, text)
