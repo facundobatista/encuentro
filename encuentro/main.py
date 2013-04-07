@@ -28,7 +28,7 @@ from encuentro.data import EpisodeData
 
 import pynotify
 
-from PyQt4.QtGui import QApplication
+from PyQt4.QtGui import QApplication, QIcon
 
 
 def start(version):
@@ -44,6 +44,9 @@ def start(version):
 
     # the order of the lines hereafter are very precise, don't mess with them
     app = QApplication(sys.argv)
+    icon = QIcon(os.path.join(platform.BASEDIR, "encuentro",
+                              "logos", "icon-192.png"))
+    app.setWindowIcon(icon)
     import qt4reactor
     qt4reactor.install()
     from encuentro.ui.main import MainUI

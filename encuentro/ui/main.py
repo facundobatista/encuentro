@@ -31,10 +31,10 @@ from PyQt4.QtGui import (
     QCheckBox,
     QLabel,
     QLineEdit,
-    QMainWindow,
     QMessageBox,
+    QSizePolicy,
     QStyle,
-    qApp,
+    QWidget,
 )
 from twisted.internet import defer
 
@@ -46,7 +46,13 @@ from encuentro.network import (
     CancelledError,
     all_downloaders,
 )
-from encuentro.ui import central_panel, wizard, preferences, remembering
+from encuentro.ui import (
+    central_panel,
+    preferences,
+    remembering,
+    systray,
+    wizard,
+)
 
 logger = logging.getLogger('encuentro.main')
 
@@ -61,21 +67,20 @@ TTIP_DOWNLOAD_D = (
     u"alguna configuración en el programa."
 )
 
-# FIXME: need an About dialog, connected to the proper signals below
-#   title: Encuentro <version>   <-- need to receive the version when exec'ed
-#   comments: Simple programa que permite buscar, descargar y ver
-#             contenido del canal Encuentro y otros.
-#   smaller: Copyright 2010-2013 Facundo  Batista
-#   url: http://encuentro.taniquetil.com.ar
-#   somewhere (maybe with a button), the license: the content of LICENSE.txt
-
-# FIXME: need to put an icon that looks nice in alt-tab, taskbar, unity, etc
-
-# FIXME: need to make Encuentro "iconizable"
-
-# FIXME: set up a status icon, when the icon is clicked the main window should
-# appear or disappear, keeping the position and size of the position after
-# the sequence
+ABOUT_TEXT = u"""
+<center>
+Simple programa que permite buscar, descargar y ver<br/>
+contenido del canal Encuentro y otros.<br/>
+<br/>
+Versión %s<br/>
+<br/>
+<small>Copyright 2010-2013 Facundo Batista</small><br/>
+<br/>
+<a href="http://encuentro.taniquetil.com.ar">
+    http://encuentro.taniquetil.com.ar
+</a>
+</center>
+"""
 
 
 class MainUI(remembering.RememberingMainWindow):
@@ -87,6 +92,7 @@ class MainUI(remembering.RememberingMainWindow):
         super(MainUI, self).__init__()
         self.app_quit = app_quit
         self.finished = False
+        self.version = version
         self.setWindowTitle('Encuentro')
 
         self.programs_data = data.ProgramsData(self, self._programs_file)
@@ -105,6 +111,11 @@ class MainUI(remembering.RememberingMainWindow):
         # the setting of menubar should be almost in the end, because it may
         # trigger the wizard, which needs big_panel and etc.
         self._menubar()
+
+        systray.show(self)
+        if config['autorefresh']:
+            ue = update.UpdateEpisodes(self)
+            ue.background()
         self.show()
         logger.debug("Main UI started ok")
 
@@ -152,8 +163,8 @@ class MainUI(remembering.RememberingMainWindow):
         action_reload.triggered.connect(self.refresh_episodes)
         menu_appl.addAction(action_reload)
 
-        # FIXME: set an icon for preferences
-        action_preferences = QAction(u'&Preferencias', self)
+        icon = self.style().standardIcon(QStyle.SP_FileDialogDetailedView)
+        action_preferences = QAction(icon, u'&Preferencias', self)
         action_preferences.triggered.connect(self.open_preferences)
         action_preferences.setToolTip(
             u'Configurar distintos parámetros del programa')
@@ -161,9 +172,9 @@ class MainUI(remembering.RememberingMainWindow):
 
         menu_appl.addSeparator()
 
-        # FIXME: set an icon for about
-        _act = QAction('&Acerca de', self)
-        # FIXME: connect signal
+        icon = self.style().standardIcon(QStyle.SP_MessageBoxInformation)
+        _act = QAction(icon, '&Acerca de', self)
+        _act.triggered.connect(self.open_about_dialog)
         _act.setToolTip(u'Muestra información de la aplicación')
         menu_appl.addAction(_act)
 
@@ -171,7 +182,7 @@ class MainUI(remembering.RememberingMainWindow):
         _act = QAction(icon, '&Salir', self)
         _act.setShortcut('Ctrl+Q')
         _act.setToolTip(u'Sale de la aplicación')
-        _act.triggered.connect(qApp.quit)
+        _act.triggered.connect(self.on_close)
         menu_appl.addAction(_act)
 
         # program menu
@@ -200,18 +211,20 @@ class MainUI(remembering.RememberingMainWindow):
         toolbar.addAction(action_reload)
         toolbar.addAction(action_preferences)
 
-        # toolbar for filter
-        # FIXME: see if we can put this toolbar to the extreme
-        # right of the window
-        toolbar = self.addToolBar('')
+        # filter text and button, to the right
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        toolbar.addWidget(spacer)
         toolbar.addWidget(QLabel(u"Filtro: "))
         self.filter_line = QLineEdit()
+        self.filter_line.setMaximumWidth(150)
         self.filter_line.textChanged.connect(self.on_filter_changed)
         toolbar.addWidget(self.filter_line)
         self.filter_cbox = QCheckBox(u"Sólo descargados")
         self.filter_cbox.stateChanged.connect(self.on_filter_changed)
         toolbar.addWidget(self.filter_cbox)
 
+        # if needed, a warning that stuff needs to be configured
         icon = self.style().standardIcon(QStyle.SP_MessageBoxWarning)
         m = u"Necesita configurar algo; haga click aquí para abrir el wizard"
         self.needsomething_alert = QAction(icon, m, self)
@@ -264,6 +277,11 @@ class MainUI(remembering.RememberingMainWindow):
 
         # bye bye
         self.app_quit()
+
+    def on_close(self, _):
+        """Close signal."""
+        if self._should_close():
+            self.shutdown()
 
     def closeEvent(self, event):
         """All is being closed."""
@@ -324,7 +342,8 @@ class MainUI(remembering.RememberingMainWindow):
 
     def refresh_episodes(self, _=None):
         """Update and refresh episodes."""
-        update.UpdateEpisodes(self)
+        ue = update.UpdateEpisodes(self)
+        ue.interactive()
 
     def download_episode(self, _=None):
         """Download the episode(s)."""
@@ -400,8 +419,7 @@ class MainUI(remembering.RememberingMainWindow):
         """Open the preferences dialog."""
         dlg = preferences.PreferencesDialog()
         dlg.exec_()
-        # FIXME: el dialogo debería grabar solo cuando lo cierran
-        dlg.save_config()
+        # after dialog closes, config changed, so review indicators
         self._review_need_something_indicator()
 
     def check_download_play_buttons(self):
@@ -468,3 +486,9 @@ class MainUI(remembering.RememberingMainWindow):
         downloader = self.downloaders[episode.downtype]
         downloader.cancel()
         episode.state = Status.none
+
+    def open_about_dialog(self):
+        """Show the about dialog."""
+        title = "Encuentro v" + self.version
+        text = ABOUT_TEXT % (self.version,)
+        QMessageBox.about(self, title, text)
