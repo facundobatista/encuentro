@@ -38,17 +38,15 @@ class UpdateEpisodes(object):
     def __init__(self, main_window):
         self.main_window = main_window
 
-        # instantiate the dialog to report actions to the user and get elements
+    def background(self):
+        """Trigger an update in background."""
+        self._update()
+
+    def interactive(self):
+        """Update episodes interactively."""
         dialog = dialogs.UpdateDialog()
         dialog.show()
         self._update(dialog)
-
-    @defer.inlineCallbacks
-    def update(self, refresh_gui):
-        """Trigger an update in background."""
-        # FIXME: esto no esta probado, ver como se integra
-        yield self._update()
-        refresh_gui()
 
     @defer.inlineCallbacks
     def _update(self, dialog=None):

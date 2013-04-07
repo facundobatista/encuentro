@@ -111,6 +111,9 @@ class MainUI(remembering.RememberingMainWindow):
         self._menubar()
 
         systray.show(self)
+        if config['autorefresh']:
+            ue = update.UpdateEpisodes(self)
+            ue.background()
         self.show()
         logger.debug("Main UI started ok")
 
@@ -335,7 +338,8 @@ class MainUI(remembering.RememberingMainWindow):
 
     def refresh_episodes(self, _=None):
         """Update and refresh episodes."""
-        update.UpdateEpisodes(self)
+        ue = update.UpdateEpisodes(self)
+        ue.interactive()
 
     def download_episode(self, _=None):
         """Download the episode(s)."""
