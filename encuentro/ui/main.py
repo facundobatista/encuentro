@@ -32,7 +32,9 @@ from PyQt4.QtGui import (
     QLabel,
     QLineEdit,
     QMessageBox,
+    QSizePolicy,
     QStyle,
+    QWidget,
 )
 from twisted.internet import defer
 
@@ -209,18 +211,20 @@ class MainUI(remembering.RememberingMainWindow):
         toolbar.addAction(action_reload)
         toolbar.addAction(action_preferences)
 
-        # toolbar for filter
-        # FIXME: see if we can put this toolbar to the extreme
-        # right of the window
-        toolbar = self.addToolBar('')
+        # filter text and button, to the right
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        toolbar.addWidget(spacer)
         toolbar.addWidget(QLabel(u"Filtro: "))
         self.filter_line = QLineEdit()
+        self.filter_line.setMaximumWidth(150)
         self.filter_line.textChanged.connect(self.on_filter_changed)
         toolbar.addWidget(self.filter_line)
         self.filter_cbox = QCheckBox(u"Sólo descargados")
         self.filter_cbox.stateChanged.connect(self.on_filter_changed)
         toolbar.addWidget(self.filter_cbox)
 
+        # if needed, a warning that stuff needs to be configured
         icon = self.style().standardIcon(QStyle.SP_MessageBoxWarning)
         m = u"Necesita configurar algo; haga click aquí para abrir el wizard"
         self.needsomething_alert = QAction(icon, m, self)
