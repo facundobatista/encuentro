@@ -59,13 +59,21 @@ TTIP_DOWNLOAD_D = (
     u"alguna configuración en el programa."
 )
 
-# FIXME: need an About dialog, connected to the proper signals below
-#   title: Encuentro <version>   <-- need to receive the version when exec'ed
-#   comments: Simple programa que permite buscar, descargar y ver
-#             contenido del canal Encuentro y otros.
-#   smaller: Copyright 2010-2013 Facundo  Batista
-#   url: http://encuentro.taniquetil.com.ar
-#   somewhere (maybe with a button), the license: the content of LICENSE.txt
+ABOUT_TEXT = u"""
+<center>
+Simple programa que permite buscar, descargar y ver<br/>
+contenido del canal Encuentro y otros.<br/>
+<br/>
+Versión %s<br/>
+<br/>
+<small>Copyright 2010-2013 Facundo Batista</small><br/>
+<br/>
+<a href="http://encuentro.taniquetil.com.ar">
+    http://encuentro.taniquetil.com.ar
+</a>
+</center>
+"""
+
 
 # FIXME: need to put an icon that looks nice in alt-tab, taskbar, unity, etc
 
@@ -85,6 +93,7 @@ class MainUI(remembering.RememberingMainWindow):
         super(MainUI, self).__init__()
         self.app_quit = app_quit
         self.finished = False
+        self.version = version
         self.setWindowTitle('Encuentro')
 
         self.programs_data = data.ProgramsData(self, self._programs_file)
@@ -161,7 +170,7 @@ class MainUI(remembering.RememberingMainWindow):
 
         icon = self.style().standardIcon(QStyle.SP_MessageBoxInformation)
         _act = QAction(icon, '&Acerca de', self)
-        # FIXME: connect signal
+        _act.triggered.connect(self._open_about_dialog)
         _act.setToolTip(u'Muestra información de la aplicación')
         menu_appl.addAction(_act)
 
@@ -470,3 +479,10 @@ class MainUI(remembering.RememberingMainWindow):
         downloader = self.downloaders[episode.downtype]
         downloader.cancel()
         episode.state = Status.none
+
+    def _open_about_dialog(self):
+        """Show the about dialog."""
+        # FIXME: this should include an icon automatically
+        title = "Encuentro v" + self.version
+        text = ABOUT_TEXT % (self.version,)
+        QMessageBox.about(self, title, text)
