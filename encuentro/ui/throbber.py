@@ -18,8 +18,6 @@
 
 """A throbber."""
 
-import sys
-
 from os import path
 
 from PyQt4.QtGui import (
@@ -28,8 +26,7 @@ from PyQt4.QtGui import (
 )
 from PyQt4.QtCore import Qt
 
-
-BASEDIR = path.abspath(path.dirname(path.dirname(path.realpath(sys.argv[0]))))
+from encuentro import platform
 
 
 class Throbber(QLabel):
@@ -37,7 +34,7 @@ class Throbber(QLabel):
     def __init__(self):
         super(Throbber, self).__init__()
         self.setAlignment(Qt.AlignCenter)
-        fname = path.join(BASEDIR, "encuentro/ui/media/throbber.gif")
+        fname = path.join(platform.BASEDIR, "encuentro/ui/media/throbber.gif")
         self._movie = QMovie(fname)
         self.setMovie(self._movie)
 

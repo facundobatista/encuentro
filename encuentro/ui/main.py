@@ -75,8 +75,6 @@ Versión %s<br/>
 """
 
 
-# FIXME: need to put an icon that looks nice in alt-tab, taskbar, unity, etc
-
 # FIXME: need to make Encuentro "iconizable"
 
 # FIXME: set up a status icon, when the icon is clicked the main window should
