@@ -27,7 +27,6 @@ from PyQt4.QtGui import (
     QHBoxLayout,
     QLabel,
     QMenu,
-    QMovie,
     QPixmap,
     QPushButton,
     QTextEdit,

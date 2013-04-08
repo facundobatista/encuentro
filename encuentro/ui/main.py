@@ -363,6 +363,7 @@ class MainUI(remembering.RememberingMainWindow):
 
         # queue
         self.episodes_download.append(episode)
+        self.adjust_episode_info(episode)
         self.check_download_play_buttons()
         if self.episodes_download.downloading:
             return
@@ -392,6 +393,7 @@ class MainUI(remembering.RememberingMainWindow):
                 episode.filename = filename
 
             # check buttons
+            self.adjust_episode_info(episode)
             self.check_download_play_buttons()
 
         logger.debug("Downloads: finished")
@@ -421,6 +423,10 @@ class MainUI(remembering.RememberingMainWindow):
         dlg.exec_()
         # after dialog closes, config changed, so review indicators
         self._review_need_something_indicator()
+
+    def adjust_episode_info(self, episode):
+        """Adjust the episode info."""
+        self.episodes_list.episode_info.update(episode)
 
     def check_download_play_buttons(self):
         """Set both buttons state according to the selected episodes."""

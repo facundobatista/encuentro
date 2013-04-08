@@ -54,9 +54,9 @@ def start(version):
 
     def quit():
         """Quit."""
-        # FIXME: if twisted is used (try reloading episodes), this doesn't
-        # really terminates the program, :/
         app.quit()
+        if reactor.threadpool is not None:
+            reactor.threadpool.stop()
         reactor.stop()
 
     reactor.callWhenRunning(MainUI, version, quit)
