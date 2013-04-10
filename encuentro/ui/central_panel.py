@@ -23,18 +23,24 @@ import operator
 
 from PyQt4.QtGui import (
     QAbstractItemView,
+    QAbstractTextDocumentLayout,
+    QApplication,
     QColor,
     QHBoxLayout,
     QLabel,
     QMenu,
     QPixmap,
     QPushButton,
+    QStyle,
+    QStyleOptionViewItemV4,
+    QStyledItemDelegate,
+    QTextDocument,
     QTextEdit,
     QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
 )
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, QSize
 
 from encuentro import data, image
 from encuentro.data import Status
@@ -129,6 +135,61 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
         return q
 
 
+class HTMLDelegate(QStyledItemDelegate):
+    """Custom delegate so the QTreeWidget can do HTML.
+
+    This is an adaptation of a post here:
+
+        http://stackoverflow.com/questions/10924175/how-do-i-use-a-
+            qstyleditemdelegate-to-paint-only-the-background-without-coverin
+
+    We only need to do background highlighting, so probably this will be
+    trimmed as much as possible for performance reasons.
+
+    Also, we only do HTML for one column, the rest is delegated to parent.
+    """
+    def __init__(self, parent, html_column):
+        self._html_column = html_column
+        QStyledItemDelegate.__init__(self, parent)
+
+    def paint(self, painter, option, index):
+        """Render the delegate for the item."""
+        if index.column() != self._html_column:
+            return QStyledItemDelegate.paint(self, painter, option, index)
+
+        options = QStyleOptionViewItemV4(option)
+        self.initStyleOption(options,index)
+
+        if options.widget is None:
+            style = QApplication.style()
+        else:
+            style = options.widget.style()
+
+        doc = QTextDocument()
+        doc.setHtml(options.text)
+
+        options.text = ""
+        style.drawControl(QStyle.CE_ItemViewItem, options, painter);
+
+        ctx = QAbstractTextDocumentLayout.PaintContext()
+
+        textRect = style.subElementRect(QStyle.SE_ItemViewItemText, options)
+        painter.save()
+        painter.translate(textRect.topLeft())
+        painter.setClipRect(textRect.translated(-textRect.topLeft()))
+        doc.documentLayout().draw(painter, ctx)
+        painter.restore()
+
+    def sizeHint(self, option, index):
+        options = QStyleOptionViewItemV4(option)
+        self.initStyleOption(options,index)
+
+        doc = QTextDocument()
+        doc.setHtml(options.text)
+        doc.setTextWidth(options.rect.width())
+        return QSize(doc.idealWidth(), doc.size().height())
+
+
 class EpisodesWidget(remembering.RememberingTreeWidget):
     """The list of episodes info."""
 
@@ -141,6 +202,7 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         self.episode_info = episode_info
         super(EpisodesWidget, self).__init__('episodes')
         self.setMinimumSize(600, 300)
+        self.setItemDelegate(HTMLDelegate(self, self._title_column))
 
         _headers = (u"Canal", u"Sección", u"Título", u"Duración [min]")
         self.setColumnCount(len(_headers))
@@ -260,25 +322,23 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         """Apply a filter to the episodes list."""
         for episode_id, item in self._item_map.iteritems():
             episode = self.main_window.programs_data[episode_id]
-            if episode.should_filter(text, only_downloaded):
+
+            params = episode.filter_params(text, only_downloaded)
+            if params is None:
                 item.setHidden(True)
             else:
                 item.setHidden(False)
-                if text:
-                    # filtering by text, so highlight
-                    t = episode.title
-                    # FIXME: see how we can put some color here
-                    #pos1 = t.find(text)
-                    #pos2 = pos1 + len(text)
-                    #result = ''.join(t[:pos1] + '<span background="yellow">' +
-                    #                 t[pos1:pos2] + '</span>' + t[pos2:])
-                    # hint:     jbmolher answer in
-                    # http://stackoverflow.com/questions/1956542/how-to-make-item-view-render-rich-html-text-in-qt
-                    result = t
-                    item.setText(self._title_column, result)
-                else:
+                pos1, pos2 = params
+                if pos1 is None:
                     # no highlighting
                     item.setText(self._title_column, episode.title)
+                else:
+                    # filtering by text, so highlight
+                    t = episode.title
+                    ht = u''.join((t[:pos1],
+                                   '<span style="background-color:yellow">',
+                                   t[pos1:pos2], '</span>', t[pos2:]))
+                    item.setText(self._title_column, ht)
 
         # clear the selection to get consistent behaviour (because otherwise
         # something will keep selected when widening the filter, or nothing
