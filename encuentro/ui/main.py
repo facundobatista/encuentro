@@ -110,6 +110,8 @@ class MainUI(remembering.RememberingMainWindow):
 
         # the setting of menubar should be almost in the end, because it may
         # trigger the wizard, which needs big_panel and etc.
+        self.action_play = self.action_download = None
+        self.filter_line = self.filter_cbox = self.needsomething_alert = None
         self._menubar()
 
         systray.show(self)

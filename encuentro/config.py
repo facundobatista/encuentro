@@ -29,6 +29,7 @@ class _Config(dict):
 
     def __init__(self):
         self._fname = None
+        super(_Config, self).__init__()
 
     def init(self, fname):
         """Initialize and load config."""

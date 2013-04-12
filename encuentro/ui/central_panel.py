@@ -158,7 +158,7 @@ class HTMLDelegate(QStyledItemDelegate):
             return QStyledItemDelegate.paint(self, painter, option, index)
 
         options = QStyleOptionViewItemV4(option)
-        self.initStyleOption(options,index)
+        self.initStyleOption(options, index)
 
         if options.widget is None:
             style = QApplication.style()
@@ -169,7 +169,7 @@ class HTMLDelegate(QStyledItemDelegate):
         doc.setHtml(options.text)
 
         options.text = ""
-        style.drawControl(QStyle.CE_ItemViewItem, options, painter);
+        style.drawControl(QStyle.CE_ItemViewItem, options, painter)
 
         ctx = QAbstractTextDocumentLayout.PaintContext()
 
@@ -181,8 +181,9 @@ class HTMLDelegate(QStyledItemDelegate):
         painter.restore()
 
     def sizeHint(self, option, index):
+        """Calculate the needed size."""
         options = QStyleOptionViewItemV4(option)
-        self.initStyleOption(options,index)
+        self.initStyleOption(options, index)
 
         doc = QTextDocument()
         doc.setHtml(options.text)
@@ -213,7 +214,7 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         episodes = list(self.main_window.programs_data.values())
 
         self._item_map = {}
-        for i, e in enumerate(episodes):
+        for e in episodes:
             item = QTreeWidgetItem([unicode(v) for v in self._row_getter(e)])
             item.episode_id = e.episode_id
             item.setTextAlignment(3, Qt.AlignRight)
@@ -297,7 +298,7 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         """Update episode with new info"""
         item = self._item_map[episode.episode_id]
         for i, v in enumerate(self._row_getter(episode)):
-           item.setText(i, unicode(v))
+            item.setText(i, unicode(v))
 
     def add_episode(self, episode):
         """Update episode with new info"""

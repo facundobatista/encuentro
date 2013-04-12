@@ -37,6 +37,8 @@ class Status(object):
 
 
 _normalize_cache = {}
+
+
 def _search_normalizer(char):
     """Normalize always to one char length."""
     try:
@@ -138,7 +140,6 @@ class EpisodeData(object):
         # return boundaries
         pos2 = pos1 + len(text)
         return (pos1, pos2)
-
 
     def __str__(self):
         args = (self.episode_id, self.state, self.channel,

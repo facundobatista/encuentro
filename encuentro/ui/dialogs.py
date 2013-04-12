@@ -38,6 +38,7 @@ Haga click en Continuar y podrá ver el Wizard que lo ayudará a
 configurar nuevamente el programa.
 """
 
+
 class ForceUpgradeDialog(QDialog):
     """The dialog for a force upgrade."""
     def __init__(self):
@@ -96,4 +97,3 @@ if __name__ == '__main__':
     frame = UpdateDialog()
     frame.show()
     frame.exec_()
-

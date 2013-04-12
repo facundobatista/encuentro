@@ -115,8 +115,6 @@ class WizardDialog(QDialog):
                 return self._move(delta_step)
 
         # adjust navigation buttons
-        # FIXME: corregir que luego de apretarlos, estos botones lucen como
-        # "todavía apretados" en la ventana siguiente
         if self.step == 0:
             self.navbut_prev.setEnabled(False)
             self.navbut_next.setText(u"Siguiente")
@@ -174,6 +172,6 @@ if __name__ == '__main__':
     from PyQt4.QtGui import QApplication
     app = QApplication(sys.argv)
 
-    frame = WizardDialog(main)
+    frame = WizardDialog()
     frame.show()
     frame.exec_()
