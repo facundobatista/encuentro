@@ -27,14 +27,18 @@ from encuentro.config import config
 # pylint: disable=W0611
 from encuentro.data import EpisodeData
 
-import pynotify
+try:
+    import pynotify
+except ImportError:
+    pynotify = None
 
 from PyQt4.QtGui import QApplication, QIcon
 
 
 def start(version):
     """Rock and roll."""
-    pynotify.init("Encuentro")
+    if pynotify is not None:
+        pynotify.init("Encuentro")
     verbose = len(sys.argv) > 1 and sys.argv[1] == '-v'
     logger.set_up(verbose)
 

@@ -63,6 +63,9 @@ class NiceImporter(object):
             print IMPORT_MSG % dict(module=self.module, package=self.package,
                                     version=self.version)
 
+        # consume the exception!
+        return True
+
 
 # test the packages
 # pylint: disable=W0611
