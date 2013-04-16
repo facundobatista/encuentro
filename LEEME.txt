@@ -38,8 +38,12 @@ siguientes dependencias (paquete y número mínimo de versión):
 
     python-mechanize        0.1.11
     python-twisted-bin      8.2.0
-    python-gtk2             2.16.0
+    python-qt4              4.9.3
     python-xdg              0.15
+    python-notify           0.1.1
+
+(este último, python-notify, no es realmente necesario, pero si está el
+programa notificará las descargas finalizadas)
 
 
 Licencias

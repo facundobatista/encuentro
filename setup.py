@@ -22,7 +22,7 @@ Needed packages to run (using Debian/Ubuntu package names):
 
     python-mechanize 0.1.11
     python-twisted-bin 8.2.0
-    python-gtk2 2.22.0
+    python-qt4 4.9.3
     python-xdg 0.15
     python-notify 0.1.1   # not really needed, but provides notifications
 """
@@ -118,7 +118,7 @@ setup(
 
     packages=["encuentro"],
     package_data={
-        "encuentro": ["ui/*.glade", "logos/icon-*.png"],
+        "encuentro": ["ui/media/*", "logos/icon-*.png"],
         "": ["encuentro.desktop", "source_encuentro.py", "version.txt"],
     },
     scripts=["bin/encuentro"],

@@ -1,5 +1,5 @@
 
-# Copyright 2011 Facundo Batista
+# Copyright 2011-2013 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -29,6 +29,6 @@ def add_info(report):
     attach_file_if_exists(report, fname, "EncuentroLog")
 
     # info about dependencies
-    packages = ["python-mechanize", "python-twisted-bin", "python-gtk2",
+    packages = ["python-mechanize", "python-twisted-bin", "python-qt4",
                 "python-xdg"]
     attach_related_packages(report, packages)

@@ -20,7 +20,6 @@
 
 import logging
 import os
-import pickle
 
 try:
     import pynotify
@@ -32,22 +31,28 @@ from PyQt4.QtGui import (
     QCheckBox,
     QLabel,
     QLineEdit,
-    QMainWindow,
     QMessageBox,
-    QPushButton,
+    QSizePolicy,
     QStyle,
-    qApp,
+    QWidget,
 )
 from twisted.internet import defer
 
 from encuentro import platform, data, update
+from encuentro.config import config, signal
 from encuentro.data import Status
 from encuentro.network import (
     BadCredentialsError,
     CancelledError,
     all_downloaders,
 )
-from encuentro.ui import central_panel, wizard, preferences
+from encuentro.ui import (
+    central_panel,
+    preferences,
+    remembering,
+    systray,
+    wizard,
+)
 
 logger = logging.getLogger('encuentro.main')
 
@@ -62,45 +67,40 @@ TTIP_DOWNLOAD_D = (
     u"alguna configuración en el programa."
 )
 
-# FIXME: need an About dialog, connected to the proper signals below
-#   title: Encuentro <version>   <-- need to receive the version when exec'ed
-#   comments: Simple programa que permite buscar, descargar y ver
-#             contenido del canal Encuentro y otros.
-#   smaller: Copyright 2010-2013 Facundo  Batista
-#   url: http://encuentro.taniquetil.com.ar
-#   somewhere (maybe with a button), the license: the content of LICENSE.txt
+ABOUT_TEXT = u"""
+<center>
+Simple programa que permite buscar, descargar y ver<br/>
+contenido del canal Encuentro y otros.<br/>
+<br/>
+Versión %s<br/>
+<br/>
+<small>Copyright 2010-2013 Facundo Batista</small><br/>
+<br/>
+<a href="http://encuentro.taniquetil.com.ar">
+    http://encuentro.taniquetil.com.ar
+</a>
+</center>
+"""
 
-# FIXME: need to put an icon that looks nice in alt-tab, taskbar, unity, etc
 
-# FIXME: need to make Encuentro "iconizable"
-
-# FIXME: set up a status icon, when the icon is clicked the main window should
-# appear or disappear, keeping the position and size of the position after
-# the sequence
-
-
-class MainUI(QMainWindow):
+class MainUI(remembering.RememberingMainWindow):
     """Main UI."""
 
-    _config_file = os.path.join(platform.config_dir, 'encuentro.conf')
-    print "Using configuration file:", repr(_config_file)
     _programs_file = os.path.join(platform.data_dir, 'encuentro.data')
 
     def __init__(self, version, app_quit):
         super(MainUI, self).__init__()
         self.app_quit = app_quit
         self.finished = False
-        # FIXME: size and positions should remain the same between starts
-        self.resize(800, 600)
-        self.move(300, 300)
+        self.version = version
         self.setWindowTitle('Encuentro')
 
         self.programs_data = data.ProgramsData(self, self._programs_file)
-        self.config = self._load_config()
+        self._touch_config()
 
         self.downloaders = {}
         for downtype, dloader_class in all_downloaders.iteritems():
-            self.downloaders[downtype] = dloader_class(self.config)
+            self.downloaders[downtype] = dloader_class()
 
         # finish all gui stuff
         self.big_panel = central_panel.BigPanel(self)
@@ -110,30 +110,19 @@ class MainUI(QMainWindow):
 
         # the setting of menubar should be almost in the end, because it may
         # trigger the wizard, which needs big_panel and etc.
+        self.action_play = self.action_download = None
+        self.filter_line = self.filter_cbox = self.needsomething_alert = None
         self._menubar()
+
+        systray.show(self)
+        if config['autorefresh']:
+            ue = update.UpdateEpisodes(self)
+            ue.background()
         self.show()
         logger.debug("Main UI started ok")
 
-    def _save_config(self):
-        """Save the config to disk."""
-        with open(self._config_file, 'wb') as fh:
-            pickle.dump(self.config, fh)
-
-    def _load_config(self):
-        """Load the config from disk."""
-        # get config from file, or defaults
-        if os.path.exists(self._config_file):
-            with open(self._config_file, 'rb') as fh:
-                config = pickle.load(fh)
-                if self.programs_data.reset_config_from_migration:
-                    config['user'] = ''
-                    config['password'] = ''
-                    config.pop('cols_width', None)
-                    config.pop('cols_order', None)
-                    config.pop('selected_row', None)
-        else:
-            config = {}
-
+    def _touch_config(self):
+        """Do some config processing."""
         # log the config, but without user and pass
         safecfg = config.copy()
         if 'user' in safecfg:
@@ -145,11 +134,18 @@ class MainUI(QMainWindow):
         # we have a default for download dir
         if not config.get('downloaddir'):
             config['downloaddir'] = platform.get_download_dir()
-        return config
+
+        # maybe clean some config
+        if self.programs_data.reset_config_from_migration:
+            config['user'] = ''
+            config['password'] = ''
+            config.pop('cols_width', None)
+            config.pop('cols_order', None)
+            config.pop('selected_row', None)
 
     def have_config(self):
         """Return if some config is needed."""
-        return self.config.get('user') and self.config.get('password')
+        return config.get('user') and config.get('password')
 
     def have_metadata(self):
         """Return if metadata is needed."""
@@ -169,8 +165,8 @@ class MainUI(QMainWindow):
         action_reload.triggered.connect(self.refresh_episodes)
         menu_appl.addAction(action_reload)
 
-        # FIXME: set an icon for preferences
-        action_preferences = QAction(u'&Preferencias', self)
+        icon = self.style().standardIcon(QStyle.SP_FileDialogDetailedView)
+        action_preferences = QAction(icon, u'&Preferencias', self)
         action_preferences.triggered.connect(self.open_preferences)
         action_preferences.setToolTip(
             u'Configurar distintos parámetros del programa')
@@ -178,9 +174,9 @@ class MainUI(QMainWindow):
 
         menu_appl.addSeparator()
 
-        # FIXME: set an icon for about
-        _act = QAction('&Acerca de', self)
-        # FIXME: connect signal
+        icon = self.style().standardIcon(QStyle.SP_MessageBoxInformation)
+        _act = QAction(icon, '&Acerca de', self)
+        _act.triggered.connect(self.open_about_dialog)
         _act.setToolTip(u'Muestra información de la aplicación')
         menu_appl.addAction(_act)
 
@@ -188,7 +184,7 @@ class MainUI(QMainWindow):
         _act = QAction(icon, '&Salir', self)
         _act.setShortcut('Ctrl+Q')
         _act.setToolTip(u'Sale de la aplicación')
-        _act.triggered.connect(qApp.quit)
+        _act.triggered.connect(self.on_close)
         menu_appl.addAction(_act)
 
         # program menu
@@ -206,7 +202,7 @@ class MainUI(QMainWindow):
         self.action_play = QAction(icon, '&Reproducir', self)
         self.action_play.setEnabled(False)
         self.action_play.setToolTip(TTIP_PLAY_D)
-        self.action_play.triggered.connect(self.play_episode)
+        self.action_play.triggered.connect(self.on_play_action)
         menu_prog.addAction(self.action_play)
 
         # toolbar for buttons
@@ -217,24 +213,26 @@ class MainUI(QMainWindow):
         toolbar.addAction(action_reload)
         toolbar.addAction(action_preferences)
 
-        # toolbar for filter
-        # FIXME: see if we can put this toolbar to the extreme
-        # right of the window
-        toolbar = self.addToolBar('')
+        # filter text and button, to the right
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        toolbar.addWidget(spacer)
         toolbar.addWidget(QLabel(u"Filtro: "))
         self.filter_line = QLineEdit()
+        self.filter_line.setMaximumWidth(150)
         self.filter_line.textChanged.connect(self.on_filter_changed)
         toolbar.addWidget(self.filter_line)
         self.filter_cbox = QCheckBox(u"Sólo descargados")
         self.filter_cbox.stateChanged.connect(self.on_filter_changed)
         toolbar.addWidget(self.filter_cbox)
 
+        # if needed, a warning that stuff needs to be configured
         icon = self.style().standardIcon(QStyle.SP_MessageBoxWarning)
         m = u"Necesita configurar algo; haga click aquí para abrir el wizard"
         self.needsomething_alert = QAction(icon, m, self)
         self.needsomething_alert.triggered.connect(self._start_wizard)
         toolbar.addAction(self.needsomething_alert)
-        if not self.config.get('nowizard'):
+        if not config.get('nowizard'):
             self._start_wizard()
         self._review_need_something_indicator()
 
@@ -251,6 +249,10 @@ class MainUI(QMainWindow):
         cbox = self.filter_cbox.checkState()
         self.episodes_list.set_filter(text, cbox)
 
+        # after applying filter, nothing is selected, so check buttons
+        # (easiest way to clean them all)
+        self.check_download_play_buttons()
+
     def _review_need_something_indicator(self):
         """Hide/show/enable/disable different indicators if need sth."""
         needsomething = bool(not self.have_config() or
@@ -263,8 +265,8 @@ class MainUI(QMainWindow):
         This shutdown con be called at any time, even on init, so we have
         extra precautions about which attributes we have.
         """
-        # self._save_states()  FIXME: if we need to save states, the call is here
-        self._save_config()
+        signal.emit('save_state')
+        config.save()
         self.finished = True
 
         programs_data = getattr(self, 'programs_data', None)
@@ -277,6 +279,11 @@ class MainUI(QMainWindow):
 
         # bye bye
         self.app_quit()
+
+    def on_close(self, _):
+        """Close signal."""
+        if self._should_close():
+            self.shutdown()
 
     def closeEvent(self, event):
         """All is being closed."""
@@ -313,7 +320,7 @@ class MainUI(QMainWindow):
                 program.state = Status.none
         return True
 
-    def _show_message(self, err_type, text):
+    def show_message(self, err_type, text):
         """Show different messages to the user."""
         if self.finished:
             logger.debug("Ignoring message: %r", text)
@@ -337,17 +344,18 @@ class MainUI(QMainWindow):
 
     def refresh_episodes(self, _=None):
         """Update and refresh episodes."""
-        update.UpdateEpisodes(self)
+        ue = update.UpdateEpisodes(self)
+        ue.interactive()
 
     def download_episode(self, _=None):
         """Download the episode(s)."""
         items = self.episodes_list.selectedItems()
         for item in items:
             episode = self.programs_data[item.episode_id]
-            self._queue_download(episode)
+            self.queue_download(episode)
 
     @defer.inlineCallbacks
-    def _queue_download(self, episode):
+    def queue_download(self, episode):
         """User indicated to download something."""
         logger.debug("Download requested of %s", episode)
         if episode.state != Status.none:
@@ -357,6 +365,7 @@ class MainUI(QMainWindow):
 
         # queue
         self.episodes_download.append(episode)
+        self.adjust_episode_info(episode)
         self.check_download_play_buttons()
         if self.episodes_download.downloading:
             return
@@ -368,17 +377,17 @@ class MainUI(QMainWindow):
                 filename, episode = yield self._episode_download(episode)
             except CancelledError:
                 logger.debug("Got a CancelledError!")
-                self.episodes_download.end(error=u"Cancelao")
+                self.episodes_download.end(error=u"Cancelado")
             except BadCredentialsError:
                 logger.debug("Bad credentials error!")
                 msg = (u"Error con las credenciales: hay que configurar "
                        u"usuario y clave correctos")
-                self._show_message('BadCredentialsError', msg)
+                self.show_message('BadCredentialsError', msg)
                 self.episodes_download.end(error=msg)
             except Exception, e:
                 logger.debug("Unknown download error: %s", e)
                 err_type = e.__class__.__name__
-                self._show_message(err_type, str(e))
+                self.show_message(err_type, str(e))
                 self.episodes_download.end(error=u"Error: " + str(e))
             else:
                 logger.debug("Episode downloaded: %s", episode)
@@ -386,6 +395,7 @@ class MainUI(QMainWindow):
                 episode.filename = filename
 
             # check buttons
+            self.adjust_episode_info(episode)
             self.check_download_play_buttons()
 
         logger.debug("Downloads: finished")
@@ -404,7 +414,7 @@ class MainUI(QMainWindow):
                                           self.episodes_download.progress)
         episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
                                           episode.title)
-        if self.config.get('notification', True) and pynotify is not None:
+        if config.get('notification', True) and pynotify is not None:
             n = pynotify.Notification(u"Descarga finalizada", episode_name)
             n.show()
         defer.returnValue((fname, episode))
@@ -413,15 +423,16 @@ class MainUI(QMainWindow):
         """Open the preferences dialog."""
         dlg = preferences.PreferencesDialog()
         dlg.exec_()
-        # FIXME: el dialogo debería grabar solo cuando lo cierran
-        dlg.save_config()
+        # after dialog closes, config changed, so review indicators
         self._review_need_something_indicator()
+
+    def adjust_episode_info(self, episode):
+        """Adjust the episode info."""
+        self.episodes_list.episode_info.update(episode)
 
     def check_download_play_buttons(self):
         """Set both buttons state according to the selected episodes."""
         items = self.episodes_list.selectedItems()
-        if not items:
-            return
 
         # 'play' button should be enabled if only one row is selected and
         # its state is 'downloaded'
@@ -447,7 +458,7 @@ class MainUI(QMainWindow):
         self.action_download.setEnabled(download_enabled)
         self.action_download.setToolTip(ttip)
 
-    def play_episode(self, _=None):
+    def on_play_action(self, _=None):
         """Play the selected episode."""
         items = self.episodes_list.selectedItems()
         if len(items) != 1:
@@ -455,7 +466,11 @@ class MainUI(QMainWindow):
                              % len(items))
         item = items[0]
         episode = self.programs_data[item.episode_id]
-        downloaddir = self.config.get('downloaddir', '')
+        self.play_episode(episode)
+
+    def play_episode(self, episode):
+        """Play an episode."""
+        downloaddir = config.get('downloaddir', '')
         filename = os.path.join(downloaddir, episode.filename)
 
         logger.info("Play requested of %s", episode)
@@ -468,19 +483,20 @@ class MainUI(QMainWindow):
             logger.warning("Aborted playing, file not found: %r", filename)
             msg = (u"No se encontró el archivo para reproducir: " +
                    repr(filename))
-            self._show_message('Error al reproducir', msg)
+            self.show_message('Error al reproducir', msg)
             episode.state = Status.none
             self.episodes_list.set_color(episode)
 
-    def cancel_download(self):
+    def cancel_download(self, episode):
         """Cancel the downloading of an episode."""
-        items = self.episodes_list.selectedItems()
-        if len(items) != 1:
-            raise ValueError("Wrong call to cancel_download, with %d "
-                             "selections" % len(items))
-        item = items[0]
-        episode = self.programs_data[item.episode_id]
         logger.info("Cancelling download of %s", episode)
         self.episodes_download.cancel()
         downloader = self.downloaders[episode.downtype]
         downloader.cancel()
+        episode.state = Status.none
+
+    def open_about_dialog(self):
+        """Show the about dialog."""
+        title = "Encuentro v" + self.version
+        text = ABOUT_TEXT % (self.version,)
+        QMessageBox.about(self, title, text)

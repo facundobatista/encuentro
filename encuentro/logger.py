@@ -62,7 +62,7 @@ def set_up(verbose):
     logger = logging.getLogger('encuentro')
     handler = CustomRotatingFH(logfile, maxBytes=1e6, backupCount=10)
     logger.addHandler(handler)
-    formatter = logging.Formatter("%(asctime)s  %(name)-19s"
+    formatter = logging.Formatter("%(asctime)s  %(name)-22s  "
                                   "%(levelname)-8s %(message)s")
     handler.setFormatter(formatter)
     logger.setLevel(logging.DEBUG)

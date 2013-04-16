@@ -1,6 +1,8 @@
 ¡Bienvenido al Visualizador de contenidos del Canal Encuentro y otros!
 
-Este es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro y otros. Para más información de cómo instalar el programa y licencias, leer el archivo LEEME.txt.
+Este es un simple programa que permite buscar, descargar y ver contenido
+del Canal Encuentro y otros. Para más información de cómo instalar el
+programa y licencias, leer el archivo LEEME.txt.
 
 
 Cómo ejecutar el programa
@@ -10,32 +12,39 @@ Una vez que está instalado se puede ejecutar el programa escribiendo...
 
     encuentro
 
-...desde la linea de comandos, aunque también se puede ejecutarlo de la siguiente manera estando parado en el directorio donde se descomprimió el tarball:
+...desde la linea de comandos, aunque también se puede ejecutarlo de la
+siguiente manera estando parado en el directorio donde se descomprimió
+el tarball:
 
     bin/encuentro
+
+Para ver no solo la salida estándar sino también el log del programa,
+ejecutar:
+
+    bin/encuentro -v
 
 
 Cómo usarlo
 -----------
 
-Lo primero que hay que hacer es actualizar la metadata de los programas. Para ello está el botón Actualizar en la barra superior, hacé click ahí, y luego de bajar la info tendrás centenares de programas para elegir.
+Lo primero que hay que hacer es actualizar la metadata de los programas.
+Para ello está el botón Actualizar en la barra superior, hacé click ahí,
+y luego de bajar la info tendrás centenares de programas para elegir.
 
-Para descargar cualquiera de ellos, tenés que seleccionarlo y hacer click en el botón "Descargar". Pero antes, como cada descarga es personal, hay que configurar el programa con el usuario y clave que saques en el sitio web del Canal Encuentro.
+Para descargar cualquiera de ellos, tenés que seleccionarlo y hacer click
+en el botón "Descargar". Pero antes, como cada descarga es personal, hay
+que configurar el programa con el usuario y clave que saques en el sitio
+web del Canal Encuentro o del backend que corresponda (no todos necesitan
+autenticación)
 
-Entonces, accedé a esta página:
-
-   http://registro.educ.ar/cuentas/ServicioLogin/index?servicio=conectate
-
-...y obtené un usuario y una clave. Luego, volviendo al programa, hacé click en el botón Configurar de la barra de arriba. Te aparecerá un diálogo con tres campos, allí tienes que incluir:
-
-- el usuario que acabas de obtener del sitio del Conectate
-
-- la clave que también acabás de obtener
-
-- el directorio donde querés que se descarguen los capítulos
+Entonces, en el programa hacé click en el botón Configurar de la barra de
+arriba. Ahí vas a ver algunas pestañas, con configuración general y
+específica para los distintos backends, incluso con la URL para ir a
+registrarte y obtener las credenciales).
 
 Listo! Ahora puedes descargar cualquier programa de cualquier canal!
 
-Una vez descargado, para verlos sólo necesitás seleccionarlo y hacer click en el botón de Play.
+Una vez descargado, para verlos sólo necesitás seleccionarlo y hacer click
+en el botón de Play.
 
 ¡Que los disfrutes!

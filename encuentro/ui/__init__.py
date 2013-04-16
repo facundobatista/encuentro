@@ -13,3 +13,5 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # For further info, check  https://launchpad.net/encuentro
+
+"""All classes to define the User Interface of the program."""

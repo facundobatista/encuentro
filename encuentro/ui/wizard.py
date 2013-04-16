@@ -28,6 +28,8 @@ from PyQt4.QtGui import (
     QVBoxLayout,
 )
 
+from encuentro.config import config
+
 logger = logging.getLogger('encuentro.wizard')
 
 TEXT_INIT = u"""
@@ -76,7 +78,7 @@ class WizardDialog(QDialog):
         self.main_text = QLabel(u"init text")
         vbox.addWidget(self.main_text)
         self.notthisagain = QCheckBox(u"No mostrar automáticamente esta ayuda")
-        nowizard = self.main_window.config.get('nowizard', False)
+        nowizard = config.get('nowizard', False)
         self.notthisagain.setCheckState(nowizard)
         self.notthisagain.stateChanged.connect(self._notthisagain_toggled)
         vbox.addWidget(self.notthisagain)
@@ -98,7 +100,7 @@ class WizardDialog(QDialog):
     def _notthisagain_toggled(self, state):
         """The "not this again" checkbutton togled state."""
         logger.info("Configuring 'nowizard' to %s", state)
-        self.main_window.config['nowizard'] = state
+        config['nowizard'] = state
 
     def _move(self, delta_step):
         """The engine for the wizard steps."""
@@ -113,8 +115,6 @@ class WizardDialog(QDialog):
                 return self._move(delta_step)
 
         # adjust navigation buttons
-        # FIXME: corregir que luego de apretarlos, estos botones lucen como
-        # "todavía apretados" en la ventana siguiente
         if self.step == 0:
             self.navbut_prev.setEnabled(False)
             self.navbut_next.setText(u"Siguiente")
@@ -172,6 +172,6 @@ if __name__ == '__main__':
     from PyQt4.QtGui import QApplication
     app = QApplication(sys.argv)
 
-    frame = WizardDialog(main)
+    frame = WizardDialog()
     frame.show()
     frame.exec_()

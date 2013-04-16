@@ -1,4 +1,4 @@
-include encuentro/ui/*.glade
+include encuentro/ui/media/*
 include encuentro/logos/icon-*.png
 include LEEME.txt
 include AYUDA.txt

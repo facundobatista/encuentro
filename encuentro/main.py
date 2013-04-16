@@ -16,17 +16,20 @@
 
 """Main entry point, and initialization of everything we can."""
 
+import os
 import sys
 
-from encuentro import logger
+from encuentro import logger, platform
+from encuentro.config import config
 
 # we put here EpisodeData only for legacy reasons: unpickle of old pickles
 # will try to load EpisodeData from this namespace
+# pylint: disable=W0611
 from encuentro.data import EpisodeData
 
 import pynotify
 
-from PyQt4.QtGui import QApplication
+from PyQt4.QtGui import QApplication, QIcon
 
 
 def start(version):
@@ -35,19 +38,28 @@ def start(version):
     verbose = len(sys.argv) > 1 and sys.argv[1] == '-v'
     logger.set_up(verbose)
 
+    # set up config
+    fname = os.path.join(platform.config_dir, 'encuentro.conf')
+    print "Using configuration file:", repr(fname)
+    config.init(fname)
+
     # the order of the lines hereafter are very precise, don't mess with them
     app = QApplication(sys.argv)
+    icon = QIcon(os.path.join(platform.BASEDIR, "encuentro",
+                              "logos", "icon-192.png"))
+    app.setWindowIcon(icon)
+    # qt4reactor was path-mangled to be available; pylint: disable=F0401
     import qt4reactor
     qt4reactor.install()
     from encuentro.ui.main import MainUI
     from twisted.internet import reactor
 
-    def quit():
+    def _quit():
         """Quit."""
-        # FIXME: if twisted is used (try reloading episodes), this doesn't
-        # really terminates the program, :/
         app.quit()
+        if reactor.threadpool is not None:
+            reactor.threadpool.stop()
         reactor.stop()
 
-    reactor.callWhenRunning(MainUI, version, quit)
+    reactor.callWhenRunning(MainUI, version, _quit)
     reactor.run()

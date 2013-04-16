@@ -37,6 +37,8 @@ class Status(object):
 
 
 _normalize_cache = {}
+
+
 def _search_normalizer(char):
     """Normalize always to one char length."""
     try:
@@ -87,6 +89,17 @@ class EpisodeData(object):
         # cache the processed title
         self._normalized_title = prepare_to_filter(self.title)
 
+    @property
+    def normalized_title(self):
+        """Get the normalized title, if already have it, or calculate it.
+
+        This attribute may not be present because old pickled instances didn't
+        have it.
+        """
+        if not hasattr(self, '_normalized_title'):
+            self._normalized_title = prepare_to_filter(self.title)
+        return self._normalized_title
+
     def update(self, channel, section, title, duration, description,
                episode_id, url, image_url, state=None, progress=None,
                filename=None, downtype=None):
@@ -107,18 +120,26 @@ class EpisodeData(object):
         self.filename = filename
         self.downtype = downtype
 
-    def should_filter(self, text, only_downloaded):
-        """Tell if the episode should be filtered out."""
-        # check if we have it, because unpickled object will not
-        if not hasattr(self, '_normalized_title'):
-            self._normalized_title = prepare_to_filter(self.title)
-        if prepare_to_filter(text) not in self._normalized_title:
-            return True, None
-        if only_downloaded and self.state != Status.downloaded:
-            return True, None
+    def filter_params(self, text, only_downloaded):
+        """Return the filtering params.
 
-        # don't filter! let's check what to highlight
-        return False
+        If should filter, it will return (pos1, pos2) (both in None if it only
+        filters by only_downloaded). If it should not filter, will return None.
+        """
+        if only_downloaded and self.state != Status.downloaded:
+            # need downloaded ones, sorry
+            return
+
+        t = self.normalized_title
+        text = prepare_to_filter(text)
+        pos1 = t.find(text)
+        if pos1 == -1:
+            # need to match text, sorry
+            return
+
+        # return boundaries
+        pos2 = pos1 + len(text)
+        return (pos1, pos2)
 
     def __str__(self):
         args = (self.episode_id, self.state, self.channel,
