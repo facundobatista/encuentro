@@ -36,9 +36,11 @@ def _should_fix():
     cmd = "gsettings get com.canonical.Unity.Panel systray-whitelist".split()
     try:
         out = subprocess.check_output(cmd)
-    except OSError:
+    except StandardError, err:
         # don't have gsettings, nothing to fix
-        logger.debug("No gsettings, no systray conf to fix")
+        etype = err.__class__.__name__
+        logger.debug("No gsettings, no systray conf to fix (got %r %s)",
+                     etype, err)
         return
 
     try:
