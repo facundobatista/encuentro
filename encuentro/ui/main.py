@@ -115,7 +115,7 @@ class MainUI(remembering.RememberingMainWindow):
         self._menubar()
 
         systray.show(self)
-        if config['autorefresh']:
+        if config.get('autorefresh'):
             ue = update.UpdateEpisodes(self)
             ue.background()
         self.show()

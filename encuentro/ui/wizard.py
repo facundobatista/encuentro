@@ -44,14 +44,14 @@ y en cualquier momento desde el menú del programa.
 """
 
 TEXT_CONFIG = u"""
-Para poder descargar los programas de los distints backends tiene que
+Para poder descargar los programas de los distintos backends tiene que
 configurar algunos con usuario y clave; puede configurar el sistema
 ahora desde esta misma ventana o en cualquier momento desde el menú
 del programa.
 """
 
 TEXT_END = u"""
-Felicitaciones, el programa está listo para usar, :)
+Felicitaciones, el programa está listo para usar :)
 """
 
 # The steps for the wizard
