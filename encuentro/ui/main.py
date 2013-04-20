@@ -497,6 +497,7 @@ class MainUI(remembering.RememberingMainWindow):
 
     def open_about_dialog(self):
         """Show the about dialog."""
-        title = "Encuentro v" + self.version
-        text = ABOUT_TEXT % (self.version,)
+        version = self.version if self.version else u"(?)"
+        title = "Encuentro v" + version
+        text = ABOUT_TEXT % (version,)
         QMessageBox.about(self, title, text)
