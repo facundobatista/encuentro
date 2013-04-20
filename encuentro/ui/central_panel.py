@@ -291,7 +291,10 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         elif state == Status.none:
             act_play.setEnabled(False)
             act_cancel.setEnabled(False)
-            act_download.setEnabled(True)
+            if self.main_window.have_config():
+                act_download.setEnabled(True)
+            else:
+                act_download.setEnabled(False)
         menu.exec_(self.viewport().mapToGlobal(point))
 
     def update_episode(self, episode):
@@ -429,13 +432,16 @@ class EpisodeInfo(QWidget):
         if episode.state == data.Status.downloaded:
             label = "Reproducir"
             func = self.main_window.play_episode
+            enable = True
         elif (episode.state == data.Status.downloading or
               episode.state == data.Status.waiting):
             label = u"Cancelar descarga"
             func = self.main_window.cancel_download
+            enable = True
         else:
             label = u"Descargar"
             func = self.main_window.download_episode
+            enable = bool(self.main_window.have_config())
 
         def _exec(func, episode):
             """Execute a function on the episode and update its info."""
@@ -443,6 +449,7 @@ class EpisodeInfo(QWidget):
             self.update(episode)
 
         # set button text, disconnect if should, and connect new func
+        self.button.setEnabled(enable)
         self.button.setText(label)
         if self.button.connected:
             self.button.clicked.disconnect()
