@@ -22,3 +22,5 @@ Notes regarding licenses:
 - I included in the qtreactor directory code from
 
     https://github.com/ghtdak/qtreactor
+
+    (last commit: 82ec1802f04fbe54527884a55dafc859cd997c49)
