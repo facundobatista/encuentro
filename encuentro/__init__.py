@@ -49,7 +49,7 @@ class NiceImporter(object):
     def _get_version(self):
         """Get the version of a module."""
         mod = sys.modules[self.module]
-        for attr in ('version', '__version__', 'ver'):
+        for attr in ('version', '__version__', 'ver', 'PYQT_VERSION_STR'):
             v = getattr(mod, attr, None)
             if v is not None:
                 return v
@@ -76,3 +76,5 @@ with NiceImporter('mechanize', 'python-mechanize', '0.1.11'):
     import mechanize
 with NiceImporter('pynotify', 'python-notify', '0.1.1'):
     import pynotify
+with NiceImporter('PyQt4.QtCore', 'PyQt4', '4.9.3'):
+    import PyQt4.QtCore
