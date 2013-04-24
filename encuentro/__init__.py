@@ -76,5 +76,5 @@ with NiceImporter('mechanize', 'python-mechanize', '0.1.11'):
     import mechanize
 with NiceImporter('pynotify', 'python-notify', '0.1.1'):
     import pynotify
-with NiceImporter('PyQt4.QtCore', 'PyQt4', '4.9.3'):
+with NiceImporter('PyQt4.QtCore', 'PyQt4', '4.9.1'):
     import PyQt4.QtCore
