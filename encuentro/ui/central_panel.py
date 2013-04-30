@@ -29,6 +29,7 @@ from PyQt4.QtGui import (
     QHBoxLayout,
     QLabel,
     QMenu,
+    QPalette,
     QPixmap,
     QPushButton,
     QStyle,
@@ -317,7 +318,8 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         if episode.state == Status.downloaded:
             color = QColor("light green")
         else:
-            color = QColor("white")
+            palette = self.palette()
+            color = palette.color(QPalette.AlternateBase)
         item = self._item_map[episode.episode_id]
         for i in xrange(item.columnCount()):
             item.setBackgroundColor(i, color)
