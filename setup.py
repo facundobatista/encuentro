@@ -22,6 +22,7 @@ Needed packages to run (using Debian/Ubuntu package names):
 
     python-mechanize 0.1.11
     python-twisted-bin 8.2.0
+    python-twisted-web 8.2.0
     python-qt4 4.9.1
     python-xdg 0.15
     python-notify 0.1.1   # not really needed, but provides notifications
@@ -116,10 +117,12 @@ setup(
                       'and see the content of the Encuentro channel.',
     url='https://launchpad.net/encuentro',
 
-    packages=["encuentro"],
+    packages=["encuentro", "encuentro.ui"],
     package_data={
         "encuentro": ["ui/media/*", "logos/icon-*.png"],
         "": ["encuentro.desktop", "source_encuentro.py", "version.txt"],
+        "qtreactor": ["qt4reactor.py", "README", "LICENSE",
+                      "twisted/plugins/qt4.py"],
     },
     scripts=["bin/encuentro"],
 
