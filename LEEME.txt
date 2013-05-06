@@ -36,6 +36,7 @@ Es bastante sencillo, sólo tenés que hacer:
 Para que funcione correctamente, tenés que tener Python 2 instalado, y las
 siguientes dependencias (paquete y número mínimo de versión):
 
+    python                  2.6.6
     python-mechanize        0.1.11
     python-twisted-bin      8.2.0
     python-twisted-web      8.2.0

@@ -20,6 +20,7 @@
 
 Needed packages to run (using Debian/Ubuntu package names):
 
+    python 2.6.6
     python-mechanize 0.1.11
     python-twisted-bin 8.2.0
     python-twisted-web 8.2.0
