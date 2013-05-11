@@ -1,0 +1,91 @@
+Procedimiento para generar el .exe
+----------------------------------
+
+Del lado de linux, sólo un paso: preparar un directorio con "el programa
+a empaquetar":
+
+    bzr export algunlado .
+
+Ir a ese "algunlado" y borrar a discreción un montón de cosas que a
+priori no nos interesa distribuir:
+
+    anuncio.txt
+    encuentro.desktop
+    MANIFEST.in
+    pasos_release.txt
+    pylintrc
+    qtreactor/bin
+    qtreactor/ghtTests
+    qtreactor/gtrial.py
+    qtreactor/MANIFEST.in
+    qtreactor/setup.py
+    server
+    setup.py
+    source_encuentro.py
+    test
+    tests
+    web
+
+El resto es del lado Windows. Antes que nada ver que el programa corra ok.
+Llevar el programa a empaquetar a "c:\encuentro", e instalar las
+dependencias:
+
+    easy_install mechanize
+    FIXME: completar con instrucciones para las otras dependencias
+
+
+Probar! Si todo está ok, seguimos adelante. Descomprimir PyInstaller 2
+en "c:\pyinst". Se puede bajar de aquí:
+
+    http://sourceforge.net/projects/pyinstaller/files/2.0/pyinstaller-2.0.zip/download
+
+Luego entrar a ese dir y hacer:
+
+    python pyinstaller.py c:\encuentro\bin\encuentro
+
+Nos va a dejar toda una estructura. Patchear el ...
+
+    c:\pyinst\encuentro\encuentro.spec
+
+...con el .spec del repo.
+
+También hay que fixear el soporte para PyQt. Editar
+support/rthooks/pyi_rth_qt4plugins.py en PyInstaller y agregar al
+principio de todo:
+
+    import sip
+    sip.setapi(u'QDate', 2)
+    sip.setapi(u'QDateTime', 2)
+    sip.setapi(u'QString', 2)
+    sip.setapi(u'QTextStream', 2)
+    sip.setapi(u'QTime', 2)
+    sip.setapi(u'QUrl', 2)
+    sip.setapi(u'QVariant', 2)
+
+Ejecutar finalmente:
+
+    python pyinstaller.py encuentro\encuentro.spec
+
+Ya debería estar. Para probar, ir a la carpeta encuentro\dist\encuentro y
+ejecutar el encuentro.exe.
+
+
+Armar el instalador
+------------------
+
+Instalar NSIS dsde acá:
+
+    http://nsis.sourceforge.net/Download
+
+
+Asegurarnos de tener lo que preparamos antes en los dirs correspondientes:
+
+  c:\encuentro
+  c:\pyinst\encuentro\dist
+
+Crear un dir c:\makeinst, y poner ahí el script 'install_script.nsi' (que
+está en el repo). Desde el navegador de archivos, hacerle botón derecho,
+"Compile NSIS Script".
+
+Eso nos debería dejar, en ese mismo directorio, un "Encuentro_Setup.exe"
+o muy similar.

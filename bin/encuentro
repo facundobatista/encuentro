@@ -31,9 +31,15 @@ else:
     project_basedir = os.path.abspath(os.path.dirname(os.path.dirname(
                                             os.path.realpath(sys.argv[0]))))
 
+if project_basedir not in sys.path:
+    sys.path.insert(0, project_basedir)
+    sys.path.insert(1, os.path.join(project_basedir, 'qtreactor'))
+
+from encuentro import main, platform
+
 # first of all, show the versions
 print "Running Python %s on %r" % (sys.version_info, sys.platform)
-version_file = os.path.join(project_basedir, 'version.txt')
+version_file = platform.get_path('version.txt')
 if os.path.exists(version_file):
     version = open(version_file).read().strip()
     print "Encuentro: v. %s" % (version,)
@@ -41,9 +47,4 @@ else:
     version = None
     print "Encuentro: sin revno info"
 
-if project_basedir not in sys.path:
-    sys.path.insert(0, project_basedir)
-    sys.path.insert(1, os.path.join(project_basedir, 'qtreactor'))
-
-from encuentro import main
 main.start(version)

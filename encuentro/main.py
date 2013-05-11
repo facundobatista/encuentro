@@ -49,8 +49,7 @@ def start(version):
 
     # the order of the lines hereafter are very precise, don't mess with them
     app = QApplication(sys.argv)
-    icon = QIcon(os.path.join(platform.BASEDIR, "encuentro",
-                              "logos", "icon-192.png"))
+    icon = QIcon(platform.get_path("encuentro/logos/icon-192.png"))
     app.setWindowIcon(icon)
     # qt4reactor was path-mangled to be available; pylint: disable=F0401
     import qt4reactor

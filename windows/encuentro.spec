@@ -12,11 +12,16 @@ exe = EXE(pyz,
           debug=False,
           strip=None,
           upx=True,
-          console=True )
+          console=False,
+          icon='C:\\encuentro\\windows\\imgs\\encuentro.ico')
 coll = COLLECT(exe,
+               Tree('C:\\encuentro\\encuentro\\logos'),
+               Tree('C:\\encuentro\\encuentro\\ui\\media'),
                a.binaries,
                a.zipfiles,
-               a.datas,
+               a.datas + [
+                   ('version.txt', 'C:\\encuentro\\version.txt', 'DATA')
+               ],
                strip=None,
                upx=True,
                name=os.path.join('dist', 'encuentro'))

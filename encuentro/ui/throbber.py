@@ -34,7 +34,7 @@ class Throbber(QLabel):
     def __init__(self):
         super(Throbber, self).__init__()
         self.setAlignment(Qt.AlignCenter)
-        fname = path.join(platform.BASEDIR, "encuentro/ui/media/throbber.gif")
+        fname = platform.get_path("encuentro/ui/media/throbber.gif")
         self._movie = QMovie(fname)
         self.setMovie(self._movie)
 

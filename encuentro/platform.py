@@ -25,8 +25,14 @@ import sys
 import user
 
 
-BASEDIR = os.path.abspath(os.path.dirname(os.path.dirname(
+_basedir = os.path.abspath(os.path.dirname(os.path.dirname(
     os.path.realpath(sys.argv[0]))))
+
+# if the base directory was mangled by PyInstaller, fix it
+_frozen = False
+if getattr(sys, 'frozen', None):
+    _basedir = sys._MEIPASS
+    _frozen = True
 
 if sys.platform == 'win32':
     # won't find this in linux; pylint: disable=F0401
@@ -41,6 +47,18 @@ else:
     data_dir = BaseDirectory.xdg_data_home
     cache_dir = BaseDirectory.xdg_cache_home
     del BaseDirectory
+
+
+def get_path(path):
+    """Build an usable path for media."""
+    parts = path.split("/")
+
+    # if frozen by PyInstaller, all stuff is in the same dir
+    if _frozen:
+        return os.path.join(_basedir, parts[-1])
+
+    # normal work
+    return os.path.join(_basedir, *parts)
 
 
 def sanitize(name):
