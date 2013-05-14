@@ -18,6 +18,7 @@
 
 """Script to run Encuentro."""
 
+import logging
 import sys
 import os
 
@@ -36,10 +37,16 @@ if project_basedir not in sys.path:
     sys.path.insert(0, project_basedir)
     sys.path.insert(1, os.path.join(project_basedir, 'qtreactor'))
 
-from encuentro import main, platform
+from encuentro import main, platform, logger
+
+# set up logging
+verbose = len(sys.argv) > 1 and sys.argv[1] == '-v'
+logger.set_up(verbose)
+log = logging.getLogger('encuentro.init')
 
 # first of all, show the versions
 print "Running Python %s on %r" % (sys.version_info, sys.platform)
+log.info("Running Python %s on %r", sys.version_info, sys.platform)
 version_file = platform.get_path('version.txt')
 if os.path.exists(version_file):
     version = open(version_file).read().strip()
@@ -47,5 +54,6 @@ if os.path.exists(version_file):
 else:
     version = None
     print "Encuentro: sin revno info"
+log.info("Encuentro version: %r", version)
 
 main.start(version)

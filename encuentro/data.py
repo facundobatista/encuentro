@@ -157,6 +157,7 @@ class ProgramsData(object):
         self.main_window = main_window
         self.filename = filename
         print "Using data file:", repr(filename)
+        logger.info("Using data file: %r", filename)
 
         self.version = None
         self.data = None

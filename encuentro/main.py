@@ -16,16 +16,19 @@
 
 """Main entry point, and initialization of everything we can."""
 
+import logging
 import os
 import sys
 
-from encuentro import logger, platform
+from encuentro import platform
 from encuentro.config import config
 
 # we put here EpisodeData only for legacy reasons: unpickle of old pickles
 # will try to load EpisodeData from this namespace
 # pylint: disable=W0611
 from encuentro.data import EpisodeData
+
+logger = logging.getLogger('encuentro.init')
 
 try:
     import pynotify
@@ -39,12 +42,11 @@ def start(version):
     """Rock and roll."""
     if pynotify is not None:
         pynotify.init("Encuentro")
-    verbose = len(sys.argv) > 1 and sys.argv[1] == '-v'
-    logger.set_up(verbose)
 
     # set up config
     fname = os.path.join(platform.config_dir, 'encuentro.conf')
     print "Using configuration file:", repr(fname)
+    logger.info("Using configuration file: %r", fname)
     config.init(fname)
 
     # the order of the lines hereafter are very precise, don't mess with them
