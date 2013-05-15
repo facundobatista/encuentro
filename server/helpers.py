@@ -43,16 +43,40 @@ def save_file(basename, data):
     os.rename(tmpname, bz2name)
 
 
+def _weird_utf8_fixing(byteseq):
+    """Clean non-utf8 elements and decode."""
+    tmp = []
+    consume = 0
+    for i, c in enumerate(byteseq):
+        if consume:
+            consume -= 1
+            continue
+        ord_c = ord(c)
+        if ord_c <= 127:  # 0... ....
+            tmp.append(c)
+        elif 192 <= ord_c <= 223:  # 110. ....
+            n = byteseq[i+1]
+            if 128 <= ord(n) <= 191:
+                # second byte ok
+                tmp.append(c)
+                tmp.append(n)
+                consume = 1
+        else:
+            ValueError("Unsupported fixing sequence.")
+    result = "".join(tmp).decode("utf8")
+    return result
+
+
 def sanitize(html):
     """Sanitize html."""
-    # remove the 0xC3 + space sequence, that is surely a bad cut utf8 bytes
-    html = html.replace("\xc3 ", " ")
-
     # try to decode in utf8, otherwise try in cp1252
     try:
         html.decode("utf8")
     except UnicodeDecodeError:
-        html = html.decode("cp1252")
+        try:
+            html = html.decode("cp1252")
+        except UnicodeDecodeError:
+            html = _weird_utf8_fixing(html)
 
     # remove script stuff
     html = re.sub("<script.*?</script>", "", html, flags=re.S)

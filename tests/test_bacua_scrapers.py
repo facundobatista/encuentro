@@ -147,7 +147,22 @@ _RES_PAGE_2 = [
     ),
 ]
 
+_RES_PAGE_3 = [
+    # no videos in this page :/
+]
 
+_RES_PAGE_4 = [
+    dict(
+        title=u"Hijos De La Montaña",
+        description=u"",
+        episode_id="bacua_b4fb3ef2",
+        duration="?",
+        url="http://backend.bacua.gob.ar/video.php?v=_b4fb3ef2",
+        section="Micro",
+        channel="Bacua",
+        image_url="http://backend.bacua.gob.ar/img.php?idvideo=b4fb3ef2",
+    ),
+]
 
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
@@ -165,6 +180,16 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_page_2(self):
         html = open("../tests/ej-bacua-page_2.html").read()
         res = get_bacua_episodes.scrap_page(html)
-#        print "\n=== res", [sorted(x.items()) for x in res]
-#        print "=== RES", [sorted(x.items()) for x in _RES_PAGE_2]
         self.assertEqual(res, _RES_PAGE_2)
+
+    def test_example_page_3(self):
+        html = open("../tests/ej-bacua-page_3.html").read()
+        res = get_bacua_episodes.scrap_page(html)
+        self.assertEqual(res, _RES_PAGE_3)
+
+    def test_example_page_4(self):
+        html = open("../tests/ej-bacua-page_4.html").read()
+        res = get_bacua_episodes.scrap_page(html)
+#        print "\n=== res", [sorted(x.items()) for x in res]
+#        print "=== RES", [sorted(x.items()) for x in _RES_PAGE_4]
+        self.assertEqual(res, _RES_PAGE_4)

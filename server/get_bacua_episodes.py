@@ -77,7 +77,8 @@ def scrap_page(html):
             continue
 
         title = i.h4.contents[0].title().strip()
-        sinopsis = i.find("h5", {"class": "sinopsis_cat"}).contents[0]
+        _sinop_cat = i.find("h5", {"class": "sinopsis_cat"}).contents
+        sinopsis = _sinop_cat[0] if _sinop_cat else u""
         id_video = i.findAll("li")[1].a['href'].split("=")[1]
         image_url = IMG_URL % (id_video,)
         video_url = BACKEND % (id_video,)
