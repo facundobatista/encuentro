@@ -105,7 +105,7 @@ class UpdateEpisodes(object):
         tell_user("Actualizando los datos internos....")
         logger.debug("Updating internal metadata (%d)", len(new_data))
         self.main_window.programs_data.merge(
-                new_data, self.main_window.big_panel.episodes)
+            new_data, self.main_window.big_panel.episodes)
 
         tell_user(u"¡Todo terminado bien!")
         if dialog:

@@ -53,7 +53,7 @@ class GeneralPreferences(QWidget):
         grid.setColumnStretch(1, 10)
 
         l = QLabel(
-                u"<b>Ingresá el directorio donde descargar los videos...</b>")
+            u"<b>Ingresá el directorio donde descargar los videos...</b>")
         l.setTextFormat(Qt.RichText)
         grid.addWidget(l, 0, 0, 1, 2)
 
@@ -63,13 +63,13 @@ class GeneralPreferences(QWidget):
         grid.addWidget(self.downloaddir_entry, 1, 1, 2, 2)
 
         self.autoreload_checkbox = QCheckBox(
-                u"Recargar automáticamente la lista de episodios al iniciar")
+            u"Recargar automáticamente la lista de episodios al iniciar")
         prv = config.get('autorefresh', False)
         self.autoreload_checkbox.setChecked(prv)
         grid.addWidget(self.autoreload_checkbox, 2, 0, 3, 2)
 
         self.shownotifs_checkbox = QCheckBox(
-                u"Mostrar una notificación cuando termina cada descarga")
+            u"Mostrar una notificación cuando termina cada descarga")
         prv = config.get('notification', True)
         self.shownotifs_checkbox.setChecked(prv)
         grid.addWidget(self.shownotifs_checkbox, 3, 0, 4, 2)
@@ -154,7 +154,7 @@ class PreferencesDialog(QDialog):
 if __name__ == '__main__':
 
     project_basedir = os.path.abspath(os.path.dirname(os.path.dirname(
-                                            os.path.realpath(sys.argv[0]))))
+        os.path.realpath(sys.argv[0]))))
     sys.path.insert(0, project_basedir)
 
     from PyQt4.QtGui import QApplication

@@ -29,6 +29,7 @@ _basedir = os.path.abspath(os.path.dirname(os.path.dirname(
     os.path.realpath(sys.argv[0]))))
 
 # if the base directory was determined by setup.py, fix it
+# pylint: disable=W0212
 if hasattr(sys, '_INSTALLED_BASE_DIR'):
     _basedir = sys._INSTALLED_BASE_DIR
 
@@ -37,6 +38,7 @@ _frozen = False
 if hasattr(sys, 'frozen'):
     _basedir = sys._MEIPASS
     _frozen = True
+# pylint: enable=W0212
 
 if sys.platform == 'win32':
     # won't find this in linux; pylint: disable=F0401

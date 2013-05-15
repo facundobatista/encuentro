@@ -53,7 +53,7 @@ load-plugins=
 # W0703: Catch "Exception"
 # C0103: Invalid name
 # E0203: Access to member 'x' before its definition line n
-disable=R,I,W0142,W0613,E1103,E1101,W0703,C0103,E0203
+disable=R,I,W0142,W0613,E1103,E1101,W0703,C0103,E0203,W1401
 
 
 [REPORTS]

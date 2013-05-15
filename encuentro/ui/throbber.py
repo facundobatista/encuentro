@@ -18,8 +18,6 @@
 
 """A throbber."""
 
-from os import path
-
 from PyQt4.QtGui import (
     QLabel,
     QMovie,

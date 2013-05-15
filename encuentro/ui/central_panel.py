@@ -273,11 +273,11 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         menu = QMenu()
         mw = self.main_window
         act_play = menu.addAction(u"&Reproducir",
-                lambda: mw.play_episode(episode))
+                                  lambda: mw.play_episode(episode))
         act_cancel = menu.addAction(u"&Cancelar descarga",
-                lambda: mw.cancel_download(episode))
+                                    lambda: mw.cancel_download(episode))
         act_download = menu.addAction(u"&Descargar",
-                lambda: mw.queue_download(episode))
+                                      lambda: mw.queue_download(episode))
 
         # set menu options according status
         state = episode.state
@@ -377,7 +377,7 @@ class EpisodeInfo(QWidget):
 
         # text area
         self.text_edit = QTextEdit(
-                u"Seleccionar un programa para ver aquí la info.")
+            u"Seleccionar un programa para ver aquí la info.")
         self.text_edit.setReadOnly(True)
         layout.addWidget(self.text_edit)
 
@@ -426,7 +426,7 @@ class EpisodeInfo(QWidget):
 
         # all description
         msg = "<center><h3>%s</h3></center><br/><br/>%s" % (
-                episode.title, episode.description)
+            episode.title, episode.description)
         self.text_edit.setHtml(msg)
 
         # action button

@@ -55,7 +55,7 @@ def _weird_utf8_fixing(byteseq):
         if ord_c <= 127:  # 0... ....
             tmp.append(c)
         elif 192 <= ord_c <= 223:  # 110. ....
-            n = byteseq[i+1]
+            n = byteseq[i + 1]
             if 128 <= ord(n) <= 191:
                 # second byte ok
                 tmp.append(c)
