@@ -118,7 +118,7 @@ setup(
                       'and see the content of the Encuentro channel.',
     url='https://launchpad.net/encuentro',
 
-    packages=["encuentro", "encuentro.ui"],
+    packages=["encuentro", "encuentro.ui", "qtreactor"],
     package_data={
         "encuentro": ["ui/media/*", "logos/icon-*.png"],
         "": ["encuentro.desktop", "source_encuentro.py", "version.txt"],
