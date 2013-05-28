@@ -14,11 +14,6 @@ priori no nos interesa distribuir:
     MANIFEST.in
     pasos_release.txt
     pylintrc
-    qtreactor/bin
-    qtreactor/ghtTests
-    qtreactor/gtrial.py
-    qtreactor/MANIFEST.in
-    qtreactor/setup.py
     server
     setup.py
     source_encuentro.py
@@ -84,8 +79,8 @@ Asegurarnos de tener lo que preparamos antes en los dirs correspondientes:
   c:\pyinst\encuentro\dist
 
 Crear un dir c:\makeinst, y poner ahí el script 'install_script.nsi' (que
-está en el repo). Desde el navegador de archivos, hacerle botón derecho,
-"Compile NSIS Script".
+está en el repo), y actualizar el nro de versión en este mismo archivo.
 
-Eso nos debería dejar, en ese mismo directorio, un "Encuentro_Setup.exe"
-o muy similar.
+Luego, desde el navegador de archivos, hacerle botón derecho,
+"Compile NSIS Script".  Eso nos debería dejar, en ese mismo directorio,
+un "Encuentro_Setup.exe" o muy similar.

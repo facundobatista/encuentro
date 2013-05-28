@@ -1,5 +1,5 @@
 !define PRODUCT_NAME "Encuentro"
-!define PRODUCT_VERSION "0.9.9"
+!define PRODUCT_VERSION "1.0"
 !define PRODUCT_PUBLISHER "Facundo Batista"
 !define PRODUCT_WEB_SITE "http://encuentro.taniquetil.com.ar/"
 
