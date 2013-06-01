@@ -104,21 +104,24 @@ class Cache(object):
             cPickle.dump(self.db, fh)
 
 
-def retryable(func):
-    """Decorator to retry functions."""
-    def _f(*args, **kwargs):
-        """Retryable function."""
-        for attempt in range(5, -1, -1):  # if reaches 0: no more attempts
-            try:
-                res = func(*args, **kwargs)
-            except Exception, e:
-                if not attempt:
-                    raise
-                print "   problem (retrying...):", e
-                time.sleep(30)
-            else:
-                return res
-    return _f
+def retryable(logger):
+    """Decorator generator."""
+    def decorator(func):
+        """Decorator to retry functions."""
+        def _f(*args, **kwargs):
+            """Retryable function."""
+            for attempt in range(5, -1, -1):  # if reaches 0: no more attempts
+                try:
+                    res = func(*args, **kwargs)
+                except Exception, e:
+                    if not attempt:
+                        raise
+                    logger.warning("   problem (retrying...): %s", e)
+                    time.sleep(30)
+                else:
+                    return res
+        return _f
+    return decorator
 
 
 def get_url_param(url, param):

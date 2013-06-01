@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2012 Facundo Batista
+# Copyright 2013 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -20,12 +20,14 @@
 
 import cgi
 import json
+import logging
 import sys
 import urllib2
 
 # we execute this script from inside the directory; pylint: disable=W0403
 import helpers
 import scrapers_encuen
+import srv_logger
 
 
 URL_LISTING = (
@@ -39,16 +41,18 @@ URL_DETAILS = (
 
 POST_DETAILS = '__params=%7B%22rec_id%22%3A{}%2C%22ajax%22%3Atrue%7D'
 
+logger = logging.getLogger("Encuentro")
+
 episodes_cache = helpers.Cache("episodes_cache_encuen.pickle")
 
 
-@helpers.retryable
+@helpers.retryable(logger)
 def get_download_availability(episode_id):
     """Check if the episode is available for download."""
-    print "Get availability:", episode_id
+    logger.info("Get availability: %s", episode_id)
     try:
         info = episodes_cache.get(episode_id)
-        print "    cached!"
+        logger.info("    cached!")
     except KeyError:
         post = POST_DETAILS.format(episode_id)
         u = urllib2.urlopen(URL_DETAILS, data=post)
@@ -58,34 +62,34 @@ def get_download_availability(episode_id):
         real_id = data['descargable']['file_id']
         info = real_id is not None
         episodes_cache.set(episode_id, info)
-        print "    ok, avail", real_id is not None
+        logger.info("    ok, avail? %s", real_id is not None)
     return info
 
 
-@helpers.retryable
+@helpers.retryable(logger)
 def get_episode_info(url):
     """Get the info from an episode."""
-    print "Get episode info:", url
+    logger.info("Get episode info: %r", url)
     try:
         info = episodes_cache.get(url)
-        print "    cached!"
+        logger.info("    cached!")
     except KeyError:
         u = urllib2.urlopen(url)
         page = u.read()
         info = scrapers_encuen.scrap_programa(page)
         episodes_cache.set(url, info)
-        print "    ok"
+        logger.info("    ok")
     return info
 
 
-@helpers.retryable
+@helpers.retryable(logger)
 def get_listing_info(url):
     """Get the info from a listing."""
-    print "Get listing info:", url
+    logger.info("Get listing info: %r", url)
     u = urllib2.urlopen(url)
     page = u.read()
     result = scrapers_encuen.scrap_listado(page)
-    print "    ok", len(result)
+    logger.info("    ok %d", len(result))
     return result
 
 
@@ -95,14 +99,14 @@ def get_episodes():
     while True:
         url = URL_LISTING % offset
         offset += 20
-        print "Get Episodes, listing", url
+        logger.info("Get Episodes, listing: %r", url)
         episodes = get_listing_info(url)
-        print "    found", episodes
+        logger.info("    found %s", episodes)
         if not episodes:
             break
 
         for ep_title, ep_url in episodes:
-            print "Getting info for", repr(ep_title), ep_url
+            logger.info("Getting info for %r %r", ep_title, ep_url)
             ep_info = get_episode_info(ep_url)
             links = ep_info['links']
             duration = ep_info['duration']
@@ -110,7 +114,7 @@ def get_episodes():
             image_url = ep_info['image_url']
 
             if len(links) == 0:
-                print "WARNING: no links"
+                logger.warning("no links")
                 continue
 
             if len(links) == 1:
@@ -165,7 +169,15 @@ def main():
     helpers.save_file("encuentro-v03", all_data)
 
 
-if len(sys.argv) == 2:
-    print get_episode_info(int(sys.argv[1]))
-else:
-    main()
+if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == '--shy':
+        shy = True
+        del sys.argv[1]
+    else:
+        shy = False
+    srv_logger.setup_log(shy)
+
+    if len(sys.argv) > 1:
+        print get_episode_info(int(sys.argv[1]))
+    else:
+        main()
