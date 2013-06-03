@@ -1,5 +1,5 @@
 
-Encuentro 0.9
+Encuentro 1.0
 
 Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, BACUA, Educ.ar y otros.
 
@@ -12,21 +12,25 @@ Página oficial:
     http://encuentro.taniquetil.com.ar/
 
 
-La versión 0.9 trae los siguientes cambios con respecto a la versión anterior:
+La versión 1.0 trae los siguientes cambios con respecto a la versión anterior:
 
-- Hay un nuevo backend! Banco Audiovisual de Contenidos Universales Argentino http://www.bacua.gob.ar/
+- ¡Ahora funciona en Windows!
 
-- Se muestran imágenes para cada episodio
+- Usamos Qt para la interfaz gráfica
 
-- Hay una cola explícita de descargas, mostrando los estados de todas las transferencias
+- Se hicieron algunos ajustes en la forma de empaquetado
 
-- Las descargas terminadas se pueden filtrar por separado
+- Tenemos otras pequeñas mejoras y correcciones
 
-- Mejor manejo de las cancelaciones, más logging, y otras pequeñas mejoras y correcciones
 
 La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
 
-    http://launchpad.net/encuentro/trunk/0.9/+download/encuentro-0.9.deb
+    http://launchpad.net/encuentro/trunk/1.0/+download/encuentro-1.0.deb
+
+
+Ahora también tenemos instalador para Windows:
+
+    http://launchpad.net/encuentro/trunk/1.0/+download/encuentro-1.0-setup.exe
 
 
 Instalarlo en Arch es sencillo ya que está disponible en AUR, por ejemplo se puede hacer:
@@ -41,10 +45,10 @@ También se puede instalar directamente desde PyPI:
 
 En cualquier otro caso, pueden usar el tarball para instalarlo:
 
-    http://launchpad.net/encuentro/trunk/0.9/+download/encuentro-0.9.tar.gz
+    http://launchpad.net/encuentro/trunk/1.0/+download/encuentro-1.0.tar.gz
 
 
-Si tienen Windows, Fedora o Red Hat, todavía no tenemos un instalador, pero lo pueden instalar o usar desde el tarball, como acabo de indicar.
+Si tienen Fedora o Red Hat, todavía no tenemos un instalador, pero lo pueden instalar o usar desde el tarball, como acabo de indicar.
 
 Si quieren obtener automaticamente las nuevas actualizaciones, pueden suscribirse al PPA; en una linea de comandos hagan:
 
