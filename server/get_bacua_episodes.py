@@ -20,13 +20,16 @@
 
 """Main server process to get all info from BACUA web site."""
 
+import logging
 import re
+import sys
 import urllib2
 
 from bs4 import BeautifulSoup
 
 # we execute this script from inside the directory; pylint: disable=W0403
 import helpers
+import srv_logger
 
 PAGE_URL = (
     "http://catalogo.bacua.gob.ar/"
@@ -36,6 +39,8 @@ BACKEND = "http://backend.bacua.gob.ar/video.php?v=_%s"
 IMG_URL = 'http://backend.bacua.gob.ar/img.php?idvideo=%s'
 
 DURACION_REG = re.compile('</span>([^"]*)</h6>')
+
+logger = logging.getLogger("BACUA")
 
 
 def scrap_list_page(html):
@@ -52,14 +57,14 @@ def scrap_list_page(html):
     return lista
 
 
-@helpers.retryable
+@helpers.retryable(logger)
 def get_list_pages():
     """Get list of pages."""
-    print "Getting list of pages"
+    logger.info("Getting list of pages")
     response = urllib2.urlopen(PAGE_URL)
     html = response.read()
     lista = scrap_list_page(html)
-    print "    got", len(lista)
+    logger.info("    got %d", len(lista))
     return lista
 
 
@@ -90,14 +95,14 @@ def scrap_page(html):
     return contents
 
 
-@helpers.retryable
+@helpers.retryable(logger)
 def get_content(page_url):
     """Get content from a page."""
-    print "Getting info for page", page_url
+    logger.info("Getting info for page %r", page_url)
     u = urllib2.urlopen(page_url)
     html = u.read()
     contents = scrap_page(html)
-    print "    got %d contents" % (len(contents),)
+    logger.info("    got %d contents", len(contents))
     return contents
 
 
@@ -108,7 +113,7 @@ def get_all_data():
         contents = get_content(page_url)
         for content in contents:
             all_programs.append(content)
-    print "Done! Total programs:", len(all_programs)
+    logger.info("Done! Total programs: %d", len(all_programs))
     return all_programs
 
 
@@ -119,4 +124,6 @@ def main():
 
 
 if __name__ == '__main__':
+    shy = len(sys.argv) > 1 and sys.argv[1] == '--shy'
+    srv_logger.setup_log(shy)
     main()

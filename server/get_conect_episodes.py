@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2012 Facundo Batista
+# Copyright 2013 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -18,11 +18,14 @@
 
 """Main server process to get all info from Conectate web site."""
 
+import logging
+import sys
 import urllib2
 
 # we execute this script from inside the directory; pylint: disable=W0403
 import helpers
 import scrapers_conect
+import srv_logger
 
 
 # different channels from where read content
@@ -54,11 +57,12 @@ URL_SEARCH = (
     "&pagina=%(page_number)d&modo=Lista"
 )
 
+logger = logging.getLogger("Conectate")
 
 episodes_cache = helpers.Cache("episodes_cache_conect.pickle")
 
 
-@helpers.retryable
+@helpers.retryable(logger)
 def _search(url):
     """Search each page."""
     u = urllib2.urlopen(url)
@@ -69,17 +73,17 @@ def _search(url):
 
 def do_search(channel_id, emis_id):
     """Search the web site."""
-    print "Searching channel=%d  emission=%d" % (channel_id, emis_id)
+    logger.info("Searching channel=%d  emission=%d", channel_id, emis_id)
     all_items = []
     page = 1
     while True:
-        print "    page", page
+        logger.info("    page %s", page)
         d = dict(channel_id=channel_id, emission_id=emis_id, page_number=page)
         url = URL_SEARCH % d
         items = _search(url)
         if not items:
             # done, return collected info
-            print "      done:", len(all_items)
+            logger.info("      done: %d", len(all_items))
             return all_items
 
         # store and go for next page
@@ -87,30 +91,30 @@ def do_search(channel_id, emis_id):
         page += 1
 
 
-@helpers.retryable
+@helpers.retryable(logger)
 def get_from_series(i, url):
     """Get the episodes from an url page."""
-    print "Get from series:", i, url
+    logger.info("Get from series: %s %r", i, url)
     u = urllib2.urlopen(url)
     page = u.read()
     results = scrapers_conect.scrap_series(page)
-    print "   ", len(results)
+    logger.info("   %d", len(results))
     return results
 
 
-@helpers.retryable
+@helpers.retryable(logger)
 def get_episode_info(i, url):
     """Get the info from an episode."""
-    print "Get episode info:", i, url
+    logger.info("Get episode info: %s %r", i, url)
     try:
         info = episodes_cache.get(url)
-        print "    cached!"
+        logger.info("    cached!")
     except KeyError:
         u = urllib2.urlopen(url)
         page = u.read()
         info = scrapers_conect.scrap_video(page)
         episodes_cache.set(url, info)
-        print "    ok"
+        logger.info("    ok")
     return info
 
 
@@ -125,7 +129,7 @@ def get_episodes():
                 for i, (_, url) in enumerate(results):
                     episodes.extend(get_from_series(i, URL_BASE + url))
                 results = episodes
-                print "Series collected:", len(results)
+                logger.info("Series collected: %d", len(results))
 
             # inform each
             for i, (title, url) in enumerate(results):
@@ -152,4 +156,7 @@ def main():
     helpers.save_file("conectar-v03", all_data)
 
 
-main()
+if __name__ == '__main__':
+    shy = len(sys.argv) > 1 and sys.argv[1] == '--shy'
+    srv_logger.setup_log(shy)
+    main()

@@ -75,6 +75,11 @@ class CustomInstall(install):
             os.makedirs(self._custom_apport_dir)
         shutil.copy("source_encuentro.py", self._custom_apport_dir)
 
+        # man directory
+        if not os.path.exists(self._custom_man_dir):
+            os.makedirs(self._custom_man_dir)
+        shutil.copy("man/encuentro.1", self._custom_man_dir)
+
         # version file
         shutil.copy("version.txt", self.install_lib)
 
@@ -88,6 +93,7 @@ class CustomInstall(install):
         apps_dir = os.path.join(self.prefix, "share", "applications")
         apport_dir = os.path.join(self.prefix, "share",
                                   "apport", "package-hooks")
+        man_dir = os.path.join(self.prefix, "share", "man", "man1")
 
         # if we have 'root', put the building path also under it (used normally
         # by pbuilder)
@@ -97,6 +103,7 @@ class CustomInstall(install):
             build_dir = os.path.join(self.root, data_dir[1:])
             apps_dir = os.path.join(self.root, apps_dir[1:])
             apport_dir = os.path.join(self.root, apport_dir[1:])
+            man_dir = os.path.join(self.root, man_dir[1:])
 
         # change the lib install directory so all package files go inside here
         self.install_lib = build_dir
@@ -105,6 +112,7 @@ class CustomInstall(install):
         self._custom_data_dir = data_dir
         self._custom_apps_dir = apps_dir
         self._custom_apport_dir = apport_dir
+        self._custom_man_dir = man_dir
 
 
 setup(

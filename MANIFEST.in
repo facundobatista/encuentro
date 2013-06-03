@@ -12,3 +12,4 @@ include qtreactor/qt4reactor.py
 include qtreactor/LICENSE
 include qtreactor/README
 include qtreactor/twisted/plugins/qt4.py
+include man/encuentro.1
