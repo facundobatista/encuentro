@@ -24,16 +24,20 @@ import logging
 
 from PyQt4.QtGui import (
     QCheckBox,
+    QCompleter,
     QDialog,
     QDialogButtonBox,
+    QDirModel,
+    QFileDialog,
     QGridLayout,
     QLabel,
     QLineEdit,
+    QPushButton,
     QTabWidget,
     QVBoxLayout,
     QWidget,
 )
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, QDir
 
 from encuentro.config import config
 
@@ -52,6 +56,14 @@ class GeneralPreferences(QWidget):
         grid.setSpacing(20)
         grid.setColumnStretch(1, 10)
 
+        # directory auto completer
+        completer = QCompleter(self)
+        dirs = QDirModel(self)
+        dirs.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
+        completer.setModel(dirs)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+        completer.setCompletionMode(QCompleter.PopupCompletion)
+
         l = QLabel(
             u"<b>Ingresá el directorio donde descargar los videos...</b>")
         l.setTextFormat(Qt.RichText)
@@ -60,19 +72,32 @@ class GeneralPreferences(QWidget):
         grid.addWidget(QLabel(u"Descargar en:"), 1, 0, 2, 1)
         prv = config.get('downloaddir', '')
         self.downloaddir_entry = QLineEdit(prv)
+        self.downloaddir_entry.setCompleter(completer)
+        self.downloaddir_entry.setPlaceholderText(u'Ingresá un directorio')
         grid.addWidget(self.downloaddir_entry, 1, 1, 2, 2)
+
+        self.downloaddir_buttn = QPushButton(u"Elegir un directorio")
+        self.downloaddir_buttn.clicked.connect(self._choose_dir)
+        grid.addWidget(self.downloaddir_buttn, 2, 1, 3, 2)
 
         self.autoreload_checkbox = QCheckBox(
             u"Recargar automáticamente la lista de episodios al iniciar")
         prv = config.get('autorefresh', False)
         self.autoreload_checkbox.setChecked(prv)
-        grid.addWidget(self.autoreload_checkbox, 2, 0, 3, 2)
+        grid.addWidget(self.autoreload_checkbox, 3, 0, 4, 2)
 
         self.shownotifs_checkbox = QCheckBox(
             u"Mostrar una notificación cuando termina cada descarga")
         prv = config.get('notification', True)
         self.shownotifs_checkbox.setChecked(prv)
-        grid.addWidget(self.shownotifs_checkbox, 3, 0, 4, 2)
+        grid.addWidget(self.shownotifs_checkbox, 4, 0, 5, 2)
+
+    def _choose_dir(self):
+        """Choose a directory using a dialog."""
+        resp = QFileDialog.getExistingDirectory(self, '',
+                                                os.path.expanduser("~"))
+        if resp:
+            self.downloaddir_entry.setText(resp)
 
     def get_config(self):
         """Return the config for this tab."""
@@ -98,19 +123,34 @@ class ConectatePreferences(QWidget):
         grid.addWidget(QLabel(u"Usuario:"), 1, 0, 2, 1)
         prv = config.get('user', '')
         self.user_entry = QLineEdit(prv)
+        self.user_entry.setPlaceholderText(u'Ingresá tu usuario de Conectate')
         grid.addWidget(self.user_entry, 1, 1, 2, 2)
 
         grid.addWidget(QLabel(u"Contraseña:"), 2, 0, 3, 1)
         prv = config.get('password', '')
         self.password_entry = QLineEdit(prv)
+        self.password_entry.setEchoMode(QLineEdit.Password)
+        self.password_entry.setPlaceholderText(
+            u'Ingresá tu contraseña de Conectate')
         grid.addWidget(self.password_entry, 2, 1, 3, 2)
 
-        l = QLabel(u'Si no tenés estos datos, <a href="%s">registrate aquí'
-                   u'</a>' % (URL_CONECTATE,))
+        self.password_mask = QCheckBox(u'Mostrar contraseña')
+        self.password_mask.stateChanged.connect(self._toggle_password_mask)
+        grid.addWidget(self.password_mask, 3, 1, 4, 2)
+
+        l = QLabel(u'Si no tenés estos datos, '
+                   u'<a href="{}">registrate aquí</a>'.format(URL_CONECTATE))
         l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         l.setTextFormat(Qt.RichText)
         l.setOpenExternalLinks(True)
-        grid.addWidget(l, 3, 0, 4, 3)
+        grid.addWidget(l, 4, 0, 5, 3)
+
+    def _toggle_password_mask(self):
+        """Toggle the password hiding."""
+        if self.password_mask.isChecked() is True:
+            self.password_entry.setEchoMode(QLineEdit.Normal)
+        else:
+            self.password_entry.setEchoMode(QLineEdit.Password)
 
     def get_config(self):
         """Return the config for this tab."""
