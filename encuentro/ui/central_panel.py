@@ -20,6 +20,8 @@
 
 import logging
 import operator
+import os
+import pickle
 
 from PyQt4.QtGui import (
     QAbstractItemView,
@@ -43,7 +45,7 @@ from PyQt4.QtGui import (
 )
 from PyQt4.QtCore import Qt, QSize
 
-from encuentro import data, image
+from encuentro import data, image, platform
 from encuentro.data import Status
 from encuentro.ui import remembering
 from encuentro.ui.throbber import Throbber
@@ -54,6 +56,7 @@ logger = logging.getLogger("encuentro.centralpanel")
 class DownloadsWidget(remembering.RememberingTreeWidget):
     """The downloads queue."""
 
+    _filename = os.path.join(platform.data_dir, 'encuentro_remaining.data')
     def __init__(self, episodes_widget):
         self.episodes_widget = episodes_widget
         super(DownloadsWidget, self).__init__('downloads')
@@ -134,6 +137,28 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
         if self.downloading:
             q += 1
         return q
+
+    def save(self):
+        p = self.pending()
+        if p > 0:
+            to_save = [e.episode_id for e, _ in self.queue[-p:]]
+            with open(self._filename, 'wb') as fh:
+                pickle.dump(to_save, fh)
+
+    def load(self, download):
+        if os.path.exists(self._filename):
+            with open(self._filename, 'rb') as fh:
+                try:
+                    loaded_faltan_ids = pickle.load(fh)
+                except Exception, err:
+                    logger.warning("ERROR while opening the pickled data: %s",
+                                 err)
+                    return
+
+                for episode_id in loaded_faltan_ids:
+                    self.episodes_widget.show(episode_id)
+                    download()
+            os.remove(self._filename)
 
 
 class HTMLDelegate(QStyledItemDelegate):

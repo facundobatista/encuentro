@@ -119,6 +119,8 @@ class MainUI(remembering.RememberingMainWindow):
             ue = update.UpdateEpisodes(self)
             ue.background()
         self.show()
+
+        self.episodes_download.load(self.download_episode)
         logger.debug("Main UI started ok")
 
     def _sanitize_config(self):
@@ -277,6 +279,10 @@ class MainUI(remembering.RememberingMainWindow):
         programs_data = getattr(self, 'programs_data', None)
         if programs_data is not None:
             programs_data.save()
+
+        downloads_widget = getattr(self, 'episodes_download', None)
+        if downloads_widget is not None:
+            downloads_widget.save()
 
         downloaders = getattr(self, 'downloaders', {})
         for downloader in downloaders.itervalues():
