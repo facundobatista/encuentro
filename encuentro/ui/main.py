@@ -280,10 +280,6 @@ class MainUI(remembering.RememberingMainWindow):
         if programs_data is not None:
             programs_data.save()
 
-        downloads_widget = getattr(self, 'episodes_download', None)
-        if downloads_widget is not None:
-            downloads_widget.save_pending()
-
         downloaders = getattr(self, 'downloaders', {})
         for downloader in downloaders.itervalues():
             downloader.shutdown()

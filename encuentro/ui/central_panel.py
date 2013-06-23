@@ -20,8 +20,6 @@
 
 import logging
 import operator
-import os
-import pickle
 
 from PyQt4.QtGui import (
     QAbstractItemView,
@@ -45,7 +43,8 @@ from PyQt4.QtGui import (
 )
 from PyQt4.QtCore import Qt, QSize
 
-from encuentro import data, image, platform
+from encuentro import data, image
+from encuentro.config import config, signal
 from encuentro.data import Status
 from encuentro.ui import remembering
 from encuentro.ui.throbber import Throbber
@@ -56,11 +55,10 @@ logger = logging.getLogger("encuentro.centralpanel")
 class DownloadsWidget(remembering.RememberingTreeWidget):
     """The downloads queue."""
 
-    _pending_filename = os.path.join(platform.data_dir, 'encuentro_pending.data')
-
     def __init__(self, episodes_widget):
         self.episodes_widget = episodes_widget
         super(DownloadsWidget, self).__init__('downloads')
+        signal.register(self.save_state)
 
         _headers = (u"Descargando...", u"Estado")
         self.setColumnCount(len(_headers))
@@ -139,27 +137,19 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
             q += 1
         return q
 
-    def save_pending(self):
+    def save_state(self):
         p = self.pending()
         if p > 0:
-            to_save = [e.episode_id for e, _ in self.queue[-p:]]
-            with open(self._pending_filename, 'wb') as fh:
-                pickle.dump(to_save, fh)
+            config[config.SYSTEM]['pending_ids'] = \
+                   [e.episode_id for e, _ in self.queue[-p:]]
 
     def load_pending(self):
-        if os.path.exists(self._pending_filename):
-            with open(self._pending_filename, 'rb') as fh:
-                try:
-                    loaded_pending_ids = pickle.load(fh)
-                except Exception:
-                    logger.exception("ERROR while opening the pickled data")
-                    return
+        loaded_pending_ids = config[config.SYSTEM].get('pending_ids', [])
 
-                for episode_id in loaded_pending_ids:
-                    main_window = self.episodes_widget.main_window
-                    episode = main_window.programs_data[episode_id]
-                    main_window.queue_download(episode)
-            os.remove(self._pending_filename)
+        for episode_id in loaded_pending_ids:
+            main_window = self.episodes_widget.main_window
+            episode = main_window.programs_data[episode_id]
+            main_window.queue_download(episode)
 
 
 class HTMLDelegate(QStyledItemDelegate):
