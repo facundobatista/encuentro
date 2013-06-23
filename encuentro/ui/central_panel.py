@@ -56,7 +56,8 @@ logger = logging.getLogger("encuentro.centralpanel")
 class DownloadsWidget(remembering.RememberingTreeWidget):
     """The downloads queue."""
 
-    _filename = os.path.join(platform.data_dir, 'encuentro_remaining.data')
+    _pending_filename = os.path.join(platform.data_dir, 'encuentro_pending.data')
+
     def __init__(self, episodes_widget):
         self.episodes_widget = episodes_widget
         super(DownloadsWidget, self).__init__('downloads')
@@ -138,27 +139,27 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
             q += 1
         return q
 
-    def save(self):
+    def save_pending(self):
         p = self.pending()
         if p > 0:
             to_save = [e.episode_id for e, _ in self.queue[-p:]]
-            with open(self._filename, 'wb') as fh:
+            with open(self._pending_filename, 'wb') as fh:
                 pickle.dump(to_save, fh)
 
-    def load(self, download):
-        if os.path.exists(self._filename):
-            with open(self._filename, 'rb') as fh:
+    def load_pending(self):
+        if os.path.exists(self._pending_filename):
+            with open(self._pending_filename, 'rb') as fh:
                 try:
-                    loaded_faltan_ids = pickle.load(fh)
-                except Exception, err:
-                    logger.warning("ERROR while opening the pickled data: %s",
-                                 err)
+                    loaded_pending_ids = pickle.load(fh)
+                except Exception:
+                    logger.exception("ERROR while opening the pickled data")
                     return
 
-                for episode_id in loaded_faltan_ids:
-                    self.episodes_widget.show(episode_id)
-                    download()
-            os.remove(self._filename)
+                for episode_id in loaded_pending_ids:
+                    main_window = self.episodes_widget.main_window
+                    episode = main_window.programs_data[episode_id]
+                    main_window.queue_download(episode)
+            os.remove(self._pending_filename)
 
 
 class HTMLDelegate(QStyledItemDelegate):

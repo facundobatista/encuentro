@@ -120,7 +120,7 @@ class MainUI(remembering.RememberingMainWindow):
             ue.background()
         self.show()
 
-        self.episodes_download.load(self.download_episode)
+        self.episodes_download.load_pending()
         logger.debug("Main UI started ok")
 
     def _sanitize_config(self):
@@ -282,7 +282,7 @@ class MainUI(remembering.RememberingMainWindow):
 
         downloads_widget = getattr(self, 'episodes_download', None)
         if downloads_widget is not None:
-            downloads_widget.save()
+            downloads_widget.save_pending()
 
         downloaders = getattr(self, 'downloaders', {})
         for downloader in downloaders.itervalues():
