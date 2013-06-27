@@ -44,6 +44,7 @@ from PyQt4.QtGui import (
 from PyQt4.QtCore import Qt, QSize
 
 from encuentro import data, image
+from encuentro.config import config, signal
 from encuentro.data import Status
 from encuentro.ui import remembering
 from encuentro.ui.throbber import Throbber
@@ -57,6 +58,7 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
     def __init__(self, episodes_widget):
         self.episodes_widget = episodes_widget
         super(DownloadsWidget, self).__init__('downloads')
+        signal.register(self.save_state)
 
         _headers = (u"Descargando...", u"Estado")
         self.setColumnCount(len(_headers))
@@ -134,6 +136,20 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
         if self.downloading:
             q += 1
         return q
+
+    def save_state(self):
+        p = self.pending()
+        if p > 0:
+            config[config.SYSTEM]['pending_ids'] = \
+                   [e.episode_id for e, _ in self.queue[-p:]]
+
+    def load_pending(self):
+        loaded_pending_ids = config[config.SYSTEM].get('pending_ids', [])
+
+        for episode_id in loaded_pending_ids:
+            main_window = self.episodes_widget.main_window
+            episode = main_window.programs_data[episode_id]
+            main_window.queue_download(episode)
 
 
 class HTMLDelegate(QStyledItemDelegate):

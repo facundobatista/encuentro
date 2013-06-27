@@ -119,6 +119,8 @@ class MainUI(remembering.RememberingMainWindow):
             ue = update.UpdateEpisodes(self)
             ue.background()
         self.show()
+
+        self.episodes_download.load_pending()
         logger.debug("Main UI started ok")
 
     def _sanitize_config(self):
