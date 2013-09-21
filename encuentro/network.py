@@ -65,6 +65,9 @@ class BadCredentialsError(Exception):
 
 class EncuentroError(Exception):
     """Generic problem working with the Encuentro web site."""
+    def __init__(self, message, original_exception=None):
+        self.orig_exc = original_exception
+        super(EncuentroError, self).__init__(message)
 
 
 class CancelledError(Exception):
@@ -146,8 +149,9 @@ class MiBrowser(Process):
         try:
             browser.open(self.url)
         except Exception, e:
+            logger.debug("Oops, %s (%r)", e, e)
             # mechanize error can not be pickled
-            self.output_queue.put(EncuentroError(str(e)))
+            self.output_queue.put(EncuentroError(str(e), e.__class__.__name__))
             return
 
         # get the filename and download
@@ -156,8 +160,8 @@ class MiBrowser(Process):
         try:
             content, filesize = self._get_download_content(browser)
         except Exception, e:
-            # problem, can't continue
-            self.output_queue.put(e)
+            # mechanize error can not be pickled
+            self.output_queue.put(EncuentroError(str(e), e.__class__.__name__))
             return
 
         aout = open(fname, "wb")
