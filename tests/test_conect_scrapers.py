@@ -128,58 +128,64 @@ _RES_SERIES_3 = [
     (u'Encuentro en el estudio: Lo mejor de Encuentro en el estudio, tercera parte', u'/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?canalId=1&modulo=menu&tipoEmisionId=3&recursoPadreId=50174&idRecurso=100446')
 ]
 
-_RES_VIDEO_1 = (
+_RES_VIDEO_01 = (
     u'Si te gusta la naturaleza, este video te va a encantar. Descubr\xed con Eliseo c\xf3mo se plantan las semillas de calabaza y c\xf3mo se encarna una lombriz en un anzuelo.',
     5,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=88fda0d1-9576-4c52-8cec-7dfb23ca5c26',
 )
 
-_RES_VIDEO_2 = (
+_RES_VIDEO_02 = (
     u'"Revolución. El Cruce de los Andes" redescubre la figura de uno de los hombres más importantes de nuestra historia, el Gral. José de San Martín y reconstruye la gesta épica más trascendente en la liberación de Latinoamérica. El film, protagonizado por el actor Rodrigo de la Serna y con la dirección de Leandro Ipiña, es una producción conjunta de la Televisión Pública, Canal Encuentro y el INCAA, con el apoyo de la Televisión española (TVE), del gobierno de la provincia de San Juan, y de la Universidad Nacional de San Martín (UNSAM) que se enfoca en aspectos inéditos de la personalidad del prócer.',
     None,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=57573cef-d082-40cd-b4c2-3b2c2cca7ffb',
 )
 
-_RES_VIDEO_3 = (
+_RES_VIDEO_03 = (
     u'A través de un viaje a bordo del buque oceanográfico "Puerto Deseado", se documenta el trabajo de relevamiento realizado en varias misiones para elaborar el informe técnico que se presentó a la ONU, en relación a la ampliación de la soberanía territorial en el Atlántico Sur. Este especial incluye entrevistas a los responsables del proyecto COPLA, oceanógrafos, biólogos, marinos y demás personas involucradas. Se ilustra con imágenes registradas del trabajo técnico, tomas subacuáticas/submarinas, cartografía y plataforma submarina, con gráfica y animaciones en 2D y 3D.',
     51,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=b66030c8-6aac-4a06-a9df-cf7c2fcb9d00',
 )
 
-_RES_VIDEO_4 = (
+_RES_VIDEO_04 = (
     u'La Revolución Libertadora y la resistencia peronista, los años de Frondizi y de Onganía, los gobiernos radicales: toda la historia argentina narrada desde un imponente archivo fotográfico, ilustraciones y material audiovisual. El relato permite apreciar los diferentes períodos históricos y cuáles fueron las consecuencias de los sucesos más significativos de la historia argentina del siglo XX, a partir del medio audiovisual como punto de partida para el debate y la reflexión.',
     28,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=6e005e41-ae98-4274-92bb-02fe4fb372ed',
 )
 
-_RES_VIDEO_5 = (
+_RES_VIDEO_05 = (
     u'Este capítulo indaga sobre los mecanismos institucionales con los que cuenta un Estado nacional para administrar los recursos que dispone, cómo los administra y cuál es su función principal en un contexto democrático.',
     26,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=6482af22-61e7-4623-88c3-c55ea0329edd',
 )
 
-_RES_VIDEO_6 = (
+_RES_VIDEO_06 = (
     u'Mitos, cuentos y leyendas pasan de generación en generación y se recuerdan desde tiempos inmemoriales hasta hoy en día. En este particular taller, Lila y Nico acompañan a su abuelo mientras intenta reparar su auto. El abuelo recuerda muchas historias y comparte con sus nietos charlas, aventuras y experiencias ocurridas en distintos lugares de Latinoamérica. En El taller de historias, se adaptan leyendas latinoamericanas y cuentos folclóricos argentinos para niños de 2 a 5 años. Una forma interesante y divertida de introducir el género al tiempo que se reivindica la transmisión oral y se fortalecen los vínculos intergeneracionales y la identificación con las distintas culturas latinoamericanas.',
     15,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=95735482-d0cf-471b-af5d-15c669e8de19',
 )
 
-_RES_VIDEO_7 = (
+_RES_VIDEO_07 = (
     u'La muestra Game On! El arte del juego se llevó adelante en la gelería de arte Objeto a, en el barrio de Palermo de la Ciudad de Buenos Aires, y educ.ar entrevistó a algunos de sus protagonistas.',
     None,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=32254f8e-9598-4704-9085-15775e54f26d',
 )
 
-_RES_VIDEO_8 = (
+_RES_VIDEO_08 = (
     u'En di\xe1logo \xedntimo, Lalo Mir y el \u201cbandoneonista cantor\u201d charlan sobre la milonga, sobre las diferencias de estilo en el tango, sobre la vida. Un encuentro imperdible donde el m\xfasico conmueve al cantar Desencuentro o al improvisar sobre Malena, como ninguno.',
     48,
   'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=82b5d0fb-50ac-4fff-bb63-87e7f1caa00d',
 )
 
-_RES_VIDEO_9 = (
+_RES_VIDEO_09 = (
     u'Con an\xe9cdotas, entrevistados, humor y resoluci\xf3n de problemas, el reconocido matem\xe1tico Adri\xe1n Paenza nos acerca historias que tienen a la matem\xe1tica como protagonista. La serie ofrece un panorama distinto sobre esta disciplina: m\xe1s humano, divertido y cercano a la vida cotidiana. En su cuarta temporada, Alterados por Pi emprende una gira por escuelas a las que Adri\xe1n Paenza lleva sus juegos y acertijos. \xbfEl objetivo? \xa1Demostrar que la matem\xe1tica no es aburrida! Una nueva manera de ense\xf1ar ciencias, de manera l\xfadica y entretenida, que llena las aulas de muchas escuelas p\xfablicas de an\xe9cdotas, historias y humor.',
     28,
     'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=e73b5751-406d-4c25-9440-5dafe32b3bbc',
+)
+
+_RES_VIDEO_10 = (
+    u'El general José María Paz era un joven soldado de Belgrano durante la batalla de Salta. Años más tarde escribió sus memorias y plasmó los hechos de aquella histórica jornada. En la actualidad, su registro nos permite conocer detalles de la organización del ejército, del combate, de la participación del pueblo y otras características de esa gesta por la revolución. -- Clip realizado con motivo del bicentenario de este combate, coproducido con el Ministerio de Educación, Ciencia y Tecnología de la Provincia de Salta.',
+    2,
+    'http://conectate-api.educ.ar/repositorio/Imagen/ver?image_id=ae09e9fa-2ccf-4d9a-8891-baed43b48ad5',
 )
 
 
@@ -206,51 +212,54 @@ class ScrapersTestCase(unittest.TestCase):
         res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_3)
 
-    def test_example_video_1(self):
-        html = open("../tests/ej-conect-video_1.html").read()
+    def test_example_video_01(self):
+        html = open("../tests/ej-conect-video_01.html").read()
         res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_1)
+        self.assertEqual(res, _RES_VIDEO_01)
 
-    def test_example_video_2(self):
-        html = open("../tests/ej-conect-video_2.html").read()
+    def test_example_video_02(self):
+        html = open("../tests/ej-conect-video_02.html").read()
         res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_2)
+        self.assertEqual(res, _RES_VIDEO_02)
 
-    def test_example_video_3(self):
-        html = open("../tests/ej-conect-video_3.html").read()
+    def test_example_video_03(self):
+        html = open("../tests/ej-conect-video_03.html").read()
         res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_3)
+        self.assertEqual(res, _RES_VIDEO_03)
 
-    def test_example_video_4(self):
-        html = open("../tests/ej-conect-video_4.html").read()
+    def test_example_video_04(self):
+        html = open("../tests/ej-conect-video_04.html").read()
         res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_4)
+        self.assertEqual(res, _RES_VIDEO_04)
 
-    def test_example_video_5(self):
-        html = open("../tests/ej-conect-video_5.html").read()
+    def test_example_video_05(self):
+        html = open("../tests/ej-conect-video_05.html").read()
         res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_5)
+        self.assertEqual(res, _RES_VIDEO_05)
 
-    def test_example_video_6(self):
-        html = open("../tests/ej-conect-video_6.html").read()
+    def test_example_video_06(self):
+        html = open("../tests/ej-conect-video_06.html").read()
         res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_6)
+        self.assertEqual(res, _RES_VIDEO_06)
 
-    def test_example_video_7(self):
-        html = open("../tests/ej-conect-video_7.html").read()
+    def test_example_video_07(self):
+        html = open("../tests/ej-conect-video_07.html").read()
         res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_7)
+        self.assertEqual(res, _RES_VIDEO_07)
 
-    def test_example_video_8(self):
-        html = open("../tests/ej-conect-video_8.html").read()
+    def test_example_video_08(self):
+        html = open("../tests/ej-conect-video_08.html").read()
         res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_8)
+        self.assertEqual(res, _RES_VIDEO_08)
 
-    def test_example_video_9(self):
-        html = open("../tests/ej-conect-video_9.html").read()
+    def test_example_video_09(self):
+        html = open("../tests/ej-conect-video_09.html").read()
+        res = scrapers_conect.scrap_video(html)
+        self.assertEqual(res, _RES_VIDEO_09)
+
+    def test_example_video_10(self):
+        html = open("../tests/ej-conect-video_10.html").read()
         res = scrapers_conect.scrap_video(html)
 #        print "\n=== res", res
-#        print "=== RES", _RES_VIDEO_9
-        self.assertEqual(res, _RES_VIDEO_9)
-
-
+#        print "=== RES", _RES_VIDEO_10
+        self.assertEqual(res, _RES_VIDEO_10)

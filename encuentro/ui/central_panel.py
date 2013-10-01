@@ -138,12 +138,14 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
         return q
 
     def save_state(self):
+        """Save state for pending downloads."""
         p = self.pending()
         if p > 0:
-            config[config.SYSTEM]['pending_ids'] = \
-                   [e.episode_id for e, _ in self.queue[-p:]]
+            config[config.SYSTEM]['pending_ids'] = [
+                e.episode_id for e, _ in self.queue[-p:]]
 
     def load_pending(self):
+        """Queue the pending downloads."""
         loaded_pending_ids = config[config.SYSTEM].get('pending_ids', [])
 
         for episode_id in loaded_pending_ids:

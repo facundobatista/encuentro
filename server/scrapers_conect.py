@@ -80,6 +80,8 @@ def scrap_video(html):
                 desc_list.append(it.text)
             elif it.name == 'br':
                 pass
+            elif it.name == 'p':
+                desc_list.append(' -- ' + it.text)
             else:
                 raise ValueError("Unknown item (%r) in the description: %r" %
                                  (it.name, it))
@@ -89,7 +91,8 @@ def scrap_video(html):
                 continue
             desc_list.append(it)
 
-    description = "".join(desc_list).strip()
+    description = " ".join(x.strip() for x in desc_list if x.strip())
     description = description.replace(u"\n", u"").replace(u"\r", u"")
     description = description.replace(u"\t", u"")
+    description = description.replace(" ,", ",")
     return (description, duration, image_url)
