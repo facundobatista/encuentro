@@ -116,7 +116,7 @@ def retryable(logger):
                 except Exception, e:
                     if not attempt:
                         raise
-                    logger.warning("   problem (retrying...): %s", e)
+                    logger.debug("   problem (retrying...): %s", e)
                     time.sleep(30)
                 else:
                     return res
