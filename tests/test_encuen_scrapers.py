@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Facundo Batista
+# Copyright 2012-2013 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -76,10 +76,32 @@ _RES_PROGRAMA_3 = {
     'image_url': 'http://www.encuentro.gov.ar/repositorio/Imagen/ver?image_id=29e41555-dbb7-449e-99d5-4ab991c01eed'
 }
 
+_RES_PROGRAMA_4 = {
+    "description": u"La basura electrónica, los residuos, la producción agrícola y otras problemáticas y actividades inciden en la vida del planeta. Desde diferentes regiones del país, un abordaje que nos ayuda a comprender el cambio ambiental y también a involucrarnos en el esfuerzo de vivir en un mundo más respetuoso del medio ambiente. Además, la importancia de la sustentabilidad, un concepto clave para pensar el presente con perspectiva hacia el futuro. Coproducido con la Universidad Nacional de Tres de Febrero (UNTREF).",
+    "duration": None,
+    "links": [
+        (u"Alimentación sustentable", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120439"),
+        (u"Basura electrónica", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120435"),
+        (u"Biodiversidad", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120447"),
+        (u"Cambio climático y cambio ambiental", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120450"),
+        (u"Ciudades sustentables", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120442"),
+        (u"Construcción sustentable", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120444"),
+        (u"Energías", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120446"),
+        (u"Pasteras", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120448"),
+        (u"Pesca y costas", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120440"),
+        (u"Producción agrícola", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120445"),
+        (u"Residuos", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120437"),
+        (u"Tierra del Fuego", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120436"),
+        (u"XXX", "http://conectate.gov.ar/educar-portal-video-web/module/detalleRecurso/DetalleRecurso.do?idRecurso=120449"),
+    ],
+    'image_url': 'http://globalbackend.educ.ar/repositorio/Imagen/ver?image_id=bf557679-29b0-477c-b02d-457cfe00237d'
+}
 
 
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
+
+    maxDiff = None
 
     def test_example_listado_1(self):
         html = open("../tests/ej-encuen-listado_1.html").read()
@@ -99,6 +121,12 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_programa_3(self):
         html = open("../tests/ej-encuen-programa_3.html").read()
         res = scrapers_encuen.scrap_programa(html)
-#        print "\n=== res", res
-#        print "=== RES", _RES_PROGRAMA_3
         self.assertEqual(res, _RES_PROGRAMA_3)
+
+    def test_example_programa_4(self):
+        html = open("../tests/ej-encuen-programa_4.html").read()
+        res = scrapers_encuen.scrap_programa(html)
+        for k in res:
+            #print "\n=== res", res[k]
+            #print "=== RES", _RES_PROGRAMA_4[k]
+            self.assertEqual(res[k], _RES_PROGRAMA_4[k])

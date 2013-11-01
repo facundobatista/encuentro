@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Facundo Batista
+# Copyright 2012-2013 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -54,19 +54,20 @@ def scrap_programa(html):
 
     # get duration and description
     result = dict(duration=None, description=None)
+    storing_sinopsis = False
     while True:
         it = it.findNextSibling()
         if it is None:
             break
 
         if it.name == 'p':
-            data = list(it.children)
-
-            head = data[0].text.strip().strip(':')
-            content = u''.join(getattr(x, 'text', x) for x in data[1:])
+            texts = [getattr(x, 'text', x) for x in it.children]
+            head = texts[0].strip().strip(':')
+            content = u''.join(texts[1:])
 
             if head == u'Sinopsis':
                 result['description'] = content.strip().replace("\n", "")
+                storing_sinopsis = True
             elif head == u'Duración':
                 maybe_minutes = content.split()[0].strip()
                 try:
@@ -75,6 +76,15 @@ def scrap_programa(html):
                     # some pages have everything but the numbers
                     minutes = None
                 result['duration'] = minutes
+                storing_sinopsis = False
+            else:
+                if len(head.split()) == 1:
+                    # other title
+                    storing_sinopsis = False
+                else:
+                    # simple paragraph, store to sinopsis if still doing that
+                    if storing_sinopsis:
+                        result['description'] += u" " + u"".join(texts).strip()
 
         if it.name == 'img':
             result['image_url'] = it['src']
@@ -84,7 +94,12 @@ def scrap_programa(html):
 
     # get links
     result['links'] = links = []
-    for a_item in soup.find_all('a'):
+    episodes = soup.find('ul', id='listaEpisodios')
+    if episodes is None:
+        items = soup.find_all('a')
+    else:
+        items = episodes.find_all('a')
+    for a_item in items:
         if ("DetallePrograma.verCapitulo" in a_item.get("onclick", []) and
                 a_item.get("class") != ["verDescgr"]):
             a_text = a_item.text.strip()
