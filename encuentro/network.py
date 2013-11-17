@@ -46,8 +46,8 @@ from twisted.web.client import HTTPDownloader, PartialDownloadError
 
 from encuentro.config import config
 
-URL_BASE = "http://conectate.gov.ar"
-URL_AUTH = ("http://conectate.gov.ar/educar-portal-video-web/"
+URL_BASE = "http://www.conectate.gob.ar"
+URL_AUTH = ("http://www.conectate.gob.ar/educar-portal-video-web/"
             "module/login/loginAjax.do")
 
 CHUNK = 16 * 1024
