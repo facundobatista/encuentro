@@ -401,7 +401,7 @@ class MainUI(remembering.RememberingMainWindow):
                 self.episodes_download.end(error=msg)
             except EncuentroError, e:
                 orig_exc = e.orig_exc
-                msg = str(e)
+                msg = str(orig_exc)
                 err_type = e.__class__.__name__
                 logger.debug("Custom Encuentro error: %s (%r)", e, orig_exc)
                 # check if it's an error from mechanize and continue working if
