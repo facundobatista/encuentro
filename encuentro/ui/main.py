@@ -401,9 +401,10 @@ class MainUI(remembering.RememberingMainWindow):
                 self.episodes_download.end(error=msg)
             except EncuentroError, e:
                 orig_exc = e.orig_exc
-                msg = str(orig_exc)
+                msg = "%s(%s)" % (orig_exc, e)
                 err_type = e.__class__.__name__
-                logger.debug("Custom Encuentro error: %s (%r)", e, orig_exc)
+                logger.exception("Custom Encuentro error: %s (%r)",
+                                 e, orig_exc)
                 # check if it's an error from mechanize and continue working if
                 # yes, as it's a normal 500 most of the times; this can not
                 # be easily checked as the exception itself is dynamically
@@ -415,7 +416,7 @@ class MainUI(remembering.RememberingMainWindow):
                     self.show_message(err_type, msg)
                 self.episodes_download.end(error=u"Error: " + msg)
             except Exception, e:
-                logger.debug("Unknown download error: %s (%r)", e, e)
+                logger.exception("Unknown download error: %s (%r)", e, e)
                 err_type = e.__class__.__name__
                 self.show_message(err_type, str(e))
                 self.episodes_download.end(error=u"Error: " + str(e))
