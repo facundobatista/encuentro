@@ -48,13 +48,13 @@
    <h2>Instalar</h2>
 
    <ul class="download-list">
-    <li>Para Debian/Ubuntu usá <a href="http://launchpad.net/encuentro/trunk/1.0/+download/encuentro-1.0.deb">este instalador (.deb)</a></li>
-    <li>Si estás en Windows, usá <a href="http://launchpad.net/encuentro/trunk/1.0/+download/encuentro-1.0-setup.exe">este instalador (.exe)</a>.</li> 
+    <li>Para Debian/Ubuntu usá <a href="http://launchpad.net/encuentro/trunk/1.1/+download/encuentro-1.1.deb">este instalador (.deb)</a></li>
+    <li>Si estás en Windows, usá <a href="http://launchpad.net/encuentro/trunk/1.1/+download/encuentro-1.1-setup.exe">este instalador (.exe)</a>.</li> 
     <li>Instalarlo en Arch es sencillo ya que está disponible en AUR; por ejemplo, se puede hacer:
 <pre>
     yaourt -S encuentro
 </pre>
-    <li>Podés descargar el <a href="http://launchpad.net/encuentro/trunk/1.0/+download/encuentro-1.0.tar.gz">tarball multiplatforma</a> e instalarlo a la manera antigua.</li>
+    <li>Podés descargar el <a href="http://launchpad.net/encuentro/trunk/1.1/+download/encuentro-1.1.tar.gz">tarball multiplatforma</a> e instalarlo a la manera antigua.</li>
     <li>Si estás en Fedora o Red Hat, muy pronto vas a poder disfrutar de la versión en los repos, o el .rpm para descargar, mientras tanto usá el tarball...</li> 
 
     <li>Para estar <b>automáticamente actualizado</b> en Debian/Ubuntu hay que instalar el PPA, abrí una linea de comandos y hacé:</li>
@@ -99,7 +99,18 @@
   <div class="section" id="section-devs">
    <h2>Historial</h2>
 
-   La versión actual es la 1.0:
+   La versión actual es la 1.1:
+   
+   <ul>
+    <li><b>Corregido el problema de autenticación luego de unos cambios en el servicio</b></li>
+    <li>Mejor manejo de error en las descargas, ahora no se traba en los errores de red</li>
+    <li>Errores de red expuestos más claros al usuario y en el log</li>
+    <li>Mejor parseo de las páginas de los servicios</li>
+    <li>El campo de contraseña es opcionalmente ocultado</li>
+    <li>Se puede elegir via la interfaz al directorio de descargas</li>
+   </ul>
+
+   Cambios para la versión 1.0:
    
    <ul>
     <li><b>¡Ahora funciona en Windows!</b></li>

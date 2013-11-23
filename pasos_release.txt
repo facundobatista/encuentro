@@ -9,12 +9,12 @@
 - actualizar PyPI
     - python setup.py register
 
-- actualizar y subir la página web
-
 - pedir para los otros sistemas:
     - arch
     - windows
     - fedora/redhat
+
+- actualizar y subir la página web
 
 - anunciar
     - pyar

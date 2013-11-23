@@ -1,5 +1,5 @@
 
-Encuentro 1.0
+Encuentro 1.1
 
 Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, BACUA, Educ.ar y otros.
 
@@ -12,25 +12,29 @@ Página oficial:
     http://encuentro.taniquetil.com.ar/
 
 
-La versión 1.0 trae los siguientes cambios con respecto a la versión anterior:
+La versión 1.1 trae los siguientes cambios con respecto a la versión anterior:
 
-- ¡Ahora funciona en Windows!
+- Corregido el problema de autenticación luego de unos cambios en el servicio
 
-- Usamos Qt para la interfaz gráfica
+- Mejor manejo de error en las descargas, ahora no se traba en los errores de red
 
-- Se hicieron algunos ajustes en la forma de empaquetado
+- Errores de red expuestos más claros al usuario y en el log
 
-- Tenemos otras pequeñas mejoras y correcciones
+- Mejor parseo de las páginas de los servicios
+
+- El campo de contraseña es opcionalmente ocultado
+
+- Se puede elegir via la interfaz al directorio de descargas
 
 
 La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
 
-    http://launchpad.net/encuentro/trunk/1.0/+download/encuentro-1.0.deb
+    http://launchpad.net/encuentro/trunk/1.q/+download/encuentro-1.1.deb
 
 
-Ahora también tenemos instalador para Windows:
+También tenemos instalador para Windows:
 
-    http://launchpad.net/encuentro/trunk/1.0/+download/encuentro-1.0-setup.exe
+    http://launchpad.net/encuentro/trunk/1.1/+download/encuentro-1.1-setup.exe
 
 
 Instalarlo en Arch es sencillo ya que está disponible en AUR, por ejemplo se puede hacer:
@@ -45,12 +49,12 @@ También se puede instalar directamente desde PyPI:
 
 En cualquier otro caso, pueden usar el tarball para instalarlo:
 
-    http://launchpad.net/encuentro/trunk/1.0/+download/encuentro-1.0.tar.gz
+    http://launchpad.net/encuentro/trunk/1.1/+download/encuentro-1.1.tar.gz
 
 
 Si tienen Fedora o Red Hat, todavía no tenemos un instalador, pero lo pueden instalar o usar desde el tarball, como acabo de indicar.
 
-Si quieren obtener automaticamente las nuevas actualizaciones, pueden suscribirse al PPA; en una linea de comandos hagan:
+Si quieren obtener automaticamente las nuevas actualizaciones, en Debian/Ubuntu pueden suscribirse al PPA; en una linea de comandos hagan:
 
     sudo add-apt-repository ppa:facundo/encuentro
     sudo apt-get update
