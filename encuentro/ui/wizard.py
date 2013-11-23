@@ -171,7 +171,9 @@ if __name__ == '__main__':
 
     from PyQt4.QtGui import QApplication
     app = QApplication(sys.argv)
+    app.have_metadata = lambda: False
+    app.have_config = lambda: False
 
-    frame = WizardDialog()
+    frame = WizardDialog(app)
     frame.show()
     frame.exec_()
