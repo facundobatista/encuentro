@@ -22,6 +22,7 @@ import sys
 
 from encuentro import platform
 from encuentro.config import config
+from encuentro.ui.main import MainUI
 
 # we put here EpisodeData only for legacy reasons: unpickle of old pickles
 # will try to load EpisodeData from this namespace
@@ -53,18 +54,6 @@ def start(version):
     app = QApplication(sys.argv)
     icon = QIcon(platform.get_path("encuentro/logos/icon-192.png"))
     app.setWindowIcon(icon)
-    # qt4reactor was path-mangled to be available; pylint: disable=F0401
-    import qt4reactor
-    qt4reactor.install()
-    from encuentro.ui.main import MainUI
-    from twisted.internet import reactor
 
-    def _quit():
-        """Quit."""
-        app.quit()
-        if reactor.threadpool is not None:
-            reactor.threadpool.stop()
-        reactor.stop()
-
-    reactor.callWhenRunning(MainUI, version, _quit)
-    reactor.run()
+    MainUI(version, app.quit)
+    sys.exit(app.exec_())

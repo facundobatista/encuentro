@@ -78,3 +78,5 @@ with NiceImporter('pynotify', 'python-notify', '0.1.1'):
     import pynotify
 with NiceImporter('PyQt4.QtCore', 'PyQt4', '4.9.1'):
     import PyQt4.QtCore
+with NiceImporter('defer', 'python-defer', '1.0.6'):
+    import defer

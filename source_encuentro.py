@@ -29,6 +29,5 @@ def add_info(report):
     attach_file_if_exists(report, fname, "EncuentroLog")
 
     # info about dependencies
-    packages = ["python-mechanize", "python-twisted-bin", "python-qt4",
-                "python-xdg"]
+    packages = ["python-mechanize", "python-defer", "python-qt4", "python-xdg"]
     attach_related_packages(report, packages)

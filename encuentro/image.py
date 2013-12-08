@@ -21,11 +21,9 @@ import logging
 import md5
 import os
 
-from twisted.web.client import getPage
+from encuentro import platform, utils
 
-from encuentro import platform
-
-logger = logging.getLogger('encuentro.main')
+logger = logging.getLogger('encuentro.image')
 
 
 class ImageGetter(object):
@@ -63,6 +61,6 @@ class ImageGetter(object):
                          failure.getErrorMessage())
 
         logger.debug("Need to download the image")
-        d = getPage(url)
-        d.addCallback(_d_callback, episode_id, file_fullname)
-        d.addErrback(_d_errback)
+        d = utils.download(url)
+        d.add_callback(_d_callback, episode_id, file_fullname)
+        d.add_errback(_d_errback)

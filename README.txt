@@ -18,9 +18,3 @@ Notes regarding licenses:
 - The code is licensed under the GNU GPL v3, see file COPYING here or...
 
     http://www.gnu.org/licenses/gpl.html
-
-- I included in the qtreactor directory code from
-
-    https://github.com/ghtdak/qtreactor
-
-    (last commit: 82ec1802f04fbe54527884a55dafc859cd997c49)
