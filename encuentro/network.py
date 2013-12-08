@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011-2012 Facundo Batista
+# Copyright 2011-2013 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -24,7 +24,8 @@ import re
 import sys
 import time
 import urllib
-import urlparse
+
+import defer
 
 if sys.platform == 'win32':
     # multiprocessing path mangling is not useful for how we are
@@ -37,13 +38,9 @@ else:
     from Queue import Empty
 
 from mechanize import Browser
+from PyQt4 import QtNetwork, QtCore
 
-# this must go before the reactor import
 from encuentro import platform
-
-from twisted.internet import defer, reactor
-from twisted.web.client import HTTPDownloader, PartialDownloadError
-
 from encuentro.config import config
 
 URL_BASE = "http://www.conectate.gob.ar"
@@ -51,6 +48,7 @@ URL_AUTH = ("http://www.conectate.gob.ar/educar-portal-video-web/"
             "module/login/loginAjax.do")
 
 CHUNK = 16 * 1024
+MB = 1024 ** 2
 
 BAD_LOGIN_TEXT = "loginForm"
 
@@ -182,7 +180,7 @@ class MiBrowser(Process):
 class DeferredQueue(Queue):
     """A Queue with a deferred get."""
 
-    _reactor_period = .5
+    _call_period = 500
 
     def deferred_get(self):
         """Return a deferred that is triggered when data."""
@@ -197,7 +195,7 @@ class DeferredQueue(Queue):
                 # no data, check again later, unless we had too many attempts
                 attempts.pop()
                 if attempts:
-                    reactor.callLater(self._reactor_period, check)
+                    QtCore.QTimer.singleShot(self._call_period, check)
                 else:
                     # finish without data, for external loop to do checks
                     d.callback(None)
@@ -211,7 +209,7 @@ class DeferredQueue(Queue):
                     # we're done!
                     d.callback(all_data)
 
-        reactor.callLater(self._reactor_period, check)
+        QtCore.QTimer.singleShot(self._call_period, check)
         return d
 
 
@@ -269,7 +267,7 @@ class ConectarDownloader(BaseDownloader):
         self.cancelled = True
         logger.info("Conectar downloader cancelled")
 
-    @defer.inlineCallbacks
+    @defer.inline_callbacks
     def _download(self, canal, seccion, titulo, url, cb_progress):
         """Descarga una emisión a disco."""
         self.cancelled = False
@@ -326,7 +324,7 @@ class ConectarDownloader(BaseDownloader):
         logger.info("Downloading done, renaming temp to %r", fname)
         os.rename(tempf, fname)
         self.browser_quit.remove(bquit)
-        defer.returnValue(fname)
+        defer.return_value(fname)
 
 
 class GenericDownloader(BaseDownloader):
@@ -336,11 +334,12 @@ class GenericDownloader(BaseDownloader):
         'User-Agent': 'Mozilla/5.0',
         'Accept': '*/*',
     }
+    manager = QtNetwork.QNetworkAccessManager()
 
     def __init__(self):
         super(GenericDownloader, self).__init__()
         self._prev_progress = None
-        self.downloader = None
+        self.downloader_deferred = None
         logger.info("Generic downloader inited")
 
     def _shutdown(self):
@@ -349,94 +348,76 @@ class GenericDownloader(BaseDownloader):
 
     def _cancel(self):
         """Cancel a download."""
-        if self.downloader is not None:
-            self.downloader.cancel()
+        if self.downloader_deferred is not None:
             logger.info("Generic downloader cancelled")
+            exc = CancelledError("Cancelled by user")
+            self.downloader_deferred.errback(exc)
 
-    def _parse_url(self, url):
-        """Return host and port from the URL."""
-        urlparts = urlparse.urlparse(url)
-        if urlparts.port is None:
-            if urlparts.scheme == 'http':
-                port = 80
-            elif urlparts.scheme == 'http':
-                port = 80
-            else:
-                raise ValueError("Unknown schema when guessing port: " +
-                                 repr(urlparts.scheme))
-        else:
-            port = int(urlparts.port)
-        return urlparts.hostname, port
-
-    @defer.inlineCallbacks
+    @defer.inline_callbacks
     def _download(self, canal, seccion, titulo, url, cb_progress):
         """Download an episode to disk."""
         url = str(url)
         logger.info("Download episode %r", url)
 
+        # build where to save it
+        fname, tempf = self._setup_target(canal, seccion, titulo, u".mp4")
+        logger.debug("Downloading to temporal file %r", tempf)
+        fh = open(tempf, "wb")
+
         def report(dloaded, total):
             """Report download."""
-            size_mb = total // 1024 ** 2
-            perc = dloaded * 100.0 / total
-            m = "%.1f%% (de %d MB)" % (perc, size_mb)
+            if total == -1:
+                m = "%d MB" % (dloaded // MB,)
+            else:
+                size_mb = total // MB
+                perc = dloaded * 100.0 / total
+                m = "%.1f%% (de %d MB)" % (perc, size_mb)
             if m != self._prev_progress:
                 cb_progress(m)
                 self._prev_progress = m
 
-        class ReportingDownloader(HTTPDownloader):
-            """Customize HTTPDownloader to also report and can be cancelled."""
-            def __init__(self, *args, **kwrgs):
-                self.content_length = None
-                self.downloaded = 0
-                self.connected_client = None
-                self.cancelled = False
-                HTTPDownloader.__init__(self, *args, **kwrgs)
+        def save():
+            data = req.read(req.bytesAvailable())
+            fh.write(data)
 
-            def gotHeaders(self, headers):
-                """Got headers."""
-                clength = headers.get("content-length", [None])[0]
-                self.content_length = int(clength)
-                HTTPDownloader.gotHeaders(self, headers)
+        request = QtNetwork.QNetworkRequest()
+        request.setUrl(QtCore.QUrl(url))
+        for hk, hv in self.headers.items():
+            request.setRawHeader(hk, hv)
 
-            def pagePart(self, data):
-                """Got part of content."""
-                self.downloaded += len(data)
-                report(self.downloaded, self.content_length)
-                HTTPDownloader.pagePart(self, data)
+        def end_ok():
+            """Finish Ok politely the deferred."""
+            if not self.downloader_deferred.called:
+                self.downloader_deferred.callback(True)
 
-            def cancel(self):
-                """Cancel."""
-                self.cancelled = True
-                if self.connected_client is not None:
-                    self.connected_client.stopProducing()
+        def end_fail(exc):
+            """Finish in error politely the deferred."""
+            if not self.downloader_deferred.called:
+                self.downloader_deferred.errback(exc)
 
-            def buildProtocol(self, addr):
-                """Store the protocol built."""
-                p = HTTPDownloader.buildProtocol(self, addr)
-                self.connected_client = p
-                if self.cancelled:
-                    p.stopProducing()
-                return p
+        deferred = self.downloader_deferred = defer.Deferred()
+        req = self.manager.get(request)
+        req.downloadProgress.connect(report)
+        req.error.connect(end_fail)
+        req.readyRead.connect(save)
+        req.finished.connect(end_ok)
 
-        # build where to save it
-        fname, tempf = self._setup_target(canal, seccion, titulo, u".mp4")
-        logger.debug("Downloading to temporal file %r", tempf)
-
-        self.downloader = ReportingDownloader(url, tempf, headers=self.headers)
-        host, port = self._parse_url(url)
-        reactor.connectTCP(host, port, self.downloader)
         try:
-            yield self.downloader.deferred
-        except PartialDownloadError:
-            if self.downloader.cancelled:
-                raise CancelledError
-            else:
-                raise
+            yield deferred
+        except Exception as err:
+            logger.debug("Exception when waiting deferred: %s (request "
+                         "finished? %s)", err, req.isFinished())
+            if not req.isFinished():
+                logger.debug("Aborting QNetworkReply")
+                req.abort()
+            raise
+        finally:
+            fh.close()
 
         # rename to final name and end
         logger.info("Downloading done, renaming temp to %r", fname)
         os.rename(tempf, fname)
-        defer.returnValue(fname)
+        defer.return_value(fname)
 
 
 # this is the entry point to get the downloaders for each type
@@ -457,30 +438,29 @@ if __name__ == "__main__":
         """Show progress."""
         print "Avance:", avance
 
-    # overwrite config for the test
-    config = dict(user="lxpdvtnvrqdoa@mailinator.com",
-                  password="descargas", downloaddir='.')
+#    # overwrite config for the test
+#    config = dict(user="lxpdvtnvrqdoa@mailinator.com",
+#                  password="descargas", downloaddir='.')
+#
+#    url = "http://conectate.gov.ar/educar-portal-video-web/module/"\
+#          "detalleRecurso/DetalleRecurso.do?modulo=masVotados&"\
+#          "recursoPadreId=50001&idRecurso=50004"
 
-#    url_episode = "http://conectate.gov.ar/educar-portal-video-web/module/"\
-#                  "detalleRecurso/DetalleRecurso.do?modulo=masVotados&"\
-#                  "recursoPadreId=50001&idRecurso=50004"
-    url_episode = "http://backend.bacua.gob.ar/video.php?v=_173fb17c"
+    app = QtCore.QCoreApplication(sys.argv)
+    url = "http://backend.bacua.gob.ar/video.php?v=_f9d06f72"
 
-    @defer.inlineCallbacks
+    @defer.inline_callbacks
     def download():
         """Download."""
-#        downloader = ConectarDownloader(config)
-        downloader = GenericDownloader(config)
-#        reactor.callLater(5, downloader.cancel)
+#        downloader = ConectarDownloader()
+        downloader = GenericDownloader()
         try:
             fname = yield downloader.download("test-ej-canal", "secc", "tit",
-                                              url_episode, show)
+                                              url, show)
             print "All done!", fname
         except CancelledError:
             print "--- cancelado!"
         finally:
             downloader.shutdown()
-            reactor.stop()
-
-    reactor.callWhenRunning(download)
-    reactor.run()
+    download()
+    sys.exit(app.exec_())

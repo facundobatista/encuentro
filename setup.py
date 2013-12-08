@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2011 Facundo Batista
+# Copyright 2011-2013 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -22,8 +22,7 @@ Needed packages to run (using Debian/Ubuntu package names):
 
     python 2.6.6
     python-mechanize 0.1.11
-    python-twisted-bin 8.2.0
-    python-twisted-web 8.2.0
+    python-defer 1.0.6
     python-qt4 4.9.1
     python-xdg 0.15
     python-notify 0.1.1   # not really needed, but provides notifications
@@ -126,12 +125,10 @@ setup(
                       'and see the content of the Encuentro channel.',
     url='https://launchpad.net/encuentro',
 
-    packages=["encuentro", "encuentro.ui", "qtreactor"],
+    packages=["encuentro", "encuentro.ui"],
     package_data={
         "encuentro": ["ui/media/*", "logos/icon-*.png"],
         "": ["encuentro.desktop", "source_encuentro.py", "version.txt"],
-        "qtreactor": ["qt4reactor.py", "README", "LICENSE",
-                      "twisted/plugins/qt4.py"],
     },
     scripts=["bin/encuentro"],
 

@@ -150,8 +150,13 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
 
         for episode_id in loaded_pending_ids:
             main_window = self.episodes_widget.main_window
-            episode = main_window.programs_data[episode_id]
-            main_window.queue_download(episode)
+            try:
+                episode = main_window.programs_data[episode_id]
+            except KeyError:
+                logger.debug("Tried to load pending %r, didn't find it",
+                             episode_id)
+            else:
+                main_window.queue_download(episode)
 
 
 class HTMLDelegate(QStyledItemDelegate):

@@ -38,8 +38,7 @@ siguientes dependencias (paquete y número mínimo de versión):
 
     python                  2.6.6
     python-mechanize        0.1.11
-    python-twisted-bin      8.2.0
-    python-twisted-web      8.2.0
+    python-defer            1.0.6
     python-qt4              4.9.1
     python-xdg              0.15
     python-notify           0.1.1

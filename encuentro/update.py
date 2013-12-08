@@ -22,9 +22,9 @@ import bz2
 import json
 import logging
 
-from twisted.internet import defer
-from twisted.web import client
+import defer
 
+from encuentro import utils
 from encuentro.ui import dialogs
 
 BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v03.list"
@@ -48,7 +48,7 @@ class UpdateEpisodes(object):
         dialog.show()
         self._update(dialog)
 
-    @defer.inlineCallbacks
+    @defer.inline_callbacks
     def _update(self, dialog=None):
         """Update the content from server.
 
@@ -63,7 +63,7 @@ class UpdateEpisodes(object):
         logger.info("Downloading backend list")
         tell_user("Descargando la lista de backends...")
         try:
-            backends_file = yield client.getPage(BACKENDS_URL)
+            backends_file = yield utils.download(BACKENDS_URL)
         except Exception, e:
             logger.error("Problem when downloading backends: %s", e)
             tell_user("Hubo un PROBLEMA al bajar la lista de backends:", e)
@@ -79,7 +79,7 @@ class UpdateEpisodes(object):
             tell_user("Descargando la lista de episodios para backend %r..." %
                       (b_name,))
             try:
-                compressed = yield client.getPage(b_url)
+                compressed = yield utils.download(b_url)
             except Exception, e:
                 logger.error("Problem when downloading episodes: %s", e)
                 tell_user("Hubo un PROBLEMA al bajar los episodios: ", e)

@@ -21,6 +21,8 @@
 import logging
 import os
 
+import defer
+
 try:
     import pynotify
 except ImportError:
@@ -36,7 +38,6 @@ from PyQt4.QtGui import (
     QStyle,
     QWidget,
 )
-from twisted.internet import defer
 
 from encuentro import platform, data, update
 from encuentro.config import config, signal
@@ -369,7 +370,7 @@ class MainUI(remembering.RememberingMainWindow):
             episode = self.programs_data[item.episode_id]
             self.queue_download(episode)
 
-    @defer.inlineCallbacks
+    @defer.inline_callbacks
     def queue_download(self, episode):
         """User indicated to download something."""
         logger.debug("Download requested of %s", episode)
@@ -431,7 +432,7 @@ class MainUI(remembering.RememberingMainWindow):
 
         logger.debug("Downloads: finished")
 
-    @defer.inlineCallbacks
+    @defer.inline_callbacks
     def _episode_download(self, episode):
         """Effectively download an episode."""
         logger.debug("Effectively downloading episode %s", episode.episode_id)
@@ -446,7 +447,7 @@ class MainUI(remembering.RememberingMainWindow):
         episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
                                           episode.title)
         notify(u"Descarga finalizada", episode_name)
-        defer.returnValue((fname, episode))
+        defer.return_value((fname, episode))
 
     def open_preferences(self, _=None):
         """Open the preferences dialog."""
