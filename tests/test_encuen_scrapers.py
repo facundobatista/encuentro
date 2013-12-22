@@ -97,6 +97,20 @@ _RES_PROGRAMA_4 = {
     'image_url': 'http://globalbackend.educ.ar/repositorio/Imagen/ver?image_id=bf557679-29b0-477c-b02d-457cfe00237d'
 }
 
+_RES_PROGRAMA_5 = {
+    "description": u"Una entrevista al general Jorge Edgar Leal, defensor de la soberanía nacional y regional en la Antártida, fundador de la Base Antártica Esperanza y jefe de la primera expedición terrestre argentina al Polo Sur. En el marco del cumplimiento de los 60 años de la fundación de la base, Leal relata su travesía y las experiencias vividas en el punto más austral del país.",
+    "duration": 28,
+    "links": [],
+    'image_url': 'http://globalbackend.educ.ar/repositorio/Imagen/ver?image_id=00b21fc9-7287-4e24-984c-5dbf8d788626'
+}
+
+_RES_PROGRAMA_6 = {
+    "description": u"Un especial que realiza un recorrido histórico sobre esta fiesta popular. Sus orígenes, las celebraciones en el mundo, las diferentes maneras de festejarlo en la Argentina, su prohibición durante la dictadura y la recuperación del carnaval como festejo del pueblo. Dirigido por Bruno Stagnaro.",
+    "duration": None,
+    "links": [],
+    'image_url': 'http://globalbackend.educ.ar/repositorio/Imagen/ver?image_id=3006d603-8c3b-4a22-b4ed-964aeb462341'
+}
+
 
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
@@ -126,7 +140,14 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_programa_4(self):
         html = open("../tests/ej-encuen-programa_4.html").read()
         res = scrapers_encuen.scrap_programa(html)
-        for k in res:
-            #print "\n=== res", res[k]
-            #print "=== RES", _RES_PROGRAMA_4[k]
-            self.assertEqual(res[k], _RES_PROGRAMA_4[k])
+        self.assertEqual(res, _RES_PROGRAMA_4)
+
+    def test_example_programa_5(self):
+        html = open("../tests/ej-encuen-programa_5.html").read()
+        res = scrapers_encuen.scrap_programa(html)
+        self.assertEqual(res, _RES_PROGRAMA_5)
+
+    def test_example_programa_6(self):
+        html = open("../tests/ej-encuen-programa_6.html").read()
+        res = scrapers_encuen.scrap_programa(html)
+        self.assertEqual(res, _RES_PROGRAMA_6)

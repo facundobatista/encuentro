@@ -47,9 +47,8 @@ def scrap_listado(html):
     return processed
 
 
-def scrap_programa(html):
-    """Get useful info from a program."""
-    soup = bs4.BeautifulSoup(helpers.sanitize(html))
+def _old_style(soup):
+    """Get info, old style."""
     it = soup.find("h1", id="programa")
 
     # get duration and description
@@ -115,3 +114,46 @@ def scrap_programa(html):
         links.sort()
 
     return result
+
+
+def _new_style(soup):
+    """Get info, new style."""
+    it = soup.find("div", "cuerpoMetadata informacion")
+    result = {}
+
+    # the image
+    result['image_url'] = it.find("img")["src"]
+
+    # get description
+    text = []
+    for ch in it.find("p", "descripcion").children:
+        if isinstance(ch, unicode):
+            text.append(ch)
+    result["description"] = u" ".join(text)
+
+    # get duration
+    t = it.find("p", "duracion")
+    if t is None:
+        duration = None
+    else:
+        h, c = t.text.split(":")
+        assert h == u"Duración"
+        v = c.split()[0]
+        duration = int(v)
+    result['duration'] = duration
+
+    # new style doesn't have links :/
+    result['links'] = []
+    return result
+
+
+def scrap_programa(html):
+    """Get useful info from a program."""
+    soup = bs4.BeautifulSoup(helpers.sanitize(html))
+    it = soup.find("h1", id="programa")
+    if it is not None:
+        return _old_style(soup)
+
+    it = soup.find("div", "cuerpoMetadata informacion")
+    if it is not None:
+        return _new_style(soup)

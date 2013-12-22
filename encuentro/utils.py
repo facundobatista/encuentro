@@ -46,12 +46,12 @@ def download(url):
 if __name__ == "__main__":
     import sys
     app = QtCore.QCoreApplication(sys.argv)
-    url = "http://www.taniquetil.com.ar/facundo/imgs/felu-camagrande.jpg"
+    _url = "http://www.taniquetil.com.ar/facundo/imgs/felu-camagrande.jpg"
 
     @defer.inline_callbacks
     def _download():
         """Download."""
-        data = yield download(url)
+        data = yield download(_url)
         print "All done!", len(data), type(data)
     _download()
     sys.exit(app.exec_())

@@ -377,6 +377,7 @@ class GenericDownloader(BaseDownloader):
                 self._prev_progress = m
 
         def save():
+            """Save available bytes to disk."""
             data = req.read(req.bytesAvailable())
             fh.write(data)
 
@@ -447,7 +448,7 @@ if __name__ == "__main__":
 #          "recursoPadreId=50001&idRecurso=50004"
 
     app = QtCore.QCoreApplication(sys.argv)
-    url = "http://backend.bacua.gob.ar/video.php?v=_f9d06f72"
+    _url = "http://backend.bacua.gob.ar/video.php?v=_f9d06f72"
 
     @defer.inline_callbacks
     def download():
@@ -456,7 +457,7 @@ if __name__ == "__main__":
         downloader = GenericDownloader()
         try:
             fname = yield downloader.download("test-ej-canal", "secc", "tit",
-                                              url, show)
+                                              _url, show)
             print "All done!", fname
         except CancelledError:
             print "--- cancelado!"

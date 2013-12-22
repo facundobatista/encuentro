@@ -114,7 +114,7 @@ def get_episodes():
             image_url = ep_info['image_url']
 
             if len(links) == 0:
-                logger.warning("no links")
+                #logger.warning("no links")
                 continue
 
             if len(links) == 1:
