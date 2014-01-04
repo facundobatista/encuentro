@@ -86,13 +86,14 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
         self.setCurrentItem(item)
 
         # fix episode state
-        episode.state = Status.downloading
+        episode.state = Status.waiting
 
     def prepare(self):
         """Set up everything for next download."""
         self.downloading = True
         self.current += 1
         episode, _ = self.queue[self.current]
+        episode.state = Status.downloading
         return episode
 
     def start(self):
@@ -125,8 +126,28 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
 
     def cancel(self):
         """The download is being cancelled."""
-        _, item = self.queue[self.current]
+        episode, item = self.queue[self.current]
         item.setText(1, u"Cancelado")
+        episode.state = Status.none
+
+    def unqueue(self, episode):
+        """Remove the indicated episode from the queue."""
+        episode.state = Status.none
+
+        # search for the item, adjust the queue and remove it from the widget
+        for pos, (queued_episode, item) in enumerate(self.queue):
+            if queued_episode.episode_id == episode.episode_id:
+                break
+        else:
+            raise ValueError(
+                "Couldn't find episode to unqueue: " + str(episode))
+        del self.queue[pos]
+        self.takeTopLevelItem(pos)
+
+        # as we removed an item, the cursor goes to other, fix the rest of
+        # the interface
+        item = self.currentItem()
+        self.episodes_widget.show(item.episode_id)
 
     def pending(self):
         """Return the pending downloads quantity (including current)."""
@@ -458,20 +479,28 @@ class EpisodeInfo(QWidget):
             label = "Reproducir"
             func = self.main_window.play_episode
             enable = True
-        elif (episode.state == data.Status.downloading or
-              episode.state == data.Status.waiting):
+            remove = False
+        elif episode.state == data.Status.downloading:
             label = u"Cancelar descarga"
             func = self.main_window.cancel_download
             enable = True
+            remove = False
+        elif episode.state == data.Status.waiting:
+            label = u"Sacar de la cola"
+            func = self.main_window.unqueue_download
+            enable = True
+            remove = True
         else:
             label = u"Descargar"
             func = self.main_window.download_episode
             enable = bool(self.main_window.have_config())
+            remove = False
 
-        def _exec(func, episode):
+        def _exec(func, episode, remove):
             """Execute a function on the episode and update its info."""
             func(episode)
-            self.update(episode)
+            if not remove:
+                self.update(episode)
 
         # set button text, disconnect if should, and connect new func
         self.button.setEnabled(enable)
@@ -479,7 +508,7 @@ class EpisodeInfo(QWidget):
         if self.button.connected:
             self.button.clicked.disconnect()
         self.button.connected = True
-        self.button.clicked.connect(lambda: _exec(func, episode))
+        self.button.clicked.connect(lambda: _exec(func, episode, remove))
 
 
 class BigPanel(QWidget):

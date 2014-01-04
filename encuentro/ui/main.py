@@ -525,7 +525,11 @@ class MainUI(remembering.RememberingMainWindow):
         self.episodes_download.cancel()
         downloader = self.downloaders[episode.downtype]
         downloader.cancel()
-        episode.state = Status.none
+
+    def unqueue_download(self, episode):
+        """Remove the episode from the download queue."""
+        logger.info("Unqueueing %s", episode)
+        self.episodes_download.unqueue(episode)
 
     def open_about_dialog(self):
         """Show the about dialog."""
