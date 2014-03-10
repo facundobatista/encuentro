@@ -23,24 +23,27 @@ from PyQt4 import QtNetwork, QtCore
 _qt_network_manager = QtNetwork.QNetworkAccessManager()
 
 
+class _Downloader(object):
+    def __init__(self, url):
+        self.deferred = defer.Deferred()
+        self.deferred._store_it_because_qt_sucks = self
+        request = QtNetwork.QNetworkRequest(QtCore.QUrl(url))
+
+        self.req = _qt_network_manager.get(request)
+        self.req.error.connect(self.deferred.errback)
+        self.req.finished.connect(self.end)
+
+    def end(self):
+        """Send data through the deferred, if wasn't fired before."""
+        data = self.req.read(self.req.bytesAvailable())
+        if not self.deferred.called:
+            self.deferred.callback(data)
+
+
 def download(url):
     """Deferredly download an URL, non blocking."""
-    deferred = defer.Deferred()
-
-    def end():
-        """Send data through the deferred, if wasn't fired before."""
-        data = req.read(req.bytesAvailable())
-        if not deferred.called:
-            deferred.callback(data)
-
-    request = QtNetwork.QNetworkRequest()
-    request.setUrl(QtCore.QUrl(url))
-
-    req = _qt_network_manager.get(request)
-    req.error.connect(deferred.errback)
-    req.finished.connect(end)
-
-    return deferred
+    d = _Downloader(url)
+    return d.deferred
 
 
 if __name__ == "__main__":
@@ -51,7 +54,8 @@ if __name__ == "__main__":
     @defer.inline_callbacks
     def _download():
         """Download."""
-        data = yield download(_url)
+        deferred = download(_url)
+        data = yield deferred
         print "All done!", len(data), type(data)
     _download()
     sys.exit(app.exec_())
