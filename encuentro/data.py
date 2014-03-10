@@ -131,7 +131,6 @@ class EpisodeData(object):
             return
 
         t = self.normalized_title
-        text = prepare_to_filter(text)
         pos1 = t.find(text)
         if pos1 == -1:
             # need to match text, sorry

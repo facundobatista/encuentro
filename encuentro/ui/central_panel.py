@@ -370,6 +370,7 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
 
     def set_filter(self, text, only_downloaded=False):
         """Apply a filter to the episodes list."""
+        text = data.prepare_to_filter(text)
         for episode_id, item in self._item_map.iteritems():
             episode = self.main_window.programs_data[episode_id]
 
