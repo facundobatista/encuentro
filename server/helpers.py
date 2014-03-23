@@ -20,7 +20,7 @@
 
 
 import bz2
-import cPickle
+import pickle
 import cgi
 import json
 import os
@@ -89,7 +89,7 @@ class Cache(object):
         self.fname = fname
         if os.path.exists(fname):
             with open(fname, "rb") as fh:
-                self.db = cPickle.load(fh)
+                self.db = pickle.load(fh)
         else:
             self.db = {}
 
@@ -100,8 +100,10 @@ class Cache(object):
     def set(self, key, value):
         """Set a value to the DB."""
         self.db[key] = value
-        with open(self.fname, "wb") as fh:
-            cPickle.dump(self.db, fh)
+        temp = self.fname + ".tmp"
+        with open(temp, "wb") as fh:
+            pickle.dump(self.db, fh)
+        os.rename(temp, self.fname)
 
 
 def retryable(logger):

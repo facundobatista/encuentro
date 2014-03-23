@@ -51,8 +51,10 @@ class _Config(dict):
         """Save the config to disk."""
         # we don't want to pickle this class, but the dict itself
         raw_dict = self.copy()
-        with open(self._fname, 'wb') as fh:
+        temp = self._fname + ".tmp"
+        with open(temp, 'wb') as fh:
             pickle.dump(raw_dict, fh)
+        os.rename(temp, self._fname)
 
 
 class _Signal(object):

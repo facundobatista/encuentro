@@ -267,5 +267,7 @@ class ProgramsData(object):
     def save(self):
         """Save to disk."""
         to_save = (self.last_programs_version, self.data)
-        with open(self.filename, 'wb') as fh:
+        temp = self.filename + ".tmp"
+        with open(temp, 'wb') as fh:
             pickle.dump(to_save, fh)
+        os.rename(temp, self.filename)
