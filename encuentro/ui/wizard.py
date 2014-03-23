@@ -50,8 +50,13 @@ ahora desde esta misma ventana o en cualquier momento desde el menú
 del programa.
 """
 
-TEXT_END = u"""
+TEXT_HAPPY_END = u"""
 Felicitaciones, el programa está listo para usar :)
+"""
+
+TEXT_SAD_END = u"""
+¡Ya podes usar el programa!
+(aunque te falta actualizar y/o configurar algo)
 """
 
 # The steps for the wizard
@@ -63,7 +68,7 @@ STEPS = [
     (TEXT_INIT, None, None, None),
     (TEXT_EPISODES, "episode", u"Actualizar", "update"),
     (TEXT_CONFIG, "config", u"Configurar", "configure"),
-    (TEXT_END, None, None, None),
+    (None, None, None, None),
 ]
 
 
@@ -139,7 +144,13 @@ class WizardDialog(QDialog):
             self.notthisagain.hide()
 
         # adjust main text and action button
-        self.main_text.setText(text)
+        if (self.step == len(STEPS) - 1) and (self.main_window.have_metadata()) and (self.main_window.have_config()):
+            self.main_text.setText(TEXT_HAPPY_END)
+        elif (self.step == len(STEPS) - 1) and not (self.main_window.have_metadata()) and not (self.main_window.have_config()):
+            self.main_text.setText(TEXT_SAD_END)
+        else:
+            self.main_text.setText(text)
+
         if act_label is None:
             self.navbut_actn.hide()
         else:
