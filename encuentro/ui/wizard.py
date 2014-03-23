@@ -50,8 +50,13 @@ ahora desde esta misma ventana o en cualquier momento desde el menú
 del programa.
 """
 
-TEXT_END = u"""
+TEXT_HAPPY_END = u"""
 Felicitaciones, el programa está listo para usar :)
+"""
+
+TEXT_SAD_END = u"""
+¡Ya podes usar el programa!
+(aunque te falta actualizar y/o configurar algo)
 """
 
 # The steps for the wizard
@@ -63,7 +68,7 @@ STEPS = [
     (TEXT_INIT, None, None, None),
     (TEXT_EPISODES, "episode", u"Actualizar", "update"),
     (TEXT_CONFIG, "config", u"Configurar", "configure"),
-    (TEXT_END, None, None, None),
+    (None, None, None, None),
 ]
 
 
@@ -71,7 +76,7 @@ class WizardDialog(QDialog):
     """The dialog for update."""
     def __init__(self, main_window):
         super(WizardDialog, self).__init__()
-        self.main_window = main_window
+        self.mw = main_window
         vbox = QVBoxLayout(self)
 
         # label and checkbox
@@ -139,7 +144,14 @@ class WizardDialog(QDialog):
             self.notthisagain.hide()
 
         # adjust main text and action button
-        self.main_text.setText(text)
+        if self.step == len(STEPS) - 1:
+            if self.mw.have_metadata() and self.mw.have_config():
+                self.main_text.setText(TEXT_HAPPY_END)
+            else:
+                self.main_text.setText(TEXT_SAD_END)
+        else:
+            self.main_text.setText(text)
+
         if act_label is None:
             self.navbut_actn.hide()
         else:
@@ -151,19 +163,19 @@ class WizardDialog(QDialog):
 
     def _act_configure(self, _):
         """Open the config dialog."""
-        self.main_window.open_preferences()
+        self.mw.open_preferences()
 
     def _act_update(self, *a):
         """Open the update dialog."""
-        self.main_window.refresh_episodes()
+        self.mw.refresh_episodes()
 
     def _ign_episode(self):
         """Tell if the episode step should be ignored."""
-        return self.main_window.have_metadata()
+        return self.mw.have_metadata()
 
     def _ign_config(self):
         """Tell if the configure step should be ignored."""
-        return self.main_window.have_config()
+        return self.mw.have_config()
 
 
 if __name__ == '__main__':
