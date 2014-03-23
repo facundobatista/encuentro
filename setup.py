@@ -114,6 +114,11 @@ class CustomInstall(install):
         self._custom_man_dir = man_dir
 
 
+LONG_DESCRIPTION = (
+    'Simple application that allows to search, download '
+    'and see the content of the Encuentro channel.'
+)
+
 setup(
     name='encuentro',
     version=open('version.txt').read().strip(),
@@ -121,8 +126,7 @@ setup(
     author='Facundo Batista',
     author_email='facundo@taniquetil.com.ar',
     description='Search, download and see the wonderful Encuentro content.',
-    long_description='Simple application that allows to search, download ' \
-                      'and see the content of the Encuentro channel.',
+    long_description=LONG_DESCRIPTION,
     url='https://launchpad.net/encuentro',
 
     packages=["encuentro", "encuentro.ui"],

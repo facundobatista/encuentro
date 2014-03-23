@@ -68,15 +68,13 @@ class NiceImporter(object):
 
 
 # test the packages
-# pylint: disable=W0611
-
 with NiceImporter('xdg', 'python-xdg', '0.15'):
-    import xdg
+    import xdg  # NOQA
 with NiceImporter('mechanize', 'python-mechanize', '0.1.11'):
-    import mechanize
+    import mechanize  # NOQA
 with NiceImporter('pynotify', 'python-notify', '0.1.1'):
-    import pynotify
+    import pynotify  # NOQA
 with NiceImporter('PyQt4.QtCore', 'PyQt4', '4.9.1'):
-    import PyQt4.QtCore
+    import PyQt4.QtCore  # NOQA
 with NiceImporter('defer', 'python-defer', '1.0.6'):
-    import defer
+    import defer  # NOQA
