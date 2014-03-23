@@ -144,7 +144,7 @@ class WizardDialog(QDialog):
             self.notthisagain.hide()
 
         # adjust main text and action button
-        if (self.step == len(STEPS) - 1):
+        if self.step == len(STEPS) - 1:
             if self.mw.have_metadata() and self.mw.have_config():
                 self.main_text.setText(TEXT_HAPPY_END)
             else:
