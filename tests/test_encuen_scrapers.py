@@ -118,36 +118,36 @@ class ScrapersTestCase(unittest.TestCase):
     maxDiff = None
 
     def test_example_listado_1(self):
-        html = open("../tests/ej-encuen-listado_1.html").read()
+        html = open("tests/ej-encuen-listado_1.html").read()
         res = scrapers_encuen.scrap_listado(html)
         self.assertEqual(res, _RES_LISTADO_1)
 
     def test_example_programa_1(self):
-        html = open("../tests/ej-encuen-programa_1.html").read()
+        html = open("tests/ej-encuen-programa_1.html").read()
         res = scrapers_encuen.scrap_programa(html)
         self.assertEqual(res, _RES_PROGRAMA_1)
 
     def test_example_programa_2(self):
-        html = open("../tests/ej-encuen-programa_2.html").read()
+        html = open("tests/ej-encuen-programa_2.html").read()
         res = scrapers_encuen.scrap_programa(html)
         self.assertEqual(res, _RES_PROGRAMA_2)
 
     def test_example_programa_3(self):
-        html = open("../tests/ej-encuen-programa_3.html").read()
+        html = open("tests/ej-encuen-programa_3.html").read()
         res = scrapers_encuen.scrap_programa(html)
         self.assertEqual(res, _RES_PROGRAMA_3)
 
     def test_example_programa_4(self):
-        html = open("../tests/ej-encuen-programa_4.html").read()
+        html = open("tests/ej-encuen-programa_4.html").read()
         res = scrapers_encuen.scrap_programa(html)
         self.assertEqual(res, _RES_PROGRAMA_4)
 
     def test_example_programa_5(self):
-        html = open("../tests/ej-encuen-programa_5.html").read()
+        html = open("tests/ej-encuen-programa_5.html").read()
         res = scrapers_encuen.scrap_programa(html)
         self.assertEqual(res, _RES_PROGRAMA_5)
 
     def test_example_programa_6(self):
-        html = open("../tests/ej-encuen-programa_6.html").read()
+        html = open("tests/ej-encuen-programa_6.html").read()
         res = scrapers_encuen.scrap_programa(html)
         self.assertEqual(res, _RES_PROGRAMA_6)

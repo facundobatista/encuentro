@@ -168,27 +168,27 @@ class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
 
     def test_example_list_1(self):
-        html = open("../tests/ej-bacua-list_1.html").read()
+        html = open("tests/ej-bacua-list_1.html").read()
         res = get_bacua_episodes.scrap_list_page(html)
         self.assertEqual(res, _RES_LIST_1)
 
     def test_example_page_1(self):
-        html = open("../tests/ej-bacua-page_1.html").read()
+        html = open("tests/ej-bacua-page_1.html").read()
         res = get_bacua_episodes.scrap_page(html)
         self.assertEqual(res, _RES_PAGE_1)
 
     def test_example_page_2(self):
-        html = open("../tests/ej-bacua-page_2.html").read()
+        html = open("tests/ej-bacua-page_2.html").read()
         res = get_bacua_episodes.scrap_page(html)
         self.assertEqual(res, _RES_PAGE_2)
 
     def test_example_page_3(self):
-        html = open("../tests/ej-bacua-page_3.html").read()
+        html = open("tests/ej-bacua-page_3.html").read()
         res = get_bacua_episodes.scrap_page(html)
         self.assertEqual(res, _RES_PAGE_3)
 
     def test_example_page_4(self):
-        html = open("../tests/ej-bacua-page_4.html").read()
+        html = open("tests/ej-bacua-page_4.html").read()
         res = get_bacua_episodes.scrap_page(html)
 #        print "\n=== res", [sorted(x.items()) for x in res]
 #        print "=== RES", [sorted(x.items()) for x in _RES_PAGE_4]

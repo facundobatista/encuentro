@@ -26,8 +26,7 @@ from encuentro.ui.main import MainUI
 
 # we put here EpisodeData only for legacy reasons: unpickle of old pickles
 # will try to load EpisodeData from this namespace
-# pylint: disable=W0611
-from encuentro.data import EpisodeData
+from encuentro.data import EpisodeData  # NOQA
 
 logger = logging.getLogger('encuentro.init')
 
