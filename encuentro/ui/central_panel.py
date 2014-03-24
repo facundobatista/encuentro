@@ -276,6 +276,7 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.on_right_button)
         self.itemDoubleClicked.connect(self.on_double_click)
+        self.currentItemChanged.connect(self.on_change)
 
     def show(self, episode_id):
         """Show the row for the requested episode."""
@@ -284,6 +285,11 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
         self._adjust_gui(episode_id)
 
     def on_signal_clicked(self, _):
+        """The view was clicked."""
+        item = self.currentItem()
+        self._adjust_gui(item.episode_id)
+
+    def on_change(self, _):
         """The view was clicked."""
         item = self.currentItem()
         self._adjust_gui(item.episode_id)

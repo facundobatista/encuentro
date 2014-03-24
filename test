@@ -1,5 +1,9 @@
-set -e
+#!/bin/bash
+#
+# Copyright 2014 Facundo Batista
 
-trial tests
-pylint encuentro server
-pep8 --repeat encuentro/ server/
+set -eu
+
+nosetests -v -s tests
+flake8 encuentro server
+pylint -d R,C,W,E -e C0111,C0112  -r n -f colorized --no-docstring-rgx="(__.*__|test_*)" encuentro server 2> /dev/null

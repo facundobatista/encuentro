@@ -24,9 +24,10 @@ _qt_network_manager = QtNetwork.QNetworkAccessManager()
 
 
 class _Downloader(object):
+    """An asynch downloader that fires a deferred with data when done."""
     def __init__(self, url):
         self.deferred = defer.Deferred()
-        self.deferred._store_it_because_qt_sucks = self
+        self.deferred._store_it_because_qt_needs_or_wont_work = self
         request = QtNetwork.QNetworkRequest(QtCore.QUrl(url))
 
         self.req = _qt_network_manager.get(request)

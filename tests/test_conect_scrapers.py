@@ -193,72 +193,72 @@ class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
 
     def test_example_busqueda(self):
-        html = open("../tests/ej-conect-busqueda.html").read()
+        html = open("tests/ej-conect-busqueda.html").read()
         res = scrapers_conect.scrap_busqueda(html)
         self.assertEqual(res, _RES_BUSQ_1)
 
     def test_example_series_1(self):
-        html = open("../tests/ej-conect-series_1.html").read()
+        html = open("tests/ej-conect-series_1.html").read()
         res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_1)
 
     def test_example_series_2(self):
-        html = open("../tests/ej-conect-series_2.html").read()
+        html = open("tests/ej-conect-series_2.html").read()
         res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_2)
 
     def test_example_series_3(self):
-        html = open("../tests/ej-conect-series_3.html").read()
+        html = open("tests/ej-conect-series_3.html").read()
         res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_3)
 
     def test_example_video_01(self):
-        html = open("../tests/ej-conect-video_01.html").read()
+        html = open("tests/ej-conect-video_01.html").read()
         res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_01)
 
     def test_example_video_02(self):
-        html = open("../tests/ej-conect-video_02.html").read()
+        html = open("tests/ej-conect-video_02.html").read()
         res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_02)
 
     def test_example_video_03(self):
-        html = open("../tests/ej-conect-video_03.html").read()
+        html = open("tests/ej-conect-video_03.html").read()
         res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_03)
 
     def test_example_video_04(self):
-        html = open("../tests/ej-conect-video_04.html").read()
+        html = open("tests/ej-conect-video_04.html").read()
         res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_04)
 
     def test_example_video_05(self):
-        html = open("../tests/ej-conect-video_05.html").read()
+        html = open("tests/ej-conect-video_05.html").read()
         res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_05)
 
     def test_example_video_06(self):
-        html = open("../tests/ej-conect-video_06.html").read()
+        html = open("tests/ej-conect-video_06.html").read()
         res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_06)
 
     def test_example_video_07(self):
-        html = open("../tests/ej-conect-video_07.html").read()
+        html = open("tests/ej-conect-video_07.html").read()
         res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_07)
 
     def test_example_video_08(self):
-        html = open("../tests/ej-conect-video_08.html").read()
+        html = open("tests/ej-conect-video_08.html").read()
         res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_08)
 
     def test_example_video_09(self):
-        html = open("../tests/ej-conect-video_09.html").read()
+        html = open("tests/ej-conect-video_09.html").read()
         res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_09)
 
     def test_example_video_10(self):
-        html = open("../tests/ej-conect-video_10.html").read()
+        html = open("tests/ej-conect-video_10.html").read()
         res = scrapers_conect.scrap_video(html)
 #        print "\n=== res", res
 #        print "=== RES", _RES_VIDEO_10
