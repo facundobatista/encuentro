@@ -36,7 +36,9 @@ class _Downloader(object):
 
     def end(self):
         """Send data through the deferred, if wasn't fired before."""
-        data = self.req.read(self.req.bytesAvailable())
+        img_data = self.req.read(self.req.bytesAvailable())
+        content_type = self.req.header(QtNetwork.QNetworkRequest.ContentTypeHeader)
+        data = (content_type,img_data)
         if not self.deferred.called:
             self.deferred.callback(data)
 
