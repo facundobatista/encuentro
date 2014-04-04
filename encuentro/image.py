@@ -49,13 +49,14 @@ class ImageGetter(object):
 
         def _d_callback(data, episode_id, file_fullname):
             """Cache the image and use the callback."""
-            content_type,img_data = data
-            content,extension =  content_type.split('/')
+            content_type, img_data = data
+            content, extension = content_type.split('/')
             if content != 'image':
                 logger.debug("The Content-Type header is not 'image'")
             file_fullname = file_fullname + '.' + extension
-            logger.debug("Image downloaded for episode_id %s, saving to %r, Content-Type= %s",
-                         episode_id, file_fullname,content_type)
+            logger.debug(""" Image downloaded for episode_id %s,
+                             saving to %r, Content-Type= %s """,
+                         episode_id, file_fullname, content_type)
             temp_file_name = file_fullname + '.tmp'
             with open(temp_file_name, 'wb') as fh:
                 fh.write(img_data)
@@ -65,7 +66,7 @@ class ImageGetter(object):
         def _d_errback(failure):
             """Log the problem."""
             logger.error("Problem getting image: type: %s error: %s",
-                         failure.type,failure.value)
+                         failure.type, failure.value)
 
         logger.debug("Need to download the image")
         d = utils.download(url)
