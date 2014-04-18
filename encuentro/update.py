@@ -21,6 +21,8 @@
 import bz2
 import json
 import logging
+from datetime import datetime
+from encuentro.config import config
 
 import defer
 
@@ -107,7 +109,11 @@ class UpdateEpisodes(object):
         self.main_window.programs_data.merge(
             new_data, self.main_window.big_panel.episodes)
 
+        config.update({'autorefresh_last_time': datetime.now()})
+        config.save()
+
         tell_user(u"¡Todo terminado bien!")
+
         if dialog:
             dialog.accept()
 

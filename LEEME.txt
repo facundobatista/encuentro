@@ -46,6 +46,34 @@ siguientes dependencias (paquete y número mínimo de versión):
 (este último, python-notify, no es realmente necesario, pero si está el
 programa notificará las descargas finalizadas)
 
+Cómo instalarlo en un virtualenv
+--------------------------------
+
+Si no tenés la menor idea de qué es un virtualenv y el detalle anterior para
+instalar te sirve podés omitir este punto.
+Si querés instalarlo en un virtualenv para colaborar en el proyecto o por 
+cualquier otra causa, tenés que seguir los siguientes pasos:
+
+Es necesario hacer un branch del proyecto, o descargar el tarball, 
+tener python-qt4 instalado y generar el virtualenv con 
+la opción '--system-site-packages'. 
+
+Crear el virtualenv:
+
+    virtualenv --system-site-packages path/to/encuentro_venv
+
+Activarlo:
+
+    source path/to/encuentro_venv/bin/activate
+
+Instalar las dependencias:
+
+    cd path/to/encuentro/code/trunk
+    pip install -r requirements.txt
+
+Ejecutar Encuentro:
+
+    bin/encuentro
 
 Licencias
 ---------

@@ -1,0 +1,4 @@
+pyxdg>=0.15
+mechanize>=0.1.11
+defer>=1.0.4
+py-notify>=0.1.1
