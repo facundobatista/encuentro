@@ -20,7 +20,7 @@ import json
 import logging
 import subprocess
 
-from encuentro import platform
+from encuentro import multiplatform
 
 from PyQt4.QtGui import QSystemTrayIcon, QIcon, QMenu
 
@@ -78,7 +78,7 @@ def _fix_unity_systray():
 def show(main_window):
     """Show a system tray icon with a small icon."""
     _fix_unity_systray()
-    icon = QIcon(platform.get_path("encuentro/logos/icon-192.png"))
+    icon = QIcon(multiplatform.get_path("encuentro/logos/icon-192.png"))
     sti = QSystemTrayIcon(icon, main_window)
     if not sti.isSystemTrayAvailable():
         logger.warning("System tray not available.")

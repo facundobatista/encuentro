@@ -26,7 +26,7 @@ import json
 import os
 import re
 import time
-import urllib2
+import urlparse
 
 
 def save_file(basename, data):
@@ -128,5 +128,11 @@ def retryable(logger):
 
 def get_url_param(url, param):
     """Get the value of the param in the url."""
-    return cgi.parse_qs(urllib2.urlparse.urlparse(url)
-                                        .query)[param][0]
+    return cgi.parse_qs(urlparse.urlparse(url).query)[param][0]
+
+
+def clean_html(text):
+    """Clean HTML structures from the text."""
+    text = re.sub("<.*?>", "", text)
+    text = text.replace("&nbsp;", "")
+    return text.strip()

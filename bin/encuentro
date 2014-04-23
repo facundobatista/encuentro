@@ -37,7 +37,7 @@ if project_basedir not in sys.path:
     sys.path.insert(0, project_basedir)
     sys.path.insert(1, os.path.join(project_basedir, 'qtreactor'))
 
-from encuentro import main, platform, logger
+from encuentro import main, multiplatform, logger
 
 # set up logging
 verbose = len(sys.argv) > 1 and sys.argv[1] == '-v'
@@ -47,7 +47,7 @@ log = logging.getLogger('encuentro.init')
 # first of all, show the versions
 print "Running Python %s on %r" % (sys.version_info, sys.platform)
 log.info("Running Python %s on %r", sys.version_info, sys.platform)
-version_file = platform.get_path('version.txt')
+version_file = multiplatform.get_path('version.txt')
 if os.path.exists(version_file):
     version = open(version_file).read().strip()
     print "Encuentro: v. %s" % (version,)

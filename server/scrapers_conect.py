@@ -24,7 +24,7 @@ import bs4
 import helpers
 
 
-def scrap_busqueda(html):
+def scrap_busqueda(html):    # FIXME: esta la seguimos usando?
     """Get useful info from the search."""
     soup = bs4.BeautifulSoup(helpers.sanitize(html))
     results = soup.find_all("div", "resBusqueda")
@@ -40,6 +40,30 @@ def scrap_busqueda(html):
 def scrap_series(html):
     """Get useful info from the series list."""
     soup = bs4.BeautifulSoup(helpers.sanitize(html))
+
+    # new format
+    episodes_list = soup.find('ul', id='listaEpisodios')
+    if episodes_list is not None:
+        results = []
+        seasons = episodes_list.find_all('li', class_='temporada')
+        for season in seasons:
+            season_title_tag = season.find('a', class_='temporada-titulo')
+            if season_title_tag is None:
+                season_title = ''
+            else:
+                season_title = season_title_tag.text.strip() + u': '
+
+            episodes = season.find_all('li')
+            for episode in episodes:
+                a_tag = episode.find('a')
+                link = a_tag['href']
+                title = a_tag.text.strip()
+
+                # store it
+                results.append((season_title + title, link))
+        return results
+
+    # support for the old way
     serietitle_section = soup.find("div", "titSerieEncabezado")
     serietitle_text = serietitle_section.h1.text
     epis_section = soup.find_all("ul", "serieCap")
@@ -58,11 +82,16 @@ def scrap_video(html):
     """Get useful info from the video page."""
     soup = bs4.BeautifulSoup(helpers.sanitize(html))
 
-    # get the description, can be multipart
+    # new format
+    item = soup.find('p', class_='duracion')
+    if item is not None:
+        parts = item.text.split()
+        duration = int(parts[1])
+        return duration
+
+    # support for the old way
     it = soup.find('div', 'capitulo_thumb')
-    image_url = it.img['src']
     duration = None
-    desc_list = []
     while True:
         it = it.next_sibling
         if it is None:
@@ -72,27 +101,4 @@ def scrap_video(html):
             p1, p2 = it.text.split(":")
             assert p1.strip() == u"Duración"
             duration = int(p2.split()[0])
-
-        elif hasattr(it, 'name'):
-            if it.name == 'em':
-                desc_list.append(u'"' + it.text + u'"')
-            elif it.name in ('div', 'strong', 'span'):
-                desc_list.append(it.text)
-            elif it.name == 'br':
-                pass
-            elif it.name == 'p':
-                desc_list.append(' -- ' + it.text)
-            else:
-                raise ValueError("Unknown item (%r) in the description: %r" %
-                                 (it.name, it))
-
-        else:
-            if it == u"p":  # bad found <p>
-                continue
-            desc_list.append(it)
-
-    description = " ".join(x.strip() for x in desc_list if x.strip())
-    description = description.replace(u"\n", u"").replace(u"\r", u"")
-    description = description.replace(u"\t", u"")
-    description = description.replace(" ,", ",")
-    return (description, duration, image_url)
+    return duration

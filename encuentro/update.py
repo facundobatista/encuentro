@@ -27,7 +27,7 @@ import defer
 from encuentro import utils
 from encuentro.ui import dialogs
 
-BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v03.list"
+BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v04.list"
 
 logger = logging.getLogger('encuentro.update')
 

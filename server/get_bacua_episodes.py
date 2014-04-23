@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2012 Facundo Batista
+# Copyright 2012-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -120,7 +120,7 @@ def get_all_data():
 def main():
     """Entry Point."""
     all_data = get_all_data()
-    helpers.save_file("bacua-v03", all_data)
+    helpers.save_file("bacua-v04", all_data)
 
 
 if __name__ == '__main__':
