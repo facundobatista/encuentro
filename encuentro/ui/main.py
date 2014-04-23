@@ -132,9 +132,9 @@ class MainUI(remembering.RememberingMainWindow):
         else:
             # refresh data if never done before or if last
             # update was 7 days ago
-            lastRefresh = config.get('autorefresh_last_time')
-            delta = dt.datetime.now() - lastRefresh
-            if not lastRefresh or delta > dt.timedelta(7):
+            last_refresh = config.get('autorefresh_last_time')
+            if last_refresh is None or (
+                    dt.datetime.now() - last_refresh > dt.timedelta(7)):
                 ue = update.UpdateEpisodes(self)
                 ue.background()
 
