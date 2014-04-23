@@ -20,6 +20,7 @@
 
 import logging
 import os
+import datetime as dt
 
 import defer
 
@@ -124,9 +125,19 @@ class MainUI(remembering.RememberingMainWindow):
         self._menubar()
 
         systray.show(self)
+
         if config.get('autorefresh'):
             ue = update.UpdateEpisodes(self)
             ue.background()
+        else:
+            # refresh data if never done before or if last
+            # update was 7 days ago
+            last_refresh = config.get('autorefresh_last_time')
+            if last_refresh is None or (
+                    dt.datetime.now() - last_refresh > dt.timedelta(7)):
+                ue = update.UpdateEpisodes(self)
+                ue.background()
+
         self.show()
 
         self.episodes_download.load_pending()

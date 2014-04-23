@@ -18,8 +18,11 @@
 
 """The system configuration."""
 
+import logging
 import os
 import pickle
+
+logger = logging.getLogger('encuentro.config')
 
 
 class _Config(dict):
@@ -37,10 +40,12 @@ class _Config(dict):
         if not os.path.exists(fname):
             # default to an almost empty dict
             self[self.SYSTEM] = {}
+            logger.debug("File not found, starting empty")
             return
 
         with open(fname, 'rb') as fh:
             saved_dict = pickle.load(fh)
+            logger.debug("Loaded: %s", saved_dict)
         self.update(saved_dict)
 
         # for compatibility, put the system container if not there
@@ -51,6 +56,7 @@ class _Config(dict):
         """Save the config to disk."""
         # we don't want to pickle this class, but the dict itself
         raw_dict = self.copy()
+        logger.debug("Saving: %s", raw_dict)
         temp = self._fname + ".tmp"
         with open(temp, 'wb') as fh:
             pickle.dump(raw_dict, fh)
