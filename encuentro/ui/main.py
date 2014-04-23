@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+# -*- coding: utf-8 -*-
 
 # Copyright 2013 Facundo Batista
 #
@@ -425,12 +425,12 @@ class MainUI(remembering.RememberingMainWindow):
                         'HTTP Error 500' in msg):
                     notify(u"Error en la descarga", msg)
                 else:
-                    self.show_message(err_type, msg)
+                    notify(err_type, msg)
                 self.episodes_download.end(error=u"Error: " + msg)
             except Exception, e:
                 logger.exception("Unknown download error: %s (%r)", e, e)
                 err_type = e.__class__.__name__
-                self.show_message(err_type, str(e))
+                notify(err_type, str(e))
                 self.episodes_download.end(error=u"Error: " + str(e))
             else:
                 logger.debug("Episode downloaded: %s", episode)
