@@ -201,14 +201,21 @@ class BaseDownloader(object):
         """Cancel a download."""
         return self._cancel()
 
-    def _setup_target(self, channel, section, title, extension):
+    def _setup_target(self, channel, section, season, title, extension):
         """Set up the target file to download."""
         # build where to save it
         downloaddir = config.get('downloaddir', '')
         channel = multiplatform.sanitize(channel)
         section = multiplatform.sanitize(section)
         title = multiplatform.sanitize(title)
-        fname = os.path.join(downloaddir, channel, section, title + extension)
+
+        if season is not None:
+            season = multiplatform.sanitize(season)
+            fname = os.path.join(downloaddir, channel, section,
+                                 season, title + extension)
+        else:
+            fname = os.path.join(downloaddir, channel, section,
+                                 title + extension)
 
         # if the directory doesn't exist, create it
         dirsecc = os.path.dirname(fname)
@@ -218,9 +225,10 @@ class BaseDownloader(object):
         tempf = fname + str(time.time())
         return fname, tempf
 
-    def download(self, channel, section, title, url, cb_progress):
+    def download(self, channel, section, season, title, url, cb_progress):
         """Download an episode."""
-        return self._download(channel, section, title, url, cb_progress)
+        return self._download(channel, section, season,
+                              title, url, cb_progress)
 
 
 class AuthenticatedDownloader(BaseDownloader):
@@ -245,7 +253,7 @@ class AuthenticatedDownloader(BaseDownloader):
         logger.info("Conectar downloader cancelled")
 
     @defer.inline_callbacks
-    def _download(self, canal, seccion, titulo, url, cb_progress):
+    def _download(self, canal, seccion, season, titulo, url, cb_progress):
         """Download an episode to disk."""
         self.cancelled = False
 
@@ -257,7 +265,8 @@ class AuthenticatedDownloader(BaseDownloader):
         authpass = config.get('password', '')
 
         # build where to save it
-        fname, tempf = self._setup_target(canal, seccion, titulo, u".avi")
+        fname, tempf = self._setup_target(canal, seccion, season,
+                                          titulo, u".avi")
         logger.debug("Downloading to temporal file %r", tempf)
 
         logger.info("Download episode %r: browser started", url)
@@ -364,13 +373,14 @@ class GenericDownloader(BaseDownloader):
             self.downloader_deferred.errback(exc)
 
     @defer.inline_callbacks
-    def _download(self, canal, seccion, titulo, url, cb_progress):
+    def _download(self, canal, seccion, season, titulo, url, cb_progress):
         """Download an episode to disk."""
         url = str(url)
         logger.info("Download episode %r", url)
 
         # build where to save it
-        fname, tempf = self._setup_target(canal, seccion, titulo, u".mp4")
+        fname, tempf = self._setup_target(canal, seccion,
+                                          season, titulo, u".mp4")
         logger.debug("Downloading to temporal file %r", tempf)
         fh = open(tempf, "wb")
 

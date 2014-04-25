@@ -36,13 +36,18 @@ def scrap_series(html):
         if season_title_tag is None:
             season_title = None
         else:
-            season_title = season_title_tag.text.strip()
+            season_title = helpers.clean_html(season_title_tag.text)
 
         episodes = season.find_all('li')
         for episode in episodes:
             a_tag = episode.find('a')
             link = a_tag['href']
-            title = a_tag.text.strip()
+
+            # before getting the text, remove a posible span text
+            span_tag = a_tag.find('span')
+            if span_tag is not None:
+                span_tag.clear()
+            title = helpers.clean_html(a_tag.text)
 
             # store it
             results.append((season_title, title, link))
@@ -53,23 +58,8 @@ def scrap_video(html):
     """Get useful info from the video page."""
     soup = bs4.BeautifulSoup(helpers.sanitize(html))
 
-    # new format
     item = soup.find('p', class_='duracion')
     if item is not None:
         parts = item.text.split()
         duration = int(parts[1])
         return duration
-
-    # support for the old way
-    it = soup.find('div', 'capitulo_thumb')
-    duration = None
-    while True:
-        it = it.next_sibling
-        if it is None:
-            break
-
-        if u"Duración" in unicode(it):
-            p1, p2 = it.text.split(":")
-            assert p1.strip() == u"Duración"
-            duration = int(p2.split()[0])
-    return duration

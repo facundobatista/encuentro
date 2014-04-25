@@ -77,6 +77,12 @@ class EpisodeData(object):
         self.description = description
         self.episode_id = episode_id
 
+        # build a nice string to show in the GUI
+        if self.season:
+            self.composed_title = self.season + u": " + self.title
+        else:
+            self.composed_title = self.title
+
         # urls are bytes!
         self.url = str(url)
         self.image_url = str(image_url)
@@ -88,7 +94,7 @@ class EpisodeData(object):
         self.downtype = downtype
 
         # cache the processed title
-        self._normalized_title = prepare_to_filter(self.title)
+        self._normalized_title = prepare_to_filter(self.composed_title)
 
     @property
     def normalized_title(self):
@@ -98,7 +104,7 @@ class EpisodeData(object):
         have it.
         """
         if not hasattr(self, '_normalized_title'):
-            self._normalized_title = prepare_to_filter(self.title)
+            self._normalized_title = prepare_to_filter(self.composed_title)
         return self._normalized_title
 
     def update(self, channel, section, title, duration, description,
@@ -112,6 +118,12 @@ class EpisodeData(object):
         self.duration = duration
         self.description = description
         self.episode_id = episode_id
+
+        # build a nice string to show in the GUI
+        if self.season:
+            self.composed_title = self.season + u": " + self.title
+        else:
+            self.composed_title = self.title
 
         # urls are bytes!
         self.url = str(url)

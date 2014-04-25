@@ -451,12 +451,11 @@ class MainUI(remembering.RememberingMainWindow):
 
         # download!
         downloader = self.downloaders[episode.downtype]
-        fname = yield downloader.download(episode.channel,
-                                          episode.section, episode.title,
-                                          episode.url,
-                                          self.episodes_download.progress)
+        fname = yield downloader.download(
+            episode.channel, episode.section, episode.season, episode.title,
+            episode.url, self.episodes_download.progress)
         episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
-                                          episode.title)
+                                          episode.composed_title)
         notify(u"Descarga finalizada", episode_name)
         defer.return_value((fname, episode))
 

@@ -31,13 +31,13 @@ def scrap_programa(html):
     episodes_result = []
     if episodes_list is not None:
         season = episodes_list.find('h2')
-        season_title = season.text.strip()
+        season_title = helpers.clean_html(season.text)
 
         episodes = episodes_list.find_all('li')
         for episode in episodes[1:]:  # first episode is html weirdy
             a_tag = episode.find('a')
             link = a_tag['href']
-            title = a_tag.text.strip()
+            title = helpers.clean_html(a_tag.text)
 
             # store it
             episodes_result.append((season_title, title, link))

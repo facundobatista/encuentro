@@ -29,17 +29,20 @@ _RES_SERIES_1 = [
     (u"Máquinas y herramientas", u"4 - Herramientas de corte y máquinas-herramientas: nuevos paradigmas", "http://www.conectate.gob.ar/sitios/conectate/busqueda/encuentro?rec_id=121850"),
 ]
 
-_RES_VIDEO_01 = 5
-_RES_VIDEO_02 = None
-_RES_VIDEO_03 = 51
-_RES_VIDEO_04 = 28
-_RES_VIDEO_05 = 26
-_RES_VIDEO_06 = 15
-_RES_VIDEO_07 = None
-_RES_VIDEO_08 = 48
-_RES_VIDEO_09 = 28
-_RES_VIDEO_10 = 2
-_RES_VIDEO_11 = 26
+_RES_SERIES_2 = [
+    (u"Oficios Curso de Carpintería", u"1 - Introducción a la carpintería", "http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id=103248"),
+    (u"Oficios Curso de Carpintería", u"2 - Realización de caballetes", "http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id=103260"),
+    (u"Oficios Curso de Carpintería", u"3 - Realización de sillas, parte 1", "http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id=103261"),
+    (u"Oficios Curso de Carpintería", u"4 - Realización de sillas, parte 2", "http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id=103265"),
+    (u"Oficios Curso de Carpintería", u"5 - Realización de cajas y cajones, parte 1", "http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id=103268"),
+    (u"Oficios Curso de Carpintería", u"6 - Realización de cajas y cajones, parte 2", "http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id=103270"),
+    (u"Oficios Curso de Carpintería", u"7 - Revestimientos, parte 1", "http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id=103275"),
+    (u"Oficios Curso de Carpintería", u"8 - Revestimientos, parte 2", "http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id=103277"),
+    (u"Oficios Curso de Carpintería", u"9 - Muebles laminados, parte 1", "http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id=103279"),
+    (u"Oficios Curso de Carpintería", u"10 - Muebles laminados, parte 2", "http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id=103282"),
+]
+
+_RES_VIDEO_01 = 26
 
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
@@ -49,59 +52,12 @@ class ScrapersTestCase(unittest.TestCase):
         res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_1)
 
+    def test_example_series_2(self):
+        html = open("tests/ej-conect-series_2.html").read()
+        res = scrapers_conect.scrap_series(html)
+        self.assertEqual(res, _RES_SERIES_2)
+
     def test_example_video_01(self):
         html = open("tests/ej-conect-video_01.html").read()
         res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_01)
-
-    def test_example_video_02(self):
-        html = open("tests/ej-conect-video_02.html").read()
-        res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_02)
-
-    def test_example_video_03(self):
-        html = open("tests/ej-conect-video_03.html").read()
-        res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_03)
-
-    def test_example_video_04(self):
-        html = open("tests/ej-conect-video_04.html").read()
-        res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_04)
-
-    def test_example_video_05(self):
-        html = open("tests/ej-conect-video_05.html").read()
-        res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_05)
-
-    def test_example_video_06(self):
-        html = open("tests/ej-conect-video_06.html").read()
-        res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_06)
-
-    def test_example_video_07(self):
-        html = open("tests/ej-conect-video_07.html").read()
-        res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_07)
-
-    def test_example_video_08(self):
-        html = open("tests/ej-conect-video_08.html").read()
-        res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_08)
-
-    def test_example_video_09(self):
-        html = open("tests/ej-conect-video_09.html").read()
-        res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_09)
-
-    def test_example_video_10(self):
-        html = open("tests/ej-conect-video_10.html").read()
-        res = scrapers_conect.scrap_video(html)
-        self.assertEqual(res, _RES_VIDEO_10)
-
-    def test_example_video_11(self):
-        html = open("tests/ej-conect-video_11.html").read()
-        res = scrapers_conect.scrap_video(html)
-#        print "\n=== res", res
-#        print "=== RES", _RES_VIDEO_11
-        self.assertEqual(res, _RES_VIDEO_11)
