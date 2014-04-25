@@ -1,4 +1,4 @@
-# Copyright 2013 Facundo Batista
+# Copyright 2013-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -68,9 +68,10 @@ class EpisodeData(object):
 
     def __init__(self, channel, section, title, duration, description,
                  episode_id, url, image_url, state=None, progress=None,
-                 filename=None, downtype=None):
+                 filename=None, downtype=None, season=None):
         self.channel = channel
         self.section = section
+        self.season = None if season is None else cgi.escape(season)
         self.title = cgi.escape(title)
         self.duration = duration
         self.description = description
@@ -102,10 +103,11 @@ class EpisodeData(object):
 
     def update(self, channel, section, title, duration, description,
                episode_id, url, image_url, state=None, progress=None,
-               filename=None, downtype=None):
+               filename=None, downtype=None, season=None):
         """Update the episode data."""
         self.channel = channel
         self.section = section
+        self.season = None if season is None else cgi.escape(season)
         self.title = cgi.escape(title)
         self.duration = duration
         self.description = description
@@ -170,7 +172,7 @@ class ProgramsData(object):
         for d in new_data:
             # v2 of json file
             names = ['channel', 'section', 'title', 'duration', 'description',
-                     'episode_id', 'url', 'image_url', 'downtype']
+                     'episode_id', 'url', 'image_url', 'downtype', 'season']
             values = dict((name, d[name]) for name in names)
             episode_id = d['episode_id']
 

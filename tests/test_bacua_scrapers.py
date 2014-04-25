@@ -111,6 +111,7 @@ _RES_PAGE_1 = [
         section="Micro",
         channel="Bacua",
         image_url="http://backend.bacua.gob.ar/img.php?idvideo=6732813b",
+        season=None,
     ),
     dict(
         title=u"Cañete Chiquiclips",
@@ -121,6 +122,7 @@ _RES_PAGE_1 = [
         section="Micro",
         channel="Bacua",
         image_url="http://backend.bacua.gob.ar/img.php?idvideo=c8fa30ec",
+        season=None,
     ),
 ]
 
@@ -134,6 +136,7 @@ _RES_PAGE_2 = [
         section="Micro",
         channel="Bacua",
         image_url="http://backend.bacua.gob.ar/img.php?idvideo=4e0d053f",
+        season=None,
     ),
     dict(
         title=u"Cordoba Castings",
@@ -144,6 +147,7 @@ _RES_PAGE_2 = [
         section="Micro",
         channel="Bacua",
         image_url="http://backend.bacua.gob.ar/img.php?idvideo=2877c648",
+        season=None,
     ),
 ]
 
@@ -161,6 +165,7 @@ _RES_PAGE_4 = [
         section="Micro",
         channel="Bacua",
         image_url="http://backend.bacua.gob.ar/img.php?idvideo=b4fb3ef2",
+        season=None,
     ),
 ]
 

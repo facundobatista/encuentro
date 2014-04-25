@@ -112,7 +112,7 @@ def do_search(channel_id, transm_id):
         epis_url = URL_EPIS_BASE % dict(channel_id=channel_id, epis_id=epis_id)
         title = item['rec_titulo']
         ep = EpisodeInfo(epis_id=epis_id, epis_url=epis_url, title=title,
-                         description=description, image_url=image)
+                         description=description, image_url=image, season=None)
         yield ep
 
 
@@ -155,14 +155,14 @@ def get_episodes():
                     from_series = get_from_series(master.epis_url)
 
                     # get the first to retrieve duration to use in them all
-                    duration = get_episode_info(from_series[0][1])
+                    duration = get_episode_info(from_series[0][2])
 
                     # build the new episodes, with some common info from master
-                    for title, url in from_series:
+                    for season, title, url in from_series:
                         epis_id = helpers.get_url_param(url, 'rec_id')
                         ep = EpisodeInfo(
                             epis_id=epis_id, epis_url=url, title=title,
-                            description=master.description,
+                            description=master.description, season=season,
                             image_url=master.image_url, duration=duration)
                         episodes.append(ep)
 
@@ -189,6 +189,7 @@ def get_all_data():
             'image_url': episode.image_url,
             'description': episode.description,
             'duration': episode.duration,
+            'season': episode.season,
         }
         all_data.append(info)
     return all_data

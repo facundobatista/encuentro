@@ -90,7 +90,8 @@ def scrap_page(html):
 
         d = {"duration": "?", "channel": "Bacua", "section": "Micro",
              "description": sinopsis, "title": title, "url": video_url,
-             "episode_id": 'bacua_' + id_video, "image_url": image_url}
+             "episode_id": 'bacua_' + id_video, "image_url": image_url,
+             "season": None}
         contents.append(d)
     return contents
 

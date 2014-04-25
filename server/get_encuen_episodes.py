@@ -150,15 +150,16 @@ def get_episodes():
             ep = EpisodeInfo(section=section, epis_url=epis_url,
                              title=title, description=description,
                              image_url=image, duration=duration,
-                             epis_id=epis_id)
+                             epis_id=epis_id, season=None)
             yield ep
         else:
             section = u"Serie"
-            for title, url in links_info:
+            for season, title, url in links_info:
                 epis_id = helpers.get_url_param(url, 'rec_id')
                 ep = EpisodeInfo(section=section, epis_url=url, title=title,
                                  description=description, image_url=image,
-                                 duration=duration, epis_id=epis_id)
+                                 duration=duration, epis_id=epis_id,
+                                 season=season)
                 yield ep
 
 
@@ -173,7 +174,7 @@ def get_all_data():
         info = dict(channel=u"Encuentro", title=ep.title, url=ep.epis_url,
                     section=ep.section, description=ep.description,
                     duration=ep.duration, episode_id=ep.epis_id,
-                    image_url=ep.image_url)
+                    image_url=ep.image_url, season=ep.season)
 
         # check if already collected, verifying all is ok
         if ep.epis_id in collected:

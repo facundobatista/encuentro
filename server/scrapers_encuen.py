@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012-2013 Facundo Batista
+# Copyright 2012-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -24,26 +24,6 @@ import bs4
 import helpers
 
 
-BASE_URL_RECURSO = (
-    "http://www.encuentro.gob.ar/sitios/encuentro/programas/ver?rec_id="
-)
-
-
-def scrap_listado(html):
-    """Get useful info from the listings."""
-    soup = bs4.BeautifulSoup(helpers.sanitize(html))
-    programs = soup.find("ul", "programas")
-
-    processed = []
-    for prog in programs.find_all("div", "sombra"):
-        link = prog.find("a")
-        title = link.get_text()
-        dest_url = link.get('href')
-        if dest_url != "#":
-            processed.append((title, dest_url))
-    return processed
-
-
 def scrap_programa(html):
     """Get useful info from a program."""
     soup = bs4.BeautifulSoup(helpers.sanitize(html))
@@ -51,7 +31,7 @@ def scrap_programa(html):
     episodes_result = []
     if episodes_list is not None:
         season = episodes_list.find('h2')
-        season_title = season.text.strip() + u': '
+        season_title = season.text.strip()
 
         episodes = episodes_list.find_all('li')
         for episode in episodes[1:]:  # first episode is html weirdy
@@ -60,7 +40,7 @@ def scrap_programa(html):
             title = a_tag.text.strip()
 
             # store it
-            episodes_result.append((season_title + title, link))
+            episodes_result.append((season_title, title, link))
 
     duration_result = None
     # get only duration from the metadata body

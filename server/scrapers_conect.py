@@ -24,58 +24,29 @@ import bs4
 import helpers
 
 
-def scrap_busqueda(html):    # FIXME: esta la seguimos usando?
-    """Get useful info from the search."""
-    soup = bs4.BeautifulSoup(helpers.sanitize(html))
-    results = soup.find_all("div", "resBusqueda")
-    processed = []
-    for res in results:
-        link = res.find('a')
-        title = link.text.strip()
-        dest_url = link.get('href')
-        processed.append((title, dest_url))
-    return processed
-
-
 def scrap_series(html):
     """Get useful info from the series list."""
     soup = bs4.BeautifulSoup(helpers.sanitize(html))
 
-    # new format
     episodes_list = soup.find('ul', id='listaEpisodios')
-    if episodes_list is not None:
-        results = []
-        seasons = episodes_list.find_all('li', class_='temporada')
-        for season in seasons:
-            season_title_tag = season.find('a', class_='temporada-titulo')
-            if season_title_tag is None:
-                season_title = ''
-            else:
-                season_title = season_title_tag.text.strip() + u': '
+    results = []
+    seasons = episodes_list.find_all('li', class_='temporada')
+    for season in seasons:
+        season_title_tag = season.find('a', class_='temporada-titulo')
+        if season_title_tag is None:
+            season_title = None
+        else:
+            season_title = season_title_tag.text.strip()
 
-            episodes = season.find_all('li')
-            for episode in episodes:
-                a_tag = episode.find('a')
-                link = a_tag['href']
-                title = a_tag.text.strip()
+        episodes = season.find_all('li')
+        for episode in episodes:
+            a_tag = episode.find('a')
+            link = a_tag['href']
+            title = a_tag.text.strip()
 
-                # store it
-                results.append((season_title + title, link))
-        return results
-
-    # support for the old way
-    serietitle_section = soup.find("div", "titSerieEncabezado")
-    serietitle_text = serietitle_section.h1.text
-    epis_section = soup.find_all("ul", "serieCap")
-    episodes = []
-    for season in epis_section:
-        episodes.extend(season.find_all('a'))
-    processed = []
-    for epis in episodes:
-        title = epis.text.strip()
-        dest_url = epis.get('href')
-        processed.append((u"%s: %s" % (serietitle_text, title), dest_url))
-    return processed
+            # store it
+            results.append((season_title, title, link))
+    return results
 
 
 def scrap_video(html):
