@@ -150,5 +150,5 @@ def enhance_number(text):
     except ValueError:
         return text
 
-    text = u"%02d - %s" % (number, rest.strip())
+    text = u"%02d. %s" % (number, rest.strip())
     return text
