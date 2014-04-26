@@ -136,3 +136,19 @@ def clean_html(text):
     text = re.sub("<.*?>", "", text)
     text = text.replace("&nbsp;", "")
     return text.strip()
+
+
+def enhance_number(text):
+    """Enhance the number of a title, if any."""
+    parts = text.split("-", 1)
+    if len(parts) != 2:
+        return text
+
+    maybe_number, rest = parts
+    try:
+        number = int(maybe_number)
+    except ValueError:
+        return text
+
+    text = u"%02d - %s" % (number, rest.strip())
+    return text

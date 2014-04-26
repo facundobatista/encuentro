@@ -47,7 +47,7 @@ def scrap_series(html):
             span_tag = a_tag.find('span')
             if span_tag is not None:
                 span_tag.clear()
-            title = helpers.clean_html(a_tag.text)
+            title = helpers.enhance_number(helpers.clean_html(a_tag.text))
 
             # store it
             results.append((season_title, title, link))

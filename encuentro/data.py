@@ -164,7 +164,7 @@ class ProgramsData(object):
     """Holder / interface for programs data."""
 
     # more recent version of the in-disk data
-    last_programs_version = 1
+    last_programs_version = 2
 
     def __init__(self, main_window, filename):
         self.main_window = main_window
@@ -228,7 +228,7 @@ class ProgramsData(object):
     def migrate(self):
         """Migrate metadata if needed."""
         if self.version == self.last_programs_version:
-            # all updated, nothing to migrate
+            logger.info("Metadata is updated, nothing to migrate")
             return
 
         if self.version > self.last_programs_version:
@@ -236,6 +236,7 @@ class ProgramsData(object):
 
         # migrate
         if self.version == 0:
+            logger.info("Migrating from version 0")
             # actually, from 0, no migration is possible, we
             # need to tell the user the ugly truth
             dlg = dialogs.ForceUpgradeDialog()
@@ -250,6 +251,13 @@ class ProgramsData(object):
             self.version = self.last_programs_version
             self.reset_config_from_migration = True
             self.data = {}
+            return
+
+        if self.version == 1:
+            logger.info("Migrating from version 1")
+            self.version = self.last_programs_version
+            for epis_id, episode in self.data.items():
+                episode.composed_title = episode.title
             return
 
         raise ValueError("Don't know how to migrate from %r" % (self.version,))

@@ -133,7 +133,7 @@ def get_episodes():
         description = item['rec_descripcion']
         epis_id = item['rec_id']
         epis_url = URL_EPIS_BASE % dict(epis_id=epis_id)
-        title = item['rec_titulo']
+        title = helpers.enhance_number(item['rec_titulo'])
 
         # get more info from the episode page
         logger.info("Getting info for %r %r", title, epis_url)

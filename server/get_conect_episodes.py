@@ -110,7 +110,7 @@ def do_search(channel_id, transm_id):
         description = item['rec_descripcion']
         epis_id = item['rec_id']
         epis_url = URL_EPIS_BASE % dict(channel_id=channel_id, epis_id=epis_id)
-        title = helpers.clean_html(item['rec_titulo'])
+        title = helpers.enhance_number(helpers.clean_html(item['rec_titulo']))
         ep = EpisodeInfo(epis_id=epis_id, epis_url=epis_url, title=title,
                          description=description, image_url=image, season=None)
         yield ep
