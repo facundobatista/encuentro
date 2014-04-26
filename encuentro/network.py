@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011-2013 Facundo Batista
+# Copyright 2011-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -17,9 +17,6 @@
 # For further info, check  https://launchpad.net/encuentro
 
 """Some functions to deal with network and Encuentro site."""
-import sip
-for name in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
-    sip.setapi(name, 2)   # API v2 FTW!
 
 import json
 import logging
