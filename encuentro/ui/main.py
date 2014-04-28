@@ -451,8 +451,9 @@ class MainUI(remembering.RememberingMainWindow):
 
         # download!
         downloader = self.downloaders[episode.downtype]
+        season = getattr(episode, 'season', None)  # wasn't always there
         fname = yield downloader.download(
-            episode.channel, episode.section, episode.season, episode.title,
+            episode.channel, episode.section, season, episode.title,
             episode.url, self.episodes_download.progress)
         episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
                                           episode.composed_title)
