@@ -1,4 +1,4 @@
-# Copyright 2013 Facundo Batista
+# Copyright 2013-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -20,7 +20,7 @@ import logging
 import os
 import sys
 
-from encuentro import platform
+from encuentro import multiplatform
 from encuentro.config import config
 from encuentro.ui.main import MainUI
 
@@ -44,14 +44,14 @@ def start(version):
         pynotify.init("Encuentro")
 
     # set up config
-    fname = os.path.join(platform.config_dir, 'encuentro.conf')
+    fname = os.path.join(multiplatform.config_dir, 'encuentro.conf')
     print "Using configuration file:", repr(fname)
     logger.info("Using configuration file: %r", fname)
     config.init(fname)
 
     # the order of the lines hereafter are very precise, don't mess with them
     app = QApplication(sys.argv)
-    icon = QIcon(platform.get_path("encuentro/logos/icon-192.png"))
+    icon = QIcon(multiplatform.get_path("encuentro/logos/icon-192.png"))
     app.setWindowIcon(icon)
 
     MainUI(version, app.quit)

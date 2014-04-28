@@ -1,4 +1,4 @@
-# Copyright 2013 Facundo Batista
+# Copyright 2013-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -68,13 +68,20 @@ class EpisodeData(object):
 
     def __init__(self, channel, section, title, duration, description,
                  episode_id, url, image_url, state=None, progress=None,
-                 filename=None, downtype=None):
+                 filename=None, downtype=None, season=None):
         self.channel = channel
         self.section = section
+        self.season = None if season is None else cgi.escape(season)
         self.title = cgi.escape(title)
         self.duration = duration
         self.description = description
         self.episode_id = episode_id
+
+        # build a nice string to show in the GUI
+        if self.season:
+            self.composed_title = self.season + u": " + self.title
+        else:
+            self.composed_title = self.title
 
         # urls are bytes!
         self.url = str(url)
@@ -87,7 +94,7 @@ class EpisodeData(object):
         self.downtype = downtype
 
         # cache the processed title
-        self._normalized_title = prepare_to_filter(self.title)
+        self._normalized_title = prepare_to_filter(self.composed_title)
 
     @property
     def normalized_title(self):
@@ -97,19 +104,26 @@ class EpisodeData(object):
         have it.
         """
         if not hasattr(self, '_normalized_title'):
-            self._normalized_title = prepare_to_filter(self.title)
+            self._normalized_title = prepare_to_filter(self.composed_title)
         return self._normalized_title
 
     def update(self, channel, section, title, duration, description,
                episode_id, url, image_url, state=None, progress=None,
-               filename=None, downtype=None):
+               filename=None, downtype=None, season=None):
         """Update the episode data."""
         self.channel = channel
         self.section = section
+        self.season = None if season is None else cgi.escape(season)
         self.title = cgi.escape(title)
         self.duration = duration
         self.description = description
         self.episode_id = episode_id
+
+        # build a nice string to show in the GUI
+        if self.season:
+            self.composed_title = self.season + u": " + self.title
+        else:
+            self.composed_title = self.title
 
         # urls are bytes!
         self.url = str(url)
@@ -150,7 +164,7 @@ class ProgramsData(object):
     """Holder / interface for programs data."""
 
     # more recent version of the in-disk data
-    last_programs_version = 1
+    last_programs_version = 2
 
     def __init__(self, main_window, filename):
         self.main_window = main_window
@@ -170,7 +184,7 @@ class ProgramsData(object):
         for d in new_data:
             # v2 of json file
             names = ['channel', 'section', 'title', 'duration', 'description',
-                     'episode_id', 'url', 'image_url', 'downtype']
+                     'episode_id', 'url', 'image_url', 'downtype', 'season']
             values = dict((name, d[name]) for name in names)
             episode_id = d['episode_id']
 
@@ -214,7 +228,7 @@ class ProgramsData(object):
     def migrate(self):
         """Migrate metadata if needed."""
         if self.version == self.last_programs_version:
-            # all updated, nothing to migrate
+            logger.info("Metadata is updated, nothing to migrate")
             return
 
         if self.version > self.last_programs_version:
@@ -222,6 +236,7 @@ class ProgramsData(object):
 
         # migrate
         if self.version == 0:
+            logger.info("Migrating from version 0")
             # actually, from 0, no migration is possible, we
             # need to tell the user the ugly truth
             dlg = dialogs.ForceUpgradeDialog()
@@ -236,6 +251,13 @@ class ProgramsData(object):
             self.version = self.last_programs_version
             self.reset_config_from_migration = True
             self.data = {}
+            return
+
+        if self.version == 1:
+            logger.info("Migrating from version 1")
+            self.version = self.last_programs_version
+            for epis_id, episode in self.data.items():
+                episode.composed_title = episode.title
             return
 
         raise ValueError("Don't know how to migrate from %r" % (self.version,))

@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright 2013 Facundo Batista
+# Copyright 2013-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -24,7 +24,7 @@ from PyQt4.QtGui import (
 )
 from PyQt4.QtCore import Qt
 
-from encuentro import platform
+from encuentro import multiplatform
 
 
 class Throbber(QLabel):
@@ -32,7 +32,7 @@ class Throbber(QLabel):
     def __init__(self):
         super(Throbber, self).__init__()
         self.setAlignment(Qt.AlignCenter)
-        fname = platform.get_path("encuentro/ui/media/throbber.gif")
+        fname = multiplatform.get_path("encuentro/ui/media/throbber.gif")
         self._movie = QMovie(fname)
         self.setMovie(self._movie)
 

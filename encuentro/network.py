@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011-2013 Facundo Batista
+# Copyright 2011-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -18,34 +18,35 @@
 
 """Some functions to deal with network and Encuentro site."""
 
+import json
 import logging
 import os
 import re
 import sys
 import time
-import urllib
+import urllib2
 
+from threading import Thread, Event
+from Queue import Queue, Empty
+
+import bs4
 import defer
+import requests
 
-if sys.platform == 'win32':
-    # multiprocessing path mangling is not useful for how we are
-    # installing Encuentro, so let's use threading
-    from threading import Thread as Process, Event
-    from Queue import Queue, Empty
-else:
-    from multiprocessing import Process, Event
-    from multiprocessing.queues import Queue
-    from Queue import Empty
-
-from mechanize import Browser
 from PyQt4 import QtNetwork, QtCore
 
-from encuentro import platform
+from encuentro import multiplatform
 from encuentro.config import config
 
-URL_BASE = "http://www.conectate.gob.ar"
-URL_AUTH = ("http://www.conectate.gob.ar/educar-portal-video-web/"
-            "module/login/loginAjax.do")
+# the URL to authenticate, with it's continuation
+AUTH_URL = "http://registro.educ.ar/cuentas/ServicioLogin/index"
+AUTH_CONTINUE = (
+    "http%3A//www.encuentro.gob.ar/sitios/encuentro/Programas/"
+    "loginCallBack%3Fmethod%3Dlogin"
+)
+
+# if we find this as a link, we're not correctly authenticated
+LOGIN_URL = 'http://www.encuentro.gob.ar/sitios/encuentro/programas/login'
 
 CHUNK = 16 * 1024
 MB = 1024 ** 2
@@ -72,97 +73,70 @@ class CancelledError(Exception):
     """The download was cancelled."""
 
 
-class MiBrowser(Process):
-    """Browser en otro proceso."""
+class MiBrowser(Thread):
+    """Threaded browser to do the download."""
 
     # we *are* calling parent's init; pylint: disable=W0231
     def __init__(self, authuser, authpass, url,
-                 input_queue, output_queue, must_quit):
+                 fname, output_queue, must_quit, url_extractor):
         self.authinfo = authuser, authpass
         self.url = url
-        self.input_queue = input_queue
+        self.fname = fname
         self.output_queue = output_queue
         self.must_quit = must_quit
-        Process.__init__(self)
+        self.url_extractor = url_extractor
+        super(MiBrowser, self).__init__()
 
-    def _get_download_content(self, browser):
+    def _get_download_content(self):
         """Get the content handler to download."""
-        # open base url
-        browser.open(self.url)
+        # log in
+        logger.debug("Browser download, authenticating")
+        sess = requests.Session()
+        usr, psw = self.authinfo
+        data = dict(
+            login_user_name=usr,
+            login_user_password=psw,
+            servicio='encuentro',
+            continuar=AUTH_CONTINUE,
+        )
+        sess.post(AUTH_URL, data)
+
+        # get page with useful link
         logger.debug("Browser download, getting html")
-        html = self._get_html(browser)
+        html = sess.get(self.url).content
         logger.debug("Browser download, got html len %d", len(html))
 
         # get the new url
-        url_items = dict(base=URL_BASE)
-        for token in "urlDescarga idRecurso fileId".split():
-            re_str = 'id="%s" value="([^"]*)"' % (token,)
-            val = re.search(re_str, html).groups()[0]
-            url_items[token] = val
-        new_url = ("%(base)s%(urlDescarga)s&idRecurso=%(idRecurso)s&"
-                   "fileId=%(fileId)s" % url_items)
+        new_url = self.url_extractor(html)
+        if new_url == LOGIN_URL:
+            logger.error("Wrong user or password sent")
+            raise BadCredentialsError()
 
-        # log in
-        logger.debug("Sending user and pass")
-        usr, psw = self.authinfo
-        auth = urllib.urlencode(dict(usuario=usr, clave=psw))
-        browser.open(URL_AUTH, data=auth)
-
-        logger.debug("Opening final url %s", new_url)
-        content = browser.open(new_url)
+        logger.debug("Opening final url %r", new_url)
+        content = urllib2.urlopen(new_url)
         try:
-            # pylint: disable=W0212
-            filesize = int(content._headers['content-length'])
+            filesize = int(content.headers['content-length'])
         except KeyError:
             logger.debug("No content information")
         else:
             logger.debug("Got content! filesize: %d", filesize)
             return content, filesize
 
-        # didn't get the download link, let's check if it is a password error
-        # or something else
-        if BAD_LOGIN_TEXT in html:
-            logger.error("Wrong user or password sent")
-            raise BadCredentialsError()
-
         # ok, we don't know what happened :(
         logger.error("Unknown error while browsing Encuentro: %r", html)
         raise EncuentroError("Unknown problem when getting download link")
 
-    def _get_html(self, browser):
-        """Return the viewing HTML."""
-        assert browser.viewing_html()
-        fh = browser.response()
-        return fh.read()
-
     def run(self):
         """Do the heavy work."""
-        # set up
-        browser = Browser()
-        browser.set_handle_robots(False)
-
         # open the url and send the content
         logger.debug("Browser opening url %s", self.url)
-        # yes, browser.open *is* callable; pylint: disable=E1102
         try:
-            browser.open(self.url)
-        except Exception, e:
-            logger.debug("Oops, %s (%r)", e, e)
-            # mechanize error can not be pickled
-            self.output_queue.put(EncuentroError(str(e), e.__class__.__name__))
+            content, filesize = self._get_download_content()
+        except Exception as err:
+            self.output_queue.put(err)
             return
 
-        # get the filename and download
-        fname = self.input_queue.get(browser)
-        logger.debug("Browser download to %r", fname)
-        try:
-            content, filesize = self._get_download_content(browser)
-        except Exception, e:
-            # mechanize error can not be pickled
-            self.output_queue.put(EncuentroError(str(e), e.__class__.__name__))
-            return
-
-        aout = open(fname, "wb")
+        aout = open(self.fname, "wb")
         tot = 0
         size_mb = filesize / (1024.0 ** 2)
         while not self.must_quit.is_set():
@@ -224,14 +198,21 @@ class BaseDownloader(object):
         """Cancel a download."""
         return self._cancel()
 
-    def _setup_target(self, channel, section, title, extension):
+    def _setup_target(self, channel, section, season, title, extension):
         """Set up the target file to download."""
         # build where to save it
         downloaddir = config.get('downloaddir', '')
-        channel = platform.sanitize(channel)
-        section = platform.sanitize(section)
-        title = platform.sanitize(title)
-        fname = os.path.join(downloaddir, channel, section, title + extension)
+        channel = multiplatform.sanitize(channel)
+        section = multiplatform.sanitize(section)
+        title = multiplatform.sanitize(title)
+
+        if season is not None:
+            season = multiplatform.sanitize(season)
+            fname = os.path.join(downloaddir, channel, section,
+                                 season, title + extension)
+        else:
+            fname = os.path.join(downloaddir, channel, section,
+                                 title + extension)
 
         # if the directory doesn't exist, create it
         dirsecc = os.path.dirname(fname)
@@ -241,16 +222,17 @@ class BaseDownloader(object):
         tempf = fname + str(time.time())
         return fname, tempf
 
-    def download(self, channel, section, title, url, cb_progress):
+    def download(self, channel, section, season, title, url, cb_progress):
         """Download an episode."""
-        return self._download(channel, section, title, url, cb_progress)
+        return self._download(channel, section, season,
+                              title, url, cb_progress)
 
 
-class ConectarDownloader(BaseDownloader):
+class AuthenticatedDownloader(BaseDownloader):
     """Episode downloader for Conectar site."""
 
     def __init__(self):
-        super(ConectarDownloader, self).__init__()
+        super(AuthenticatedDownloader, self).__init__()
         self._prev_progress = None
         self.browser_quit = set()
         self.cancelled = False
@@ -268,26 +250,26 @@ class ConectarDownloader(BaseDownloader):
         logger.info("Conectar downloader cancelled")
 
     @defer.inline_callbacks
-    def _download(self, canal, seccion, titulo, url, cb_progress):
-        """Descarga una emisión a disco."""
+    def _download(self, canal, seccion, season, titulo, url, cb_progress):
+        """Download an episode to disk."""
         self.cancelled = False
 
         # levantamos el browser
         qinput = DeferredQueue()
-        qoutput = Queue()
         bquit = Event()
         self.browser_quit.add(bquit)
         authuser = config.get('user', '')
         authpass = config.get('password', '')
 
-        logger.info("Download episode %r: browser started", url)
-        brow = MiBrowser(authuser, authpass, url, qoutput, qinput, bquit)
-        brow.start()
-
         # build where to save it
-        fname, tempf = self._setup_target(canal, seccion, titulo, u".avi")
+        fname, tempf = self._setup_target(canal, seccion, season,
+                                          titulo, u".avi")
         logger.debug("Downloading to temporal file %r", tempf)
-        qoutput.put(tempf)
+
+        logger.info("Download episode %r: browser started", url)
+        brow = MiBrowser(authuser, authpass, url, tempf, qinput, bquit,
+                         self._get_url_from_authenticated_html)
+        brow.start()
 
         # loop reading until finished
         self._prev_progress = None
@@ -327,6 +309,40 @@ class ConectarDownloader(BaseDownloader):
         defer.return_value(fname)
 
 
+class ConectarDownloader(AuthenticatedDownloader):
+    """Episode downloader for Conectar site."""
+
+    def _get_url_from_authenticated_html(self, html):
+        """Get the video URL from the html."""
+        m = re.search("\n var recurso = (.*);\n", html)
+        raw = m.groups()[0]
+        data = json.loads(raw)
+
+        # try to get HD, fallback to SD
+        videos = data['tipo_funcional']['data']
+        hd = videos.get('streaming_hd', {}).get('file_id')
+        if hd is None:
+            file_id = videos['streaming_sd']['file_id']
+        else:
+            file_id = hd
+        info = dict(rec_id=data['rec_id'], file_id=file_id)
+        url = (
+            "http://repositoriovideo-download.educ.ar/repositorio/Video/"
+            "ver?rec_id=%(rec_id)s&file_id=%(file_id)s" % info
+        )
+        return url
+
+
+class EncuentroDownloader(AuthenticatedDownloader):
+    """Episode downloader for Conectar site."""
+
+    def _get_url_from_authenticated_html(self, html):
+        """Get the video URL from the html."""
+        soup = bs4.BeautifulSoup(html)
+        url = soup.find(attrs={'class': 'descargas'}).find('a')['href']
+        return url
+
+
 class GenericDownloader(BaseDownloader):
     """Episode downloader for a generic site that works with urllib2."""
 
@@ -354,13 +370,14 @@ class GenericDownloader(BaseDownloader):
             self.downloader_deferred.errback(exc)
 
     @defer.inline_callbacks
-    def _download(self, canal, seccion, titulo, url, cb_progress):
+    def _download(self, canal, seccion, season, titulo, url, cb_progress):
         """Download an episode to disk."""
         url = str(url)
         logger.info("Download episode %r", url)
 
         # build where to save it
-        fname, tempf = self._setup_target(canal, seccion, titulo, u".mp4")
+        fname, tempf = self._setup_target(canal, seccion,
+                                          season, titulo, u".mp4")
         logger.debug("Downloading to temporal file %r", tempf)
         fh = open(tempf, "wb")
 
@@ -423,7 +440,7 @@ class GenericDownloader(BaseDownloader):
 
 # this is the entry point to get the downloaders for each type
 all_downloaders = {
-    None: ConectarDownloader,
+    'encuentro': EncuentroDownloader,
     'conectar': ConectarDownloader,
     'generic': GenericDownloader,
 }
@@ -439,22 +456,26 @@ if __name__ == "__main__":
         """Show progress."""
         print "Avance:", avance
 
-#    # overwrite config for the test
-#    config = dict(user="lxpdvtnvrqdoa@mailinator.com",
-#                  password="descargas", downloaddir='.')
-#
-#    url = "http://conectate.gov.ar/educar-portal-video-web/module/"\
-#          "detalleRecurso/DetalleRecurso.do?modulo=masVotados&"\
-#          "recursoPadreId=50001&idRecurso=50004"
+    # overwrite config for the test
+    config = dict(user="lxpdvtnvrqdoa@mailinator.com",  # NOQA
+                  password="descargas", downloaddir='.')
+
+    # the three versions to test
+    downloader = EncuentroDownloader()
+    _url = "http://www.encuentro.gob.ar/sitios/encuentro/"\
+           "Programas/ver?rec_id=120761"
+
+#    downloader = ConectarDownloader()
+#    _url = "http://www.conectate.gob.ar/sitios/conectate/"\
+#           "busqueda/pakapaka?rec_id=103605"
 
     app = QtCore.QCoreApplication(sys.argv)
-    _url = "http://backend.bacua.gob.ar/video.php?v=_f9d06f72"
+#    downloader = GenericDownloader()
+#    _url = "http://backend.bacua.gob.ar/video.php?v=_f9d06f72"
 
     @defer.inline_callbacks
     def download():
         """Download."""
-#        downloader = ConectarDownloader()
-        downloader = GenericDownloader()
         try:
             fname = yield downloader.download("test-ej-canal", "secc", "tit",
                                               _url, show)
@@ -463,5 +484,6 @@ if __name__ == "__main__":
             print "--- cancelado!"
         finally:
             downloader.shutdown()
+            app.exit()
     download()
     sys.exit(app.exec_())

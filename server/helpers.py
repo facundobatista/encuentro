@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2012 Facundo Batista
+# Copyright 2012-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -26,7 +26,7 @@ import json
 import os
 import re
 import time
-import urllib2
+import urlparse
 
 
 def save_file(basename, data):
@@ -128,5 +128,27 @@ def retryable(logger):
 
 def get_url_param(url, param):
     """Get the value of the param in the url."""
-    return cgi.parse_qs(urllib2.urlparse.urlparse(url)
-                                        .query)[param][0]
+    return cgi.parse_qs(urlparse.urlparse(url).query)[param][0]
+
+
+def clean_html(text):
+    """Clean HTML structures from the text."""
+    text = re.sub("<.*?>", "", text)
+    text = text.replace("&nbsp;", "")
+    return text.strip()
+
+
+def enhance_number(text):
+    """Enhance the number of a title, if any."""
+    parts = text.split("-", 1)
+    if len(parts) != 2:
+        return text
+
+    maybe_number, rest = parts
+    try:
+        number = int(maybe_number)
+    except ValueError:
+        return text
+
+    text = u"%02d. %s" % (number, rest.strip())
+    return text

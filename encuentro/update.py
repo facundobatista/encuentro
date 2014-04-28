@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011-2013 Facundo Batista
+# Copyright 2011-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -29,7 +29,7 @@ import defer
 from encuentro import utils
 from encuentro.ui import dialogs
 
-BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v03.list"
+BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v04.list"
 
 logger = logging.getLogger('encuentro.update')
 
@@ -165,12 +165,16 @@ class UpdateEpisodes(object):
                 image_url = con_ep['image_url']
             else:
                 image_url = enc_ep['image_url']
+            if enc_ep['season'] is None:
+                season = con_ep['season']
+            else:
+                season = enc_ep['season']
 
             d = dict(episode_id=epid, description=description,
                      duration=duration, url=con_ep['url'],
                      channel=con_ep['channel'], title=con_ep['title'],
                      section=con_ep['section'], image_url=image_url,
-                     downtype=con_ep['downtype'])
+                     downtype=con_ep['downtype'], season=season)
             final_data.append(d)
 
         logger.debug("Merging: appending other data: %s", backends.keys())

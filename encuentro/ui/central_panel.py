@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright 2013 Facundo Batista
+# Copyright 2013-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -79,7 +79,7 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
     def append(self, episode):
         """Append an episode to the downloads list."""
         # add to the list in the GUI
-        item = QTreeWidgetItem((episode.title, u"Encolado"))
+        item = QTreeWidgetItem((episode.composed_title, u"Encolado"))
         item.episode_id = episode.episode_id
         self.queue.append((episode, item))
         self.addTopLevelItem(item)
@@ -242,7 +242,7 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
     """The list of episodes info."""
 
     _row_getter = operator.attrgetter('channel', 'section',
-                                      'title', 'duration')
+                                      'composed_title', 'duration')
     _title_column = 2
 
     def __init__(self, main_window, episode_info):
@@ -390,10 +390,10 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
                 pos1, pos2 = params
                 if pos1 is None:
                     # no highlighting
-                    item.setText(self._title_column, episode.title)
+                    item.setText(self._title_column, episode.composed_title)
                 else:
                     # filtering by text, so highlight
-                    t = episode.title
+                    t = episode.composed_title
                     ht = u''.join((t[:pos1],
                                    '<span style="background-color:yellow">',
                                    t[pos1:pos2], '</span>', t[pos2:]))
@@ -478,8 +478,8 @@ class EpisodeInfo(QWidget):
                            episode.image_url.encode('utf-8'))
 
         # all description
-        msg = "<center><h3>%s</h3></center><br/><br/>%s" % (
-            episode.title, episode.description)
+        msg = u"<center><h3>%s</h3></center><br/><br/>%s" % (
+            episode.composed_title, episode.description)
         self.text_edit.setHtml(msg)
 
         # action button

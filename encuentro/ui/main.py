@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright 2013 Facundo Batista
+# Copyright 2013-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -40,7 +40,7 @@ from PyQt4.QtGui import (
     QWidget,
 )
 
-from encuentro import platform, data, update
+from encuentro import multiplatform, data, update
 from encuentro.config import config, signal
 from encuentro.data import Status
 from encuentro.network import (
@@ -96,7 +96,7 @@ def notify(title, message):
 class MainUI(remembering.RememberingMainWindow):
     """Main UI."""
 
-    _programs_file = os.path.join(platform.data_dir, 'encuentro.data')
+    _programs_file = os.path.join(multiplatform.data_dir, 'encuentro.data')
 
     def __init__(self, version, app_quit):
         super(MainUI, self).__init__()
@@ -160,7 +160,7 @@ class MainUI(remembering.RememberingMainWindow):
 
         # we have a default for download dir
         if not config.get('downloaddir'):
-            config['downloaddir'] = platform.get_download_dir()
+            config['downloaddir'] = multiplatform.get_download_dir()
 
         # maybe clean some config
         if self.programs_data.reset_config_from_migration:
@@ -451,12 +451,12 @@ class MainUI(remembering.RememberingMainWindow):
 
         # download!
         downloader = self.downloaders[episode.downtype]
-        fname = yield downloader.download(episode.channel,
-                                          episode.section, episode.title,
-                                          episode.url,
-                                          self.episodes_download.progress)
+        season = getattr(episode, 'season', None)  # wasn't always there
+        fname = yield downloader.download(
+            episode.channel, episode.section, season, episode.title,
+            episode.url, self.episodes_download.progress)
         episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
-                                          episode.title)
+                                          episode.composed_title)
         notify(u"Descarga finalizada", episode_name)
         defer.return_value((fname, episode))
 
@@ -521,7 +521,7 @@ class MainUI(remembering.RememberingMainWindow):
             # pass file:// url with absolute path
             fullpath = 'file://' + os.path.abspath(filename)
             logger.info("Playing %r", fullpath)
-            platform.open_file(fullpath)
+            multiplatform.open_file(fullpath)
         else:
             logger.warning("Aborted playing, file not found: %r", filename)
             msg = (u"No se encontró el archivo para reproducir: " +

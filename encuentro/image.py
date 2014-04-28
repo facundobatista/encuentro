@@ -1,4 +1,4 @@
-# Copyright 2013 Facundo Batista
+# Copyright 2013-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -21,7 +21,7 @@ import logging
 import md5
 import os
 
-from encuentro import platform, utils
+from encuentro import multiplatform, utils
 
 logger = logging.getLogger('encuentro.image')
 
@@ -31,7 +31,8 @@ class ImageGetter(object):
 
     def __init__(self, callback):
         self.callback = callback
-        self.cache_dir = os.path.join(platform.cache_dir, 'encuentro.images')
+        self.cache_dir = os.path.join(multiplatform.cache_dir,
+                                      'encuentro.images')
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir)
 
