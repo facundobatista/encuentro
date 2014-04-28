@@ -20,6 +20,7 @@
 import logging
 import md5
 import os
+import glob
 
 from encuentro import multiplatform, utils
 
@@ -39,27 +40,34 @@ class ImageGetter(object):
     def get_image(self, episode_id, url):
         """Get an image and show it using the callback."""
         logger.info("Loading image for episode %s: %r", episode_id, url)
-        file_name = md5.md5(url).hexdigest() + '.jpg'
+        file_name = md5.md5(url).hexdigest()
         file_fullname = os.path.join(self.cache_dir, file_name)
-        if os.path.exists(file_fullname):
+        img_search_result = glob.glob(file_fullname + '.*')
+        if len(img_search_result) > 0:
             logger.debug("Image already available: %r", file_fullname)
             self.callback(episode_id, file_fullname)
             return
 
         def _d_callback(data, episode_id, file_fullname):
             """Cache the image and use the callback."""
-            logger.debug("Image downloaded for episode_id %s, saving to %r",
-                         episode_id, file_fullname)
+            content_type, img_data = data
+            content, extension = content_type.split('/')
+            if content != 'image':
+                logger.debug("The Content-Type header is not 'image'")
+            file_fullname = file_fullname + '.' + extension
+            logger.debug(""" Image downloaded for episode_id %s,
+                             saving to %r, Content-Type= %s """,
+                         episode_id, file_fullname, content_type)
             temp_file_name = file_fullname + '.tmp'
             with open(temp_file_name, 'wb') as fh:
-                fh.write(data)
+                fh.write(img_data)
             os.rename(temp_file_name, file_fullname)
             self.callback(episode_id, file_fullname)
 
         def _d_errback(failure):
             """Log the problem."""
-            logger.error("Problem getting image: %s",
-                         failure.getErrorMessage())
+            logger.error("Problem getting image: type: %s error: %s",
+                         failure.type, failure.value)
 
         logger.debug("Need to download the image")
         d = utils.download(url)
