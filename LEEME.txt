@@ -55,8 +55,8 @@ Si querés instalarlo en un virtualenv para colaborar en el proyecto o por
 cualquier otra causa, tenés que seguir los siguientes pasos:
 
 Es necesario hacer un branch del proyecto, o descargar el tarball, 
-tener python-qt4 instalado y generar el virtualenv con 
-la opción '--system-site-packages'. 
+tener instalado python-qt4 y python-notify. Al generar el virtualenv tenés 
+que utilizar la opción '--system-site-packages'. 
 
 Crear el virtualenv:
 
