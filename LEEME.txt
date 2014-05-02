@@ -37,7 +37,7 @@ Para que funcione correctamente, tenés que tener Python 2 instalado, y las
 siguientes dependencias (paquete y número mínimo de versión):
 
     python                  2.6.6
-    python-mechanize        0.1.11
+    python-requests         2.2.1
     python-defer            1.0.6
     python-qt4              4.9.1
     python-xdg              0.15
@@ -51,12 +51,12 @@ Cómo instalarlo en un virtualenv
 
 Si no tenés la menor idea de qué es un virtualenv y el detalle anterior para
 instalar te sirve podés omitir este punto.
-Si querés instalarlo en un virtualenv para colaborar en el proyecto o por 
+Si querés instalarlo en un virtualenv para colaborar en el proyecto o por
 cualquier otra causa, tenés que seguir los siguientes pasos:
 
-Es necesario hacer un branch del proyecto, o descargar el tarball, 
-tener instalado python-qt4 y python-notify. Al generar el virtualenv tenés 
-que utilizar la opción '--system-site-packages'. 
+Es necesario hacer un branch del proyecto, o descargar el tarball,
+tener instalado python-qt4 y python-notify. Al generar el virtualenv tenés
+que utilizar la opción '--system-site-packages'.
 
 Crear el virtualenv:
 

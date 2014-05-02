@@ -70,8 +70,8 @@ class NiceImporter(object):
 # test the packages
 with NiceImporter('xdg', 'python-xdg', '0.15'):
     import xdg  # NOQA
-with NiceImporter('mechanize', 'python-mechanize', '0.1.11'):
-    import mechanize  # NOQA
+with NiceImporter('requests', 'python-requests', '2.2.1'):
+    import requests  # NOQA
 with NiceImporter('pynotify', 'python-notify', '0.1.1'):
     import pynotify  # NOQA
 with NiceImporter('PyQt4.QtCore', 'PyQt4', '4.9.1'):

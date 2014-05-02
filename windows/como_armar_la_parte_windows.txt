@@ -25,7 +25,7 @@ El resto es del lado Windows. Antes que nada ver que el programa corra ok.
 Llevar el programa a empaquetar a "c:\encuentro", e instalar las
 dependencias:
 
-    easy_install mechanize
+    easy_install requests
     FIXME: completar con instrucciones para las otras dependencias
 
 
