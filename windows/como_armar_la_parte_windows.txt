@@ -14,6 +14,7 @@ priori no nos interesa distribuir:
     MANIFEST.in
     pasos_release.txt
     pylintrc
+    requirements.txt
     server
     setup.py
     source_encuentro.py

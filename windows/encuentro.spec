@@ -1,7 +1,6 @@
 # -*- mode: python -*-
 a = Analysis(['c:\\encuentro\\bin\\encuentro'],
-             pathex=['C:\\pyinst', 'C:\\encuentro', 
-                     'C:\\encuentro\\qtreactor'],
+             pathex=['C:\\pyinst', 'C:\\encuentro'],
              hiddenimports=[],
              hookspath=None)
 pyz = PYZ(a.pure)
