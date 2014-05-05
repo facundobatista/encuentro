@@ -21,11 +21,12 @@
 Needed packages to run (using Debian/Ubuntu package names):
 
     python 2.7
-    python-requests 2.2.1
+    python-requests 0.12.1
     python-defer 1.0.6
     python-qt4 4.9.1
     python-xdg 0.15
     python-notify 0.1.1   # not really needed, but provides notifications
+    python-bs4 4.1.0
 """
 
 import os
