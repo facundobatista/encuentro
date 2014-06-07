@@ -18,12 +18,11 @@
 
 """Some functions to deal with network and Encuentro site."""
 
-import json
 import logging
 import os
-import re
 import sys
 import time
+import urllib
 import urllib2
 
 from threading import Thread, Event
@@ -33,25 +32,24 @@ import bs4
 import defer
 import requests
 
+if __name__ == '__main__':
+    # special import before any other imports to configure GUI to use API 2; we
+    # normally don't need to do this *here*, just a support for run
+    # this as a script, for testing/development purpuses
+    import sip
+    for n in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
+        sip.setapi(n, 2)   # API v2 FTW!
+
 from PyQt4 import QtNetwork, QtCore
 
 from encuentro import multiplatform
 from encuentro.config import config
 
-# the URL to authenticate, with it's continuation
 AUTH_URL = "http://registro.educ.ar/cuentas/ServicioLogin/index"
-AUTH_CONTINUE = (
-    "http%3A//www.encuentro.gob.ar/sitios/encuentro/Programas/"
-    "loginCallBack%3Fmethod%3Dlogin"
-)
-
-# if we find this as a link, we're not correctly authenticated
-LOGIN_URL = 'http://www.encuentro.gob.ar/sitios/encuentro/programas/login'
-
 CHUNK = 16 * 1024
 MB = 1024 ** 2
 
-BAD_LOGIN_TEXT = "loginForm"
+BAD_LOGIN_TEXT = u"Iniciá sesión"
 
 DONE_TOKEN = "I positively assure that the download is finished (?)"
 
@@ -77,41 +75,45 @@ class MiBrowser(Thread):
     """Threaded browser to do the download."""
 
     # we *are* calling parent's init; pylint: disable=W0231
-    def __init__(self, authuser, authpass, url,
-                 fname, output_queue, must_quit, url_extractor):
+    def __init__(self, parent, authuser, authpass, url,
+                 fname, output_queue, must_quit):
+        self.parent = parent
         self.authinfo = authuser, authpass
         self.url = url
         self.fname = fname
         self.output_queue = output_queue
         self.must_quit = must_quit
-        self.url_extractor = url_extractor
         super(MiBrowser, self).__init__()
 
     def _get_download_content(self):
         """Get the content handler to download."""
         # log in
         logger.debug("Browser download, authenticating")
-        sess = requests.Session()
         usr, psw = self.authinfo
-        data = dict(
+        get_data = dict(
+            servicio=self.parent.service,
+            continuar=urllib.quote(self.url),
+        )
+        complete_auth_url = AUTH_URL + "?" + urllib.urlencode(get_data)
+        post_data = dict(
             login_user_name=usr,
             login_user_password=psw,
-            servicio='encuentro',
-            continuar=AUTH_CONTINUE,
+            r=complete_auth_url,
         )
-        sess.post(AUTH_URL, data)
+        sess = requests.Session()
+        sess.post(complete_auth_url, post_data)
 
         # get page with useful link
         logger.debug("Browser download, getting html")
-        html = sess.get(self.url).content
-        logger.debug("Browser download, got html len %d", len(html))
-
-        # get the new url
-        new_url = self.url_extractor(html)
-        if new_url == LOGIN_URL:
+        html = sess.get(complete_auth_url).content
+        if BAD_LOGIN_TEXT in html:
             logger.error("Wrong user or password sent")
             raise BadCredentialsError()
+        logger.debug("Browser download, got html len %d", len(html))
 
+        # download from the new url
+        soup = bs4.BeautifulSoup(html)
+        new_url = soup.find(attrs={'class': 'descargas'}).find('a')['href']
         logger.debug("Opening final url %r", new_url)
         content = urllib2.urlopen(new_url)
         try:
@@ -267,8 +269,7 @@ class AuthenticatedDownloader(BaseDownloader):
         logger.debug("Downloading to temporal file %r", tempf)
 
         logger.info("Download episode %r: browser started", url)
-        brow = MiBrowser(authuser, authpass, url, tempf, qinput, bquit,
-                         self._get_url_from_authenticated_html)
+        brow = MiBrowser(self, authuser, authpass, url, tempf, qinput, bquit)
         brow.start()
 
         # loop reading until finished
@@ -311,36 +312,12 @@ class AuthenticatedDownloader(BaseDownloader):
 
 class ConectarDownloader(AuthenticatedDownloader):
     """Episode downloader for Conectar site."""
-
-    def _get_url_from_authenticated_html(self, html):
-        """Get the video URL from the html."""
-        m = re.search("\n var recurso = (.*);\n", html)
-        raw = m.groups()[0]
-        data = json.loads(raw)
-
-        # try to get HD, fallback to SD
-        videos = data['tipo_funcional']['data']
-        hd = videos.get('streaming_hd', {}).get('file_id')
-        if hd is None:
-            file_id = videos['streaming_sd']['file_id']
-        else:
-            file_id = hd
-        info = dict(rec_id=data['rec_id'], file_id=file_id)
-        url = (
-            "http://repositoriovideo-download.educ.ar/repositorio/Video/"
-            "ver?rec_id=%(rec_id)s&file_id=%(file_id)s" % info
-        )
-        return url
+    service = 'conectate'
 
 
 class EncuentroDownloader(AuthenticatedDownloader):
     """Episode downloader for Conectar site."""
-
-    def _get_url_from_authenticated_html(self, html):
-        """Get the video URL from the html."""
-        soup = bs4.BeautifulSoup(html)
-        url = soup.find(attrs={'class': 'descargas'}).find('a')['href']
-        return url
+    service = 'encuentro'
 
 
 class GenericDownloader(BaseDownloader):
@@ -477,8 +454,8 @@ if __name__ == "__main__":
     def download():
         """Download."""
         try:
-            fname = yield downloader.download("test-ej-canal", "secc", "tit",
-                                              _url, show)
+            fname = yield downloader.download("test-ej-canal", "secc", "temp",
+                                              "tit", _url, show)
             print "All done!", fname
         except CancelledError:
             print "--- cancelado!"
