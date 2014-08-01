@@ -20,6 +20,7 @@
 
 from yaswfp import swfparser
 
+
 class _ConstantPoolExtractor(object):
     """Get items from the constant pool."""
     def __init__(self, items):
