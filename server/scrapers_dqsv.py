@@ -18,15 +18,20 @@
 
 """Scrapers for the decimequiensosvos backend."""
 
+from collections import namedtuple
+
 from yaswfp import swfparser
+
+Episode = namedtuple("Episode", "name occup bio image")
 
 
 class _ConstantPoolExtractor(object):
     """Get items from the constant pool."""
-    def __init__(self, items):
+    def __init__(self, items, keys):
         self.items = items
+        self.keys = keys
 
-    def get(self, key):
+    def _get(self, key):
         """Get the text after some key."""
         texts = iter(self.items)
         for t in texts:
@@ -43,10 +48,27 @@ class _ConstantPoolExtractor(object):
 
         return value
 
+    def __iter__(self):
+        pos = 1
+        while True:
+            vals = [self._get(key % pos) for key in self.keys]
+            yield vals
+            pos += 1
+
 
 def scrap(fh):
     """Get useful info from a program."""
     swf = swfparser.SWFParser(fh)
+
+    # get the images
+    base = None
+    images = []
+    for tag in swf.tags:
+        if tag.name == 'JPEGTables':
+            base = tag.JPEGData
+        if tag.name == 'DefineBits':
+            images.append((tag.CharacterID, tag.JPEGData))
+    images = [base + x[1] for x in sorted(images, reverse=True)]
 
     # get the last DefineSprite
     defsprite = None
@@ -61,12 +83,10 @@ def scrap(fh):
         if act.name == 'ActionConstantPool':
             break
 
-    # do some magic to retrieve the values
+    # do some magic to retrieve the texts
     items = []
-    cpe = _ConstantPoolExtractor(act.ConstantPool)
-    for i in range(1, 5):
-        name = cpe.get('titulo%d1' % (i,))
-        title = cpe.get('titulo%d2' % (i,))
-        descrip = cpe.get('entre%d' % (i,))
-        items.append((name, title, descrip))
+    keys = ['titulo%d1', 'titulo%d2', 'entre%d']
+    cpe = _ConstantPoolExtractor(act.ConstantPool, keys)
+    for (name, occup, descrip), image in zip(cpe, images):
+        items.append(Episode(name=name, occup=occup, bio=descrip, image=image))
     return items
