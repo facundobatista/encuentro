@@ -1,0 +1,7 @@
+# list of files to download, with data for different backends
+# each line has the backend name, the downloader to use, and the URL 
+# with the metadata file
+#encuentro encuentro http://www.taniquetil.com.ar/encuentro/encuentro-v05.bz2
+#conectar  conectar  http://www.taniquetil.com.ar/encuentro/conectar-v05.bz2
+#bacua     generic   http://www.taniquetil.com.ar/encuentro/bacua-v05.bz2
+dqsv      dqsv      http://www.taniquetil.com.ar/encuentro/dqsv-v05.bz2

@@ -16,8 +16,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-# -*- coding: utf-8 -*-
-
 """Main server process to get all info from BACUA web site."""
 
 import logging
@@ -121,7 +119,7 @@ def get_all_data():
 def main():
     """Entry Point."""
     all_data = get_all_data()
-    helpers.save_file("bacua-v04", all_data)
+    helpers.save_file("bacua-v05", all_data)
 
 
 if __name__ == '__main__':
