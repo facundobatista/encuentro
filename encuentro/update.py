@@ -29,7 +29,7 @@ import defer
 from encuentro import utils
 from encuentro.ui import dialogs
 
-BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v04.list"
+BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v05.list"
 
 logger = logging.getLogger('encuentro.update')
 
@@ -120,7 +120,7 @@ class UpdateEpisodes(object):
     def _merge(self, backends):
         """Merge content from all backends.
 
-        This is for v03, with only 'encuentro' and 'conectar' data to be
+        This is for v03-05, with only 'encuentro' and 'conectar' data to be
         really merged, other data just appended.
         """
         raw_encuentro_data = backends.pop('encuentro')

@@ -27,6 +27,7 @@ from PyQt4.QtGui import (
     QApplication,
     QColor,
     QHBoxLayout,
+    QImage,
     QLabel,
     QMenu,
     QPalette,
@@ -314,6 +315,7 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
     def _adjust_gui(self, episode_id):
         """Adjust the rest of the GUI for this episode."""
         episode = self.main_window.programs_data[episode_id]
+        logger.debug("Showing episode: %s", episode)
         self.episode_info.update(episode)
         self.main_window.check_download_play_buttons()
 
@@ -467,7 +469,13 @@ class EpisodeInfo(QWidget):
         self.current_episode = episode.episode_id
 
         # image
-        if episode.image_url is not None:
+        if episode.image_data is not None:
+            # have the image data already!!
+            qimg = QImage.fromData(episode.image_data)
+            pixmap = QPixmap.fromImage(qimg)
+            self.image_episode.setPixmap(pixmap)
+            self.image_episode.show()
+        elif episode.image_url is not None:
             # this must be before the get_image call, as it may call
             # immediately to image_episode_loaded (showing the image and
             # hiding the throber)

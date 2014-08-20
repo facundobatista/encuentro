@@ -21,6 +21,7 @@ import logging
 import os
 import pickle
 
+from base64 import b64decode
 from unicodedata import normalize
 
 from encuentro.ui import dialogs
@@ -65,10 +66,11 @@ class EpisodeData(object):
     # these is for the attributes to be here when unpickling old instances
     image_url = None
     downtype = None
+    image_data = None
 
     def __init__(self, channel, section, title, duration, description,
                  episode_id, url, image_url, state=None, progress=None,
-                 filename=None, downtype=None, season=None):
+                 filename=None, downtype=None, season=None, image_data=None):
         self.channel = channel
         self.section = section
         self.season = None if season is None else cgi.escape(season)
@@ -86,6 +88,9 @@ class EpisodeData(object):
         # urls are bytes!
         self.url = str(url)
         self.image_url = str(image_url)
+
+        # image data is encoded in base64
+        self.image_data = None if image_data is None else b64decode(image_data)
 
         self.state = Status.none if state is None else state
         self.progress = progress
@@ -109,7 +114,7 @@ class EpisodeData(object):
 
     def update(self, channel, section, title, duration, description,
                episode_id, url, image_url, state=None, progress=None,
-               filename=None, downtype=None, season=None):
+               filename=None, downtype=None, season=None, image_data=None):
         """Update the episode data."""
         self.channel = channel
         self.section = section
@@ -128,6 +133,9 @@ class EpisodeData(object):
         # urls are bytes!
         self.url = str(url)
         self.image_url = str(image_url)
+
+        # image data is encoded in base64
+        self.image_data = None if image_data is None else b64decode(image_data)
 
         self.state = Status.none if state is None else state
         self.progress = progress
@@ -182,10 +190,10 @@ class ProgramsData(object):
     def merge(self, new_data, episodes_widget):
         """Merge new data to current programs data."""
         for d in new_data:
-            # v2 of json file
-            names = ['channel', 'section', 'title', 'duration', 'description',
-                     'episode_id', 'url', 'image_url', 'downtype', 'season']
-            values = dict((name, d[name]) for name in names)
+            names = ['channel', 'section', 'title', 'duration',
+                     'description', 'episode_id', 'url', 'image_url',
+                     'downtype', 'season', 'image_data']
+            values = dict((name, d.get(name)) for name in names)
             episode_id = d['episode_id']
 
             try:
