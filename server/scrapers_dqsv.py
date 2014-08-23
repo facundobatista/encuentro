@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Copyright 2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
@@ -17,6 +19,7 @@
 """Scrapers for the decimequiensosvos backend."""
 
 import datetime
+import sys
 
 from collections import namedtuple
 
@@ -67,7 +70,7 @@ class _ConstantPoolExtractor(object):
                 stack = []
 
 
-def scrap(fh):
+def scrap(fh, custom_order=None):
     """Get useful info from a program."""
     swf = swfparser.SWFParser(fh)
 
@@ -77,9 +80,10 @@ def scrap(fh):
     for tag in swf.tags:
         if tag.name == 'JPEGTables':
             base = tag.JPEGData
-        if tag.name == 'DefineBits':
-            if tag.CharacterID > 1:
-                images.append((tag.CharacterID, tag.JPEGData))
+        elif tag.name == 'DefineBits':
+            images.append((tag.CharacterID, tag.JPEGData))
+        elif tag.name == 'DefineBitsJPEG2':
+            images.append((tag.CharacterID, tag.ImageData))
     images = [base + x[1] for x in sorted(images, reverse=True)]
 
     # get the last DefineSprite
@@ -102,23 +106,64 @@ def scrap(fh):
         raise ValueError("No ActionConstantPool found!")
 
     # do some magic to retrieve the texts
-    items = []
     cpe = _ConstantPoolExtractor(act.ConstantPool, doaction.Actions)
-    for i, image in enumerate(images, 1):
+    i = 0
+    all_vals = []
+    while True:
+        i += 1
         name = 'titulo%d1' % i
         occup = 'titulo%d2' % i
         bio = 'htmlText'
-        datestr = 'titulo%d3' % i
-        vals = cpe.get(name, occup, bio, datestr)
+        date = 'titulo%d3' % i
+        vals = cpe.get(name, occup, bio, date)
+        if vals is None:
+            break
+        all_vals.append((vals[name], vals[occup], vals[bio], vals[date]))
 
+    items = []
+    for i, (name, occup, bio, date) in enumerate(all_vals):
         # get the date
-        datestr = vals[datestr].split()[0]
+        datestr = date.split()[0]
         if "-" in datestr:
             datestr = "/".join(x.split("-")[0] for x in datestr.split("/"))
+        elif datestr.isupper():
+            continue
         dt = datetime.datetime.strptime(datestr, "%d/%m/%y")
         date = dt.date()
 
-        ep = Episode(name=vals[name], occup=vals[occup],
-                     bio=vals[bio], image=image, date=date)
+        # fix occup
+        occup = occup.strip()
+        if occup:
+            occup = occup[0].upper() + occup[1:]
+
+        # fix bio
+        bio = bio.strip()
+
+        # use the corresponding image, or through the custom order
+        if custom_order is None:
+            idx = i
+        else:
+            idx = custom_order.index(name)
+        image = images[idx]
+
+        ep = Episode(name=name, occup=occup, bio=bio, image=image, date=date)
         items.append(ep)
     return items
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print("Usage: scrapers_dqsv.py file.swf")
+        exit()
+
+    custom_order = None
+    #custom_order = [
+    #    u"",
+    #]
+
+    with open(sys.argv[1], 'rb') as fh:
+        episodes = scrap(fh, custom_order)
+    for i, ep in enumerate(episodes):
+        print("Saving img {} for {}".format(i, ep.name))
+        with open("scraper-img-{}.jpeg".format(i), "wb") as fh:
+            fh.write(ep.image)

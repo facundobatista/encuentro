@@ -48,40 +48,78 @@ SPECIAL_NONMP3_CHAPTERS = [
 # here will store parsed chapters to detect repeated
 REPEATS = {}
 
+# some SWFs have weird images ordering, so I manually curate them
+CUSTOM_ORDER = {
+    '02': [
+        u"Diego Capusotto",
+        u"Osvaldo Bayer",
+        u"Víctor Hugo Morales",
+        u"Rodolfo Livingston",
+    ],
+    '03': [
+        u"Felipe Pigna",
+        u"Héctor Negro",
+        u"Hebe de Bonafini",
+        u"Soledad Villamil",
+        u"Pepe Soriano",
+    ],
+    '06': [
+        u"Juan Sasturain",
+        u"Jairo",
+        u"Rogelio García Lupo",
+        u"Estela Barnes de Carlotto",
+        u"José Pablo Feinmann",
+    ],
+    '07': [
+        u"Norman Briski",
+        u"Martha Pelloni",
+        u"Víctor Heredia",
+        u"Raúl Rizzo",
+    ],
+}
+
 
 @helpers.retryable(logger)
-def hit(url):
+def hit(url, apply_cache):
     """Get the info from an episode."""
-    logger.info("Hitting: %r", url)
-    try:
+    if apply_cache:
+        logger.info("Hitting: %r", url)
+        try:
+            raw = cache.get(url)
+            logger.info("    cached!")
+        except KeyError:
+            u = request.urlopen(url)
+            raw = u.read()
+            cache.set(url, raw)
+            logger.info("    ok")
+    else:
+        logger.info("Hitting uncached: %r", url)
         raw = cache.get(url)
-        logger.info("    cached!")
-    except KeyError:
-        u = request.urlopen(url)
-        raw = u.read()
-        cache.set(url, raw)
         logger.info("    ok")
     return raw
 
 
 def get_swfs():
     """Retrieve all SWFs from site and parse them."""
-    soup = bs4.BeautifulSoup(hit(URL_FLASH))
+    soup = bs4.BeautifulSoup(hit(URL_FLASH, False))
     links = [(x.text, x.text.split(".")) for x in soup.find_all('a')]
     names = [n for n, p in links if p[0].isdigit() and p[1] == 'swf']
 
-    for name in names:
+    # cache all except the last one, as it changes in the same month
+    names = [(n, True) for n in names[:-1]] + [(names[-1], False)]
+    for name, cache in names:
         basename = name[:-4]
         url = URL_FLASH + name
-        raw = hit(url)
-        items = scrapers_dqsv.scrap(io.BytesIO(raw))
+        raw = hit(url, cache)
+        custom_order = CUSTOM_ORDER.get(basename)
+        items = scrapers_dqsv.scrap(io.BytesIO(raw), custom_order)
         for swf in items:
             yield basename, swf
 
 
 def get_mp3s():
     """Retrieve all mp3s names."""
-    soup = bs4.BeautifulSoup(hit(URL_MUSIC))
+    soup = bs4.BeautifulSoup(hit(URL_MUSIC, False))
     links = [x.text for x in soup.find_all('a')]
     mp3s = [x for x in links if x[:6].isdigit() and x.endswith('.mp3')]
     return mp3s
