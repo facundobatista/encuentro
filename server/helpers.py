@@ -26,14 +26,18 @@ import json
 import os
 import re
 import time
-import urlparse
+
+try:
+    import urlparse as parse
+except ImportError:
+    from urllib import parse
 
 
 def save_file(basename, data):
     """Save file to disk, dumping the data."""
     # encode and compress
     info = json.dumps(data)
-    info = bz2.compress(info)
+    info = bz2.compress(info.encode('ascii'))
 
     # dump it
     tmpname = basename + ".tmp"
@@ -115,7 +119,7 @@ def retryable(logger):
             for attempt in range(5, -1, -1):  # if reaches 0: no more attempts
                 try:
                     res = func(*args, **kwargs)
-                except Exception, e:
+                except Exception as e:
                     if not attempt:
                         raise
                     logger.debug("   problem (retrying...): %s", e)
@@ -128,7 +132,7 @@ def retryable(logger):
 
 def get_url_param(url, param):
     """Get the value of the param in the url."""
-    return cgi.parse_qs(urlparse.urlparse(url).query)[param][0]
+    return cgi.parse_qs(parse.urlparse(url).query)[param][0]
 
 
 def clean_html(text):
