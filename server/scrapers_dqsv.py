@@ -70,6 +70,55 @@ class _ConstantPoolExtractor(object):
                 stack = []
 
 
+def _fix_date(date):
+    """Fix and improve the date info."""
+    datestr = date.split()[0]
+    if datestr.isupper():
+        return None
+
+    if "-" in datestr:
+        datestr = "/".join(x.split("-")[0] for x in datestr.split("/"))
+    dt = datetime.datetime.strptime(datestr, "%d/%m/%y")
+    date = dt.date()
+    return date
+
+
+def _fix_occup(occup):
+    """Fix and improve the occupation info."""
+    occup = occup.strip()
+    if not occup:
+        return ""
+    occup = occup[0].upper() + occup[1:]
+    if occup[-1] != ".":
+        occup = occup + "."
+
+    # assure all the letters after a period is in uppercase
+    pos_from = 0
+    while True:
+        try:
+            pos = occup.index(".", pos_from)
+        except ValueError:
+            break
+        pos_from = pos + 1
+        pos += 2   # second letter after the point
+        if pos < len(occup):
+            occup = occup[:pos] + occup[pos].upper() + occup[pos + 1:]
+
+    return occup
+
+
+def _fix_bio(bio):
+    """Fix and improve the bio info."""
+    bio = bio.strip()
+    return bio
+
+
+def _fix_name(name):
+    """Fix and improve the name info."""
+    name = name.replace("&quot;", '"')
+    return name
+
+
 def scrap(fh, custom_order=None):
     """Get useful info from a program."""
     swf = swfparser.SWFParser(fh)
@@ -122,22 +171,12 @@ def scrap(fh, custom_order=None):
 
     items = []
     for i, (name, occup, bio, date) in enumerate(all_vals):
-        # get the date
-        datestr = date.split()[0]
-        if "-" in datestr:
-            datestr = "/".join(x.split("-")[0] for x in datestr.split("/"))
-        elif datestr.isupper():
+        date = _fix_date(date)
+        if date is None:
             continue
-        dt = datetime.datetime.strptime(datestr, "%d/%m/%y")
-        date = dt.date()
-
-        # fix occup
-        occup = occup.strip()
-        if occup:
-            occup = occup[0].upper() + occup[1:]
-
-        # fix bio
-        bio = bio.strip()
+        occup = _fix_occup(occup)
+        bio = _fix_bio(bio)
+        name = _fix_name(name)
 
         # use the corresponding image, or through the custom order
         if custom_order is None:
