@@ -45,8 +45,8 @@ cache = helpers.Cache("episodes_cache_dqsv.pickle")
 SPECIAL_NONMP3_CHAPTERS = [
     u'Elecciones 2011', u'Especial Navidad', u'Epílogos', u'Elecciones 2013']
 
-# here will store parsed chapters to detect repeated
-REPEATS = {}
+# store published interviews, to detect re-editions
+REEDITIONS = {}
 
 # some SWFs have weird images ordering, so I manually curate them
 CUSTOM_ORDER = {
@@ -91,11 +91,12 @@ def hit(url, apply_cache):
             u = request.urlopen(url)
             raw = u.read()
             cache.set(url, raw)
-            logger.info("    ok")
+            logger.info("    ok (len=%d)", len(raw))
     else:
         logger.info("Hitting uncached: %r", url)
-        raw = cache.get(url)
-        logger.info("    ok")
+        u = request.urlopen(url)
+        raw = u.read()
+        logger.info("    ok (len=%d)", len(raw))
     return raw
 
 
@@ -145,17 +146,6 @@ def find_matching_mp3(all_mp3s, swf_date, swf_name):
     filtered = [x for x in similars if x.startswith(inidate)]
     if not filtered:
         filtered = [x for x in similars if x.startswith(inidate[:4])]
-        if not filtered:
-            try:
-                repeated = REPEATS[swf_name]
-            except KeyError:
-                pass
-            else:
-                if repeated in similars:
-                    # old name, and not new episode
-                    return None
-            raise ValueError("Too many similars to {!r} ({}), no filtered: {}"
-                             .format(swf_name, inidate, similars))
     if len(filtered) == 1:
         return filtered[0]
 
@@ -174,11 +164,21 @@ def get_all_data():
     all_swfs = get_swfs()
     all_mp3s = get_mp3s()
     for swfbasename, swf in all_swfs:
+        try:
+            old_date = REEDITIONS[swf.name]
+        except KeyError:
+            # new interview, all fine
+            REEDITIONS[swf.name] = swf.date
+        else:
+            # repeated!
+            logger.debug("Ignoring episode for {!r} of {}, was already from {}"
+                         .format(swf.name, swf.date, old_date))
+            continue
+
         mp3 = find_matching_mp3(all_mp3s, swf.date, swf.name)
         logger.debug("MP3 found for (%s) %r: %r", swf.date, swf.name, mp3)
         if mp3 is None:
             continue
-        REPEATS[swf.name] = mp3
         episode_id = "dqsv_{}_{}".format(
             swfbasename, "".join(x.lower() for x in swf.name if x in LETTERS))
 
@@ -186,12 +186,13 @@ def get_all_data():
             "duration": "?",
             "channel": "Decime quién sos vos",
             "section": "Audio",
-            "description": "{}\n\n{}".format(swf.occup, swf.bio),
+            "description": swf.bio,
             "title": swf.name,
+            "subtitle": swf.occup,
             "url": URL_MUSIC + mp3,
             "episode_id": episode_id,
             "image_data": b64encode(swf.image).decode('utf8'),
-            "season": swf.date.strftime("%Y"),
+            "season": swf.date.strftime("%Y-%m-%d"),
         })
 
     logger.info("Done! Total programs: %d", len(all_programs))

@@ -67,16 +67,19 @@ class EpisodeData(object):
     image_url = None
     downtype = None
     image_data = None
+    subtitle = None
 
     def __init__(self, channel, section, title, duration, description,
                  episode_id, url, image_url, state=None, progress=None,
-                 filename=None, downtype=None, season=None, image_data=None):
+                 filename=None, downtype=None, season=None,
+                 image_data=None, subtitle=None):
         self.channel = channel
         self.section = section
         self.season = None if season is None else cgi.escape(season)
         self.title = cgi.escape(title)
         self.duration = duration
         self.description = description
+        self.subtitle = subtitle
         self.episode_id = episode_id
 
         # build a nice string to show in the GUI
@@ -114,7 +117,8 @@ class EpisodeData(object):
 
     def update(self, channel, section, title, duration, description,
                episode_id, url, image_url, state=None, progress=None,
-               filename=None, downtype=None, season=None, image_data=None):
+               filename=None, downtype=None, season=None,
+               image_data=None, subtitle=None):
         """Update the episode data."""
         self.channel = channel
         self.section = section
@@ -122,6 +126,7 @@ class EpisodeData(object):
         self.title = cgi.escape(title)
         self.duration = duration
         self.description = description
+        self.subtitle = subtitle
         self.episode_id = episode_id
 
         # build a nice string to show in the GUI
@@ -192,7 +197,7 @@ class ProgramsData(object):
         for d in new_data:
             names = ['channel', 'section', 'title', 'duration',
                      'description', 'episode_id', 'url', 'image_url',
-                     'downtype', 'season', 'image_data']
+                     'downtype', 'season', 'image_data', 'subtitle']
             values = dict((name, d.get(name)) for name in names)
             episode_id = d['episode_id']
 

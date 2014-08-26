@@ -486,8 +486,12 @@ class EpisodeInfo(QWidget):
                            episode.image_url.encode('utf-8'))
 
         # all description
-        msg = u"<center><h3>%s</h3></center><br/><br/>%s" % (
-            episode.composed_title, episode.description)
+        if episode.subtitle is None:
+            msg = u"<center><h3>%s</h3></center><br/><br/>%s" % (
+                episode.composed_title, episode.description)
+        else:
+            msg = u"<center><h3>%s</h3>%s</center><br/><br/>%s" % (
+                episode.composed_title, episode.subtitle, episode.description)
         self.text_edit.setHtml(msg)
 
         # action button
