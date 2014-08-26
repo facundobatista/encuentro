@@ -320,7 +320,7 @@ class EncuentroDownloader(AuthenticatedDownloader):
     service = 'encuentro'
 
 
-class GenericDownloader(BaseDownloader):
+class _GenericDownloader(BaseDownloader):
     """Episode downloader for a generic site that works with urllib2."""
 
     headers = {
@@ -328,9 +328,10 @@ class GenericDownloader(BaseDownloader):
         'Accept': '*/*',
     }
     manager = QtNetwork.QNetworkAccessManager()
+    file_extension = None  # to be overwritten by class child
 
     def __init__(self):
-        super(GenericDownloader, self).__init__()
+        super(_GenericDownloader, self).__init__()
         self._prev_progress = None
         self.downloader_deferred = None
         logger.info("Generic downloader inited")
@@ -354,7 +355,7 @@ class GenericDownloader(BaseDownloader):
 
         # build where to save it
         fname, tempf = self._setup_target(canal, seccion,
-                                          season, titulo, u".mp4")
+                                          season, titulo, self.file_extension)
         logger.debug("Downloading to temporal file %r", tempf)
         fh = open(tempf, "wb")
 
@@ -415,11 +416,22 @@ class GenericDownloader(BaseDownloader):
         defer.return_value(fname)
 
 
+class GenericVideoDownloader(_GenericDownloader):
+    """Generic downloaded that saves video."""
+    file_extension = u".mp4"
+
+
+class GenericAudioDownloader(_GenericDownloader):
+    """Generic downloaded that saves audio."""
+    file_extension = u".mp3"
+
+
 # this is the entry point to get the downloaders for each type
 all_downloaders = {
     'encuentro': EncuentroDownloader,
     'conectar': ConectarDownloader,
-    'generic': GenericDownloader,
+    'generic': GenericVideoDownloader,
+    'dqsv': GenericAudioDownloader,
 }
 
 
@@ -447,7 +459,7 @@ if __name__ == "__main__":
 #           "busqueda/pakapaka?rec_id=103605"
 
     app = QtCore.QCoreApplication(sys.argv)
-#    downloader = GenericDownloader()
+#    downloader = GenericVideoDownloader()
 #    _url = "http://backend.bacua.gob.ar/video.php?v=_f9d06f72"
 
     @defer.inline_callbacks
