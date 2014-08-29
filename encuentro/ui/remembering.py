@@ -125,7 +125,7 @@ class RememberingTreeWidget(QTreeWidget):
         else:
             val_first = self.topLevelItem(0).text(s_column)
             val_last = self.topLevelItem(c - 1).text(s_column)
-            s_order = val_first > val_last
+            s_order = val_first < val_last
         info = dict(cols_w=cols_w, s_enabled=s_enabled,
                     s_column=s_column, s_order=s_order)
         config[SYSTEM][self._name] = info
