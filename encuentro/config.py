@@ -22,6 +22,9 @@ import logging
 import os
 import pickle
 
+from encuentro import utils
+
+
 logger = logging.getLogger('encuentro.config')
 
 
@@ -57,10 +60,8 @@ class _Config(dict):
         # we don't want to pickle this class, but the dict itself
         raw_dict = self.copy()
         logger.debug("Saving: %s", raw_dict)
-        temp = self._fname + ".tmp"
-        with open(temp, 'wb') as fh:
+        with utils.SafeSaver(self._fname) as fh:
             pickle.dump(raw_dict, fh)
-        os.rename(temp, self._fname)
 
 
 class _Signal(object):

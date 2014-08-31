@@ -24,6 +24,7 @@ import pickle
 from base64 import b64decode
 from unicodedata import normalize
 
+from encuentro import utils
 from encuentro.ui import dialogs
 
 logger = logging.getLogger('encuentro.data')
@@ -302,7 +303,5 @@ class ProgramsData(object):
     def save(self):
         """Save to disk."""
         to_save = (self.last_programs_version, self.data)
-        temp = self.filename + ".tmp"
-        with open(temp, 'wb') as fh:
+        with utils.SafeSaver(self.filename) as fh:
             pickle.dump(to_save, fh)
-        os.rename(temp, self.filename)

@@ -55,13 +55,11 @@ class ImageGetter(object):
             if content != 'image':
                 logger.debug("The Content-Type header is not 'image'")
             file_fullname = file_fullname + '.' + extension
-            logger.debug(""" Image downloaded for episode_id %s,
-                             saving to %r, Content-Type= %s """,
+            logger.debug("Image downloaded for episode_id %s, "
+                         "saving to %r, Content-Type= %s",
                          episode_id, file_fullname, content_type)
-            temp_file_name = file_fullname + '.tmp'
-            with open(temp_file_name, 'wb') as fh:
+            with utils.SafeSaver(file_fullname) as fh:
                 fh.write(img_data)
-            os.rename(temp_file_name, file_fullname)
             self.callback(episode_id, file_fullname)
 
         def _d_errback(failure):
