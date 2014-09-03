@@ -148,6 +148,9 @@ class EpisodeData(object):
         self.filename = filename
         self.downtype = downtype
 
+        # cache the processed title, overwritting what may be old from the past
+        self._normalized_title = prepare_to_filter(self.composed_title)
+
     def filter_params(self, text, only_downloaded):
         """Return the filtering params.
 
