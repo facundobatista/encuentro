@@ -24,11 +24,6 @@ import datetime as dt
 
 import defer
 
-try:
-    import pynotify
-except ImportError:
-    pynotify = None
-
 from PyQt4.QtGui import (
     QAction,
     QCheckBox,
@@ -49,6 +44,7 @@ from encuentro.network import (
     EncuentroError,
     all_downloaders,
 )
+from encuentro.notify import notify
 from encuentro.ui import (
     central_panel,
     preferences,
@@ -84,13 +80,6 @@ Versión %s<br/>
 </a>
 </center>
 """
-
-
-def notify(title, message):
-    """Shows a notification (if user wants and have stuff installed)."""
-    if config.get('notification', True) and pynotify is not None:
-        n = pynotify.Notification(title, message)
-        n.show()
 
 
 class MainUI(remembering.RememberingMainWindow):

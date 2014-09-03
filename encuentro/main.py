@@ -30,19 +30,11 @@ from encuentro.data import EpisodeData  # NOQA
 
 logger = logging.getLogger('encuentro.init')
 
-try:
-    import pynotify
-except ImportError:
-    pynotify = None
-
 from PyQt4.QtGui import QApplication, QIcon
 
 
 def start(version):
     """Rock and roll."""
-    if pynotify is not None:
-        pynotify.init("Encuentro")
-
     # set up config
     fname = os.path.join(multiplatform.config_dir, 'encuentro.conf')
     print "Using configuration file:", repr(fname)
