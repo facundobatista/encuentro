@@ -132,19 +132,10 @@ class MainUI(remembering.RememberingMainWindow):
         self.episodes_download.load_pending()
         logger.debug("Main UI started ok")
 
-    def _sanitize_config(self):
-        """Return a copied config, sanitized to log."""
-        safecfg = config.copy()
-        if 'user' in safecfg:
-            safecfg['user'] = '<hidden>'
-        if 'password' in safecfg:
-            safecfg['password'] = '<hidden>'
-        return safecfg
-
     def _touch_config(self):
         """Do some config processing."""
         # log the config, but without user and pass
-        safecfg = self._sanitize_config()
+        safecfg = config.sanitized_config()
         logger.debug("Configuration loaded: %s", safecfg)
 
         # we have a default for download dir
@@ -447,7 +438,7 @@ class MainUI(remembering.RememberingMainWindow):
         dlg.exec_()
         # after dialog closes, config changed, so review indicators
         self._review_need_something_indicator()
-        safecfg = self._sanitize_config()
+        safecfg = config.sanitized_config()
         logger.debug("Configuration changed: %s", safecfg)
 
     def adjust_episode_info(self, episode):

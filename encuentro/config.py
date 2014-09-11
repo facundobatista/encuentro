@@ -27,6 +27,11 @@ from encuentro import utils
 
 logger = logging.getLogger('encuentro.config')
 
+# these are the configuration variables/parameters that on one hand should
+# be stored in a keyring (if available), and on the other hand must not be
+# logged by the system
+SECURITY_CONFIG = ['user', 'password']
+
 
 class _Config(dict):
     """The configuration."""
@@ -36,6 +41,14 @@ class _Config(dict):
     def __init__(self):
         self._fname = None
         super(_Config, self).__init__()
+
+    def sanitized_config(self):
+        """Return a copied config, sanitized to log."""
+        safecfg = self.copy()
+        for secure in SECURITY_CONFIG:
+            if secure in safecfg:
+                safecfg[secure] = '<hidden>'
+        return safecfg
 
     def init(self, fname):
         """Initialize and load config."""
@@ -48,7 +61,7 @@ class _Config(dict):
 
         with open(fname, 'rb') as fh:
             saved_dict = pickle.load(fh)
-            logger.debug("Loaded: %s", saved_dict)
+            logger.debug("Loaded: %s", self.sanitized_config())
         self.update(saved_dict)
 
         # for compatibility, put the system container if not there
@@ -59,7 +72,7 @@ class _Config(dict):
         """Save the config to disk."""
         # we don't want to pickle this class, but the dict itself
         raw_dict = self.copy()
-        logger.debug("Saving: %s", raw_dict)
+        logger.debug("Saving: %s", self.sanitized_config())
         with utils.SafeSaver(self._fname) as fh:
             pickle.dump(raw_dict, fh)
 
