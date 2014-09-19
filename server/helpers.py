@@ -83,7 +83,7 @@ def sanitize(html):
             html = _weird_utf8_fixing(html)
 
     # remove script stuff
-    html = re.sub("<script.*?</script>", "", html, flags=re.S)
+    html = re.sub(b"<script.*?</script>", b"", html, flags=re.S)
     return html
 
 
