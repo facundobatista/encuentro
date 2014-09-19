@@ -70,9 +70,8 @@ def set_up(verbose):
 
     if verbose:
         handler = logging.StreamHandler()
-        logger.addHandler(handler)
         handler.setFormatter(formatter)
-        logger.setLevel(logging.DEBUG)
+        logger.addHandler(handler)
 
     # hook the exception handler
     sys.excepthook = exception_handler
