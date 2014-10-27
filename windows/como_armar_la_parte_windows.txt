@@ -23,14 +23,22 @@ priori no nos interesa distribuir:
     web
 
 El resto es del lado Windows. Antes que nada ver que el programa corra ok.
-Llevar el programa a empaquetar a "c:\encuentro", e instalar las
-dependencias:
+Llevar el programa a empaquetar a "c:\encuentro", e instalar el software
+necesario para que corra:
 
-    easy_install requests
-    FIXME: completar con instrucciones para las otras dependencias
+    - Obvio, Python:
+        https://www.python.org/downloads/release/python-278/
 
+    - Qt (probablemente PyQt4-4.11.2-gpl-Py2.7-Qt4.8.6-x32.exe):
+        http://www.riverbankcomputing.com/software/pyqt/download
 
-Probar! Si todo está ok, seguimos adelante. Descomprimir PyInstaller 2
+    - Las dependencias:
+        pip -r requirements_py2.txt
+        (o ir instalando cada linea de ese archivo con pip o easy_install)
+
+Probarlo que ande todo bien!!
+
+Si todo está ok, seguimos adelante. Descomprimir PyInstaller 2
 en "c:\pyinst". Se puede bajar de aquí:
 
     http://sourceforge.net/projects/pyinstaller/files/2.0/pyinstaller-2.0.zip/download
