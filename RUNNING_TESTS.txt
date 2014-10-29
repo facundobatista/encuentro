@@ -1,0 +1,41 @@
+How to run the tests in the project
+===================================
+
+Read this if you're a developer of the project and want to know how
+to run the tests.
+
+
+Dependencies
+------------
+
+We're in a mixed state of Py2 and Py3 right now, and virtualenv is not
+good for this, so or you install the dependencies in your system, or
+just use two virtualenvs.
+
+Of course, you'll need Python2 and Python3. Qt is needed only for Python2.
+
+Then, a bunch of dependencies automatically handled by pip:
+
+  pip install -r requirements_py2.txt
+  pip3 install -r requirements_py3.txt
+
+Again, do that with sudo in all your system, or separatedly in different
+virtualenvs.
+
+Finally, flake8 and pylint are needed for static code analysis.
+
+
+Running the tests
+-----------------
+
+If you have all installed in the system, just do:
+
+  ./test
+
+Otherwise just execute all what it does, but separately in different environments.
+
+
+Note: In Ubuntu Trusty using nosetests3 failed to me when having it
+configured with with-progressive option, this fixed that:
+
+    https://github.com/nose-devs/nose/pull/811/files

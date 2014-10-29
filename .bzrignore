@@ -1,1 +1,3 @@
 server/logs
+tests/__pycache__
+server/__pycache__

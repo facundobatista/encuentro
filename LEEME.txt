@@ -71,7 +71,7 @@ Activarlo:
 Instalar las dependencias:
 
     cd path/to/encuentro/code/trunk
-    pip install -r requirements.txt
+    pip install -r requirements_py2.txt
 
 Ejecutar Encuentro:
 
