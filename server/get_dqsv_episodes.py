@@ -44,7 +44,7 @@ cache = helpers.Cache("episodes_cache_dqsv.pickle")
 
 # special chapters that don't have a mp3 associated
 SPECIAL_NONMP3_CHAPTERS = [
-    u'Elecciones 2011', u'Especial Navidad', u'Epílogos', u'Elecciones 2013']
+    'Elecciones 2011', 'Especial Navidad', 'Epílogos', 'Elecciones 2013']
 
 # store published interviews, to detect re-editions
 REEDITIONS = {}
@@ -52,30 +52,30 @@ REEDITIONS = {}
 # some SWFs have weird images ordering, so I manually curate them
 CUSTOM_ORDER = {
     '02': [
-        u"Diego Capusotto",
-        u"Osvaldo Bayer",
-        u"Víctor Hugo Morales",
-        u"Rodolfo Livingston",
+        "Diego Capusotto",
+        "Osvaldo Bayer",
+        "Víctor Hugo Morales",
+        "Rodolfo Livingston",
     ],
     '03': [
-        u"Felipe Pigna",
-        u"Héctor Negro",
-        u"Hebe de Bonafini",
-        u"Soledad Villamil",
-        u"Pepe Soriano",
+        "Felipe Pigna",
+        "Héctor Negro",
+        "Hebe de Bonafini",
+        "Soledad Villamil",
+        "Pepe Soriano",
     ],
     '06': [
-        u"Juan Sasturain",
-        u"Jairo",
-        u"Rogelio García Lupo",
-        u"Estela Barnes de Carlotto",
-        u"José Pablo Feinmann",
+        "Juan Sasturain",
+        "Jairo",
+        "Rogelio García Lupo",
+        "Estela Barnes de Carlotto",
+        "José Pablo Feinmann",
     ],
     '07': [
-        u"Norman Briski",
-        u"Martha Pelloni",
-        u"Víctor Heredia",
-        u"Raúl Rizzo",
+        "Norman Briski",
+        "Martha Pelloni",
+        "Víctor Heredia",
+        "Raúl Rizzo",
     ],
 }
 
