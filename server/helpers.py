@@ -1,5 +1,7 @@
 # -*- coding: utf8 -*-
 
+from __future__ import unicode_literals
+
 # Copyright 2012-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
@@ -154,5 +156,5 @@ def enhance_number(text):
     except ValueError:
         return text
 
-    text = u"%02d. %s" % (number, rest.strip())
+    text = "%02d. %s" % (number, rest.strip())
     return text

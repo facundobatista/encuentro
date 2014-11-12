@@ -21,6 +21,7 @@ import io
 import logging
 import string
 import sys
+import unicodedata
 
 from base64 import b64encode
 from urllib import request
@@ -125,18 +126,20 @@ def get_mp3s():
     mp3s = [x for x in links if x[:6].isdigit() and x.endswith('.mp3')]
     return mp3s
 
-
 def find_matching_mp3(all_mp3s, swf_date, swf_name):
     """Find the best match for an mp3."""
+    if swf_name in SPECIAL_NONMP3_CHAPTERS:
+        return None
+
     similars = set()
     inidate = swf_date.strftime("%y%m%d")
-    for part in swf_name.lower().split():
+    _dec = unicodedata.normalize('NFKD', swf_name).encode('ASCII', 'ignore')
+    decomp_name = _dec.decode("ASCII").lower()
+    for part in decomp_name.lower().split():
         maybe_fname = inidate + part
         similars.update(difflib.get_close_matches(maybe_fname, all_mp3s))
 
     if not similars:
-        if swf_name in SPECIAL_NONMP3_CHAPTERS:
-            return None
         raise ValueError("No similar to {!r}".format(swf_name))
 
     if len(similars) == 1:
