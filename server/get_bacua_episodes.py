@@ -69,7 +69,8 @@ def get_list_pages():
 def scrap_page(html):
     """Scrap the page."""
     contents = []
-    soup = BeautifulSoup(helpers.sanitize(html))
+    sanitized = helpers.sanitize(html)
+    soup = BeautifulSoup(sanitized)
     for i in soup.findAll("div", {"class": "video_muestra_catalogo"}):
         for a_node in i.find_all("a"):
             onclick = a_node.get("onclick", "")

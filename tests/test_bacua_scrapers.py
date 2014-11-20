@@ -169,6 +169,31 @@ _RES_PAGE_4 = [
     ),
 ]
 
+_RES_PAGE_5 = [
+    dict(
+        title=u"Catupecu Machu",
+        description=u"El plan Nacional Igualdad Cultural, impulsado por el Ministerio de Planificación Federal, Inversión Publica y Servicios y la Secretaria de Cultura de Presidencia de la Nación, presentó el 14 de Ab ...",
+        episode_id="bacua_91480bfa",
+        duration="?",
+        url="http://backend.bacua.gob.ar/video.php?v=_91480bfa",
+        section="Micro",
+        channel="Bacua",
+        image_url="http://backend.bacua.gob.ar/img.php?idvideo=91480bfa",
+        season=None,
+    ),
+    dict(
+        title=u"Centros Clandestinos",
+        description=u"En los años 70 durante la última dictadura militar, funcionaron en el Nuevo Cuyo alrededor de 39 Centros Clandestinos y hubo más de 328 detenidos desaparecidos, pero nadie ha explicado aún cómo o ...",
+        episode_id="bacua_3cfa998a",
+        duration="?",
+        url="http://backend.bacua.gob.ar/video.php?v=_3cfa998a",
+        section="Micro",
+        channel="Bacua",
+        image_url="http://backend.bacua.gob.ar/img.php?idvideo=3cfa998a",
+        season=None,
+    ),
+]
+
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
 
@@ -195,6 +220,11 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_page_4(self):
         html = open("tests/ej-bacua-page_4.html").read()
         res = get_bacua_episodes.scrap_page(html)
-#        print "\n=== res", [sorted(x.items()) for x in res]
-#        print "=== RES", [sorted(x.items()) for x in _RES_PAGE_4]
         self.assertEqual(res, _RES_PAGE_4)
+
+    def test_example_page_5(self):
+        html = open("tests/ej-bacua-page_5.html").read()
+        res = get_bacua_episodes.scrap_page(html)
+        #print "\n=== res", [sorted(x.items()) for x in res]
+        #print "=== RES", [sorted(x.items()) for x in _RES_PAGE_5]
+        self.assertEqual(res, _RES_PAGE_5)

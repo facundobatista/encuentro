@@ -69,7 +69,7 @@ def _weird_utf8_fixing(byteseq):
                 consume = 1
         else:
             ValueError("Unsupported fixing sequence.")
-    result = "".join(tmp).decode("utf8")
+    result = b"".join(tmp).decode("utf8")
     return result
 
 
