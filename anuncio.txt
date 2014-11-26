@@ -1,46 +1,40 @@
 
-Encuentro 2.0
+Encuentro 2.1
 
 Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, BACUA, Educ.ar y otros.
 
 Notar que este programa no distribuye contenido directamente, sino que permite un mejor uso personal de esos contenidos.  Por favor, referirse a los sitios web correspondientes para saber qué se puede y qué no se puede hacer con los contenidos de tales sitios.
-
-IMPORTANTE: Si tenés una versión anterior a la 2.0, el programa no te va a funcionar correctamente. Tenés que actualizar sí o sí la versión. Esto es porque Encuentro y Conectate reconfiguraron sus portales, por lo que las versiones viejas no te van a funcionar correctamente.
-
-http://encuentro.taniquetil.com.ar/imgs/title.png
 
 Página oficial:
 
     http://encuentro.taniquetil.com.ar/
 
 
-La versión 2.0 trae los siguientes cambios con respecto a la versión anterior:
+La versión 2.1 trae los siguientes cambios con respecto a la versión anterior:
 
-    - Vuelve a funcionar luego de los cambios de backend de Encuentro y Conectate
+    - Nuevo backend para 'Decime Quien Sos Vos'
 
-    - Maneja las temporadas de los programas; no se repiten nombres y graba agrupado a disco
+    - Se autentica correctamente en Conectate, lo que implica mejor calidad de videos descargados
 
-    - Sólo anota (y no requiere aprobación del usuario) al tener errores en la descarga
+    - Evita explotar por la mala interacción entre PyQt y pynotify en algunos sistemas
 
-    - Mejor manejo de las imágenes de los episodios, con lo cual ahora se ven las de Bacua
+    - Se arregló la conservación del estado de ordenamiento de las columnas entre ejecuciones
 
-    - Actualiza automáticamente la metadata si se la encuentra demasiado desactualizada
+    - Es más robusto frente a problemas al guardar la configuración o metadata
 
-    - El proyecto tiene menos dependencias, es más simple hacerlo funcionar en más sistemas
+    - Tiene un mejor parseo para Bacua y otros backends; se mejoraron las herramientas en general
 
-    - Soporta ser ejecutado en un virtualenv
-
-    - Varias correcciones y detalles para hacerlo más usable y robusto
+    - No se loguea más algunos parámetros sensibles a nivel seguridad
 
 
 La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
 
-    http://launchpad.net/encuentro/trunk/2.0/+download/encuentro-2.0.deb
+    http://launchpad.net/encuentro/trunk/2.1/+download/encuentro-2.1.deb
 
 
 También tenemos instalador para Windows:
 
-    http://launchpad.net/encuentro/trunk/2.0/+download/encuentro-2.0-setup.exe
+    http://launchpad.net/encuentro/trunk/2.1/+download/encuentro-2.1-setup.exe
 
 
 Instalarlo en Arch es sencillo ya que está disponible en AUR, por ejemplo se puede hacer:
@@ -55,16 +49,12 @@ También se puede instalar directamente desde PyPI:
 
 En cualquier otro caso, pueden usar el tarball para instalarlo:
 
-    http://launchpad.net/encuentro/trunk/2.0/+download/encuentro-2.0.tar.gz
+    http://launchpad.net/encuentro/trunk/2.1/+download/encuentro-2.1.tar.gz
 
 
 Si tienen Fedora o Red Hat, todavía no tenemos un instalador, pero lo pueden instalar o usar desde el tarball, como acabo de indicar.
 
-Si quieren obtener automaticamente las nuevas actualizaciones, en Debian/Ubuntu pueden suscribirse al PPA; en una linea de comandos hagan:
-
-    sudo add-apt-repository ppa:facundo/encuentro
-    sudo apt-get update
-    sudo apt-get install encuentro
+Nota: no hay más PPAs para estar automáticamente actualizado en Debian/Ubuntu, porque en esta oportunidad no pude hacer andar toda la maldita maquinaria.
 
 
 Recuerden revisar el archivo AYUDA.txt si tienen alguna duda de cómo usar el programa.

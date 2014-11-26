@@ -48,21 +48,16 @@
    <h2>Instalar</h2>
 
    <ul class="download-list">
-    <li>Para Debian/Ubuntu usá <a href="http://launchpad.net/encuentro/trunk/2.0.1/+download/encuentro-2.0.2.deb">este instalador (.deb)</a></li>
-    <li>Si estás en Windows, usá <a href="http://launchpad.net/encuentro/trunk/2.0/+download/encuentro-2.0-setup.exe">este instalador (.exe)</a>.</li> 
+    <li>Para Debian/Ubuntu usá <a href="http://launchpad.net/encuentro/trunk/2.1/+download/encuentro-2.1.deb">este instalador (.deb)</a></li>
+    <li>Si estás en Windows, usá <a href="http://launchpad.net/encuentro/trunk/2.1/+download/encuentro-2.1-setup.exe">este instalador (.exe)</a>.</li> 
     <li>Instalarlo en Arch es sencillo ya que está disponible en AUR; por ejemplo, se puede hacer:
 <pre>
     yaourt -S encuentro
 </pre>
-    <li>Podés descargar el <a href="http://launchpad.net/encuentro/trunk/2.0.1/+download/encuentro-2.0.1.tar.gz">tarball multiplatforma</a> e instalarlo a la manera antigua.</li>
+    <li>Podés descargar el <a href="http://launchpad.net/encuentro/trunk/2.1/+download/encuentro-2.1.tar.gz">tarball multiplatforma</a> e instalarlo a la manera antigua.</li>
     <li>Si estás en Fedora o Red Hat, muy pronto vas a poder disfrutar de la versión en los repos, o el .rpm para descargar, mientras tanto usá el tarball...</li> 
 
-    <li>Para estar <b>automáticamente actualizado</b> en Debian/Ubuntu hay que instalar el PPA, abrí una linea de comandos y hacé:</li>
-<pre>
-    sudo add-apt-repository ppa:facundo/encuentro
-    sudo apt-get update
-    sudo apt-get install encuentro
-</pre>
+    <li>Nota: no hay más PPAs para estar automáticamente actualizado en Debian/Ubuntu, porque en esta oportunidad no pude hacer andar toda la maldita maquinaria para generarlos.</li>
 
     <li>También se puede instalar directamente desde PyPI (no sé cómo se maneja el tema de las dependencias, acá):
 <pre>
@@ -99,7 +94,19 @@
   <div class="section" id="section-devs">
    <h2>Historial</h2>
 
-   La versión actual es la 2.0.x:
+   La versión actual es la 2.1:
+   
+   <ul>
+    <li><b>Nuevo backend para 'Decime Quien Sos Vos'</b></li>
+    <li>Se autentica correctamente en Conectate, lo que implica mejor calidad de videos descargados</li>
+    <li>Evita explotar por la mala interacción entre PyQt y pynotify en algunos sistemas</li>
+    <li>Se arregló la conservación del estado de ordenamiento de las columnas entre ejecuciones</li>
+    <li>Es más robusto frente a problemas al guardar la configuración o metadata</li>
+    <li>Tiene un mejor parseo para Bacua y otros backends; se mejoraron las herramientas en general</li>
+    <li>No se loguea más algunos parámetros sensibles a nivel seguridad</li>
+   </ul>
+
+   Cambios para la versión 2.0.x:
    
    <ul>
     <li><b>Vuelve a funcionar luego de los cambios de backend de Encuentro y Conectate</b></li>
