@@ -7,7 +7,8 @@
 - actualizar el ppa, esperar que entre, multiplicar a los distintos ubuntus
 
 - actualizar PyPI
-    - python setup.py register
+    - ./setup.py register
+    - ./setup.py sdist upload
 
 - pedir para los otros sistemas:
     - arch
