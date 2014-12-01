@@ -9,18 +9,18 @@ a empaquetar":
 Ir a ese "algunlado" y borrar a discreción un montón de cosas que a
 priori no nos interesa distribuir:
 
-    anuncio.txt
-    encuentro.desktop
-    MANIFEST.in
-    pasos_release.txt
-    pylintrc
-    requirements.txt
-    server
-    setup.py
-    source_encuentro.py
-    test
-    tests
-    web
+    rm anuncio.txt
+    rm encuentro.desktop
+    rm MANIFEST.in
+    rm pasos_release.txt
+    rm pylintrc
+    rm requirements_py?.txt
+    rm -r server
+    rm setup.py
+    rm source_encuentro.py
+    rm test
+    rm -r tests
+    rm -r web
 
 El resto es del lado Windows. Antes que nada ver que el programa corra ok.
 Llevar el programa a empaquetar a "c:\encuentro", e instalar el software
