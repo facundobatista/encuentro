@@ -6,5 +6,5 @@ set -eu
 
 nosetests -v -s tests --exclude=test_dqsv_scrapers.py
 nosetests3 -v -s tests/test_dqsv_scrapers.py
-flake8 encuentro server
+flake8 --max-line-length=99 encuentro server
 pylint -d R,C,W,E -e C0111,C0112  -r n -f colorized --no-docstring-rgx="(__.*__|test_*)" encuentro server 2> /dev/null

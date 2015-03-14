@@ -1,7 +1,5 @@
 # -*- coding: utf8 -*-
 
-from __future__ import unicode_literals
-
 # Copyright 2012-2014 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
@@ -20,6 +18,7 @@ from __future__ import unicode_literals
 
 """A couple of helpers for server stuff."""
 
+from __future__ import unicode_literals
 
 import bz2
 import pickle

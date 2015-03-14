@@ -196,9 +196,6 @@ if __name__ == '__main__':
         exit()
 
     custom_order = None
-    #custom_order = [
-    #    u"",
-    #]
 
     with open(sys.argv[1], 'rb') as fh:
         episodes = scrap(fh, custom_order)

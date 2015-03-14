@@ -112,8 +112,9 @@ class MiBrowser(Thread):
         logger.debug("Browser download, got html len %d", len(html))
 
         # download from the new url
+        html = sess.get(self.url).content
         soup = bs4.BeautifulSoup(html)
-        new_url = soup.find(attrs={'class': 'descargas'}).find('a')['href']
+        new_url = soup.find(attrs={'class': 'descargas panel row'}).find('a')['href']
         logger.debug("Opening final url %r", new_url)
         content = urllib2.urlopen(new_url)
         try:
