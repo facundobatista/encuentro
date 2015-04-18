@@ -22,6 +22,7 @@ from PyQt4.QtCore import Qt
 from PyQt4.QtGui import (
     QMainWindow,
     QSplitter,
+    QTableView,
     QTreeWidget,
 )
 
@@ -128,4 +129,46 @@ class RememberingTreeWidget(QTreeWidget):
             s_order = val_first < val_last
         info = dict(cols_w=cols_w, s_enabled=s_enabled,
                     s_column=s_column, s_order=s_order)
+        config[SYSTEM][self._name] = info
+
+
+class RememberingTableView(QTableView):
+    """A TableView that remembers visual stuff."""
+
+    def __init__(self, name):
+        super(RememberingTableView, self).__init__()
+        signal.register(self.save_state)
+        cname = self.__class__.__name__
+        self._name = '-'.join((cname, name))
+        self._initted = False
+
+    def showEvent(self, event):
+        """Know when it was shown, load config."""
+        if not self._initted:
+            self._initted = True
+            info = config[SYSTEM].get(self._name)
+            if info is not None:
+                # cols width
+                cols_w = info['cols_w']
+                for i, w in enumerate(cols_w):
+                    self.setColumnWidth(i, w)
+
+                # sort
+                sort_section = info.get('sort_section', 0)
+                sort_order = info.get('sort_order', 0)
+                self.sortByColumn(sort_section, sort_order)
+
+        super(RememberingTableView, self).showEvent(event)
+
+    def save_state(self):
+        """Save what to remember."""
+        # sorting info, from the header
+        header = self.horizontalHeader()
+        sort_section = header.sortIndicatorSection()
+        sort_order = header.sortIndicatorOrder()
+
+        # rest of values and store
+        col_count = self.model().columnCount(None)
+        cols_w = [self.columnWidth(i) for i in xrange(col_count)]
+        info = dict(cols_w=cols_w, sort_section=sort_section, sort_order=sort_order)
         config[SYSTEM][self._name] = info

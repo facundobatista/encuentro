@@ -208,12 +208,11 @@ class ProgramsData(object):
             try:
                 ed = self.data[episode_id]
             except KeyError:
-                ed = EpisodeData(**values)
-                episodes_widget.add_episode(ed)
-                self.data[episode_id] = ed
+                self.data[episode_id] = EpisodeData(**values)
             else:
                 ed.update(**values)
-                episodes_widget.update_episode(ed)
+
+        episodes_widget.reload_episodes()
         self.save()
 
     def load(self):

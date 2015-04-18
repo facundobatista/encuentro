@@ -447,13 +447,13 @@ class MainUI(remembering.RememberingMainWindow):
 
     def check_download_play_buttons(self):
         """Set both buttons state according to the selected episodes."""
-        items = self.episodes_list.selectedItems()
+        episode_ids = self.episodes_list.selected_items()
 
         # 'play' button should be enabled if only one row is selected and
         # its state is 'downloaded'
         play_enabled = False
-        if len(items) == 1:
-            episode = self.programs_data[items[0].episode_id]
+        if len(episode_ids) == 1:
+            episode = self.programs_data[episode_ids[0]]
             if episode.state == Status.downloaded:
                 play_enabled = True
         self.action_play.setEnabled(play_enabled)
@@ -464,8 +464,8 @@ class MainUI(remembering.RememberingMainWindow):
         # rows is in 'none' state, and if config is ok
         download_enabled = False
         if self.have_config():
-            for item in items:
-                episode = self.programs_data[item.episode_id]
+            for episode_id in episode_ids:
+                episode = self.programs_data[episode_id]
                 if episode.state == Status.none:
                     download_enabled = True
                     break
