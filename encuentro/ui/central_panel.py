@@ -25,12 +25,12 @@ from PyQt4.QtGui import (
     QAbstractItemView,
     QAbstractTextDocumentLayout,
     QApplication,
+    QBrush,
     QColor,
     QHBoxLayout,
     QImage,
     QLabel,
     QMenu,
-    QPalette,
     QPixmap,
     QPushButton,
     QStyle,
@@ -42,7 +42,7 @@ from PyQt4.QtGui import (
     QVBoxLayout,
     QWidget,
 )
-from PyQt4.QtCore import Qt, QSize
+from PyQt4.QtCore import Qt, QSize, QAbstractTableModel
 
 from encuentro import data, image
 from encuentro.config import config, signal
@@ -75,7 +75,7 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
     def on_signal_clicked(self, _):
         """The view was clicked."""
         item = self.currentItem()
-        self.episodes_widget.show(item.episode_id)
+        self.episodes_widget.show_episode(item.episode_id)
 
     def append(self, episode):
         """Append an episode to the downloads list."""
@@ -122,7 +122,7 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
         item.setText(1, gui_msg)
         item.setDisabled(True)
         episode.state = end_state
-        self.episodes_widget.set_color(episode)
+        self.episodes_widget.refresh(episode.episode_id)
         self.downloading = False
 
     def cancel(self):
@@ -148,7 +148,7 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
         # as we removed an item, the cursor goes to other, fix the rest of
         # the interface
         item = self.currentItem()
-        self.episodes_widget.show(item.episode_id)
+        self.episodes_widget.show_episode(item.episode_id)
 
     def pending(self):
         """Return the pending downloads quantity (including current)."""
@@ -239,68 +239,176 @@ class HTMLDelegate(QStyledItemDelegate):
         return QSize(doc.idealWidth(), doc.size().height())
 
 
-class EpisodesWidget(remembering.RememberingTreeWidget):
+class EpisodesWidgetModel(QAbstractTableModel):
+    """The model for the episodes widget."""
+
+    _col_getters = [
+        operator.attrgetter('channel'),
+        operator.attrgetter('section'),
+        operator.attrgetter('filtered_title'),
+        operator.attrgetter('duration'),
+    ]
+    _headers = (u"Canal", u"Sección", u"Título", u"Duración [min]")
+
+    def __init__(self, main_window):
+        super(EpisodesWidgetModel, self).__init__()
+        self.main_window = main_window
+        self._order_column = self._order_direction = 0
+        self._filter_text = ''
+        self._filter_only_downloaded = False
+        self.episodes, self.pos_map = self._load_episodes()
+
+    def _load_episodes(self):
+        """Fill episodes own data."""
+        # prepare sorting parameters
+        is_reversed = self._order_direction == Qt.DescendingOrder
+        order_key = self._col_getters[self._order_column]
+
+        # get all episodes, apply filters
+        text = data.prepare_to_filter(self._filter_text)
+        episodes = []
+        for ep in self.main_window.programs_data.values():
+            params = ep.filter_params(text, self._filter_only_downloaded)
+            if params is None:
+                # filtered out
+                continue
+
+            pos1, pos2 = params
+            if pos1 == pos2:
+                # no highlighting
+                ep.filtered_title = ep.composed_title
+            else:
+                # filtering by text, so highlight
+                t = ep.composed_title
+                ep.filtered_title = u'%s<span style="background-color:yellow">%s</span>%s' % (
+                    t[:pos1], t[pos1:pos2], t[pos2:])
+            episodes.append(ep)
+
+        # episodes si the data to show in the table, with some extra columns (hidden),
+        # pos_map is a mapping to know in which position an episode is from its id
+        episodes = sorted(episodes, key=order_key, reverse=is_reversed)
+        pos_map = {ep.episode_id: i for i, ep in enumerate(episodes)}
+        return episodes, pos_map
+
+    def reload_episodes(self):
+        """Reload all episodes."""
+        self.layoutAboutToBeChanged.emit()
+        self.episodes, self.pos_map = self._load_episodes()
+        self.layoutChanged.emit()
+
+    def rowCount(self, parent):
+        """Row count."""
+        return len(self.episodes)
+
+    def columnCount(self, parent):
+        """Column count."""
+        return len(self._headers)
+
+    def data(self, index, role):
+        """Return content text and format."""
+        if role == Qt.DisplayRole:
+            row = index.row()
+            col = index.column()
+            ep = self.episodes[row]
+            data = self._col_getters[col](ep)
+            return data
+
+        if role == Qt.TextAlignmentRole:
+            col = index.column()
+            if col == 3:
+                return Qt.AlignRight
+
+        if role == Qt.BackgroundRole:
+            row = index.row()
+            ep = self.episodes[row]
+            if ep.state == Status.downloaded:
+                bground = QBrush(QColor("light green"))
+                return bground
+
+    def headerData(self, section, orientation, role):
+        """Return the headers."""
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+            return self._headers[section]
+
+    def refresh(self, episode_id):
+        """Refresh the view of an episode."""
+        row = self.pos_map[episode_id]
+        index_from = self.index(row, 0)
+        index_to = self.index(row, len(self._headers) - 1)
+        self.dataChanged.emit(index_from, index_to)
+
+    def sort(self, n_col, order):
+        """Sort data by given column."""
+        self._order_column = n_col
+        self._order_direction = order
+        self.reload_episodes()
+
+    def set_filter(self, text, only_downloaded):
+        """Apply a filter to the episodes list."""
+        self._filter_text = text
+        self._filter_only_downloaded = only_downloaded
+        self.reload_episodes()
+
+
+class EpisodesWidgetView(remembering.RememberingTableView):
     """The list of episodes info."""
 
-    _row_getter = operator.attrgetter('channel', 'section',
-                                      'composed_title', 'duration')
     _title_column = 2
 
     def __init__(self, main_window, episode_info):
         self.main_window = main_window
         self.episode_info = episode_info
-        super(EpisodesWidget, self).__init__('episodes')
+        super(EpisodesWidgetView, self).__init__('episodes')
+        self._model = EpisodesWidgetModel(main_window)
+        self.setModel(self._model)
         self.setMinimumSize(600, 300)
         self.setItemDelegate(HTMLDelegate(self, self._title_column))
 
-        _headers = (u"Canal", u"Sección", u"Título", u"Duración [min]")
-        self.setColumnCount(len(_headers))
-        self.setHeaderLabels(_headers)
-        header = self.header()
+        # hide the vertical header at the left of the table and configure top header
+        self.verticalHeader().hide()
+        header = self.horizontalHeader()
         header.setStretchLastSection(False)
         header.setResizeMode(2, header.Stretch)
-        episodes = list(self.main_window.programs_data.values())
+        header.sortIndicatorChanged.connect(self._model.sort)
 
-        self._item_map = {}
-        for e in episodes:
-            item = QTreeWidgetItem([unicode(v) for v in self._row_getter(e)])
-            item.episode_id = e.episode_id
-            item.setTextAlignment(3, Qt.AlignRight)
-            self._item_map[e.episode_id] = item
-            self.addTopLevelItem(item)
-            self.set_color(e)
-
-        # enable sorting
-        self.setSortingEnabled(True)
-        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        # other behaviour configs
+        self.setSelectionBehavior(QAbstractItemView.SelectRows)  # whole row selected instead cell
+        self.setSortingEnabled(True)  # enable sorting
 
         # connect the signals
-        self.clicked.connect(self.on_signal_clicked)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.on_right_button)
-        self.itemDoubleClicked.connect(self.on_double_click)
-        self.currentItemChanged.connect(self.on_change)
+        self.doubleClicked.connect(self.on_activate)
+        self.activated.connect(self.on_activate)
+        sm = self.selectionModel()
+        sm.selectionChanged.connect(self.on_change)
 
-    def show(self, episode_id):
+    def show_episode(self, episode_id):
         """Show the row for the requested episode."""
-        item = self._item_map[episode_id]
-        self.setCurrentItem(item)
+        row = self._model.pos_map[episode_id]
+        index = self._model.index(row, 0)
+        self.scrollTo(index)
         self._adjust_gui(episode_id)
 
-    def on_signal_clicked(self, _):
-        """The view was clicked."""
-        item = self.currentItem()
-        self._adjust_gui(item.episode_id)
+    def selected_items(self):
+        """Return the episode ids of the selected items."""
+        sm = self.selectionModel()
+        indexes = sm.selectedIndexes()
+        return [self._model.episodes[ind.row()].episode_id for ind in indexes]
 
-    def on_change(self, _):
+    def on_change(self, item_selection):
         """The view was clicked."""
-        item = self.currentItem()
-        self._adjust_gui(item.episode_id)
+        index = item_selection.indexes()[0]
+        row = index.row()
+        episode_id = self._model.episodes[row].episode_id
+        self._adjust_gui(episode_id)
 
-    def on_double_click(self, item, col):
-        """Double click."""
-        episode = self.main_window.programs_data[item.episode_id]
-        logger.debug("Double click in %s", episode)
+    def on_activate(self, index):
+        """Double click and enter on a row."""
+        row = index.row()
+        episode_id = self._model.episodes[row].episode_id
+        episode = self.main_window.programs_data[episode_id]
+        logger.debug("Doubleclick/Enter in %s", episode)
         if episode.state == Status.downloaded:
             self.main_window.play_episode(episode)
         elif episode.state == Status.none:
@@ -308,30 +416,34 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
                 self.main_window.queue_download(episode)
             else:
                 logger.debug("Not starting download because no config.")
-                t = (u"No se puede arrancar una descarga porque la "
-                     u"configuración está incompleta.")
+                t = u"No se puede arrancar una descarga porque la configuración está incompleta."
                 self.main_window.show_message(u'Falta configuración', t)
 
     def _adjust_gui(self, episode_id):
         """Adjust the rest of the GUI for this episode."""
         episode = self.main_window.programs_data[episode_id]
         logger.debug("Showing episode: %s", episode)
+
+        # adjust the rest of the GUI
         self.episode_info.update(episode)
         self.main_window.check_download_play_buttons()
 
+        # make the view to select this episode
+        row = self._model.pos_map[episode_id]
+        self.selectRow(row)
+
     def on_right_button(self, point):
         """Right button was pressed, build a menu."""
-        item = self.currentItem()
-        self._adjust_gui(item.episode_id)
-        episode = self.main_window.programs_data[item.episode_id]
+        index = self.indexAt(point)
+        row = index.row()
+        episode_id = self._model.episodes[row].episode_id
+        self._adjust_gui(episode_id)
+        episode = self.main_window.programs_data[episode_id]
         menu = QMenu()
         mw = self.main_window
-        act_play = menu.addAction(u"&Reproducir",
-                                  lambda: mw.play_episode(episode))
-        act_cancel = menu.addAction(u"&Cancelar descarga",
-                                    lambda: mw.cancel_download(episode))
-        act_download = menu.addAction(u"&Descargar",
-                                      lambda: mw.queue_download(episode))
+        act_play = menu.addAction(u"&Reproducir", lambda: mw.play_episode(episode))
+        act_cancel = menu.addAction(u"&Cancelar descarga", lambda: mw.cancel_download(episode))
+        act_download = menu.addAction(u"&Descargar", lambda: mw.queue_download(episode))
 
         # set menu options according status
         state = episode.state
@@ -352,62 +464,17 @@ class EpisodesWidget(remembering.RememberingTreeWidget):
                 act_download.setEnabled(False)
         menu.exec_(self.viewport().mapToGlobal(point))
 
-    def update_episode(self, episode):
-        """Update episode with new info"""
-        item = self._item_map[episode.episode_id]
-        for i, v in enumerate(self._row_getter(episode)):
-            item.setText(i, unicode(v))
-
-    def add_episode(self, episode):
-        """Update episode with new info"""
-        item = QTreeWidgetItem([unicode(v) for v in self._row_getter(episode)])
-        item.episode_id = episode.episode_id
-        item.setTextAlignment(3, Qt.AlignRight)
-        self._item_map[episode.episode_id] = item
-        self.set_color(episode)
-        self.addTopLevelItem(item)
-
-    def set_color(self, episode):
-        """Set the background color for an episode (if needed)."""
-        if episode.state == Status.downloaded:
-            color = QColor("light green")
-        else:
-            palette = self.palette()
-            color = palette.color(QPalette.AlternateBase)
-        item = self._item_map[episode.episode_id]
-        for i in xrange(item.columnCount()):
-            item.setBackgroundColor(i, color)
-
     def set_filter(self, text, only_downloaded=False):
-        """Apply a filter to the episodes list."""
-        text = data.prepare_to_filter(text)
-        for episode_id, item in self._item_map.iteritems():
-            episode = self.main_window.programs_data[episode_id]
+        """Apply a filter to the episodes list (just a proxy to the model)."""
+        self._model.set_filter(text, only_downloaded)
 
-            params = episode.filter_params(text, only_downloaded)
-            if params is None:
-                item.setHidden(True)
-            else:
-                item.setHidden(False)
-                pos1, pos2 = params
-                if pos1 is None:
-                    # no highlighting
-                    item.setText(self._title_column, episode.composed_title)
-                else:
-                    # filtering by text, so highlight
-                    t = episode.composed_title
-                    ht = u''.join((t[:pos1],
-                                   '<span style="background-color:yellow">',
-                                   t[pos1:pos2], '</span>', t[pos2:]))
-                    item.setText(self._title_column, ht)
+    def refresh(self, episode_id):
+        """Refresh the indicated episode in the view (just a proxy to the model)."""
+        self._model.refresh(episode_id)
 
-        # clear the selection to get consistent behaviour (because otherwise
-        # something will keep selected when widening the filter, or nothing
-        # will be selected when the filter gets more restrict)
-        self.clearSelection()
-
-        # now nothing is selected, so clear the episode info
-        self.episode_info.clear()
+    def reload_episodes(self):
+        """Reload all the episodes (just a proxy to the model)."""
+        self._model.reload_episodes()
 
 
 class EpisodeInfo(QWidget):
@@ -482,8 +549,7 @@ class EpisodeInfo(QWidget):
             self.image_episode.hide()
             self.throbber.show()
             # now do call the get_image
-            self.get_image(episode.episode_id,
-                           episode.image_url.encode('utf-8'))
+            self.get_image(episode.episode_id, episode.image_url.encode('utf-8'))
 
         # all description
         if episode.subtitle is None:
@@ -543,7 +609,7 @@ class BigPanel(QWidget):
 
         # get this before, as it be used when creating other sutff
         episode_info = EpisodeInfo(main_window)
-        self.episodes = EpisodesWidget(main_window, episode_info)
+        self.episodes = EpisodesWidgetView(main_window, episode_info)
 
         # split on the right
         right_split = remembering.RememberingSplitter(Qt.Vertical, 'right')
