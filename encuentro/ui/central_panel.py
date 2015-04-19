@@ -531,8 +531,14 @@ class EpisodeInfo(QWidget):
         self.text_edit.setText(msg)
         self.button.hide()
 
-    def update(self, episode):
+    def update(self, episode, force_change=True):
         """Update all the episode info."""
+        if not force_change:
+            # if not forced, only update what is being shown if the current episode
+            # is the one to be updated
+            if self.current_episode != episode.episode_id:
+                return
+
         self.current_episode = episode.episode_id
 
         # image

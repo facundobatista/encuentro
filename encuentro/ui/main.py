@@ -372,7 +372,7 @@ class MainUI(remembering.RememberingMainWindow):
 
         # queue
         self.episodes_download.append(episode)
-        self.adjust_episode_info(episode)
+        self.episodes_list.episode_info.update(episode)
         self.check_download_play_buttons()
         if self.episodes_download.downloading:
             return
@@ -410,8 +410,10 @@ class MainUI(remembering.RememberingMainWindow):
                 episode.filename = filename
 
             # check buttons
-            self.adjust_episode_info(episode)
             self.check_download_play_buttons()
+
+            # adjust the episode info only if it's still showing this one
+            self.episodes_list.episode_info.update(episode, force_change=False)
 
         logger.debug("Downloads: finished")
 
@@ -440,10 +442,6 @@ class MainUI(remembering.RememberingMainWindow):
         self._review_need_something_indicator()
         safecfg = config.sanitized_config()
         logger.debug("Configuration changed: %s", safecfg)
-
-    def adjust_episode_info(self, episode):
-        """Adjust the episode info."""
-        self.episodes_list.episode_info.update(episode)
 
     def check_download_play_buttons(self):
         """Set both buttons state according to the selected episodes."""
