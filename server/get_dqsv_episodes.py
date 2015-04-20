@@ -46,8 +46,12 @@ cache = helpers.Cache("episodes_cache_dqsv.pickle")
 SPECIAL_NONMP3_CHAPTERS = [
     'Elecciones 2011', 'Especial Navidad', 'Epílogos', 'Elecciones 2013']
 
-# store published interviews, to detect re-editions
+# store published interviews, to detect re-editions (with the custom fixes,
+# as multiple editions for same person with changed name happens)
 REEDITIONS = {}
+REEDS_FIXES = {
+    'Eduardo Galeano': 'Eduardo Hughes Galeano',
+}
 
 # some SWFs have weird images ordering, so I manually curate them
 CUSTOM_ORDER = {
@@ -76,6 +80,12 @@ CUSTOM_ORDER = {
         "Martha Pelloni",
         "Víctor Heredia",
         "Raúl Rizzo",
+    ],
+    '74': [
+        "Alfredo Rosso",
+        "Mariana Moyano",
+        "Emilio Tenti Fanfani",
+        "Santiago O´Donnell",
     ],
 }
 
@@ -157,8 +167,7 @@ def find_matching_mp3(all_mp3s, swf_date, swf_name):
     if len(filtered) == 1:
         return filtered[0]
 
-    raise ValueError("Too many similars, even after filtering: {}".format(
-        filtered))
+    raise ValueError("Too many similars, even after filtering: {}".format(filtered))
 
 
 def get_all_data():
@@ -168,15 +177,16 @@ def get_all_data():
     all_swfs = get_swfs()
     all_mp3s = get_mp3s()
     for swfbasename, swf in all_swfs:
+        reed_name = REEDS_FIXES.get(swf.name, swf.name)
         try:
-            old_date = REEDITIONS[swf.name]
+            old_date = REEDITIONS[reed_name]
         except KeyError:
             # new interview, all fine
-            REEDITIONS[swf.name] = swf.date
+            REEDITIONS[reed_name] = swf.date
         else:
             # repeated!
             logger.debug("Ignoring episode for {!r} of {}, was already from {}"
-                         .format(swf.name, swf.date, old_date))
+                         .format(reed_name, swf.date, old_date))
             continue
 
         mp3 = find_matching_mp3(all_mp3s, swf.date, swf.name)
