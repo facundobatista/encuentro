@@ -54,12 +54,9 @@ URL_EPIS_BASE = (
     "%(channel_id)s?rec_id=%(epis_id)s"
 )
 URL_IMAGE_BASE = (
-    "http://globalbackend.educ.ar/repositorio/Imagen/ver?image_id=%(img_id)s"
+    "http://repositorioimagen-download.educ.ar/repositorio/Imagen/ver?image_id=%(img_id)s"
 )
-
-URL_SEARCH = (
-    "http://www.conectate.gob.ar/sitios/conectate/busqueda/%(channel_id)s"
-)
+URL_SEARCH = "http://www.conectate.gob.ar/sitios/conectate/busqueda/%(channel_id)s"
 
 logger = logging.getLogger("Conectate")
 

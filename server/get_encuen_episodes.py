@@ -30,21 +30,12 @@ import scrapers_encuen
 import srv_logger
 
 
-URL_LISTING = (
-    "http://www.encuentro.gov.ar/sitios/encuentro/"
-    "Programas/getEmisionesDeSitio"
-)
+URL_LISTING = "http://www.encuentro.gov.ar/sitios/encuentro/Programas/getEmisionesDeSitio"
 URL_IMAGE_BASE = (
-    "http://globalbackend.educ.ar/repositorio/Imagen/ver?image_id=%(img_id)s"
+    "http://repositorioimagen-download.educ.ar/repositorio/Imagen/ver?image_id=%(img_id)s"
 )
-
-URL_DETAILS = (
-    'http://www.encuentro.gov.ar/sitios/encuentro/Programas/detalleCapitulo'
-)
-URL_EPIS_BASE = (
-    "http://www.encuentro.gov.ar/sitios/encuentro/programas/"
-    "ver?rec_id=%(epis_id)s"
-)
+URL_DETAILS = 'http://www.encuentro.gov.ar/sitios/encuentro/Programas/detalleCapitulo'
+URL_EPIS_BASE = "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=%(epis_id)s"
 
 POST_DETAILS = '__params=%7B%22rec_id%22%3A{}%2C%22ajax%22%3Atrue%7D'
 
