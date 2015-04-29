@@ -373,6 +373,7 @@ class EpisodesWidgetView(remembering.RememberingTableView):
 
         # other behaviour configs
         self.setSelectionBehavior(QAbstractItemView.SelectRows)  # whole row selected instead cell
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)  # full fledged selection
         self.setSortingEnabled(True)  # enable sorting
 
         # connect the signals
@@ -393,15 +394,27 @@ class EpisodesWidgetView(remembering.RememberingTableView):
     def selected_items(self):
         """Return the episode ids of the selected items."""
         sm = self.selectionModel()
-        indexes = sm.selectedIndexes()
+        indexes = sm.selectedRows()
         return [self._model.episodes[ind.row()].episode_id for ind in indexes]
 
-    def on_change(self, item_selection):
+    def on_change(self, delta_selection_pos, delta_selection_neg):
         """The view was clicked."""
-        index = item_selection.indexes()[0]
-        row = index.row()
-        episode_id = self._model.episodes[row].episode_id
-        self._adjust_gui(episode_id)
+        sm = self.selectionModel()
+        indexes = sm.selectedRows()
+        for idx in indexes:
+            row = idx.row()
+        if len(indexes) == 1:
+            row = indexes[0].row()
+            episode_id = self._model.episodes[row].episode_id
+            self._adjust_gui(episode_id)
+        elif len(indexes) == 0:
+            # nothing selected
+            self.episode_info.clear(u"Seleccioná un programa para ver aquí la info.")
+            self.main_window.check_download_play_buttons()
+        else:
+            # multiple selection
+            self.episode_info.clear(u"Seleccioná sólo un programa para ver aquí la info.")
+            self.main_window.check_download_play_buttons()
 
     def on_activate(self, index):
         """Double click and enter on a row."""
@@ -523,11 +536,10 @@ class EpisodeInfo(QWidget):
         # hide the throbber
         self.throbber.hide()
 
-    def clear(self):
+    def clear(self, msg):
         """Clear the episode info panel."""
         self.throbber.hide()
         self.image_episode.hide()
-        msg = u"Seleccionar un programa para ver aquí la info."
         self.text_edit.setText(msg)
         self.button.hide()
 
