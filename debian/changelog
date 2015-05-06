@@ -1,0 +1,34 @@
+encuentro (2.1-0ubuntu1) trusty; urgency=medium
+
+  * Bacua parsing improvement.
+  * Aesthetic change.
+  * No need for explicit unicode strings.
+  * Improvements to DQSV episode getting.
+  * Tests instructions.
+  * Better instructions for the Windows part.
+  * Remove redundant logger config.
+  * The regex should use bytes when parsing html.
+  * Don't log security config (which is now properly stated in a constant)
+  * Delayed import of pynotify as much as possible, because of bad interaction
+    with PyQt.
+  * When update episodes, change the cached normalized title.
+  * Update revno in web page.
+  * Safe save in all useful ocations.
+  * Added the dependency to the LEEME file.
+  * Save the column sorting in the correct way.
+  * Download and play DQSV content.
+  * Final fixes for DQSV metadata.
+  * Lot of new cases handling and code for the rest of DQSV.
+  * Get images from the SWF.
+  * Added more tests for the swf.
+  * Scrapping for decimequiensosvos.
+  * Use encuentro downloader for encuentro stuff, and auth correctly to
+    download better videos.
+
+ -- Facundo Batista <facundo@taniquetil.com.ar>  Mon, 24 Nov 2014 23:03:48 -0300
+
+encuentro (2.1) trusty; urgency=medium
+
+  * Initial release.
+
+ -- Facundo Batista <facundo@taniquetil.com.ar>  Mon, 24 Nov 2014 23:03:33 -0300

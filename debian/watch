@@ -1,0 +1,2 @@
+version=3
+http://launchpad.net/encuentro/+download .*/encuentro-([\d\.]+)\.tar\.gz
