@@ -27,9 +27,11 @@ import defer
 from PyQt4.QtGui import (
     QAction,
     QCheckBox,
+    QKeySequence,
     QLabel,
     QLineEdit,
     QMessageBox,
+    QShortcut,
     QSizePolicy,
     QStyle,
     QWidget,
@@ -232,6 +234,7 @@ class MainUI(remembering.RememberingMainWindow):
         self.filter_cbox = QCheckBox(u"Sólo descargados")
         self.filter_cbox.stateChanged.connect(self.on_filter_changed)
         toolbar.addWidget(self.filter_cbox)
+        QShortcut(QKeySequence("Ctrl+F"), self, self.filter_line.setFocus)
 
         # if needed, a warning that stuff needs to be configured
         icon = self.style().standardIcon(QStyle.SP_MessageBoxWarning)
