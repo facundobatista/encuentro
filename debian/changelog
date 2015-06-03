@@ -1,3 +1,22 @@
+encuentro (3.1) unstable; urgency=medium
+
+  * Final details of creating a .deb
+  * Make sure tests don't hit the network.
+  * Added a shortcut for the filters textentry (thanks Emiliano (@emilianohf))
+  * Changes for better packaging from Adrian Alves.
+  * Included file for RPM and dir for debian.
+  * Better management of episodes selection.
+  * Changed the base of images url for Encuentro and Conectate.
+  * Several DQSV scrapping fixes.
+  * Support empty series when retrieving Conectate episodes.
+  * When finished downloading, don't change episode info if shouldn't. Fixes
+    LP:1407440
+  * Use TableView/Model instead of TreeWidget.
+  * New parsing of Conectate after-auth page.
+  * Changes for release 2.1.1
+
+ -- Facundo Batista <facundo@taniquetil.com.ar>  Tue, 02 Jun 2015 23:12:37 -0300
+
 encuentro (2.1.1-1) unstable; urgency=medium
 
   * New release.

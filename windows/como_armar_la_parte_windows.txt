@@ -21,6 +21,11 @@ priori no nos interesa distribuir:
     rm test
     rm -r tests
     rm -r web
+    rm -r debian
+    rm encuentro.spec
+    rm HOWTO_PACKAGE.rst
+    rm -r man
+    rm -r RUNNING_TESTS.txt
 
 El resto es del lado Windows. Antes que nada ver que el programa corra ok.
 Llevar el programa a empaquetar a "c:\encuentro", e instalar el software

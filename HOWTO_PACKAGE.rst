@@ -35,3 +35,9 @@ Debian
 - Build the .deb
 
     debuild -us -uc
+
+
+Windows
+-------
+
+Proper instructions in windows/como_armar_la_parte_windows.txt (Spanish only).

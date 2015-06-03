@@ -1,5 +1,5 @@
 
-Encuentro 2.1
+Encuentro 3.1
 
 Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, BACUA, Educ.ar y otros.
 
@@ -10,31 +10,27 @@ Página oficial:
     http://encuentro.taniquetil.com.ar/
 
 
-La versión 2.1 trae los siguientes cambios con respecto a la versión anterior:
+La versión 3.1 trae los siguientes cambios con respecto a la versión anterior:
 
-    - Nuevo backend para 'Decime Quien Sos Vos'
+    - Vuelve a funcionar luego de los cambios de backend de Encuentro y Conectate
 
-    - Se autentica correctamente en Conectate, lo que implica mejor calidad de videos descargados
+    - Ahora con CTRL-F se va directamente al campo de filtro (gracias Emiliano (@emilianohf))
 
-    - Evita explotar por la mala interacción entre PyQt y pynotify en algunos sistemas
+    - Se rehizo el manejo de la lista de episodios: ahora verlos y filtrarlos es muchísimo más rápido.
 
-    - Se arregló la conservación del estado de ordenamiento de las columnas entre ejecuciones
+    - Mejoras en el empaquetado, debería funcionar para muchas (todas?) las versiones de Debian/Ubuntu (gracias Adrián Alves).
 
-    - Es más robusto frente a problemas al guardar la configuración o metadata
-
-    - Tiene un mejor parseo para Bacua y otros backends; se mejoraron las herramientas en general
-
-    - No se loguea más algunos parámetros sensibles a nivel seguridad
+    - Varias mejoras al encontrar nuevos episodios de los distintos backends, y correcciones en general.
 
 
 La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
 
-    http://launchpad.net/encuentro/trunk/2.1/+download/encuentro-2.1.deb
+    http://launchpad.net/encuentro/trunk/3.1/+download/encuentro-3.1.deb
 
 
 También tenemos instalador para Windows:
 
-    http://launchpad.net/encuentro/trunk/2.1/+download/encuentro-2.1-setup.exe
+    http://launchpad.net/encuentro/trunk/3.1/+download/encuentro-3.1-setup.exe
 
 
 Instalarlo en Arch es sencillo ya que está disponible en AUR, por ejemplo se puede hacer:
@@ -49,7 +45,7 @@ También se puede instalar directamente desde PyPI:
 
 En cualquier otro caso, pueden usar el tarball para instalarlo:
 
-    http://launchpad.net/encuentro/trunk/2.1/+download/encuentro-2.1.tar.gz
+    http://launchpad.net/encuentro/trunk/3.1/+download/encuentro-3.1.tar.gz
 
 
 Si tienen Fedora o Red Hat, todavía no tenemos un instalador, pero lo pueden instalar o usar desde el tarball, como acabo de indicar.
