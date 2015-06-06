@@ -43,8 +43,13 @@ cache = helpers.Cache("episodes_cache_dqsv.pickle")
 
 
 # special chapters that don't have a mp3 associated
-SPECIAL_NONMP3_CHAPTERS = [
-    'Elecciones 2011', 'Especial Navidad', 'Epílogos', 'Elecciones 2013']
+SPECIAL_NONMP3_CHAPTERS = {
+    'Elecciones 2011',
+    'Elecciones 2013',
+    'Elecciones 2015',
+    'Epílogos',
+    'Especial Navidad',
+}
 
 # store published interviews, to detect re-editions (with the custom fixes,
 # as multiple editions for same person with changed name happens)
