@@ -36,6 +36,18 @@ Debian
 
     debuild -us -uc
 
+- Move the tarball that we'll use, clean dir, adapt names
+
+    mv dist/* ..
+    cd ..
+    mv encuentro_VERSION_all.deb encuentro-VERSION.deb
+    (more cleaning: note that you'll find a heavy tarball and the one that you just moved)
+
+- Sign both tarball and deb file
+
+   gpg --armor --sign --detach-sig encuentro-VERSION.tar.gz
+   gpg --armor --sign --detach-sig encuentro-VERSION.deb
+
 
 Windows
 -------

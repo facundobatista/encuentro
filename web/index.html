@@ -48,13 +48,27 @@
    <h2>Instalar</h2>
 
    <ul class="download-list">
-    <li>Para Debian/Ubuntu usá <a href="download/encuentro-3.1.deb">este instalador (.deb)</a> (<a href="download/encuentro-3.1.deb.md5">md5</a>, <a href="download/encuentro-3.1.deb.asc">sig</a>)</li>
+    <li>Para Debian/Ubuntu usá <a href="download/encuentro-3.2.deb">este instalador (.deb)</a> (<a href="download/encuentro-3.2.deb.md5">md5</a>, <a href="download/encuentro-3.2.deb.asc">sig</a>)</li>
+        <ul>
+            <li> Bajás el .deb</li>
+            <li> Le das doble-click, o si lo querés instalar a mano, hacés: <pre>dpkg -i encuentro-*.deb</pre></li>
+        </ul>
     <li>Si estás en Windows, usá <a href="download/encuentro-3.1-setup.exe">este instalador (.exe)</a>. (<a href="download/encuentro-3.1-setup.exe.md5">md5</a>, <a href="download/encuentro-3.1-setup.exe.asc">sig</a>)</li> 
+        <ul>
+            <li> Bajás el .exe</li>
+            <li> Le das doble-click</li>
+        </ul>
     <li>Instalarlo en Arch es sencillo ya que está disponible en AUR; por ejemplo, se puede hacer:
 <pre>
     yaourt -S encuentro
 </pre>
-    <li>Podés descargar el <a href="download/encuentro-3.1.tar.gz">tarball multiplatforma</a> (<a href="download/encuentro-3.1.tar.gz.md5">md5</a>, <a href="download/encuentro-3.1.tar.gz.asc">sig</a>) e instalarlo a la manera antigua.</li>
+    <li>Podés descargar el <a href="download/encuentro-3.1.tar.gz">tarball multiplatforma</a> (<a href="download/encuentro-3.1.tar.gz.md5">md5</a>, <a href="download/encuentro-3.1.tar.gz.asc">sig</a>) e instalarlo a la manera antigua:</li>
+        <ul>
+            <li> Bajás el .tar.gz</li>
+            <li> Lo abrís: <pre>tar -xf encuentro-*.tar.gz</pre></li>
+            <li> Entrás: <pre>cd encuentro-*</pre></li>
+            <li> Lo instalás: <pre>sudo python setup.py install</pre></li>
+        </ul>
     <li>Si estás en Fedora o Red Hat, muy pronto vas a poder disfrutar de la versión en los repos, o el .rpm para descargar, mientras tanto usá el tarball...</li> 
 
     <li>Nota: no hay más PPAs para estar automáticamente actualizado en Debian/Ubuntu, porque en esta oportunidad no pude hacer andar toda la maldita maquinaria para generarlos.</li>

@@ -9,7 +9,7 @@ Si querés conocer más sobre el proyecto, el mismo se gestiona desde aquí:
     https://launchpad.net/encuentro
 
 
-*Nota importante*: Si tenés una versión anterior a la 0.7, el programa no te
+*Nota importante*: Si tenés una versión anterior a la 3.1, el programa no te
 va a funcionar. Tenés que actualizar sí o sí la versión. Esto es porque
 Encuentro migró sus contenidos al portal Conectate, por lo que las versiones
 viejas no te van a funcionar correctamente. La buena noticia es que ahora
