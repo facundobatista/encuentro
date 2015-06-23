@@ -10,7 +10,7 @@ X-Python-Version: >= 2.6
 
 Package: encuentro
 Architecture: all
-Depends: ${misc:Depends}, dh-python,
+Depends: ${misc:Depends},
  python (>=2.7),
  python-requests (>= 0.12.1),
  python-defer (>= 1.0.6),
