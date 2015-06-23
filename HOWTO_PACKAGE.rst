@@ -48,6 +48,11 @@ Debian
    gpg --armor --sign --detach-sig encuentro-VERSION.tar.gz
    gpg --armor --sign --detach-sig encuentro-VERSION.deb
 
+- Sums
+
+  md5sum encuentro-VERSION.tar.gz > encuentro-VERSION.tar.gz.md5
+  md5sum encuentro-VERSION.deb > encuentro-VERSION.deb.md5
+
 
 Windows
 -------
