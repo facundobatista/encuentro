@@ -16,6 +16,8 @@
 
 """Main entry point, and initialization of everything we can."""
 
+from __future__ import print_function
+
 import logging
 import os
 import sys
@@ -37,7 +39,7 @@ def start(version):
     """Rock and roll."""
     # set up config
     fname = os.path.join(multiplatform.config_dir, 'encuentro.conf')
-    print "Using configuration file:", repr(fname)
+    print("Using configuration file:", repr(fname))
     logger.info("Using configuration file: %r", fname)
     config.init(fname)
 

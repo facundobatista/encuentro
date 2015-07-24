@@ -394,19 +394,18 @@ class MainUI(remembering.RememberingMainWindow):
                        u"usuario y clave correctos")
                 self.show_message('BadCredentialsError', msg)
                 self.episodes_download.end(error=msg)
-            except EncuentroError, e:
+            except EncuentroError as e:
                 orig_exc = e.orig_exc
                 msg = "%s(%s)" % (orig_exc, e)
                 err_type = e.__class__.__name__
-                logger.exception("Custom Encuentro error: %s (%r)",
-                                 e, orig_exc)
+                logger.exception("Custom Encuentro error: %s (%r)", e, orig_exc)
                 notify(err_type, msg)
                 self.episodes_download.end(error=u"Error: " + msg)
-            except Exception, e:
-                logger.exception("Unknown download error: %s (%r)", e, e)
+            except Exception as e:
                 err_type = e.__class__.__name__
                 notify(err_type, str(e))
-                self.episodes_download.end(error=u"Error: " + str(e))
+                logger.exception("Unknown download error: %s (%s)", err_type, e)
+                self.episodes_download.end(error=u"Error: {} ({})".format(err_type, e))
             else:
                 logger.debug("Episode downloaded: %s", episode)
                 self.episodes_download.end()

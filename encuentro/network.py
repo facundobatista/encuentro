@@ -18,6 +18,8 @@
 
 """Some functions to deal with network and Encuentro site."""
 
+from __future__ import print_function
+
 import logging
 import os
 import sys
@@ -129,16 +131,8 @@ class MiBrowser(Thread):
         logger.error("Unknown error while browsing Encuentro: %r", html)
         raise EncuentroError("Unknown problem when getting download link")
 
-    def run(self):
-        """Do the heavy work."""
-        # open the url and send the content
-        logger.debug("Browser opening url %s", self.url)
-        try:
-            content, filesize = self._get_download_content()
-        except Exception as err:
-            self.output_queue.put(err)
-            return
-
+    def _really_download(self, content, filesize):
+        """Effectively download the content to disk."""
         aout = open(self.fname, "wb")
         tot = 0
         size_mb = filesize / (1024.0 ** 2)
@@ -152,6 +146,15 @@ class MiBrowser(Thread):
             self.output_queue.put(m)
         content.close()
         self.output_queue.put(DONE_TOKEN)
+
+    def run(self):
+        """Do the heavy work."""
+        logger.debug("Browser opening url %s", self.url)
+        try:
+            content, filesize = self._get_download_content()
+            self._really_download(content, filesize)
+        except Exception as err:
+            self.output_queue.put(err)
 
 
 class DeferredQueue(Queue):
@@ -444,7 +447,7 @@ if __name__ == "__main__":
 
     def show(avance):
         """Show progress."""
-        print "Avance:", avance
+        print("Avance:", avance)
 
     # overwrite config for the test
     config = dict(user="lxpdvtnvrqdoa@mailinator.com",  # NOQA
@@ -469,9 +472,9 @@ if __name__ == "__main__":
         try:
             fname = yield downloader.download("test-ej-canal", "secc", "temp",
                                               "tit", _url, show)
-            print "All done!", fname
+            print("All done!", fname)
         except CancelledError:
-            print "--- cancelado!"
+            print("--- cancelado!")
         finally:
             downloader.shutdown()
             app.exit()
