@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2013 Facundo Batista
+# Copyright 2013-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -82,15 +82,29 @@ class GeneralPreferences(QWidget):
 
         self.autoreload_checkbox = QCheckBox(
             u"Recargar automáticamente la lista de episodios al iniciar")
+        self.autoreload_checkbox.setToolTip(
+            u"Cada vez que arranca el programa refrescar la lista de episodios.")
         prv = config.get('autorefresh', False)
         self.autoreload_checkbox.setChecked(prv)
         grid.addWidget(self.autoreload_checkbox, 3, 0, 4, 2)
 
         self.shownotifs_checkbox = QCheckBox(
             u"Mostrar una notificación cuando termina cada descarga")
+        self.shownotifs_checkbox.setToolTip(
+            u"Hacer que el escritorio muestre una notificación cada vez que una descarga "
+            u"se complete.")
         prv = config.get('notification', True)
         self.shownotifs_checkbox.setChecked(prv)
         grid.addWidget(self.shownotifs_checkbox, 4, 0, 5, 2)
+
+        self.cleanfnames_checkbox = QCheckBox(
+            u"Limpiar nombres para que se pueda guardar en cualquier lado")
+        self.cleanfnames_checkbox.setToolTip(
+            u"Convertir caracteres extraños en títulos para que el archivo se pueda grabar en "
+            u"cualquier disco o pendrive.")
+        prv = config.get('clean-filenames', False)
+        self.cleanfnames_checkbox.setChecked(prv)
+        grid.addWidget(self.cleanfnames_checkbox, 5, 0, 6, 2)
 
     def _choose_dir(self):
         """Choose a directory using a dialog."""
@@ -105,6 +119,7 @@ class GeneralPreferences(QWidget):
         d['downloaddir'] = self.downloaddir_entry.text()
         d['autorefresh'] = self.autoreload_checkbox.isChecked()
         d['notification'] = self.shownotifs_checkbox.isChecked()
+        d['clean-filenames'] = self.cleanfnames_checkbox.isChecked()
         return d
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011-2014 Facundo Batista
+# Copyright 2011-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -56,6 +56,14 @@ BAD_LOGIN_TEXT = "Ingreso de usuario"
 DONE_TOKEN = "I positively assure that the download is finished (?)"
 
 logger = logging.getLogger('encuentro.network')
+
+
+def clean_fname(fname):
+    """Transform a filename into pure ASCII, to be saved anywhere."""
+    try:
+        return fname.encode('ascii')
+    except UnicodeError:
+        return "".join(urllib.quote(x.encode("utf-8")) if ord(x) > 127 else x for x in fname)
 
 
 class BadCredentialsError(Exception):
@@ -219,6 +227,11 @@ class BaseDownloader(object):
         else:
             fname = os.path.join(downloaddir, channel, section,
                                  title + extension)
+
+        if config.get('clean-filenames'):
+            cleaned = clean_fname(fname)
+            logger.debug("Cleaned filename %r into %r", fname, cleaned)
+            fname = cleaned
 
         # if the directory doesn't exist, create it
         dirsecc = os.path.dirname(fname)
