@@ -5,6 +5,15 @@ Read this if you're a developer of the project and want to know how
 to run the tests.
 
 
+If you still didn't downloaded the code
+---------------------------------------
+
+Just branch it and get there:
+
+  bzr branch lp:encuentro new-branch-name
+  cd new-branch-name
+
+
 Dependencies
 ------------
 
