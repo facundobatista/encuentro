@@ -249,6 +249,26 @@ _SHOULD_SWF_9 = [(
     datetime.date(year=2015, month=3, day=29),
     )]
 
+_SHOULD_SWF_10 = [(
+    'Darío Sztajnszrajber',
+    'Filósofo.',
+    '“La docencia y la divulgación son dos de las múltiples facetas que canalizan la filosofía de Darío Sztajnszrajber. Las desarrolla a través de  medios audiovisuales, como en su programa de televisión “Mentira la verdad”, de canal Encuentro, y en radio, con los ciclos “Demasiado Humano”, difundido en más de 10 emisoras universitarias de todo el país y “El innombrable”, por Radio Madre. Su versatilidad lo asocia además con el teatro donde protagoniza  “Desencajados: filosofía más música”, obra ganadora del premio Konex y “Salir de la caverna: filosofía y rock”.',  # NOQA
+    "swf_image_10ds.jpeg",
+    datetime.date(year=2015, month=8, day=2),
+    ), (
+    'ELECCIONES 2015',
+    '',
+    'Domingo 9 de agosto:<br><br>Transmisión especial de Radio Nacional, AM 870, la radio de todos, en ocasión de las elecciones Primarias, Abiertas, Simultáneas y Obligatorias (PASO) en la República Argentina.',  # NOQA
+    "swf_image_10el.jpeg",
+    datetime.date(year=2015, month=8, day=9),
+    ), (
+    'Manolo Juárez',
+    'Autor, compositor, pianista.',
+    'Es uno de los padres de la renovación folklórica, desde los años 70, con arreglos sobre la melodía, armonía, ritmo y matices de la música. Manolo mamó la cultura desde la cuna con influencias de los amigos de su casa como Julio De Caro, Antonio Berni, Cuchi Leguizamón… De sólida formación clásica que le valió frondosas distinciones como la mención de Honor en el Concurso Viotti, en Milán, por su “Tríptico para Piano”, por nombrar sólo alguno, Manolo no sólo interpreta la música popular: la amplía, la enriquece y la enseña, como lo hizo cuando fundó el Conservatorio de Música Popular de Avellaneda. Maestro de maestros.',  # NOQA
+    "swf_image_10mj.jpeg",
+    datetime.date(year=2015, month=8, day=23),
+    )]
+
 
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
@@ -335,6 +355,11 @@ class ScrapersTestCase(unittest.TestCase):
         ]
         result = scrapers_dqsv.scrap(swf, custom_order)
         self._check(result, _SHOULD_SWF_9)
+
+    def test_example_series_10(self):
+        swf = open("tests/ej-dqsv-10.swf", 'rb')
+        result = scrapers_dqsv.scrap(swf)
+        self._check(result, _SHOULD_SWF_10)
 
 
 class HelpersTestCase(unittest.TestCase):

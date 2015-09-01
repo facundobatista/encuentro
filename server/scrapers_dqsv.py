@@ -167,7 +167,10 @@ def scrap(fh, custom_order=None):
         vals = cpe.get(name, occup, bio, date)
         if vals is None:
             break
-        all_vals.append((vals[name], vals[occup], vals[bio], vals[date]))
+
+        # useful if have a real name, otherwise it's a warning or something
+        if vals[name]:
+            all_vals.append((vals[name], vals[occup], vals[bio], vals[date]))
 
     items = []
     for i, (name, occup, bio, date) in enumerate(all_vals):

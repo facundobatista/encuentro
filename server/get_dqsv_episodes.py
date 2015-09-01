@@ -44,11 +44,11 @@ cache = helpers.Cache("episodes_cache_dqsv.pickle")
 
 # special chapters that don't have a mp3 associated
 SPECIAL_NONMP3_CHAPTERS = {
-    'Elecciones 2011',
-    'Elecciones 2013',
-    'Elecciones 2015',
-    'Epílogos',
-    'Especial Navidad',
+    'elecciones 2011',
+    'elecciones 2013',
+    'elecciones 2015',
+    'epílogos',
+    'especial navidad',
 }
 
 # store published interviews, to detect re-editions (with the custom fixes,
@@ -137,14 +137,14 @@ def get_swfs():
 def get_mp3s():
     """Retrieve all mp3s names."""
     soup = bs4.BeautifulSoup(hit(URL_MUSIC, False))
-    links = [x.text for x in soup.find_all('a')]
+    links = [x['href'] for x in soup.find_all('a')]
     mp3s = [x for x in links if x[:6].isdigit() and x.endswith('.mp3')]
     return mp3s
 
 
 def find_matching_mp3(all_mp3s, swf_date, swf_name):
     """Find the best match for an mp3."""
-    if swf_name in SPECIAL_NONMP3_CHAPTERS:
+    if swf_name.lower() in SPECIAL_NONMP3_CHAPTERS:
         return None
 
     similars = set()
@@ -181,6 +181,7 @@ def get_all_data():
     all_programs = []
     all_swfs = get_swfs()
     all_mp3s = get_mp3s()
+
     for swfbasename, swf in all_swfs:
         reed_name = REEDS_FIXES.get(swf.name, swf.name)
         try:
