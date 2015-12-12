@@ -95,6 +95,11 @@ CUSTOM_ORDER = {
 }
 
 
+def normalize(txt):
+    """Normalize a text at unicode level."""
+    return unicodedata.normalize('NFKD', txt).encode('ASCII', 'ignore').decode("ASCII").lower()
+
+
 @helpers.retryable(logger)
 def hit(url, apply_cache):
     """Get the info from an episode."""
@@ -149,8 +154,7 @@ def find_matching_mp3(all_mp3s, swf_date, swf_name):
 
     similars = set()
     inidate = swf_date.strftime("%y%m%d")
-    _dec = unicodedata.normalize('NFKD', swf_name).encode('ASCII', 'ignore')
-    decomp_name = _dec.decode("ASCII").lower()
+    decomp_name = normalize(swf_name)
     for part in decomp_name.lower().split():
         maybe_fname = inidate + part
         similars.update(difflib.get_close_matches(maybe_fname, all_mp3s))
@@ -184,6 +188,7 @@ def get_all_data():
 
     for swfbasename, swf in all_swfs:
         reed_name = REEDS_FIXES.get(swf.name, swf.name)
+        reed_name = normalize(reed_name).replace(" ", "")
         try:
             old_date = REEDITIONS[reed_name]
         except KeyError:
