@@ -77,6 +77,12 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
         item = self.currentItem()
         self.episodes_widget.show_episode(item.episode_id)
 
+        # adjust the info of episode, as going through EpisodesWidget may
+        # be a dead end (because of filtering)
+        episode = self.episodes_widget.main_window.programs_data[item.episode_id]
+        self.episodes_widget.episode_info.update(episode)
+        self.episodes_widget.main_window.check_download_play_buttons()
+
     def append(self, episode):
         """Append an episode to the downloads list."""
         # add to the list in the GUI
@@ -117,7 +123,7 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
             end_state = Status.downloaded
         else:
             # something bad happened
-            gui_msg = unicode(error)
+            gui_msg = str(error).decode("utf8")
             end_state = Status.none
         item.setText(1, gui_msg)
         item.setDisabled(True)
@@ -331,11 +337,12 @@ class EpisodesWidgetModel(QAbstractTableModel):
             return self._headers[section]
 
     def refresh(self, episode_id):
-        """Refresh the view of an episode."""
-        row = self.pos_map[episode_id]
-        index_from = self.index(row, 0)
-        index_to = self.index(row, len(self._headers) - 1)
-        self.dataChanged.emit(index_from, index_to)
+        """Refresh the view of an episode (if possible, it may be filtered out)."""
+        row = self.pos_map.get(episode_id)
+        if row is not None:
+            index_from = self.index(row, 0)
+            index_to = self.index(row, len(self._headers) - 1)
+            self.dataChanged.emit(index_from, index_to)
 
     def sort(self, n_col, order):
         """Sort data by given column."""
@@ -385,11 +392,12 @@ class EpisodesWidgetView(remembering.RememberingTableView):
         sm.selectionChanged.connect(self.on_change)
 
     def show_episode(self, episode_id):
-        """Show the row for the requested episode."""
-        row = self._model.pos_map[episode_id]
-        index = self._model.index(row, 0)
-        self.scrollTo(index)
-        self._adjust_gui(episode_id)
+        """Show the row for the requested episode, if possible (it may be filtered out)."""
+        row = self._model.pos_map.get(episode_id)
+        if row is not None:
+            index = self._model.index(row, 0)
+            self.scrollTo(index)
+            self._adjust_gui(episode_id)
 
     def selected_items(self):
         """Return the episode ids of the selected items."""
