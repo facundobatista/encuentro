@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012-2014 Facundo Batista
+# Copyright 2012-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -42,7 +42,15 @@ _RES_SERIES_2 = [
     (u"Oficios Curso de Carpintería", u"10. Muebles laminados, parte 2", "http://www.conectate.gob.ar/sitios/conectate/busqueda/buscar?rec_id=103282"),
 ]
 
+_RES_SERIES_3 = [
+    (u"Sin límites", u"04. Natación - Chaco", "http://www.conectate.gob.ar/sitios/conectate/busqueda/encuentro?rec_id=105174"),
+    (u"Sin límites", u"09. Tenis de mesa - GBA", "http://www.conectate.gob.ar/sitios/conectate/busqueda/encuentro?rec_id=105186"),
+    (u"Sin límites", u"13. Basquet en silla femenino - GBA", "http://www.conectate.gob.ar/sitios/conectate/busqueda/encuentro?rec_id=105193"),
+    (u"Sin límites", u"14. Esfuerzo y entrenamiento", "http://www.conectate.gob.ar/sitios/conectate/busqueda/encuentro?rec_id=105194"),
+]
+
 _RES_VIDEO_01 = 26
+
 
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
@@ -56,6 +64,11 @@ class ScrapersTestCase(unittest.TestCase):
         html = open("tests/ej-conect-series_2.html").read()
         res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_2)
+
+    def test_example_series_3(self):
+        html = open("tests/ej-conect-series_3.html").read()
+        res = scrapers_conect.scrap_series(html)
+        self.assertEqual(res, _RES_SERIES_3)
 
     def test_example_video_01(self):
         html = open("tests/ej-conect-video_01.html").read()

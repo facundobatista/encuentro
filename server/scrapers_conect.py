@@ -43,10 +43,11 @@ def scrap_series(html):
             a_tag = episode.find('a')
             link = a_tag['href']
 
-            # before getting the text, remove a posible span text
-            span_tag = a_tag.find('span')
-            if span_tag is not None:
-                span_tag.clear()
+            # before getting the text, remove posible span texts
+            span_tags = a_tag.find_all('span')
+            if span_tags is not None:
+                for tag in span_tags:
+                    tag.clear()
             title = helpers.enhance_number(helpers.clean_html(a_tag.text))
 
             # store it
