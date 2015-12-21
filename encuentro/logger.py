@@ -14,6 +14,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import print_function
+
 """Logging set up."""
 
 import logging
@@ -55,7 +57,7 @@ def set_up(verbose):
     """Set up the logging."""
 
     logfile = get_filename()
-    print "Saving logs to", repr(logfile)
+    print("Saving logs to", repr(logfile))
     logfolder = os.path.dirname(logfile)
     if not os.path.exists(logfolder):
         os.makedirs(logfolder)
@@ -63,8 +65,7 @@ def set_up(verbose):
     logger = logging.getLogger('encuentro')
     handler = CustomRotatingFH(logfile, maxBytes=1e6, backupCount=10)
     logger.addHandler(handler)
-    formatter = logging.Formatter("%(asctime)s  %(name)-22s  "
-                                  "%(levelname)-8s %(message)s")
+    formatter = logging.Formatter("%(asctime)s  %(name)-22s  %(levelname)-8s %(message)s")
     handler.setFormatter(formatter)
     logger.setLevel(logging.DEBUG)
 

@@ -14,6 +14,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import print_function
+
 """Some useful functions."""
 
 import defer
@@ -88,6 +90,6 @@ if __name__ == "__main__":
         """Download."""
         deferred = download(_url)
         data = yield deferred
-        print "All done!", len(data), type(data)
+        print("All done!", len(data), type(data))
     _download()
     sys.exit(app.exec_())

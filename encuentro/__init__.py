@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#
-# Copyright 2011 Facundo Batista
+# Copyright 2011-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -18,6 +17,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals, print_function
+
 """The package."""
 
 import sys
@@ -28,7 +29,7 @@ for name in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
     sip.setapi(name, 2)   # API v2 FTW!
 
 
-IMPORT_MSG = u"""
+IMPORT_MSG = """
 ERROR! Problema al importar %(module)r
 
 Probablemente falte instalar una dependencia.  Se necesita tener instalado
@@ -58,10 +59,10 @@ class NiceImporter(object):
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is None:
             version = self._get_version()
-            print "Modulo %r importado ok, version %r" % (self.module, version)
+            print("Módulo %r importado ok, versión %r" % (self.module, version))
         else:
-            print IMPORT_MSG % dict(module=self.module, package=self.package,
-                                    version=self.version)
+            print(IMPORT_MSG % dict(module=self.module, package=self.package,
+                                    version=self.version))
 
         # consume the exception!
         return True

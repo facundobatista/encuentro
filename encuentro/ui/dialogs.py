@@ -16,6 +16,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals
+
 """Several dialogs."""
 
 from PyQt4.QtGui import (
@@ -27,7 +29,7 @@ from PyQt4.QtGui import (
     QVBoxLayout,
 )
 
-UPGRADE_TEXT = u"""
+UPGRADE_TEXT = """
 Esta nueva versión del programa Encuentro sólo funciona con contenido
 actualizado, lo cual le permitirá trabajar con programas del canal
 Encuentro y de otros nuevos canales, pero deberá configurarlo
@@ -45,16 +47,16 @@ class ForceUpgradeDialog(QDialog):
         super(ForceUpgradeDialog, self).__init__()
         vbox = QVBoxLayout(self)
 
-        self.setWindowTitle(u"El contenido debe actualizarse")
+        self.setWindowTitle("El contenido debe actualizarse")
 
         self.main_text = QLabel(UPGRADE_TEXT)
         vbox.addWidget(self.main_text)
 
         bbox = QDialogButtonBox()
-        bbox.addButton(QPushButton(u"Salir del programa"),
+        bbox.addButton(QPushButton("Salir del programa"),
                        QDialogButtonBox.AcceptRole)
         bbox.accepted.connect(self.accept)
-        bbox.addButton(QPushButton(u"Continuar"),
+        bbox.addButton(QPushButton("Continuar"),
                        QDialogButtonBox.RejectRole)
         bbox.rejected.connect(self.reject)
         vbox.addWidget(bbox)
@@ -70,7 +72,7 @@ class UpdateDialog(QDialog):
         self.setModal(True)
         self.resize(500, 250)
 
-        vbox.addWidget(QLabel(u"Actualización de la lista de episodios:"))
+        vbox.addWidget(QLabel("Actualización de la lista de episodios:"))
         self.text = QPlainTextEdit()
         self.text.setReadOnly(True)
         vbox.addWidget(self.text)

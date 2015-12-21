@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright 2013-2014 Facundo Batista
+# Copyright 2013-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -15,6 +15,8 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # For further info, check  https://launchpad.net/encuentro
+
+from __future__ import unicode_literals
 
 """Central panels in the main window, the content part of all the interface."""
 
@@ -61,7 +63,7 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
         super(DownloadsWidget, self).__init__('downloads')
         signal.register(self.save_state)
 
-        _headers = (u"Descargando...", u"Estado")
+        _headers = ("Descargando...", "Estado")
         self.setColumnCount(len(_headers))
         self.setHeaderLabels(_headers)
 
@@ -86,7 +88,7 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
     def append(self, episode):
         """Append an episode to the downloads list."""
         # add to the list in the GUI
-        item = QTreeWidgetItem((episode.composed_title, u"Encolado"))
+        item = QTreeWidgetItem((episode.composed_title, "Encolado"))
         item.episode_id = episode.episode_id
         self.queue.append((episode, item))
         self.addTopLevelItem(item)
@@ -106,20 +108,20 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
     def start(self):
         """Download started."""
         episode, item = self.queue[self.current]
-        item.setText(1, u"Comenzando")
+        item.setText(1, "Comenzando")
         episode.state = Status.downloading
 
     def progress(self, progress):
         """Advance the progress indicator."""
         _, item = self.queue[self.current]
-        item.setText(1, u"Descargando: %s" % progress)
+        item.setText(1, "Descargando: %s" % progress)
 
     def end(self, error=None):
         """Mark episode as downloaded."""
         episode, item = self.queue[self.current]
         if error is None:
             # downloaded OK
-            gui_msg = u"Terminado ok"
+            gui_msg = "Terminado ok"
             end_state = Status.downloaded
         else:
             # something bad happened
@@ -134,7 +136,7 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
     def cancel(self):
         """The download is being cancelled."""
         episode, item = self.queue[self.current]
-        item.setText(1, u"Cancelado")
+        item.setText(1, "Cancelado")
         episode.state = Status.none
 
     def unqueue(self, episode):
@@ -254,7 +256,7 @@ class EpisodesWidgetModel(QAbstractTableModel):
         operator.attrgetter('filtered_title'),
         operator.attrgetter('duration'),
     ]
-    _headers = (u"Canal", u"Sección", u"Título", u"Duración [min]")
+    _headers = ("Canal", "Sección", "Título", "Duración [min]")
 
     def __init__(self, main_window):
         super(EpisodesWidgetModel, self).__init__()
@@ -286,7 +288,7 @@ class EpisodesWidgetModel(QAbstractTableModel):
             else:
                 # filtering by text, so highlight
                 t = ep.composed_title
-                ep.filtered_title = u'%s<span style="background-color:yellow">%s</span>%s' % (
+                ep.filtered_title = '%s<span style="background-color:yellow">%s</span>%s' % (
                     t[:pos1], t[pos1:pos2], t[pos2:])
             episodes.append(ep)
 
@@ -417,11 +419,11 @@ class EpisodesWidgetView(remembering.RememberingTableView):
             self._adjust_gui(episode_id)
         elif len(indexes) == 0:
             # nothing selected
-            self.episode_info.clear(u"Seleccioná un programa para ver aquí la info.")
+            self.episode_info.clear("Seleccioná un programa para ver aquí la info.")
             self.main_window.check_download_play_buttons()
         else:
             # multiple selection
-            self.episode_info.clear(u"Seleccioná sólo un programa para ver aquí la info.")
+            self.episode_info.clear("Seleccioná sólo un programa para ver aquí la info.")
             self.main_window.check_download_play_buttons()
 
     def on_activate(self, index):
@@ -437,8 +439,8 @@ class EpisodesWidgetView(remembering.RememberingTableView):
                 self.main_window.queue_download(episode)
             else:
                 logger.debug("Not starting download because no config.")
-                t = u"No se puede arrancar una descarga porque la configuración está incompleta."
-                self.main_window.show_message(u'Falta configuración', t)
+                t = "No se puede arrancar una descarga porque la configuración está incompleta."
+                self.main_window.show_message('Falta configuración', t)
 
     def _adjust_gui(self, episode_id):
         """Adjust the rest of the GUI for this episode."""
@@ -462,9 +464,9 @@ class EpisodesWidgetView(remembering.RememberingTableView):
         episode = self.main_window.programs_data[episode_id]
         menu = QMenu()
         mw = self.main_window
-        act_play = menu.addAction(u"&Reproducir", lambda: mw.play_episode(episode))
-        act_cancel = menu.addAction(u"&Cancelar descarga", lambda: mw.cancel_download(episode))
-        act_download = menu.addAction(u"&Descargar", lambda: mw.queue_download(episode))
+        act_play = menu.addAction("&Reproducir", lambda: mw.play_episode(episode))
+        act_cancel = menu.addAction("&Cancelar descarga", lambda: mw.cancel_download(episode))
+        act_download = menu.addAction("&Descargar", lambda: mw.queue_download(episode))
 
         # set menu options according status
         state = episode.state
@@ -519,8 +521,7 @@ class EpisodeInfo(QWidget):
         self.get_image = image.ImageGetter(self.image_episode_loaded).get_image
 
         # text area
-        self.text_edit = QTextEdit(
-            u"Seleccionar un programa para ver aquí la info.")
+        self.text_edit = QTextEdit("Seleccionar un programa para ver aquí la info.")
         self.text_edit.setReadOnly(True)
         layout.addWidget(self.text_edit)
 
@@ -579,10 +580,10 @@ class EpisodeInfo(QWidget):
 
         # all description
         if episode.subtitle is None:
-            msg = u"<center><h3>%s</h3></center><br/><br/>%s" % (
+            msg = "<center><h3>%s</h3></center><br/><br/>%s" % (
                 episode.composed_title, episode.description)
         else:
-            msg = u"<center><h3>%s</h3>%s</center><br/><br/>%s" % (
+            msg = "<center><h3>%s</h3>%s</center><br/><br/>%s" % (
                 episode.composed_title, episode.subtitle, episode.description)
         self.text_edit.setHtml(msg)
 
@@ -594,17 +595,17 @@ class EpisodeInfo(QWidget):
             enable = True
             remove = False
         elif episode.state == data.Status.downloading:
-            label = u"Cancelar descarga"
+            label = "Cancelar descarga"
             func = self.main_window.cancel_download
             enable = True
             remove = False
         elif episode.state == data.Status.waiting:
-            label = u"Sacar de la cola"
+            label = "Sacar de la cola"
             func = self.main_window.unqueue_download
             enable = True
             remove = True
         else:
-            label = u"Descargar"
+            label = "Descargar"
             func = self.main_window.download_episode
             enable = bool(self.main_window.have_config())
             remove = False

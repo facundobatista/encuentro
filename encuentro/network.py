@@ -16,6 +16,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals
+
 """Some functions to deal with network and Encuentro site."""
 
 from __future__ import print_function
@@ -281,8 +283,7 @@ class AuthenticatedDownloader(BaseDownloader):
         authpass = config.get('password', '')
 
         # build where to save it
-        fname, tempf = self._setup_target(canal, seccion, season,
-                                          titulo, u".avi")
+        fname, tempf = self._setup_target(canal, seccion, season, titulo, ".avi")
         logger.debug("Downloading to temporal file %r", tempf)
 
         logger.info("Download episode %r: browser started", url)
@@ -435,12 +436,12 @@ class _GenericDownloader(BaseDownloader):
 
 class GenericVideoDownloader(_GenericDownloader):
     """Generic downloaded that saves video."""
-    file_extension = u".mp4"
+    file_extension = ".mp4"
 
 
 class GenericAudioDownloader(_GenericDownloader):
     """Generic downloaded that saves audio."""
-    file_extension = u".mp3"
+    file_extension = ".mp3"
 
 
 # this is the entry point to get the downloaders for each type
@@ -468,12 +469,10 @@ if __name__ == "__main__":
 
     # the three versions to test
     downloader = EncuentroDownloader()
-    _url = "http://www.encuentro.gob.ar/sitios/encuentro/"\
-           "Programas/ver?rec_id=120761"
+    _url = "http://www.encuentro.gob.ar/sitios/encuentro/Programas/ver?rec_id=120761"
 
 #    downloader = ConectarDownloader()
-#    _url = "http://www.conectate.gob.ar/sitios/conectate/"\
-#           "busqueda/pakapaka?rec_id=103605"
+#    _url = "http://www.conectate.gob.ar/sitios/conectate/busqueda/pakapaka?rec_id=103605"
 
     app = QtCore.QCoreApplication(sys.argv)
 #    downloader = GenericVideoDownloader()
@@ -483,8 +482,7 @@ if __name__ == "__main__":
     def download():
         """Download."""
         try:
-            fname = yield downloader.download("test-ej-canal", "secc", "temp",
-                                              "tit", _url, show)
+            fname = yield downloader.download("test-ej-canal", "secc", "temp", "tit", _url, show)
             print("All done!", fname)
         except CancelledError:
             print("--- cancelado!")

@@ -16,6 +16,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals
+
 """Multiplatform code."""
 
 import os
@@ -70,9 +72,9 @@ def get_path(path):
 def sanitize(name):
     """Sanitize the name according to the OS."""
     if sys.platform == 'win32':
-        sanit = re.sub(u'[<>:"/|?*]', '', name)
+        sanit = re.sub('[<>:"/|?*]', '', name)
     else:
-        sanit = re.sub(u'/', '', name)
+        sanit = re.sub('/', '', name)
     return sanit
 
 

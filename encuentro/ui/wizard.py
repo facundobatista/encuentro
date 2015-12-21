@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
-# Copyright 2013 Facundo Batista
+
+# Copyright 2013-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -14,6 +15,8 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # For further info, check  https://launchpad.net/encuentro
+
+from __future__ import unicode_literals
 
 """The wizard that guides the user for the initial setup."""
 
@@ -32,29 +35,29 @@ from encuentro.config import config
 
 logger = logging.getLogger('encuentro.wizard')
 
-TEXT_INIT = u"""
+TEXT_INIT = """
 Bienvenido al visor de contenido del Canal Encuentro y otros.
 Para poder usar el programa debe primero configurarlo!
 """
 
-TEXT_EPISODES = u"""
+TEXT_EPISODES = """
 Primero tiene que actualizar la lista de episodios:
 puede actualizar la lista ahora desde esta misma ventana
 y en cualquier momento desde el menú del programa.
 """
 
-TEXT_CONFIG = u"""
+TEXT_CONFIG = """
 Para poder descargar los programas de los distintos backends tiene que
 configurar algunos con usuario y clave; puede configurar el sistema
 ahora desde esta misma ventana o en cualquier momento desde el menú
 del programa.
 """
 
-TEXT_HAPPY_END = u"""
+TEXT_HAPPY_END = """
 Felicitaciones, el programa está listo para usar :)
 """
 
-TEXT_SAD_END = u"""
+TEXT_SAD_END = """
 ¡Ya podes usar el programa!
 (aunque te falta actualizar y/o configurar algo)
 """
@@ -66,8 +69,8 @@ TEXT_SAD_END = u"""
 # - the action when clicked (will compose method with "self._act_")
 STEPS = [
     (TEXT_INIT, None, None, None),
-    (TEXT_EPISODES, "episode", u"Actualizar", "update"),
-    (TEXT_CONFIG, "config", u"Configurar", "configure"),
+    (TEXT_EPISODES, "episode", "Actualizar", "update"),
+    (TEXT_CONFIG, "config", "Configurar", "configure"),
     (None, None, None, None),
 ]
 
@@ -80,9 +83,9 @@ class WizardDialog(QDialog):
         vbox = QVBoxLayout(self)
 
         # label and checkbox
-        self.main_text = QLabel(u"init text")
+        self.main_text = QLabel("init text")
         vbox.addWidget(self.main_text)
-        self.notthisagain = QCheckBox(u"No mostrar automáticamente esta ayuda")
+        self.notthisagain = QCheckBox("No mostrar automáticamente esta ayuda")
         nowizard = config.get('nowizard', False)
         self.notthisagain.setCheckState(nowizard)
         self.notthisagain.stateChanged.connect(self._notthisagain_toggled)
@@ -90,11 +93,11 @@ class WizardDialog(QDialog):
 
         # buttons
         bbox = QDialogButtonBox()
-        self.navbut_actn = QPushButton(u"init text")
+        self.navbut_actn = QPushButton("init text")
         bbox.addButton(self.navbut_actn, QDialogButtonBox.ActionRole)
-        self.navbut_prev = QPushButton(u"Anterior")
+        self.navbut_prev = QPushButton("Anterior")
         bbox.addButton(self.navbut_prev, QDialogButtonBox.ActionRole)
-        self.navbut_next = QPushButton(u"Siguiente")
+        self.navbut_next = QPushButton("Siguiente")
         bbox.addButton(self.navbut_next, QDialogButtonBox.ActionRole)
         vbox.addWidget(bbox)
 
@@ -122,7 +125,7 @@ class WizardDialog(QDialog):
         # adjust navigation buttons
         if self.step == 0:
             self.navbut_prev.setEnabled(False)
-            self.navbut_next.setText(u"Siguiente")
+            self.navbut_next.setText("Siguiente")
             self.navbut_next.clicked.disconnect()
             self.navbut_next.clicked.connect(lambda: self._move(1))
             self.notthisagain.show()
@@ -130,7 +133,7 @@ class WizardDialog(QDialog):
             self.navbut_prev.setEnabled(True)
             self.navbut_prev.clicked.disconnect()
             self.navbut_prev.clicked.connect(lambda: self._move(-1))
-            self.navbut_next.setText(u"Terminar")
+            self.navbut_next.setText("Terminar")
             self.navbut_next.clicked.disconnect()
             self.navbut_next.clicked.connect(self.accept)
             self.notthisagain.hide()
@@ -138,7 +141,7 @@ class WizardDialog(QDialog):
             self.navbut_prev.setEnabled(True)
             self.navbut_prev.clicked.disconnect()
             self.navbut_prev.clicked.connect(lambda: self._move(-1))
-            self.navbut_next.setText(u"Siguiente")
+            self.navbut_next.setText("Siguiente")
             self.navbut_next.clicked.disconnect()
             self.navbut_next.clicked.connect(lambda: self._move(1))
             self.notthisagain.hide()

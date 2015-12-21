@@ -16,6 +16,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals
+
 """The main window."""
 
 import logging
@@ -58,17 +60,15 @@ from encuentro.ui import (
 logger = logging.getLogger('encuentro.main')
 
 # tooltips for buttons enabled and disabled
-TTIP_PLAY_E = u'Reproducir el programa'
-TTIP_PLAY_D = (
-    u"Reproducir - El episodio debe estar descargado para poder verlo."
-)
-TTIP_DOWNLOAD_E = u'Descargar el programa de la web'
+TTIP_PLAY_E = 'Reproducir el programa'
+TTIP_PLAY_D = "Reproducir - El episodio debe estar descargado para poder verlo."
+TTIP_DOWNLOAD_E = 'Descargar el programa de la web'
 TTIP_DOWNLOAD_D = (
-    u"Descargar - No se puede descargar si ya está descargado o falta "
-    u"alguna configuración en el programa."
+    "Descargar - No se puede descargar si ya está descargado o falta "
+    "alguna configuración en el programa."
 )
 
-ABOUT_TEXT = u"""
+ABOUT_TEXT = """
 <center>
 Simple programa que permite buscar, descargar y ver<br/>
 contenido del canal Encuentro y otros.<br/>
@@ -165,20 +165,19 @@ class MainUI(remembering.RememberingMainWindow):
         menubar = self.menuBar()
 
         # applications menu
-        menu_appl = menubar.addMenu(u'&Aplicación')
+        menu_appl = menubar.addMenu('&Aplicación')
 
         icon = self.style().standardIcon(QStyle.SP_BrowserReload)
         action_reload = QAction(icon, '&Refrescar', self)
         action_reload.setShortcut('Ctrl+R')
-        action_reload.setToolTip(u'Recarga la lista de programas')
+        action_reload.setToolTip('Recarga la lista de programas')
         action_reload.triggered.connect(self.refresh_episodes)
         menu_appl.addAction(action_reload)
 
         icon = self.style().standardIcon(QStyle.SP_FileDialogDetailedView)
-        action_preferences = QAction(icon, u'&Preferencias', self)
+        action_preferences = QAction(icon, '&Preferencias', self)
         action_preferences.triggered.connect(self.open_preferences)
-        action_preferences.setToolTip(
-            u'Configurar distintos parámetros del programa')
+        action_preferences.setToolTip('Configurar distintos parámetros del programa')
         menu_appl.addAction(action_preferences)
 
         menu_appl.addSeparator()
@@ -186,18 +185,18 @@ class MainUI(remembering.RememberingMainWindow):
         icon = self.style().standardIcon(QStyle.SP_MessageBoxInformation)
         _act = QAction(icon, '&Acerca de', self)
         _act.triggered.connect(self.open_about_dialog)
-        _act.setToolTip(u'Muestra información de la aplicación')
+        _act.setToolTip('Muestra información de la aplicación')
         menu_appl.addAction(_act)
 
         icon = self.style().standardIcon(QStyle.SP_DialogCloseButton)
         _act = QAction(icon, '&Salir', self)
         _act.setShortcut('Ctrl+Q')
-        _act.setToolTip(u'Sale de la aplicación')
+        _act.setToolTip('Sale de la aplicación')
         _act.triggered.connect(self.on_close)
         menu_appl.addAction(_act)
 
         # program menu
-        menu_prog = menubar.addMenu(u'&Programa')
+        menu_prog = menubar.addMenu('&Programa')
 
         icon = self.style().standardIcon(QStyle.SP_ArrowDown)
         self.action_download = QAction(icon, '&Descargar', self)
@@ -226,19 +225,19 @@ class MainUI(remembering.RememberingMainWindow):
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         toolbar.addWidget(spacer)
-        toolbar.addWidget(QLabel(u"Filtro: "))
+        toolbar.addWidget(QLabel("Filtro: "))
         self.filter_line = QLineEdit()
         self.filter_line.setMaximumWidth(150)
         self.filter_line.textChanged.connect(self.on_filter_changed)
         toolbar.addWidget(self.filter_line)
-        self.filter_cbox = QCheckBox(u"Sólo descargados")
+        self.filter_cbox = QCheckBox("Sólo descargados")
         self.filter_cbox.stateChanged.connect(self.on_filter_changed)
         toolbar.addWidget(self.filter_cbox)
         QShortcut(QKeySequence("Ctrl+F"), self, self.filter_line.setFocus)
 
         # if needed, a warning that stuff needs to be configured
         icon = self.style().standardIcon(QStyle.SP_MessageBoxWarning)
-        m = u"Necesita configurar algo; haga click aquí para abrir el wizard"
+        m = "Necesita configurar algo; haga click aquí para abrir el wizard"
         self.needsomething_alert = QAction(icon, m, self)
         self.needsomething_alert.triggered.connect(self._start_wizard)
         toolbar.addAction(self.needsomething_alert)
@@ -313,10 +312,9 @@ class MainUI(remembering.RememberingMainWindow):
         logger.debug("Still %d active downloads when trying to quit", pending)
 
         # stuff pending
-        m = (u"Hay programas todavía en proceso de descarga!\n"
-             u"¿Seguro quiere salir del programa?")
+        m = "Hay programas todavía en proceso de descarga!\n¿Seguro quiere salir del programa?"
         QMB = QMessageBox
-        dlg = QMB(u"Guarda!", m, QMB.Question, QMB.Yes, QMB.No, QMB.NoButton)
+        dlg = QMB("Guarda!", m, QMB.Question, QMB.Yes, QMB.No, QMB.NoButton)
         opt = dlg.exec_()
         if opt != QMB.Yes:
             logger.info("Quit cancelled")
@@ -348,7 +346,7 @@ class MainUI(remembering.RememberingMainWindow):
                     text = repr(text)
 
         QMB = QMessageBox
-        dlg = QMB(u"Atención: " + err_type, text, QMB.Warning,
+        dlg = QMB("Atención: " + err_type, text, QMB.Warning,
                   QMB.Ok, QMB.NoButton, QMB.NoButton)
         dlg.exec_()
 
@@ -387,11 +385,10 @@ class MainUI(remembering.RememberingMainWindow):
                 filename, episode = yield self._episode_download(episode)
             except CancelledError:
                 logger.debug("Got a CancelledError!")
-                self.episodes_download.end(error=u"Cancelado")
+                self.episodes_download.end(error="Cancelado")
             except BadCredentialsError:
                 logger.debug("Bad credentials error!")
-                msg = (u"Error con las credenciales: hay que configurar "
-                       u"usuario y clave correctos")
+                msg = "Error con las credenciales: hay que configurar usuario y clave correctos"
                 self.show_message('BadCredentialsError', msg)
                 self.episodes_download.end(error=msg)
             except EncuentroError as e:
@@ -400,12 +397,12 @@ class MainUI(remembering.RememberingMainWindow):
                 err_type = e.__class__.__name__
                 logger.exception("Custom Encuentro error: %s (%r)", e, orig_exc)
                 notify(err_type, msg)
-                self.episodes_download.end(error=u"Error: " + msg)
+                self.episodes_download.end(error="Error: " + msg)
             except Exception as e:
                 err_type = e.__class__.__name__
                 notify(err_type, str(e))
                 logger.exception("Unknown download error: %s (%s)", err_type, e)
-                self.episodes_download.end(error=u"Error: {} ({})".format(err_type, e))
+                self.episodes_download.end(error="Error: {} ({})".format(err_type, e))
             else:
                 logger.debug("Episode downloaded: %s", episode)
                 self.episodes_download.end()
@@ -431,9 +428,8 @@ class MainUI(remembering.RememberingMainWindow):
         fname = yield downloader.download(
             episode.channel, episode.section, season, episode.title,
             episode.url, self.episodes_download.progress)
-        episode_name = u"%s - %s - %s" % (episode.channel, episode.section,
-                                          episode.composed_title)
-        notify(u"Descarga finalizada", episode_name)
+        episode_name = "%s - %s - %s" % (episode.channel, episode.section, episode.composed_title)
+        notify("Descarga finalizada", episode_name)
         defer.return_value((fname, episode))
 
     def open_preferences(self, _=None):
@@ -496,8 +492,7 @@ class MainUI(remembering.RememberingMainWindow):
             multiplatform.open_file(fullpath)
         else:
             logger.warning("Aborted playing, file not found: %r", filename)
-            msg = (u"No se encontró el archivo para reproducir: " +
-                   repr(filename))
+            msg = "No se encontró el archivo para reproducir: " + repr(filename)
             self.show_message('Error al reproducir', msg)
             episode.state = Status.none
             self.episodes_list.set_color(episode)
@@ -516,7 +511,7 @@ class MainUI(remembering.RememberingMainWindow):
 
     def open_about_dialog(self):
         """Show the about dialog."""
-        version = self.version if self.version else u"(?)"
+        version = self.version if self.version else "(?)"
         title = "Encuentro v" + version
         text = ABOUT_TEXT % (version,)
         QMessageBox.about(self, title, text)

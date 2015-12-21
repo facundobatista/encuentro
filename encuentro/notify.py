@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2014 Facundo Batista
+# Copyright 2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -16,12 +16,14 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals, print_function
+
 """The notification-to-the-desktop subsystem."""
 
 from encuentro.config import config
 
 
-_ERRMSG = u"""
+_ERRMSG = """
 ERROR! Problema al importar 'pynotify' - No es "estrictamente necesario, pero
 si lo instala tendrá algunas notificaciones en el escritorio.
 """
@@ -42,7 +44,7 @@ class _Notifier(object):
         try:
             import pynotify
         except ImportError:
-            print _ERRMSG
+            print(_ERRMSG)
             self._notify = lambda t, m: None
         else:
             pynotify.init("Encuentro")

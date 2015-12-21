@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012 Facundo Batista
+# Copyright 2012-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -15,6 +15,8 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # For further info, check  https://launchpad.net/encuentro
+
+from __future__ import unicode_literals, print_function
 
 """Tests for the scrapers for Conectate backend."""
 
@@ -103,8 +105,8 @@ _RES_LIST_1 = [
 
 _RES_PAGE_1 = [
     dict(
-        title=u"Campo Grande",
-        description=u"Hace más de dos siglos, algunas familias de Santiago Del Estero y Orán  partieron hacia el corazón del gran Chaco. Convivieron con el indio y se adaptaron a las duras condiciones. Campo Grande fue  ...",
+        title="Campo Grande",
+        description="Hace más de dos siglos, algunas familias de Santiago Del Estero y Orán  partieron hacia el corazón del gran Chaco. Convivieron con el indio y se adaptaron a las duras condiciones. Campo Grande fue  ...",  # NOQA
         episode_id="bacua_6732813b",
         duration="?",
         url="http://backend.bacua.gob.ar/video.php?v=_6732813b",
@@ -114,8 +116,8 @@ _RES_PAGE_1 = [
         season=None,
     ),
     dict(
-        title=u"Cañete Chiquiclips",
-        description=u"Chiquiclips son consejos sobre seguridad vial, primeros cuidados y salud cantados a los niños por el payaso Cañete.",
+        title="Cañete Chiquiclips",
+        description="Chiquiclips son consejos sobre seguridad vial, primeros cuidados y salud cantados a los niños por el payaso Cañete.",  # NOQA
         episode_id="bacua_c8fa30ec",
         duration="?",
         url="http://backend.bacua.gob.ar/video.php?v=_c8fa30ec",
@@ -128,8 +130,8 @@ _RES_PAGE_1 = [
 
 _RES_PAGE_2 = [
     dict(
-        title=u"Corazon De Vinilo",
-        description=u"Los Ludomatic, banda de música infantil exitosa en los años 80, se reúne luego de veinte años para ver que sus vidas no son como lo habían imaginado tiempo atrás. Toni, Becca, Marco, Lupe y Ren ...",
+        title="Corazon De Vinilo",
+        description="Los Ludomatic, banda de música infantil exitosa en los años 80, se reúne luego de veinte años para ver que sus vidas no son como lo habían imaginado tiempo atrás. Toni, Becca, Marco, Lupe y Ren ...",  # NOQA
         episode_id="bacua_4e0d053f",
         duration="?",
         url="http://backend.bacua.gob.ar/video.php?v=_4e0d053f",
@@ -139,8 +141,8 @@ _RES_PAGE_2 = [
         season=None,
     ),
     dict(
-        title=u"Cordoba Castings",
-        description=u"Córdoba Castings es una empresa dedicada a realizar castings de toda clase, principalmente para otras provincias y el extranjero. Para Nelson, Sergio, Atilio, Ludmila y Pilar la empresa es sólo un a ...",
+        title="Cordoba Castings",
+        description="Córdoba Castings es una empresa dedicada a realizar castings de toda clase, principalmente para otras provincias y el extranjero. Para Nelson, Sergio, Atilio, Ludmila y Pilar la empresa es sólo un a ...",  # NOQA
         episode_id="bacua_2877c648",
         duration="?",
         url="http://backend.bacua.gob.ar/video.php?v=_2877c648",
@@ -157,8 +159,8 @@ _RES_PAGE_3 = [
 
 _RES_PAGE_4 = [
     dict(
-        title=u"Hijos De La Montaña",
-        description=u"",
+        title="Hijos De La Montaña",
+        description="",
         episode_id="bacua_b4fb3ef2",
         duration="?",
         url="http://backend.bacua.gob.ar/video.php?v=_b4fb3ef2",
@@ -171,8 +173,8 @@ _RES_PAGE_4 = [
 
 _RES_PAGE_5 = [
     dict(
-        title=u"Catupecu Machu",
-        description=u"El plan Nacional Igualdad Cultural, impulsado por el Ministerio de Planificación Federal, Inversión Publica y Servicios y la Secretaria de Cultura de Presidencia de la Nación, presentó el 14 de Ab ...",
+        title="Catupecu Machu",
+        description="El plan Nacional Igualdad Cultural, impulsado por el Ministerio de Planificación Federal, Inversión Publica y Servicios y la Secretaria de Cultura de Presidencia de la Nación, presentó el 14 de Ab ...",  # NOQA
         episode_id="bacua_91480bfa",
         duration="?",
         url="http://backend.bacua.gob.ar/video.php?v=_91480bfa",
@@ -182,8 +184,8 @@ _RES_PAGE_5 = [
         season=None,
     ),
     dict(
-        title=u"Centros Clandestinos",
-        description=u"En los años 70 durante la última dictadura militar, funcionaron en el Nuevo Cuyo alrededor de 39 Centros Clandestinos y hubo más de 328 detenidos desaparecidos, pero nadie ha explicado aún cómo o ...",
+        title="Centros Clandestinos",
+        description="En los años 70 durante la última dictadura militar, funcionaron en el Nuevo Cuyo alrededor de 39 Centros Clandestinos y hubo más de 328 detenidos desaparecidos, pero nadie ha explicado aún cómo o ...",  # NOQA
         episode_id="bacua_3cfa998a",
         duration="?",
         url="http://backend.bacua.gob.ar/video.php?v=_3cfa998a",
@@ -193,6 +195,7 @@ _RES_PAGE_5 = [
         season=None,
     ),
 ]
+
 
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
@@ -225,6 +228,6 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_page_5(self):
         html = open("tests/ej-bacua-page_5.html").read()
         res = get_bacua_episodes.scrap_page(html)
-        #print "\n=== res", [sorted(x.items()) for x in res]
-        #print "=== RES", [sorted(x.items()) for x in _RES_PAGE_5]
+        # print("\n=== res", [sorted(x.items()) for x in res])
+        # print("=== RES", [sorted(x.items()) for x in _RES_PAGE_5])
         self.assertEqual(res, _RES_PAGE_5)
