@@ -53,7 +53,7 @@ AUTH_URL = "http://registro.educ.ar/cuentas/ServicioLogin/index"
 CHUNK = 16 * 1024
 MB = 1024 ** 2
 
-BAD_LOGIN_TEXT = "Ingreso de usuario"
+BAD_LOGIN_TEXT = b"Ingreso de usuario"
 
 DONE_TOKEN = "I positively assure that the download is finished (?)"
 
