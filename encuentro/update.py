@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011-2014 Facundo Batista
+# Copyright 2011-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -16,6 +16,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals
+
 """Update the episodes metadata."""
 
 import bz2
@@ -29,7 +31,13 @@ import defer
 from encuentro import utils
 from encuentro.ui import dialogs
 
+# main entry point to download all backends data
 BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v05.list"
+
+# if developing a new backend, put the tuple here; otherwise leave it in None.
+# the tuple is name, downloader, and path
+BACKEND_TEST_DATA = (
+    "ted1", "youtube", "/home/facundo/devel/reps/encuentro/ted1/server/ted1-v05.bz2")
 
 logger = logging.getLogger('encuentro.update')
 
@@ -58,7 +66,16 @@ class UpdateEpisodes(object):
         it was closed, so we stop working for that request.
         """
         if dialog:
-            tell_user = lambda *t: dialog.append(u" ".join(map(unicode, t)))
+            def tell_user(template, *elements):
+                if elements:
+                    try:
+                        msg = template % elements
+                    except Exception as err:
+                        msg = "ERROR %s when building message (template=%r, elements=%s" % (
+                            err, template, elements)
+                else:
+                    msg = template
+                dialog.append(msg)
         else:
             tell_user = lambda *t: None
 
@@ -66,9 +83,9 @@ class UpdateEpisodes(object):
         tell_user("Descargando la lista de backends...")
         try:
             _, backends_file = yield utils.download(BACKENDS_URL)
-        except Exception, e:
+        except Exception as e:
             logger.error("Problem when downloading backends: %s", e)
-            tell_user("Hubo un PROBLEMA al bajar la lista de backends:", e)
+            tell_user("Hubo un PROBLEMA al bajar la lista de backends: %s", e)
             return
         if dialog and dialog.closed:
             return
@@ -78,13 +95,12 @@ class UpdateEpisodes(object):
         backends = {}
         for b_name, b_dloader, b_url in backends_list:
             logger.info("Downloading backend metadata for %r", b_name)
-            tell_user("Descargando la lista de episodios para backend %r..." %
-                      (b_name,))
+            tell_user("Descargando la lista de episodios para backend %r...", b_name)
             try:
                 _, compressed = yield utils.download(b_url)
-            except Exception, e:
+            except Exception as e:
                 logger.error("Problem when downloading episodes: %s", e)
-                tell_user("Hubo un PROBLEMA al bajar los episodios: ", e)
+                tell_user("Hubo un PROBLEMA al bajar los episodios: %s", e)
                 return
             if dialog and dialog.closed:
                 return
@@ -98,13 +114,34 @@ class UpdateEpisodes(object):
                 item['downtype'] = b_dloader
             backends[b_name] = content
 
+        if BACKEND_TEST_DATA is not None:
+            b_name, b_dloader, b_path = BACKEND_TEST_DATA
+            logger.info("Grabbing test backend metadata for %r", b_name)
+            tell_user("Usando la lista de episodios para backend de prueba %r...", b_name)
+            try:
+                with open(b_path, "rb") as fh:
+                    compressed = fh.read()
+            except Exception as e:
+                logger.error("Problem when reading test file: %s", e)
+                tell_user("Hubo un PROBLEMA al leer el archivo de prueba: %s", e)
+                return
+
+            tell_user("Descomprimiendo el archivo....")
+            new_content = bz2.decompress(compressed)
+            logger.debug("Grabbed data decompressed ok")
+
+            content = json.loads(new_content)
+            for item in content:
+                item['downtype'] = b_dloader
+            backends[b_name] = content
+
         if dialog and dialog.closed:
             return
         tell_user("Conciliando datos de diferentes backends")
         logger.debug("Merging backends data")
         new_data = self._merge(backends)
 
-        tell_user("Actualizando los datos internos....")
+        tell_user("Actualizando los datos internos (%d)....", len(new_data))
         logger.debug("Updating internal metadata (%d)", len(new_data))
         self.main_window.programs_data.merge(
             new_data, self.main_window.big_panel.episodes)
@@ -112,7 +149,7 @@ class UpdateEpisodes(object):
         config.update({'autorefresh_last_time': datetime.now()})
         config.save()
 
-        tell_user(u"¡Todo terminado bien!")
+        tell_user("¡Todo terminado bien!")
 
         if dialog:
             dialog.accept()
