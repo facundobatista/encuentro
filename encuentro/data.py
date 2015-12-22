@@ -14,6 +14,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals
+
 """Classes to interface to and persist the episodes data."""
 
 import cgi
@@ -85,7 +87,7 @@ class EpisodeData(object):
 
         # build a nice string to show in the GUI
         if self.season:
-            self.composed_title = self.season + u": " + self.title
+            self.composed_title = "[{}] {}".format(self.season, self.title)
         else:
             self.composed_title = self.title
 
@@ -132,7 +134,7 @@ class EpisodeData(object):
 
         # build a nice string to show in the GUI
         if self.season:
-            self.composed_title = self.season + u": " + self.title
+            self.composed_title = "[{}] {}".format(self.season, self.title)
         else:
             self.composed_title = self.title
 
@@ -186,7 +188,7 @@ class ProgramsData(object):
     def __init__(self, main_window, filename):
         self.main_window = main_window
         self.filename = filename
-        print "Using data file:", repr(filename)
+        print("Using data file:", repr(filename))
         logger.info("Using data file: %r", filename)
 
         self.version = None
@@ -227,7 +229,7 @@ class ProgramsData(object):
         with open(self.filename, 'rb') as fh:
             try:
                 loaded_programs_data = pickle.load(fh)
-            except Exception, err:
+            except Exception as err:
                 logger.warning("ERROR while opening the pickled data: %s", err)
                 self.data = {}
                 self.version = self.last_programs_version
