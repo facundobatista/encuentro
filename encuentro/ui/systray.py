@@ -1,4 +1,4 @@
-# Copyright 2013-2014 Facundo Batista
+# Copyright 2013-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -35,7 +35,7 @@ def _should_fix():
     cmd = "gsettings get com.canonical.Unity.Panel systray-whitelist".split()
     try:
         out = subprocess.check_output(cmd)
-    except Exception, err:
+    except Exception as err:
         # don't have gsettings, nothing to fix
         etype = err.__class__.__name__
         logger.debug("No gsettings, no systray conf to fix (got %r %s)",
@@ -69,7 +69,7 @@ def _fix_unity_systray():
            "systray-whitelist", str(conf)]
     try:
         out = subprocess.check_output(cmd)
-    except OSError, err:
+    except OSError as err:
         logger.warning("Error trying to set the new conf: %s", err)
     else:
         logger.warning("New config set (result: %r)", out)

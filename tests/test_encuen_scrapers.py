@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2012-2013 Facundo Batista
+# Copyright 2012-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -16,6 +16,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals
+
 """Tests for the scrapers of Encuentro itself."""
 
 import unittest
@@ -24,20 +26,20 @@ from server import scrapers_encuen
 
 
 _RES_PROGRAMA_1 = None, [
-    (u"¿Dónde está Fierro?", u"Guerras cantadas", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117820"),
-    (u"¿Dónde está Fierro?", u"Me tendrán en su memoria para siempre, mis paisanos", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117821"),
-    (u"¿Dónde está Fierro?", u"¿Quién es el gaucho?", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117822"),
-    (u"¿Dónde está Fierro?", u"¿Dónde está Hernández?", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117823"),
-    (u"¿Dónde está Fierro?", u"Los demasiados libros", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117824"),
-    (u"¿Dónde está Fierro?", u"Ida y vuelta", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117825"),
-    (u"¿Dónde está Fierro?", u"¿Poema épico nacional?", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117826"),
-    (u"¿Dónde está Fierro?", u"Mucho más que una payada", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117827"),
-    (u"¿Dónde está Fierro?", u"Fronteras", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117828"),
-    (u"¿Dónde está Fierro?", u"Fierro en las artes plásticas", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117829"),
-    (u"¿Dónde está Fierro?", u"Entre pantallas y escenarios", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117830"),
-    (u"¿Dónde está Fierro?", u"Fierro en el cine y el teatro", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117831"),
-    (u"¿Dónde está Fierro?", u"Fierro en la música", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117832"),
-    (u"¿Dónde está Fierro?", u"Fierro en los argentinos", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117833"),
+    ("¿Dónde está Fierro?", "Guerras cantadas", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117820"),  # NOQA
+    ("¿Dónde está Fierro?", "Me tendrán en su memoria para siempre, mis paisanos", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117821"),  # NOQA
+    ("¿Dónde está Fierro?", "¿Quién es el gaucho?", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117822"),  # NOQA
+    ("¿Dónde está Fierro?", "¿Dónde está Hernández?", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117823"),  # NOQA
+    ("¿Dónde está Fierro?", "Los demasiados libros", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117824"),  # NOQA
+    ("¿Dónde está Fierro?", "Ida y vuelta", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117825"),  # NOQA
+    ("¿Dónde está Fierro?", "¿Poema épico nacional?", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117826"),  # NOQA
+    ("¿Dónde está Fierro?", "Mucho más que una payada", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117827"),  # NOQA
+    ("¿Dónde está Fierro?", "Fronteras", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117828"),  # NOQA
+    ("¿Dónde está Fierro?", "Fierro en las artes plásticas", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117829"),  # NOQA
+    ("¿Dónde está Fierro?", "Entre pantallas y escenarios", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117830"),  # NOQA
+    ("¿Dónde está Fierro?", "Fierro en el cine y el teatro", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117831"),  # NOQA
+    ("¿Dónde está Fierro?", "Fierro en la música", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117832"),  # NOQA
+    ("¿Dónde está Fierro?", "Fierro en los argentinos", "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=117833"),  # NOQA
 ]
 
 _RES_PROGRAMA_2 = 60, []

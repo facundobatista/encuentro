@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# Copyright 2013 Facundo Batista
+# Copyright 2013-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -117,7 +117,7 @@ class RememberingTreeWidget(QTreeWidget):
 
     def save_state(self):
         """Save what to remember."""
-        cols_w = [self.columnWidth(i) for i in xrange(self.columnCount())]
+        cols_w = [self.columnWidth(i) for i in range(self.columnCount())]
         s_enabled = self.isSortingEnabled()
         s_column = self.sortColumn()
         c = self.topLevelItemCount()
@@ -169,6 +169,6 @@ class RememberingTableView(QTableView):
 
         # rest of values and store
         col_count = self.model().columnCount(None)
-        cols_w = [self.columnWidth(i) for i in xrange(col_count)]
+        cols_w = [self.columnWidth(i) for i in range(col_count)]
         info = dict(cols_w=cols_w, sort_section=sort_section, sort_order=sort_order)
         config[SYSTEM][self._name] = info

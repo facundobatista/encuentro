@@ -16,6 +16,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals
+
 """Some functions to deal with network and Encuentro site."""
 
 from __future__ import print_function
@@ -47,11 +49,31 @@ from PyQt4 import QtNetwork, QtCore
 from encuentro import multiplatform
 from encuentro.config import config
 
+# special import sequence to get a useful version of youtube-dl
+try:
+    import youtube_dl
+except ImportError:
+    youtube_dl = None
+else:
+    _version = getattr(youtube_dl, '__version__', getattr(youtube_dl.version, '__version__', None))
+    if _version < '2015.12.21':
+        # older than builtin version
+        for k in [x for x in sys.modules if x.startswith('youtube_dl')]:
+            del sys.modules[k]
+        youtube_dl = None
+if youtube_dl is None:
+    # inexistant or too old, let's use the builtin version
+    root_path = os.path.dirname(os.path.dirname(__file__))
+    builtin_path = os.path.join(os.path.abspath(root_path), "external", "youtube-dl")
+    sys.path.insert(0, builtin_path)
+    import youtube_dl
+
+
 AUTH_URL = "http://registro.educ.ar/cuentas/ServicioLogin/index"
 CHUNK = 16 * 1024
 MB = 1024 ** 2
 
-BAD_LOGIN_TEXT = "Ingreso de usuario"
+BAD_LOGIN_TEXT = b"Ingreso de usuario"
 
 DONE_TOKEN = "I positively assure that the download is finished (?)"
 
@@ -85,8 +107,7 @@ class MiBrowser(Thread):
     """Threaded browser to do the download."""
 
     # we *are* calling parent's init; pylint: disable=W0231
-    def __init__(self, parent, authuser, authpass, url,
-                 fname, output_queue, must_quit):
+    def __init__(self, parent, authuser, authpass, url, fname, output_queue, must_quit):
         self.parent = parent
         self.authinfo = authuser, authpass
         self.url = url
@@ -222,11 +243,9 @@ class BaseDownloader(object):
 
         if season is not None:
             season = multiplatform.sanitize(season)
-            fname = os.path.join(downloaddir, channel, section,
-                                 season, title + extension)
+            fname = os.path.join(downloaddir, channel, section, season, title + extension)
         else:
-            fname = os.path.join(downloaddir, channel, section,
-                                 title + extension)
+            fname = os.path.join(downloaddir, channel, section, title + extension)
 
         if config.get('clean-filenames'):
             cleaned = clean_fname(fname)
@@ -243,8 +262,7 @@ class BaseDownloader(object):
 
     def download(self, channel, section, season, title, url, cb_progress):
         """Download an episode."""
-        return self._download(channel, section, season,
-                              title, url, cb_progress)
+        return self._download(channel, section, season, title, url, cb_progress)
 
 
 class AuthenticatedDownloader(BaseDownloader):
@@ -281,8 +299,7 @@ class AuthenticatedDownloader(BaseDownloader):
         authpass = config.get('password', '')
 
         # build where to save it
-        fname, tempf = self._setup_target(canal, seccion, season,
-                                          titulo, u".avi")
+        fname, tempf = self._setup_target(canal, seccion, season, titulo, ".avi")
         logger.debug("Downloading to temporal file %r", tempf)
 
         logger.info("Download episode %r: browser started", url)
@@ -435,12 +452,130 @@ class _GenericDownloader(BaseDownloader):
 
 class GenericVideoDownloader(_GenericDownloader):
     """Generic downloaded that saves video."""
-    file_extension = u".mp4"
+    file_extension = ".mp4"
 
 
 class GenericAudioDownloader(_GenericDownloader):
     """Generic downloaded that saves audio."""
-    file_extension = u".mp3"
+    file_extension = ".mp3"
+
+
+class ThreadedYT(Thread):
+    def __init__(self, url, fname, output_queue, must_quit):
+        self.url = url
+        self.fname = fname
+        self.output_queue = output_queue
+        self.must_quit = must_quit
+        self._prev_progress = None
+        super(ThreadedYT, self).__init__()
+
+    def _really_download(self):
+        """Effectively download the content to disk."""
+        logger.debug("Threaded YT, start")
+
+        def report(info):
+            """Report download."""
+            total = info['total_bytes']
+            dloaded = info['downloaded_bytes']
+            size_mb = total // MB
+            perc = dloaded * 100.0 / total
+            m = "%.1f%% (de %d MB)" % (perc, size_mb)
+            if m != self._prev_progress:
+                self.output_queue.put(m)
+                self._prev_progress = m
+
+        conf = {
+            'outtmpl': self.fname,
+            'progress_hooks': [report],
+            'quiet': True,
+            'logger': logger,
+        }
+
+        with youtube_dl.YoutubeDL(conf) as ydl:
+            logger.debug("Threaded YT, about to download")
+            ydl.download([self.url])
+        self.output_queue.put(DONE_TOKEN)
+        logger.debug("Threaded YT, done")
+
+    def run(self):
+        """Do the heavy work."""
+        try:
+            self._really_download()
+        except Exception as err:
+            logger.debug("Threaded YT, error: %s(%s)", err.__class__.__name__, err)
+            self.output_queue.put(err)
+
+
+class YoutubeDownloader(BaseDownloader):
+    """Downloader for stuff in youtube."""
+
+    def __init__(self):
+        super(YoutubeDownloader, self).__init__()
+        self.thyts_quit = set()
+        self.cancelled = False
+        logger.info("Generic downloader inited")
+
+    def _shutdown(self):
+        """Quit the download."""
+        for quit_event in self.thyts_quit:
+            quit_event.set()
+        logger.info("Youtube downloader shutdown finished")
+
+    def _cancel(self):
+        """Cancel a download.
+
+        YoutubeDL can't be really cancelled, see
+        https://github.com/rg3/youtube-dl/issues/8014 , but flag
+        to clean.
+        """
+        self.cancelled = True
+        logger.info("Youtube downloader cancelled")
+
+    @defer.inline_callbacks
+    def _download(self, canal, seccion, season, titulo, url, cb_progress):
+        """Download an episode to disk."""
+        self.cancelled = False
+
+        # start the threaded downloaded
+        qinput = DeferredQueue()
+        bquit = Event()
+        self.thyts_quit.add(bquit)
+
+        # build where to save it
+        fname, tempf = self._setup_target(canal, seccion, season, titulo, ".mp4")
+        logger.debug("Youtube downloader, downloading to temporal file %r", tempf)
+
+        logger.info("Download episode %r: browser started", url)
+        thyt = ThreadedYT(url, tempf, qinput, bquit)
+        thyt.start()
+
+        # loop reading until finished
+        while True:
+            # get all data and just use the last item
+            payload = yield qinput.deferred_get()
+            if self.cancelled:
+                logger.debug("Cancelled!.")
+                raise CancelledError()
+
+            # special situations
+            if payload is None:
+                # no data, let's try again
+                continue
+
+            data = payload[-1]
+            if isinstance(data, Exception):
+                raise data
+            if data == DONE_TOKEN:
+                break
+
+            # normal
+            cb_progress(data)
+
+        # rename to proper name and finish
+        logger.info("Youtube downloader, downloading done, renaming temp to %r", fname)
+        os.rename(tempf, fname)
+        self.thyts_quit.remove(bquit)
+        defer.return_value(fname)
 
 
 # this is the entry point to get the downloaders for each type
@@ -449,6 +584,7 @@ all_downloaders = {
     'conectar': ConectarDownloader,
     'generic': GenericVideoDownloader,
     'dqsv': GenericAudioDownloader,
+    'youtube': YoutubeDownloader,
 }
 
 
@@ -466,28 +602,29 @@ if __name__ == "__main__":
     config = dict(user="lxpdvtnvrqdoa@mailinator.com",  # NOQA
                   password="descargas", downloaddir='.')
 
-    # the three versions to test
-    downloader = EncuentroDownloader()
-    _url = "http://www.encuentro.gob.ar/sitios/encuentro/"\
-           "Programas/ver?rec_id=120761"
+    # several versions to test
+#    downloader = EncuentroDownloader()
+#    _url = "http://www.encuentro.gob.ar/sitios/encuentro/Programas/ver?rec_id=120761"
 
 #    downloader = ConectarDownloader()
-#    _url = "http://www.conectate.gob.ar/sitios/conectate/"\
-#           "busqueda/pakapaka?rec_id=103605"
+#    _url = "http://www.conectate.gob.ar/sitios/conectate/busqueda/pakapaka?rec_id=103605"
 
     app = QtCore.QCoreApplication(sys.argv)
 #    downloader = GenericVideoDownloader()
 #    _url = "http://backend.bacua.gob.ar/video.php?v=_f9d06f72"
 
+    downloader = YoutubeDownloader()
+    _url = "http://www.youtube.com/v/mr0UwpSxXHA&fs=1"
+
     @defer.inline_callbacks
     def download():
         """Download."""
+        logger.info("Starting test download")
         try:
-            fname = yield downloader.download("test-ej-canal", "secc", "temp",
-                                              "tit", _url, show)
-            print("All done!", fname)
+            fname = yield downloader.download("test-ej-canal", "secc", "temp", "tit", _url, show)
+            logger.info("All done! %s", fname)
         except CancelledError:
-            print("--- cancelado!")
+            logger.info("--- cancelado!")
         finally:
             downloader.shutdown()
             app.exit()

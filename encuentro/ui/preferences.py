@@ -16,6 +16,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals
+
 """The preferences dialog."""
 
 import os
@@ -64,44 +66,43 @@ class GeneralPreferences(QWidget):
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setCompletionMode(QCompleter.PopupCompletion)
 
-        l = QLabel(
-            u"<b>Ingresá el directorio donde descargar los videos...</b>")
+        l = QLabel("<b>Ingresá el directorio donde descargar los videos...</b>")
         l.setTextFormat(Qt.RichText)
         grid.addWidget(l, 0, 0, 1, 2)
 
-        grid.addWidget(QLabel(u"Descargar en:"), 1, 0, 2, 1)
+        grid.addWidget(QLabel("Descargar en:"), 1, 0, 2, 1)
         prv = config.get('downloaddir', '')
         self.downloaddir_entry = QLineEdit(prv)
         self.downloaddir_entry.setCompleter(completer)
-        self.downloaddir_entry.setPlaceholderText(u'Ingresá un directorio')
+        self.downloaddir_entry.setPlaceholderText('Ingresá un directorio')
         grid.addWidget(self.downloaddir_entry, 1, 1, 2, 2)
 
-        self.downloaddir_buttn = QPushButton(u"Elegir un directorio")
+        self.downloaddir_buttn = QPushButton("Elegir un directorio")
         self.downloaddir_buttn.clicked.connect(self._choose_dir)
         grid.addWidget(self.downloaddir_buttn, 2, 1, 3, 2)
 
         self.autoreload_checkbox = QCheckBox(
-            u"Recargar automáticamente la lista de episodios al iniciar")
+            "Recargar automáticamente la lista de episodios al iniciar")
         self.autoreload_checkbox.setToolTip(
-            u"Cada vez que arranca el programa refrescar la lista de episodios.")
+            "Cada vez que arranca el programa refrescar la lista de episodios.")
         prv = config.get('autorefresh', False)
         self.autoreload_checkbox.setChecked(prv)
         grid.addWidget(self.autoreload_checkbox, 3, 0, 4, 2)
 
         self.shownotifs_checkbox = QCheckBox(
-            u"Mostrar una notificación cuando termina cada descarga")
+            "Mostrar una notificación cuando termina cada descarga")
         self.shownotifs_checkbox.setToolTip(
-            u"Hacer que el escritorio muestre una notificación cada vez que una descarga "
-            u"se complete.")
+            "Hacer que el escritorio muestre una notificación cada vez que una descarga "
+            "se complete.")
         prv = config.get('notification', True)
         self.shownotifs_checkbox.setChecked(prv)
         grid.addWidget(self.shownotifs_checkbox, 4, 0, 5, 2)
 
         self.cleanfnames_checkbox = QCheckBox(
-            u"Limpiar nombres para que se pueda guardar en cualquier lado")
+            "Limpiar nombres para que se pueda guardar en cualquier lado")
         self.cleanfnames_checkbox.setToolTip(
-            u"Convertir caracteres extraños en títulos para que el archivo se pueda grabar en "
-            u"cualquier disco o pendrive.")
+            "Convertir caracteres extraños en títulos para que el archivo se pueda grabar en "
+            "cualquier disco o pendrive.")
         prv = config.get('clean-filenames', False)
         self.cleanfnames_checkbox.setChecked(prv)
         grid.addWidget(self.cleanfnames_checkbox, 5, 0, 6, 2)
@@ -131,30 +132,29 @@ class ConectatePreferences(QWidget):
         grid.setSpacing(20)
         grid.setColumnStretch(1, 10)
 
-        l = QLabel(u"<b>Ingresá tus datos del portal Conectate:</b>")
+        l = QLabel("<b>Ingresá tus datos del portal Conectate:</b>")
         l.setTextFormat(Qt.RichText)
         grid.addWidget(l, 0, 0, 1, 2)
 
-        grid.addWidget(QLabel(u"Usuario:"), 1, 0, 2, 1)
+        grid.addWidget(QLabel("Usuario:"), 1, 0, 2, 1)
         prv = config.get('user', '')
         self.user_entry = QLineEdit(prv)
-        self.user_entry.setPlaceholderText(u'Ingresá tu usuario de Conectate')
+        self.user_entry.setPlaceholderText('Ingresá tu usuario de Conectate')
         grid.addWidget(self.user_entry, 1, 1, 2, 2)
 
-        grid.addWidget(QLabel(u"Contraseña:"), 2, 0, 3, 1)
+        grid.addWidget(QLabel("Contraseña:"), 2, 0, 3, 1)
         prv = config.get('password', '')
         self.password_entry = QLineEdit(prv)
         self.password_entry.setEchoMode(QLineEdit.Password)
-        self.password_entry.setPlaceholderText(
-            u'Ingresá tu contraseña de Conectate')
+        self.password_entry.setPlaceholderText('Ingresá tu contraseña de Conectate')
         grid.addWidget(self.password_entry, 2, 1, 3, 2)
 
-        self.password_mask = QCheckBox(u'Mostrar contraseña')
+        self.password_mask = QCheckBox('Mostrar contraseña')
         self.password_mask.stateChanged.connect(self._toggle_password_mask)
         grid.addWidget(self.password_mask, 3, 1, 4, 2)
 
-        l = QLabel(u'Si no tenés estos datos, '
-                   u'<a href="{}">registrate aquí</a>'.format(URL_CONECTATE))
+        l = QLabel('Si no tenés estos datos, '
+                   '<a href="{}">registrate aquí</a>'.format(URL_CONECTATE))
         l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         l.setTextFormat(Qt.RichText)
         l.setOpenExternalLinks(True)
@@ -183,9 +183,9 @@ class PreferencesDialog(QDialog):
 
         tabbed = QTabWidget()
         self.gp = GeneralPreferences()
-        tabbed.addTab(self.gp, u"General")
+        tabbed.addTab(self.gp, "General")
         self.cp = ConectatePreferences()
-        tabbed.addTab(self.cp, u"Conectate")
+        tabbed.addTab(self.cp, "Conectate")
         vbox.addWidget(tabbed)
 
         bbox = QDialogButtonBox(QDialogButtonBox.Ok)

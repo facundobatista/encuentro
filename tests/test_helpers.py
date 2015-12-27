@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2014 Facundo Batista
+# Copyright 2014-2015 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -16,6 +16,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import unicode_literals
+
 """Tests for the helper of scrapers."""
 
 import unittest
@@ -27,21 +29,21 @@ class CleanHTMLTestCase(unittest.TestCase):
     """Test for the HTML cleaning function."""
 
     def test_remove_tags(self):
-        t = u"foo bar. \n<br><em>Baz Bardo</em> fruta."
+        t = "foo bar. \n<br><em>Baz Bardo</em> fruta."
         r = helpers.clean_html(t)
-        self.assertEqual(r, u"foo bar. \nBaz Bardo fruta.")
+        self.assertEqual(r, "foo bar. \nBaz Bardo fruta.")
 
     def test_in_the_end_1(self):
-        t = u"Provincia de Salta.&nbsp;                      </p>"
+        t = "Provincia de Salta.&nbsp;                      </p>"
         r = helpers.clean_html(t)
-        self.assertEqual(r, u"Provincia de Salta.")
+        self.assertEqual(r, "Provincia de Salta.")
 
     def test_in_the_end_2(self):
-        t = u"evento deportivo.&nbsp;"
+        t = "evento deportivo.&nbsp;"
         r = helpers.clean_html(t)
-        self.assertEqual(r, u"evento deportivo.")
+        self.assertEqual(r, "evento deportivo.")
 
     def test_tag_complex(self):
-        t = u'<span style="line-height: 1.22;">Alumnos y docente'
+        t = '<span style="line-height: 1.22;">Alumnos y docente'
         r = helpers.clean_html(t)
-        self.assertEqual(r, u"Alumnos y docente")
+        self.assertEqual(r, "Alumnos y docente")

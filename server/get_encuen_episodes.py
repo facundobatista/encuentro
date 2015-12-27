@@ -16,6 +16,8 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
+from __future__ import print_function
+
 """Main server process to get all info from Encuentro web site."""
 
 import json
@@ -196,6 +198,6 @@ if __name__ == '__main__':
     srv_logger.setup_log(shy)
 
     if len(sys.argv) > 1:
-        print get_episode_info(int(sys.argv[1]))
+        print(get_episode_info(int(sys.argv[1])))
     else:
         main()
