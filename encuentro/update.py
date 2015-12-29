@@ -36,8 +36,8 @@ BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v05.list"
 
 # if developing a new backend, put the tuple here; otherwise leave it in None.
 # the tuple is name, downloader, and path
-BACKEND_TEST_DATA = (
-    "ted1", "youtube", "/home/facundo/devel/reps/encuentro/ted1/server/ted1-v05.bz2")
+BACKEND_TEST_DATA = None
+#    ("cda", "chunks", "/home/facundo/devel/reps/encuentro/cda/server/cda-v05.bz2")
 
 logger = logging.getLogger('encuentro.update')
 

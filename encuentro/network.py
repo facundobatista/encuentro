@@ -16,12 +16,11 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
 """Some functions to deal with network and Encuentro site."""
 
-from __future__ import print_function
-
+import json
 import logging
 import os
 import sys
@@ -46,7 +45,7 @@ if __name__ == '__main__':
 
 from PyQt4 import QtNetwork, QtCore
 
-from encuentro import multiplatform
+from encuentro import multiplatform, utils
 from encuentro.config import config
 
 # special import sequence to get a useful version of youtube-dl
@@ -578,6 +577,62 @@ class YoutubeDownloader(BaseDownloader):
         defer.return_value(fname)
 
 
+class ChunksDownloader(BaseDownloader):
+    """Download several chunks and merge them in one file."""
+
+    def __init__(self):
+        super(ChunksDownloader, self).__init__()
+        self.cancelled = False
+        self.should_stop = False
+        logger.info("Chunks downloader inited")
+
+    @defer.inline_callbacks
+    def _download(self, canal, seccion, season, titulo, url, cb_progress):
+        """Download an episode to disk."""
+        chunk_urls = json.loads(url)
+        logger.info("ChunksDownloader, download episode with %d chunks", len(chunk_urls))
+
+        self.cancelled = False
+
+        # build where to save it
+        fname, tempf = self._setup_target(canal, seccion, season, titulo, ".mpeg")
+        logger.debug("ChunksDownloader, Downloading to temporal file %r", tempf)
+        fh = open(tempf, 'wb')
+
+        for i, url in enumerate(chunk_urls, 1):
+            if self.cancelled:
+                logger.debug("ChunksDownloader, cancelled! Cleaning...")
+                if os.path.exists(tempf):
+                    os.remove(tempf)
+                logger.debug("ChunksDownloader, cancelled! Cleaned up.")
+                raise CancelledError()
+            if self.should_stop:
+                if os.path.exists(tempf):
+                    os.remove(tempf)
+                return
+
+            logger.info("ChunksDownloader, download chunk %i of %i: %r", i, len(chunk_urls), url)
+            content_type, file_data = yield utils.download(url)
+            progress = i * 100 / len(chunk_urls)
+            cb_progress('{} %'.format(progress))
+            fh.write(file_data)
+        fh.close()
+
+        # rename to final name and end
+        logger.info("ChunksDownloader, done! renaming temp to %r", fname)
+        os.rename(tempf, fname)
+        defer.return_value(fname)
+
+    def _cancel(self):
+        """Cancel a download."""
+        self.cancelled = True
+        logger.info('ChunksDownloader, downloader cancelled')
+
+    def _shutdown(self):
+        self.should_stop = True
+        logger.info('ChunksDownloader, shutdown finished')
+
+
 # this is the entry point to get the downloaders for each type
 all_downloaders = {
     'encuentro': EncuentroDownloader,
@@ -585,6 +640,7 @@ all_downloaders = {
     'generic': GenericVideoDownloader,
     'dqsv': GenericAudioDownloader,
     'youtube': YoutubeDownloader,
+    'chunks': ChunksDownloader,
 }
 
 
@@ -602,6 +658,8 @@ if __name__ == "__main__":
     config = dict(user="lxpdvtnvrqdoa@mailinator.com",  # NOQA
                   password="descargas", downloaddir='.')
 
+    app = QtCore.QCoreApplication(sys.argv)
+
     # several versions to test
 #    downloader = EncuentroDownloader()
 #    _url = "http://www.encuentro.gob.ar/sitios/encuentro/Programas/ver?rec_id=120761"
@@ -609,12 +667,19 @@ if __name__ == "__main__":
 #    downloader = ConectarDownloader()
 #    _url = "http://www.conectate.gob.ar/sitios/conectate/busqueda/pakapaka?rec_id=103605"
 
-    app = QtCore.QCoreApplication(sys.argv)
 #    downloader = GenericVideoDownloader()
 #    _url = "http://backend.bacua.gob.ar/video.php?v=_f9d06f72"
 
-    downloader = YoutubeDownloader()
-    _url = "http://www.youtube.com/v/mr0UwpSxXHA&fs=1"
+#    downloader = YoutubeDownloader()
+#    _url = "http://www.youtube.com/v/mr0UwpSxXHA&fs=1"
+
+    downloader = ChunksDownloader()
+    _url = json.dumps([
+        'http://186.33.226.132/vod/smil:content/videos/clips/38650.smil/media_w612292642_b1200000_0.ts',  # NOQA
+        'http://186.33.226.132/vod/smil:content/videos/clips/38650.smil/media_w612292642_b1200000_1.ts',  # NOQA
+        'http://186.33.226.132/vod/smil:content/videos/clips/38650.smil/media_w612292642_b1200000_2.ts',  # NOQA
+        'http://186.33.226.132/vod/smil:content/videos/clips/38650.smil/media_w612292642_b1200000_3.ts',  # NOQA
+    ])
 
     @defer.inline_callbacks
     def download():
