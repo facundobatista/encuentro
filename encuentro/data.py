@@ -87,7 +87,7 @@ class EpisodeData(object):
 
         # build a nice string to show in the GUI
         if self.season:
-            self.composed_title = "[{}] {}".format(self.season, self.title)
+            self.composed_title = "{}: {}".format(self.season, self.title)
         else:
             self.composed_title = self.title
 
@@ -134,7 +134,7 @@ class EpisodeData(object):
 
         # build a nice string to show in the GUI
         if self.season:
-            self.composed_title = "[{}] {}".format(self.season, self.title)
+            self.composed_title = "{}: {}".format(self.season, self.title)
         else:
             self.composed_title = self.title
 
