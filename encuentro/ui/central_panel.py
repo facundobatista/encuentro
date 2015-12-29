@@ -579,12 +579,13 @@ class EpisodeInfo(QWidget):
             self.get_image(episode.episode_id, episode.image_url.encode('utf-8'))
 
         # all description
+        description = episode.description.replace("\n", "<br/>")
         if episode.subtitle is None:
             msg = "<center><h3>%s</h3></center><br/><br/>%s" % (
-                episode.composed_title, episode.description)
+                episode.composed_title, description)
         else:
             msg = "<center><h3>%s</h3>%s</center><br/><br/>%s" % (
-                episode.composed_title, episode.subtitle, episode.description)
+                episode.composed_title, episode.subtitle, description)
         self.text_edit.setHtml(msg)
 
         # action button

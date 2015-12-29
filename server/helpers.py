@@ -30,8 +30,10 @@ import time
 
 try:
     import urlparse as parse
+    from urllib2 import HTTPError
 except ImportError:
     from urllib import parse
+    from urllib.error import HTTPError
 
 
 def save_file(basename, data):
@@ -121,6 +123,8 @@ def retryable(logger):
                 try:
                     res = func(*args, **kwargs)
                 except Exception as e:
+                    if isinstance(e, HTTPError) and e.code // 100 == 4:
+                        raise
                     if not attempt:
                         raise
                     logger.debug("   problem (retrying...): %s", e)
