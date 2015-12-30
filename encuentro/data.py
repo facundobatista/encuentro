@@ -14,7 +14,7 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
 """Classes to interface to and persist the episodes data."""
 

@@ -166,7 +166,7 @@ class MiBrowser(Thread):
         size_mb = filesize / (1024.0 ** 2)
         while not self.must_quit.is_set():
             r = content.read(CHUNK)
-            if r == "":
+            if r == b"":
                 break
             aout.write(r)
             tot += len(r)
