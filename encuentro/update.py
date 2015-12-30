@@ -32,7 +32,7 @@ from encuentro import utils
 from encuentro.ui import dialogs
 
 # main entry point to download all backends data
-BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v05.list"
+BACKENDS_URL = "http://www.taniquetil.com.ar/encuentro/backends-v06.list"
 
 # if developing a new backend, put the tuple here; otherwise leave it in None.
 # the tuple is name, downloader, and path
