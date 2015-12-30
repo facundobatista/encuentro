@@ -20,13 +20,16 @@ from __future__ import unicode_literals, print_function
 
 """The notification-to-the-desktop subsystem."""
 
-from encuentro.config import config
+import logging
 
+from encuentro.config import config
 
 _ERRMSG = """
 ERROR! Problema al importar 'pynotify' - No es "estrictamente necesario, pero
 si lo instala tendrá algunas notificaciones en el escritorio.
 """
+
+logger = logging.getLogger('encuentro.notification')
 
 
 class _Notifier(object):
@@ -52,8 +55,12 @@ class _Notifier(object):
             def _f(title, message):
                 """The method that will really notify."""
                 if config.get('notification', True):
-                    n = pynotify.Notification(title, message)
-                    n.show()
+                    try:
+                        n = pynotify.Notification(title, message)
+                        n.show()
+                    except Exception as err:
+                        logger.warning("Unable to notify! %s(%s) (imported is %r)",
+                                       err.__class__.__name__, err, pynotify)
 
             self._notify = _f
 
