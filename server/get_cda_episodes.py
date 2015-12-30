@@ -134,10 +134,16 @@ def get_per_section(section_name, section_id):
 
 def get_all_data():
     """Get everything."""
-    logger.info("GO")
+    logger.info("Go")
     all_programs = []
+    already_stored = set()
     for section_id, section_name in SECTIONS:
         for title, image, info_text, episodes in get_per_section(section_name, section_id):
+            key = tuple(epid for _, epid in episodes)
+            if key in already_stored:
+                logger.info("Ignoring program %r with episodes %s", title, key)
+                continue
+            already_stored.add(key)
             for episode_name, episode_id in episodes:
                 video_info = get_video_info(episode_id)
                 if video_info is None:
