@@ -28,7 +28,7 @@ def scrap_section(raw):
     soup = bs4.BeautifulSoup(data['html'], "html.parser")
     for article in soup.find_all('article'):
         image = article.find('img')['src']
-        title = article.find('h3', itemprop='name').text
+        title = article.find('h3', itemprop='name').text.strip()
 
         # prepare text
         info = article.find('div', class_='info closed')
