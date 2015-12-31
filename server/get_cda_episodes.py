@@ -138,10 +138,10 @@ def get_all_data():
     all_programs = []
     already_stored = set()
     for section_id, section_name in SECTIONS:
-        for title, image, info_text, episodes in get_per_section(section_name, section_id):
+        for show_title, image, info_text, episodes in get_per_section(section_name, section_id):
             key = tuple(epid for _, epid in episodes)
             if key in already_stored:
-                logger.info("Ignoring program %r with episodes %s", title, key)
+                logger.info("Ignoring program %r with episodes %s", show_title, key)
                 continue
             already_stored.add(key)
             for episode_name, episode_id in episodes:
@@ -149,18 +149,17 @@ def get_all_data():
                 if video_info is None:
                     continue
                 video_id, duration, video_url_info = video_info
-                full_title = "{}: {}".format(title, episode_name)
                 info = {
                     "duration": str(duration),
                     "channel": "CDA",
                     "section": section_name,
                     "description": info_text,
-                    "title": full_title,
+                    "title": episode_name,
                     "subtitle": None,
                     "url": video_url_info,
                     "episode_id": 'cda_{}_{}'.format(episode_id, video_id),
                     "image_url": image,
-                    "season": None,
+                    "season": show_title,
                 }
                 all_programs.append(info)
 
