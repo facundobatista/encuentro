@@ -26,6 +26,7 @@ import datetime as dt
 
 import defer
 
+from PyQt4.QtCore import QTimer
 from PyQt4.QtGui import (
     QAction,
     QCheckBox,
@@ -131,7 +132,7 @@ class MainUI(remembering.RememberingMainWindow):
 
         self.show()
 
-        self.episodes_download.load_pending()
+        QTimer.singleShot(500, self.episodes_download.load_pending)
         logger.debug("Main UI started ok")
 
     def _touch_config(self):

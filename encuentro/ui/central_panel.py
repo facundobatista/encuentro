@@ -153,10 +153,10 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
         del self.queue[pos]
         self.takeTopLevelItem(pos)
 
-        # as we removed an item, the cursor goes to other, fix the rest of
-        # the interface
+        # as we removed an item, the cursor goes to other (if any), fix the rest of the interface
         item = self.currentItem()
-        self.episodes_widget.show_episode(item.episode_id)
+        if item is not None:
+            self.episodes_widget.show_episode(item.episode_id)
 
     def pending(self):
         """Return the pending downloads quantity (including current)."""
@@ -180,14 +180,14 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
         """Queue the pending downloads."""
         loaded_pending_ids = config[config.SYSTEM].get('pending_ids', [])
 
+        main_window = self.episodes_widget.main_window
         for episode_id in loaded_pending_ids:
-            main_window = self.episodes_widget.main_window
             try:
                 episode = main_window.programs_data[episode_id]
             except KeyError:
-                logger.debug("Tried to load pending %r, didn't find it",
-                             episode_id)
+                logger.debug("Tried to load pending %r, didn't find it", episode_id)
             else:
+                logger.info("Queuing pending episode %s", episode)
                 main_window.queue_download(episode)
 
 
