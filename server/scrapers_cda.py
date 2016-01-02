@@ -21,6 +21,8 @@
 import bs4
 import json
 
+import helpers
+
 
 def scrap_section(raw):
     """Get useful info from main section list."""
@@ -52,6 +54,7 @@ def scrap_section(raw):
             assert len(url_parts) == 6, url_parts
             episode_id = url_parts[4]
             text = node_a.text.strip()
+            text = helpers.enhance_number(text)
             episodes.append((text, episode_id))
 
         yield (title, image, info_text, episodes)

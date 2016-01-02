@@ -47,3 +47,39 @@ class CleanHTMLTestCase(unittest.TestCase):
         t = '<span style="line-height: 1.22;">Alumnos y docente'
         r = helpers.clean_html(t)
         self.assertEqual(r, "Alumnos y docente")
+
+
+class EnhanceNumberTestCase(unittest.TestCase):
+    """Tests for the enhancement of numbers."""
+
+    def _check(self, src, dest):
+        """Do the checking."""
+        result = helpers.enhance_number(src)
+        self.assertEqual(result, dest)
+
+    def test_cap_only_simple(self):
+        self._check("Cap.07", "Capítulo 07")
+
+    def test_cap_only_spaced(self):
+        self._check("Cap. 07", "Capítulo 07")
+
+    def test_cap_title_simple(self):
+        self._check("Cap.07 Foo Bar", "07. Foo Bar")
+
+    def test_cap_title_single_digit(self):
+        self._check("Cap.2 Foo Bar", "02. Foo Bar")
+
+    def test_cap_title_spaced(self):
+        self._check("Cap. 2 Foo Bar", "02. Foo Bar")
+
+    def test_dashed_nothing(self):
+        self._check("foo bar", "foo bar")
+
+    def test_dashed_simple(self):
+        self._check("1- foo bar", "01. foo bar")
+
+    def test_dashed_no_number(self):
+        self._check("foo - bar", "foo - bar")
+
+    def test_dashed_twodigits(self):
+        self._check("05 - foo bar", "05. foo bar")

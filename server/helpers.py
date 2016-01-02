@@ -149,6 +149,17 @@ def clean_html(text):
 
 def enhance_number(text):
     """Enhance the number of a title, if any."""
+    # check "cap" version first
+    m = re.match("Cap. *(\d+)(.*)", text)
+    if m:
+        number, rest = m.groups()
+        number = int(number)
+        if rest:
+            text = "%02d. %s" % (number, rest.strip())
+        else:
+            text = "Capítulo %02d" % (number,)
+        return text
+
     parts = text.split("-", 1)
     if len(parts) != 2:
         return text
