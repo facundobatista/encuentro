@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011-2015 Facundo Batista
+# Copyright 2011-2016 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -102,23 +102,88 @@ class CancelledError(Exception):
     """The download was cancelled."""
 
 
+class Finished(Exception):
+    """Special exception (to be ignored) used by some Downloaders to finish themselves."""
+
+
+class BaseDownloader(object):
+    """Base episode downloader."""
+
+    def __init__(self):
+        self.deferred = defer.Deferred()
+        self.cancelled = False
+
+    def log(self, text, *args):
+        """Build a better log line."""
+        new_text = "[%s.%s] " + text
+        new_args = (self.__class__.__name__, id(self)) + args
+        logger.info(new_text, *new_args)
+
+    def shutdown(self):
+        """Quit the download."""
+        return self._shutdown()
+
+    def cancel(self):
+        """Cancel a download."""
+        return self._cancel()
+
+    def _setup_target(self, channel, section, season, title, extension):
+        """Set up the target file to download."""
+        # build where to save it
+        downloaddir = config.get('downloaddir', '')
+        channel = multiplatform.sanitize(channel)
+        section = multiplatform.sanitize(section)
+        title = multiplatform.sanitize(title)
+
+        if season is not None:
+            season = multiplatform.sanitize(season)
+            fname = os.path.join(downloaddir, channel, section, season, title + extension)
+        else:
+            fname = os.path.join(downloaddir, channel, section, title + extension)
+
+        if config.get('clean-filenames'):
+            cleaned = clean_fname(fname)
+            self.log("Cleaned filename %r into %r", fname, cleaned)
+            fname = cleaned
+
+        # if the directory doesn't exist, create it
+        dirsecc = os.path.dirname(fname)
+        if not os.path.exists(dirsecc):
+            os.makedirs(dirsecc)
+
+        tempf = fname + str(time.time())
+        return fname, tempf
+
+    def download(self, channel, section, season, title, url, cb_progress):
+        """Download an episode."""
+        @defer.inline_callbacks
+        def wrapper():
+            """Wrapp real download and feed any exception through proper deferred."""
+            try:
+                yield self._download(channel, section, season, title, url, cb_progress)
+            except Exception as err:
+                self.deferred.errback(err)
+        QtCore.QTimer.singleShot(50, wrapper)
+
+
 class MiBrowser(Thread):
     """Threaded browser to do the download."""
 
     # we *are* calling parent's init; pylint: disable=W0231
-    def __init__(self, parent, authuser, authpass, url, fname, output_queue, must_quit):
+    def __init__(self, parent, authuser, authpass, url, fname, output_queue, must_quit, log):
         self.parent = parent
         self.authinfo = authuser, authpass
         self.url = url
         self.fname = fname
         self.output_queue = output_queue
         self.must_quit = must_quit
+        self.log = log
         super(MiBrowser, self).__init__()
 
     def _get_download_content(self):
         """Get the content handler to download."""
         # log in
-        logger.debug("Browser download, authenticating")
+        self.log("Browser download, authenticating")
         usr, psw = self.authinfo
         get_data = dict(
             servicio=self.parent.service,
@@ -134,29 +199,29 @@ class MiBrowser(Thread):
         sess.post(complete_auth_url, post_data)
 
         # get page with useful link
-        logger.debug("Browser download, getting html")
+        self.log("Browser download, getting html")
         html = sess.get(complete_auth_url).content
         if BAD_LOGIN_TEXT in html:
-            logger.error("Wrong user or password sent")
+            self.log("Wrong user or password sent")
             raise BadCredentialsError()
-        logger.debug("Browser download, got html len %d", len(html))
+        self.log("Browser download, got html len %d", len(html))
 
         # download from the new url
         html = sess.get(self.url).content
         soup = bs4.BeautifulSoup(html)
         new_url = soup.find(attrs={'class': 'descargas panel row'}).find('a')['href']
-        logger.debug("Opening final url %r", new_url)
+        self.log("Opening final url %r", new_url)
         content = urllib2.urlopen(new_url)
         try:
             filesize = int(content.headers['content-length'])
         except KeyError:
-            logger.debug("No content information")
+            self.log("No content information")
         else:
-            logger.debug("Got content! filesize: %d", filesize)
+            self.log("Got content! filesize: %d", filesize)
             return content, filesize
 
         # ok, we don't know what happened :(
-        logger.error("Unknown error while browsing Encuentro: %r", html)
+        self.log("Unknown error while browsing Encuentro: %r", html)
         raise EncuentroError("Unknown problem when getting download link")
 
     def _really_download(self, content, filesize):
@@ -177,7 +242,7 @@ class MiBrowser(Thread):
 
     def run(self):
         """Do the heavy work."""
-        logger.debug("Browser opening url %s", self.url)
+        self.log("Browser opening url %s", self.url)
         try:
             content, filesize = self._get_download_content()
             self._really_download(content, filesize)
@@ -221,104 +286,55 @@ class DeferredQueue(Queue):
         return d
 
 
-class BaseDownloader(object):
-    """Base episode downloader."""
-
-    def shutdown(self):
-        """Quit the download."""
-        return self._shutdown()
-
-    def cancel(self):
-        """Cancel a download."""
-        return self._cancel()
-
-    def _setup_target(self, channel, section, season, title, extension):
-        """Set up the target file to download."""
-        # build where to save it
-        downloaddir = config.get('downloaddir', '')
-        channel = multiplatform.sanitize(channel)
-        section = multiplatform.sanitize(section)
-        title = multiplatform.sanitize(title)
-
-        if season is not None:
-            season = multiplatform.sanitize(season)
-            fname = os.path.join(downloaddir, channel, section, season, title + extension)
-        else:
-            fname = os.path.join(downloaddir, channel, section, title + extension)
-
-        if config.get('clean-filenames'):
-            cleaned = clean_fname(fname)
-            logger.debug("Cleaned filename %r into %r", fname, cleaned)
-            fname = cleaned
-
-        # if the directory doesn't exist, create it
-        dirsecc = os.path.dirname(fname)
-        if not os.path.exists(dirsecc):
-            os.makedirs(dirsecc)
-
-        tempf = fname + str(time.time())
-        return fname, tempf
-
-    def download(self, channel, section, season, title, url, cb_progress):
-        """Download an episode."""
-        return self._download(channel, section, season, title, url, cb_progress)
-
-
 class AuthenticatedDownloader(BaseDownloader):
     """Episode downloader for Conectar site."""
 
     def __init__(self):
         super(AuthenticatedDownloader, self).__init__()
         self._prev_progress = None
-        self.browser_quit = set()
-        self.cancelled = False
-        logger.info("Conectar downloader inited")
+        self.browser_quit = Event()
+        self.log("Inited")
 
     def _shutdown(self):
         """Quit the download."""
-        for bquit in self.browser_quit:
-            bquit.set()
-        logger.info("Conectar downloader shutdown finished")
+        self.browser_quit.set()
+        self.log("Shutdown finished")
 
     def _cancel(self):
         """Cancel a download."""
         self.cancelled = True
-        logger.info("Conectar downloader cancelled")
+        self.log("Cancelled")
 
     @defer.inline_callbacks
     def _download(self, canal, seccion, season, titulo, url, cb_progress):
         """Download an episode to disk."""
-        self.cancelled = False
-
         # levantamos el browser
         qinput = DeferredQueue()
-        bquit = Event()
-        self.browser_quit.add(bquit)
         authuser = config.get('user', '')
         authpass = config.get('password', '')
 
         # build where to save it
         fname, tempf = self._setup_target(canal, seccion, season, titulo, ".avi")
-        logger.debug("Downloading to temporal file %r", tempf)
+        self.log("Downloading to temporal file %r", tempf)
 
-        logger.info("Download episode %r: browser started", url)
-        brow = MiBrowser(self, authuser, authpass, url, tempf, qinput, bquit)
+        self.log("Download episode %r: browser started", url)
+        brow = MiBrowser(self, authuser, authpass, url, tempf, qinput, self.browser_quit, self.log)
         brow.start()
 
         # loop reading until finished
         self._prev_progress = None
 
-        logger.info("Downloader started receiving bytes")
+        self.log("Downloader started receiving bytes")
         while True:
             # get all data and just use the last item
             payload = yield qinput.deferred_get()
             if self.cancelled:
-                logger.debug("Cancelled! Quit browser, wait, and clean.")
-                bquit.set()
+                self.log("Cancelled! Quit browser, wait, and clean.")
+                self.browser_quit.set()
                 yield qinput.deferred_get()
                 if os.path.exists(tempf):
                     os.remove(tempf)
-                logger.debug("Cancelled! Cleaned up.")
+                self.log("Cancelled! Cleaned up.")
                 raise CancelledError()
 
             # special situations
@@ -337,10 +353,9 @@ class AuthenticatedDownloader(BaseDownloader):
                 self._prev_progress = data
 
         # movemos al nombre correcto y terminamos
-        logger.info("Downloading done, renaming temp to %r", fname)
+        self.log("Downloading done, renaming temp to %r", fname)
         os.rename(tempf, fname)
-        self.browser_quit.remove(bquit)
-        defer.return_value(fname)
+        self.deferred.callback(fname)
 
 
 class ConectarDownloader(AuthenticatedDownloader):
@@ -366,30 +381,29 @@ class _GenericDownloader(BaseDownloader):
     def __init__(self):
         super(_GenericDownloader, self).__init__()
         self._prev_progress = None
-        self.downloader_deferred = None
-        logger.info("Generic downloader inited")
+        self.internal_downloader_deferred = None
+        self.log("Inited")
 
     def _shutdown(self):
         """Quit the download."""
-        logger.info("Generic downloader shutdown finished")
+        self.log("Shutdown finished")
 
     def _cancel(self):
         """Cancel a download."""
-        if self.downloader_deferred is not None:
-            logger.info("Generic downloader cancelled")
+        if self.internal_downloader_deferred is not None:
+            self.log("Cancelled")
             exc = CancelledError("Cancelled by user")
-            self.downloader_deferred.errback(exc)
+            self.internal_downloader_deferred.errback(exc)
 
     @defer.inline_callbacks
     def _download(self, canal, seccion, season, titulo, url, cb_progress):
         """Download an episode to disk."""
         url = str(url)
-        logger.info("Download episode %r", url)
+        self.log("Download episode %r", url)
 
         # build where to save it
-        fname, tempf = self._setup_target(canal, seccion,
-                                          season, titulo, self.file_extension)
-        logger.debug("Downloading to temporal file %r", tempf)
+        fname, tempf = self._setup_target(canal, seccion, season, titulo, self.file_extension)
+        self.log("Downloading to temporal file %r", tempf)
         fh = open(tempf, "wb")
 
         def report(dloaded, total):
@@ -416,15 +430,15 @@ class _GenericDownloader(BaseDownloader):
 
         def end_ok():
             """Finish Ok politely the deferred."""
-            if not self.downloader_deferred.called:
-                self.downloader_deferred.callback(True)
+            if not self.internal_downloader_deferred.called:
+                self.internal_downloader_deferred.callback(True)
 
         def end_fail(exc):
             """Finish in error politely the deferred."""
-            if not self.downloader_deferred.called:
-                self.downloader_deferred.errback(exc)
+            if not self.internal_downloader_deferred.called:
+                self.internal_downloader_deferred.errback(exc)
 
-        deferred = self.downloader_deferred = defer.Deferred()
+        deferred = self.internal_downloader_deferred = defer.Deferred()
         req = self.manager.get(request)
         req.downloadProgress.connect(report)
         req.error.connect(end_fail)
@@ -434,19 +448,19 @@ class _GenericDownloader(BaseDownloader):
         try:
             yield deferred
         except Exception as err:
-            logger.debug("Exception when waiting deferred: %s (request "
-                         "finished? %s)", err, req.isFinished())
-            if not req.isFinished():
-                logger.debug("Aborting QNetworkReply")
-                req.abort()
+            self.log("Exception when waiting deferred: %s (request finished? %s)",
+                     err, req.isFinished())
             raise
         finally:
+            if not req.isFinished():
+                self.log("Aborting QNetworkReply")
+                req.abort()
             fh.close()
 
         # rename to final name and end
         logger.info("Downloading done, renaming temp to %r", fname)
         os.rename(tempf, fname)
-        defer.return_value(fname)
+        self.deferred.callback(fname)
 
 
 class GenericVideoDownloader(_GenericDownloader):
@@ -460,17 +474,18 @@ class GenericAudioDownloader(_GenericDownloader):
 
 
 class ThreadedYT(Thread):
-    def __init__(self, url, fname, output_queue, must_quit):
+    def __init__(self, url, fname, output_queue, must_quit, log):
         self.url = url
         self.fname = fname
         self.output_queue = output_queue
         self.must_quit = must_quit
         self._prev_progress = None
+        self.log = log
         super(ThreadedYT, self).__init__()
 
     def _really_download(self):
         """Effectively download the content to disk."""
-        logger.debug("Threaded YT, start")
+        self.log("Threaded YT, start")
 
         def report(info):
             """Report download."""
@@ -478,6 +493,10 @@ class ThreadedYT(Thread):
             dloaded = info['downloaded_bytes']
             size_mb = total // MB
             perc = dloaded * 100.0 / total
+            if self.must_quit.is_set():
+                # YoutubeDL can't be really cancelled, we raise something and then ignore it;
+                # opened for this: https://github.com/rg3/youtube-dl/issues/8014
+                raise Finished()
             m = "%.1f%% (de %d MB)" % (perc, size_mb)
             if m != self._prev_progress:
                 self.output_queue.put(m)
@@ -491,17 +510,20 @@ class ThreadedYT(Thread):
         }
 
         with youtube_dl.YoutubeDL(conf) as ydl:
-            logger.debug("Threaded YT, about to download")
+            self.log("Threaded YT, about to download")
             ydl.download([self.url])
         self.output_queue.put(DONE_TOKEN)
-        logger.debug("Threaded YT, done")
+        self.log("Threaded YT, done")
 
     def run(self):
         """Do the heavy work."""
         try:
             self._really_download()
+        except Finished:
+            # ignore this exception, it's only used to cut YoutubeDL
+            pass
         except Exception as err:
-            logger.debug("Threaded YT, error: %s(%s)", err.__class__.__name__, err)
+            self.log("Threaded YT, error: %s(%s)", err.__class__.__name__, err)
             self.output_queue.put(err)
 
 
@@ -510,42 +532,31 @@ class YoutubeDownloader(BaseDownloader):
 
     def __init__(self):
         super(YoutubeDownloader, self).__init__()
-        self.thyts_quit = set()
-        self.cancelled = False
-        logger.info("Generic downloader inited")
+        self.thyts_quit = Event()
+        self.log("Inited")
 
     def _shutdown(self):
         """Quit the download."""
-        for quit_event in self.thyts_quit:
-            quit_event.set()
-        logger.info("Youtube downloader shutdown finished")
+        self.thyts_quit.set()
+        self.log("Shutdown finished")
 
     def _cancel(self):
-        """Cancel a download.
-
-        YoutubeDL can't be really cancelled, see
-        https://github.com/rg3/youtube-dl/issues/8014 , but flag
-        to clean.
-        """
+        """Cancel a download."""
+        self.log("Cancelling")
         self.cancelled = True
-        logger.info("Youtube downloader cancelled")
 
     @defer.inline_callbacks
     def _download(self, canal, seccion, season, titulo, url, cb_progress):
         """Download an episode to disk."""
-        self.cancelled = False
-
         # start the threaded downloaded
         qinput = DeferredQueue()
-        bquit = Event()
-        self.thyts_quit.add(bquit)
 
         # build where to save it
         fname, tempf = self._setup_target(canal, seccion, season, titulo, ".mp4")
-        logger.debug("Youtube downloader, downloading to temporal file %r", tempf)
+        self.log("Downloading to temporal file %r", tempf)
 
-        logger.info("Download episode %r: browser started", url)
-        thyt = ThreadedYT(url, tempf, qinput, bquit)
+        self.log("Download episode %r: browser started", url)
+        thyt = ThreadedYT(url, tempf, qinput, self.thyts_quit, self.log)
         thyt.start()
 
         # loop reading until finished
@@ -553,7 +564,8 @@ class YoutubeDownloader(BaseDownloader):
             # get all data and just use the last item
             payload = yield qinput.deferred_get()
             if self.cancelled:
-                logger.debug("Cancelled!.")
+                self.log("Cancelled!")
+                self.thyts_quit.set()
                 raise CancelledError()
 
             # special situations
@@ -571,10 +583,9 @@ class YoutubeDownloader(BaseDownloader):
             cb_progress(data)
 
         # rename to proper name and finish
-        logger.info("Youtube downloader, downloading done, renaming temp to %r", fname)
+        self.log("Downloading done, renaming temp to %r", fname)
         os.rename(tempf, fname)
-        self.thyts_quit.remove(bquit)
-        defer.return_value(fname)
+        self.deferred.callback(fname)
 
 
 class ChunksDownloader(BaseDownloader):
@@ -582,36 +593,43 @@ class ChunksDownloader(BaseDownloader):
 
     def __init__(self):
         super(ChunksDownloader, self).__init__()
-        self.cancelled = False
         self.should_stop = False
-        logger.info("Chunks downloader inited")
+        self.log("Inited")
+
+    def _cancel(self):
+        """Cancel a download."""
+        self.log("Cancelling")
+        self.cancelled = True
+
+    def _shutdown(self):
+        self.log('Stopping')
+        self.should_stop = True
 
     @defer.inline_callbacks
     def _download(self, canal, seccion, season, titulo, url, cb_progress):
         """Download an episode to disk."""
         chunk_urls = json.loads(url)
-        logger.info("ChunksDownloader, download episode with %d chunks", len(chunk_urls))
-
-        self.cancelled = False
+        self.log("ChunksDownloader, download episode with %d chunks", len(chunk_urls))
 
         # build where to save it
         fname, tempf = self._setup_target(canal, seccion, season, titulo, ".mpeg")
-        logger.debug("ChunksDownloader, Downloading to temporal file %r", tempf)
+        self.log("Downloading to temporal file %r", tempf)
         fh = open(tempf, 'wb')
 
         for i, url in enumerate(chunk_urls, 1):
             if self.cancelled:
-                logger.debug("ChunksDownloader, cancelled! Cleaning...")
+                self.log("Cancelled! Cleaning...")
                 if os.path.exists(tempf):
                     os.remove(tempf)
-                logger.debug("ChunksDownloader, cancelled! Cleaned up.")
+                self.log("Cancelled! Cleaned up.")
                 raise CancelledError()
             if self.should_stop:
                 if os.path.exists(tempf):
                     os.remove(tempf)
+                self.log("Stopped")
                 return
 
-            logger.info("ChunksDownloader, download chunk %i of %i: %r", i, len(chunk_urls), url)
+            self.log("Download chunk %i of %i: %r", i, len(chunk_urls), url)
             content_type, file_data = yield utils.download(url)
             progress = i * 100 / len(chunk_urls)
             cb_progress('{} %'.format(progress))
@@ -619,18 +637,9 @@ class ChunksDownloader(BaseDownloader):
         fh.close()
 
         # rename to final name and end
-        logger.info("ChunksDownloader, done! renaming temp to %r", fname)
+        self.log("Done! renaming temp to %r", fname)
         os.rename(tempf, fname)
-        defer.return_value(fname)
-
-    def _cancel(self):
-        """Cancel a download."""
-        self.cancelled = True
-        logger.info('ChunksDownloader, downloader cancelled')
-
-    def _shutdown(self):
-        self.should_stop = True
-        logger.info('ChunksDownloader, shutdown finished')
+        self.deferred.callback(fname)
 
 
 # this is the entry point to get the downloaders for each type
@@ -686,7 +695,8 @@ if __name__ == "__main__":
         """Download."""
         logger.info("Starting test download")
         try:
-            fname = yield downloader.download("test-ej-canal", "secc", "temp", "tit", _url, show)
+            downloader.download("test-ej-canal", "secc", "temp", "tit", _url, show)
+            fname = yield downloader.deferred
             logger.info("All done! %s", fname)
         except CancelledError:
             logger.info("--- cancelado!")

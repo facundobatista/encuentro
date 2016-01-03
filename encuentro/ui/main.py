@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2013-2015 Facundo Batista
+# Copyright 2013-2016 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -26,7 +26,6 @@ import datetime as dt
 
 import defer
 
-from PyQt4.QtCore import QTimer
 from PyQt4.QtGui import (
     QAction,
     QCheckBox,
@@ -95,14 +94,11 @@ class MainUI(remembering.RememberingMainWindow):
         self.app_quit = app_quit
         self.finished = False
         self.version = version
+        self.downloaders = {}
         self.setWindowTitle('Encuentro')
 
         self.programs_data = data.ProgramsData(self, self._programs_file)
         self._touch_config()
-
-        self.downloaders = {}
-        for downtype, dloader_class in all_downloaders.iteritems():
-            self.downloaders[downtype] = dloader_class()
 
         # finish all gui stuff
         self.big_panel = central_panel.BigPanel(self)
@@ -132,7 +128,7 @@ class MainUI(remembering.RememberingMainWindow):
 
         self.show()
 
-        QTimer.singleShot(500, self.episodes_download.load_pending)
+        self.episodes_download.load_pending()
         logger.debug("Main UI started ok")
 
     def _touch_config(self):
@@ -283,8 +279,8 @@ class MainUI(remembering.RememberingMainWindow):
         if programs_data is not None:
             programs_data.save()
 
-        downloaders = getattr(self, 'downloaders', {})
-        for downloader in downloaders.itervalues():
+        # shutdown all the downloaders
+        for downloader in self.downloaders.itervalues():
             downloader.shutdown()
 
         # bye bye
@@ -424,11 +420,15 @@ class MainUI(remembering.RememberingMainWindow):
         self.episodes_download.start()
 
         # download!
-        downloader = self.downloaders[episode.downtype]
+        downloader_class = all_downloaders[episode.downtype]
+        downloader = self.downloaders[episode.episode_id] = downloader_class()
         season = getattr(episode, 'season', None)  # wasn't always there
-        fname = yield downloader.download(
-            episode.channel, episode.section, season, episode.title,
-            episode.url, self.episodes_download.progress)
+        downloader.download(episode.channel, episode.section, season, episode.title,
+                            episode.url, self.episodes_download.progress)
+        try:
+            fname = yield downloader.deferred
+        finally:
+            self.downloaders.pop(episode.episode_id, None)
         episode_name = "%s - %s - %s" % (episode.channel, episode.section, episode.composed_title)
         notify("Descarga finalizada", episode_name)
         defer.return_value((fname, episode))
@@ -502,7 +502,7 @@ class MainUI(remembering.RememberingMainWindow):
         """Cancel the downloading of an episode."""
         logger.info("Cancelling download of %s", episode)
         self.episodes_download.cancel()
-        downloader = self.downloaders[episode.downtype]
+        downloader = self.downloaders.pop(episode.episode_id)
         downloader.cancel()
 
     def unqueue_download(self, episode):
