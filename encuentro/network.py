@@ -629,8 +629,9 @@ class ChunksDownloader(BaseDownloader):
                 self.log("Stopped")
                 return
 
-            self.log("Download chunk %i of %i: %r", i, len(chunk_urls), url)
+            self.log("Downloading chunk %i of %i: %r", i, len(chunk_urls), url)
             content_type, file_data = yield utils.download(url)
+            self.log("(got %d bytes)", len(file_data))
             progress = i * 100 / len(chunk_urls)
             cb_progress('{} %'.format(progress))
             fh.write(file_data)

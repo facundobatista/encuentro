@@ -31,11 +31,28 @@ class _Downloader(object):
     def __init__(self, url):
         self.deferred = defer.Deferred()
         self.deferred._store_it_because_qt_needs_or_wont_work = self
+        self.progress = 0
         request = QtNetwork.QNetworkRequest(QtCore.QUrl(url))
 
         self.req = _qt_network_manager.get(request)
-        self.req.error.connect(self.deferred.errback)
+        self.req.error.connect(self.error)
         self.req.finished.connect(self.end)
+        self.req.downloadProgress.connect(self._advance_progress)
+
+    def error(self, error_code):
+        """Request finished (*maybe*) on error."""
+        if error_code != 5:
+            # different to OperationCanceledError, so we didn't provoke it
+            exc = RuntimeError("Network Error: " + self.req.errorString())
+            self.deferred.errback(exc)
+
+    def _advance_progress(self, dloaded, total):
+        """Increment progress."""
+        self.progress = dloaded
+
+    def abort(self):
+        """Abort the download."""
+        self.req.abort()
 
     def end(self):
         """Send data through the deferred, if wasn't fired before."""
@@ -48,9 +65,37 @@ class _Downloader(object):
 
 
 def download(url):
-    """Deferredly download an URL, non blocking."""
-    d = _Downloader(url)
-    return d.deferred
+    """Deferredly download an URL, non blocking.
+
+    It starts a _Downloader, and supervises if it stalled. If didn't transfer
+    anything for a whole second, abort it and create a new one. This is to overcome
+    some QtNetwork weirdness that will probably go away in future Qt versions, but
+    that froze the downloading somewhen somehow.
+    """
+    general_deferred = defer.Deferred()
+    state = [_Downloader(url), 0]
+
+    def check():
+        dloader, prev_prog = state
+
+        if dloader.deferred.called:
+            # finished, passthrough the results
+            dloader.deferred.add_callbacks(general_deferred.callback, general_deferred.errback)
+        else:
+            if dloader.progress == prev_prog:
+                # stalled! need to restart it
+                dloader.abort()
+                state[0] = _Downloader(url)
+                state[1] = 0
+            else:
+                # keep going, update progress
+                state[1] = dloader.progress
+
+            # for both cases, new downloader or old still running, check later
+            QtCore.QTimer.singleShot(1000, check)
+
+    QtCore.QTimer.singleShot(1000, check)
+    return general_deferred
 
 
 class SafeSaver(object):
