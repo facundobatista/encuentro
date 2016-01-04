@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2011-2013 Facundo Batista
+# Copyright 2011-2016 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -27,6 +27,8 @@ Needed packages to run (using Debian/Ubuntu package names):
     python-xdg 0.15
     python-notify 0.1.1   # not really needed, but provides notifications
     python-bs4 4.1.0
+    youtube-dl    # whatever version and optional; if too old or not
+                  # present, an included one will be used
 """
 
 import os
@@ -130,10 +132,18 @@ setup(
     long_description=LONG_DESCRIPTION,
     url='https://launchpad.net/encuentro',
 
-    packages=["encuentro", "encuentro.ui"],
+    packages=[
+        "encuentro",
+        "encuentro.ui",
+        "external/youtube-dl/youtube_dl",
+        "external/youtube-dl/youtube_dl/downloader",
+        "external/youtube-dl/youtube_dl/extractor",
+        "external/youtube-dl/youtube_dl/postprocessor",
+    ],
     package_data={
         "encuentro": ["ui/media/*", "logos/icon-*.png"],
         "": ["encuentro.desktop", "source_encuentro.py", "version.txt"],
+        "external": ["youtube-dl/*"],
     },
     scripts=["bin/encuentro"],
 
