@@ -165,6 +165,19 @@ class BaseDownloader(object):
                 self.deferred.errback(err)
         QtCore.QTimer.singleShot(50, wrapper)
 
+    def _clean(self, filename):
+        """Remove a filename in a very safe way.
+
+        Note: under Windows is tricky to remove files that may still be used.
+        """
+        if os.path.exists(filename):
+            try:
+                os.remove(filename)
+            except Exception as err:
+                self.log("Cleaning failed: %r", err)
+            else:
+                self.log("Cleaned ok")
+
 
 class MiBrowser(Thread):
     """Threaded browser to do the download."""
@@ -332,9 +345,8 @@ class AuthenticatedDownloader(BaseDownloader):
                 self.log("Cancelled! Quit browser, wait, and clean.")
                 self.browser_quit.set()
                 yield qinput.deferred_get()
-                if os.path.exists(tempf):
-                    os.remove(tempf)
-                self.log("Cancelled! Cleaned up.")
+                self._clean(tempf)
+                self.log("Cancelled!")
                 raise CancelledError()
 
             # special situations
@@ -618,14 +630,11 @@ class ChunksDownloader(BaseDownloader):
 
         for i, url in enumerate(chunk_urls, 1):
             if self.cancelled:
-                self.log("Cancelled! Cleaning...")
-                if os.path.exists(tempf):
-                    os.remove(tempf)
-                self.log("Cancelled! Cleaned up.")
+                self._clean(tempf)
+                self.log("Cancelled!")
                 raise CancelledError()
             if self.should_stop:
-                if os.path.exists(tempf):
-                    os.remove(tempf)
+                self._clean(tempf)
                 self.log("Stopped")
                 return
 

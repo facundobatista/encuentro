@@ -398,8 +398,8 @@ class MainUI(remembering.RememberingMainWindow):
             except Exception as e:
                 err_type = e.__class__.__name__
                 notify(err_type, str(e))
-                logger.exception("Unknown download error: %s (%s)", err_type, e)
-                self.episodes_download.end(error="Error: {} ({})".format(err_type, e))
+                logger.exception("Unknown download error: %r (%r)", err_type, e)
+                self.episodes_download.end(error="Error: {!r} ({!r})".format(err_type, e))
             else:
                 logger.debug("Episode downloaded: %s", episode)
                 self.episodes_download.end()
