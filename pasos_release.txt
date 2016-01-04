@@ -4,6 +4,10 @@
 
 - generar el .deb y subirlo a la pag de descargas
 
+- para firmar esos archs:
+
+    gpg --armor --sign --detach-sig
+
 - actualizar el ppa, esperar que entre, multiplicar a los distintos ubuntus
 
 - actualizar PyPI
