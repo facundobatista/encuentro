@@ -1,7 +1,7 @@
 
-Encuentro 3.1
+Encuentro 4.0
 
-Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, BACUA, Educ.ar y otros.
+Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, BACUA, Educ.ar, Decime quien sos vos, CDA, TED y otros.
 
 Notar que este programa no distribuye contenido directamente, sino que permite un mejor uso personal de esos contenidos.  Por favor, referirse a los sitios web correspondientes para saber qué se puede y qué no se puede hacer con los contenidos de tales sitios.
 
@@ -10,27 +10,29 @@ Página oficial:
     http://encuentro.taniquetil.com.ar/
 
 
-La versión 3.1 trae los siguientes cambios con respecto a la versión anterior:
+La versión 4.0 trae los siguientes cambios con respecto a la versión anterior:
 
-    - Vuelve a funcionar luego de los cambios de backend de Encuentro y Conectate
+    - Dos nuevos backends: Contenidos Digitales Abiertos (CDA) y TEDx Buenos Aires
 
-    - Ahora con CTRL-F se va directamente al campo de filtro (gracias Emiliano (@emilianohf))
+    - Mejoras en los scrappers de distintos backends para presentar contenidos más limpios
 
-    - Se rehizo el manejo de la lista de episodios: ahora verlos y filtrarlos es muchísimo más rápido.
+    - Se refactoreó el esquema de descargas: ahora es mucho más robusto y confiable
 
-    - Mejoras en el empaquetado, debería funcionar para muchas (todas?) las versiones de Debian/Ubuntu (gracias Adrián Alves).
+    - Los archivos descargados tienen un nombre más limpio para que se puedan grabar en cualquier lado
 
-    - Varias mejoras al encontrar nuevos episodios de los distintos backends, y correcciones en general.
+    - Soporta la lib de notificación mal instalada
+
+    - Algunas correcciones en la interfaz para hacerlo más usable
 
 
 La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
 
-    http://launchpad.net/encuentro/trunk/3.1/+download/encuentro-3.1.deb
+    http://encuentro.taniquetil.com.ar/download/encuentro-4.0.deb
 
 
 También tenemos instalador para Windows:
 
-    http://launchpad.net/encuentro/trunk/3.1/+download/encuentro-3.1-setup.exe
+    http://encuentro.taniquetil.com.ar/download/encuentro-4.0-setup.exe
 
 
 Instalarlo en Arch es sencillo ya que está disponible en AUR, por ejemplo se puede hacer:
@@ -45,13 +47,12 @@ También se puede instalar directamente desde PyPI:
 
 En cualquier otro caso, pueden usar el tarball para instalarlo:
 
-    http://launchpad.net/encuentro/trunk/3.1/+download/encuentro-3.1.tar.gz
+    http://encuentro.taniquetil.com.ar/download/encuentro-4.0.tar.gz
 
 
 Si tienen Fedora o Red Hat, todavía no tenemos un instalador, pero lo pueden instalar o usar desde el tarball, como acabo de indicar.
 
-Nota: no hay más PPAs para estar automáticamente actualizado en Debian/Ubuntu, porque en esta oportunidad no pude hacer andar toda la maldita maquinaria.
-
+En la página oficial que puse arriba tienen más info (links a las firmas y md5sum, todo el historial, etc).
 
 Recuerden revisar el archivo AYUDA.txt si tienen alguna duda de cómo usar el programa.
 
