@@ -2,13 +2,14 @@
 
 - hacer un release de la vN (tarball)
 
-- generar el .deb y subirlo a la pag de descargas
+- generar el .deb y subirlo a la pag de descargas; seguir pasos de
+  empaquetado, pero al final no usar pbuilder, sino...
+
+    debuild -us -uc -I -i
 
 - para firmar esos archs:
 
     gpg --armor --sign --detach-sig
-
-- actualizar el ppa, esperar que entre, multiplicar a los distintos ubuntus
 
 - actualizar PyPI
     - ./setup.py register
