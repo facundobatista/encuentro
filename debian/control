@@ -17,7 +17,8 @@ Depends: ${misc:Depends},
  python-qt4 (>= 4.9.1),
  python-xdg (>= 0.15),
  python-notify (>= 0.1.1),
- python-bs4 (>= 4.1.0)
+ python-bs4 (>= 4.1.0),
+ youtube-dl
 Description: Search, download and see the wonderful Encuentro content.
  Simple application that allows one to search, download and see the content
  of the Encuentro channel.
