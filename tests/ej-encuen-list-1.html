@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]> <html class="ie ie6 no-js" lang="en"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie ie7 no-js" lang="en"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie ie8 no-js" lang="en"> <![endif]-->
+<!--[if IE 9 ]>    <html class="ie ie9 no-js" lang="en"> <![endif]-->
+<!--[if gt IE 9]><!-->
+<!--[if lte IE 9]>
+      <link href='/frontend/css/animations-ie-fix.css' rel='stylesheet'>
+<![endif]-->
+<html class="no-js" lang="en">
+<!--<![endif]-->
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!-- Twitter Card data -->
+<meta name="twitter:site" content="@canalencuentro">
+<meta name="twitter:title" content="Cat&aacute;logo">
+<!-- Twitter summary card with large image must be at least 280x150px -->
+<meta name="twitter:image:src" content="http://encuentro.gob.ar/images/logo-encuentro@2x.png">
+
+<!-- Open Graph data -->
+<meta property="og:title" content="Cat&aacute;logo" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="http://encuentro.gob.ar/programas" />
+<meta property="og:image" content="http://encuentro.gob.ar/images/logo-encuentro@2x.png" />
+<meta property="og:site_name" content="Canal Encuentro" />
+<title>Programas - Canal Encuentro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<link href='https://fonts.googleapis.com/css?family=Asap:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="/frontend/css/encuentro.css" />
+<!-- <link rel="shortcut icon" href="/images/favicon.ico?v=2">   -->  
+<link rel="shortcut icon" href="/images/favicon.png?v=3">     
+<!-- REVOLUTION STYLE SHEETS -->
+<link rel="stylesheet" type="text/css" href="/frontend/css/settings.css">
+<!-- REVOLUTION LAYERS STYLES -->
+<link rel="stylesheet" type="text/css" href="/frontend/css/layers.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="/frontend/js/menu.js"></script>
+<script src="/frontend/js/modernizr.min.js"></script>
+<script src="/frontend/js/bootstrap.js"></script>
+
+<!-- REVOLUTION JS FILES -->
+<script type="text/javascript" src="/frontend/js/jquery.themepunch.tools.min.js"></script>
+<script type="text/javascript" src="/frontend/js/jquery.themepunch.revolution.min.js"></script>
+
+<script type="text/javascript">
+<!--
+function viewport()
+{
+var e = window
+, a = 'inner';
+if ( !( 'innerWidth' in window ) )
+{
+a = 'client';
+e = document.documentElement || document.body;
+}
+return { width : e[ a+'Width' ] , height : e[ a+'Height' ] }
+}
+//-->
+</script>
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', 'UA-1463165-1', 'auto');ga('set', 'anonymizeIp', true);ga('send', 'pageview');</script></head>
+
+<script>
+$( document ).ready(function() {
+	//trackeo para analytics
+	$("a.ga_encuentro_track").click(function(e) {
+		var ga_category = $(e.currentTarget).data('ga_category');
+		var ga_action = $(e.currentTarget).data('ga_action');
+		var ga_label = $(e.currentTarget).data('ga_label');
+
+		encuentroTrackAnalytics(ga_category, ga_action, ga_label);
+	});
+});
+
+//hago esta funcion para poder usarla desde otros lugares tambien
+function encuentroTrackAnalytics(ga_category, ga_action, ga_label){
+	if(typeof dondeEstoy !== 'undefined' && dondeEstoy != null){
+		ga_category = dondeEstoy;
+	}
+
+	ga('send', 'event', ga_category, ga_action, ga_label);
+}
+</script>	<body>
+		<div id="wrap">
+		<header>
+	<div class="menu">
+		<div class="col-xs-2">
+			<a href="/">
+				<div class="logo"></div>
+			</a>
+		</div>
+		<div class="col-xs-2 section-m">Catálogo</div>
+		<div class="col-xs-9">
+			<div class="search-mov">
+				<div class="dropdown">
+					<div class="btn btn-default dropdown-toggle" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" role="button">
+						<p class="icon-search"></p>
+					</div>
+					<ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+						<li>
+							<form action="/search/" class="navbar-form">
+								<div class="form-group">
+									<input type="text" name="keywords" class="form-control" placeholder="">
+								</div>
+								<button type="submit" class="btn btn-default">
+									<span class="icon-right-open"></span>
+								</button>
+							</form>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="menu_bar"> 
+				<a href="#" class="bt-menu">
+				</a>
+			</div>
+			<nav id="topmenu">
+				<ul>
+					<li><a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="boton_menu" data-ga_label="inicio" href="/">Inicio</a></li>
+					<li><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="boton_menu" data-ga_label="catalogo" href="http://encuentro.gob.ar/programas">Cat&aacute;logo</a></li>
+					<li><a class="ga_encuentro_track" data-ga_category="grilla" data-ga_action="boton_menu" data-ga_label="grilla" href="http://encuentro.gob.ar/programacion">Grilla</a></li>
+					<li><a class="ga_encuentro_track" data-ga_category="en_vivo" data-ga_action="boton_menu" data-ga_label="en_vivo" href="http://encuentro.gob.ar/envivo">En vivo</a></li>
+					<li><a class="ga_encuentro_track" data-ga_category="en_el_aula" data-ga_action="boton_menu" data-ga_label="en_el_aula" href="http://encuentro.gob.ar/enelaula">En el aula</a></li>
+					<li><a class="ga_encuentro_track" data-ga_category="transmedia" data-ga_action="boton_menu" data-ga_label="transmedia" href="http://encuentro.gob.ar/interactivos">Transmedia</a></li>
+					<li><a class="ga_encuentro_track" data-ga_category="efemerides" data-ga_action="boton_menu" data-ga_label="efemerides" href="http://encuentro.gob.ar/efemerides">Efem&eacute;rides</a></li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</header>
+		<div id="morphsearch" class="morphsearch hide-from-print" role="banner">
+	<span class="morphsearch-close"></span> 
+<form method="GET" action="http://encuentro.gob.ar/search" accept-charset="UTF-8" class="morphsearch-form">
+    <div class="buscar">
+		<input class="morphsearch-input" type="search" id="keywords" name="keywords"/>
+	</div>
+</form>
+	<div class="morphsearch-content">
+		<div class="dummy-column">
+			<ul class="busqueda" id="busqueda">
+			</ul>
+		</div>
+		<div class="dummy-column" id="programas">
+		</div>
+		<div class="dummy-column" id="guias">
+		</div>
+		<div class="clr"></div>
+		<div class="botones-busqueda">
+			<div class="col-md-6"><a href="#" class="bus-button" id="search_normal">Buscar en Encuentro</a> </div>
+			<div class="col-md-6"><a href="#" class="bus-button" id="search_subtitles">Buscar por subtítulos</a> </div>
+		</div>
+	</div>
+	<!-- /morphsearch-content -->
+</div>
+<!-- /morphsearch -->
+<div class="overlay"></div>
+<!-- /container --> 
+<script src="/frontend/js/classie.js"></script> 
+<script src="/frontend/js/search.js"></script> 
+<script src="/frontend/js/main.js"></script> 
+
+<script>
+$("#search_normal").on('click', function() {
+	var keywords = $('#keywords').val();
+	var req = new XMLHttpRequest();
+	var url = "/search/?keywords="+keywords;
+	window.location.href = url;
+});
+
+$("#search_subtitles").on('click', function() {
+	var keywords = $('#keywords').val();
+	var req = new XMLHttpRequest();
+	var url = "/search/subtitle/?keywords="+keywords;
+	window.location.href = url;
+});
+
+
+$("#keywords").keyup(function() {
+
+	var keywords = $('#keywords').val();
+
+	if (keywords.length <= 2) {
+		return;
+	}
+
+	var url = '/search/predictive?keywords='+keywords;
+
+	$.getJSON(url, function(results, status) {
+		if (status == "success") {
+			$("#programas").html("");
+			$("#guias").html("");
+			$("#busqueda").html("");
+			$("#busqueda").append('<h2>o tal vez estas buscando</h2>');
+			for (var i in results.keywords) {
+				if (i >= 5)
+					break;
+				$("#busqueda").append('<li><a href="/search?keywords='+results.keywords[i]+'">'+results.keywords[i]+'<span class="icn icn-ir"></span></a></li>');
+			}
+
+			if (results.programs.length == 0) {
+				$("#programas").append('<h2>No se han encontrado resultados relevantes en <strong>programas</strong></h2>');
+				return;
+			} else { 
+				$("#programas").append('<h2>Resultados relevantes en <strong>programas</strong></h2>');
+			}
+			for (var i in results.programs) {
+				if (i >= 2)
+					break;
+				var image = "/images/placeholder_360x230.jpg";
+				if (results.programs[i].image) {
+					image = '/files/'+results.programs[i].image.file;
+				}
+				var title = results.programs[i].title;
+				$("#programas").append('<a href="/programas/'+results.programs[i].id+'" class="relevante"><dd><div class="img-busq"><img src="'+image+'" class="img-responsive" alt="resultado"/></div><div class="text-busqueda"><h5>'+title+'</h5><p>'+results.programs[i].type+'</p></div></dd></a>');
+			}
+
+			if (results.resources.length == 0) {
+				$("#guias").append('<h2>No se han encontrado resultados relevantes en <strong>gu&iacute;as</strong></h2>');
+				return;
+			} else { 
+				$("#guias").append('<h2>Resultados relevantes en <strong>gu&iacute;as</strong></h2>');
+			}
+			for (var i in results.resources) {
+				var image = "/images/placeholder_360x230.jpg";
+				if (results.resources[i].image) {
+					image = '/files/'+results.resources[i].image.file;
+				}
+				$("#guias").append('<a href="/enelaula/'+results.resources[i].id+'" class="relevante"><dd><div class="img-busq"><img src="'+image+'" class="img-responsive" alt="resultado"  height="230"/></div><div class="text-busqueda"><h5>'+results.resources[i].title+'</h5><p>'+results.resources[i].category.replace(',', '')+'</p></div></dd></a>');
+			}
+
+		} else {
+			alert("Hubo un problema con la llamada a Educ.ar");
+		}
+	});
+});
+</script>		<section>
+			  				  <div class="container">
+			  	<div class="col-filter">
+  <div class="col-title-programa">
+    <h3>Todos los programas
+		</h3>
+
+  </div>
+  <nav id="cbp-hrmenu" class="cbp-hrmenu">
+    <ul>
+      <li> <a href="#">Ordenar por</a>
+        <div class="cbp-hrsub"><div class="col-filter">
+          <div class="cbp-hrsub-inner">
+            <div>
+              <ul id="orden">
+                <li class="ordenar"><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="Fecha" href="/programas/?sort=pub_date&category=">Fecha</a></li>
+                <li class="ordenar"><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="Mas Visto" href="/programas/?sort=views&dir=desc&category=">Más visto</a></li>
+                <li class="alfabeto"> 
+										  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="A" href="/programas/?keywords=A&category=&sort=title&dir=asc">A</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="B" href="/programas/?keywords=B&category=&sort=title&dir=asc">B</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="C" href="/programas/?keywords=C&category=&sort=title&dir=asc">C</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="D" href="/programas/?keywords=D&category=&sort=title&dir=asc">D</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="E" href="/programas/?keywords=E&category=&sort=title&dir=asc">E</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="F" href="/programas/?keywords=F&category=&sort=title&dir=asc">F</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="G" href="/programas/?keywords=G&category=&sort=title&dir=asc">G</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="H" href="/programas/?keywords=H&category=&sort=title&dir=asc">H</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="I" href="/programas/?keywords=I&category=&sort=title&dir=asc">I</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="J" href="/programas/?keywords=J&category=&sort=title&dir=asc">J</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="K" href="/programas/?keywords=K&category=&sort=title&dir=asc">K</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="L" href="/programas/?keywords=L&category=&sort=title&dir=asc">L</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="M" href="/programas/?keywords=M&category=&sort=title&dir=asc">M</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="N" href="/programas/?keywords=N&category=&sort=title&dir=asc">N</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="O" href="/programas/?keywords=O&category=&sort=title&dir=asc">O</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="P" href="/programas/?keywords=P&category=&sort=title&dir=asc">P</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="Q" href="/programas/?keywords=Q&category=&sort=title&dir=asc">Q</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="R" href="/programas/?keywords=R&category=&sort=title&dir=asc">R</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="S" href="/programas/?keywords=S&category=&sort=title&dir=asc">S</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="T" href="/programas/?keywords=T&category=&sort=title&dir=asc">T</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="U" href="/programas/?keywords=U&category=&sort=title&dir=asc">U</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="V" href="/programas/?keywords=V&category=&sort=title&dir=asc">V</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="W" href="/programas/?keywords=W&category=&sort=title&dir=asc">W</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="X" href="/programas/?keywords=X&category=&sort=title&dir=asc">X</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="Y" href="/programas/?keywords=Y&category=&sort=title&dir=asc">Y</a>
+					  					  <a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ordenar" data-ga_label="Z" href="/programas/?keywords=Z&category=&sort=title&dir=asc">Z</a>
+					  				</li>  
+              </ul>
+            </div>
+          </div></div>
+          <!-- /cbp-hrsub-inner --> 
+        </div>
+        <!-- /cbp-hrsub --> 
+      </li>
+      <li> <a href="#">Categoria</a>
+        <div class="cbp-hrsub"><div class="col-filter">
+          <div class="cbp-hrsub-inner">
+            <div>
+              <ul id="categoria">
+                <li><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_filtrar" data-ga_label="Todos" href="/programas?sort=&keywords=&category=">Todos</a></li>
+                <li><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_filtrar" data-ga_label="Arte y Cultura" href="/programas?sort=&keywords=&category=Arte+y+Cultura">Arte y Cultura</a></li>
+                <li><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_filtrar" data-ga_label="Ciencia y Tecnologia" href="/programas?sort=&keywords=&category=Ciencia+y+Tecnología">Ciencia y Tecnología</a></li>
+                <li><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_filtrar" data-ga_label="Ciencias Sociales" href="/programas?sort=&keywords=&category=Ciencias+Sociales">Ciencias Sociales</a></li>
+                <li><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_filtrar" data-ga_label="Deporte" href="/programas?sort=&keywords=&category=Deporte">Deporte</a></li>
+                <li><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_filtrar" data-ga_label="Educacion y Trabajo" href="/programas?sort=&keywords=&category=Educación+y+trabajo">Educación y Trabajo</a></li>
+                <li><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_filtrar" data-ga_label="Historia" href="/programas?sort=&keywords=&category=Historia">Historia</a></li>
+                <li><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_filtrar" data-ga_label="Infancia" href="/programas?sort=&keywords=&category=Infancia">Infancia</a></li>
+                <li><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_filtrar" data-ga_label="Juventud" href="/programas?sort=&keywords=&category=Juventud">Juventud</a></li>
+                <li><a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_filtrar" data-ga_label="Sociedad" href="/programas?sort=&keywords=&category=Sociedad">Sociedad</a></li>
+              </ul>
+            </div>
+            </div></div>
+          <!-- /cbp-hrsub-inner --> 
+        </div>
+        <!-- /cbp-hrsub --> 
+      </li>
+    </ul>
+  </nav>
+</div>
+<script src="/frontend/js/cbpHorizontalMenu.min.js"></script> 
+<script>
+$(function() {
+	cbpHorizontalMenu.init();
+});
+</script>
+		    <div id="main">
+		      <div id="horario" class="col-md-2">
+				  			<div class="col-md-13">
+  <h5 class="text-uppercase">ahora en encuentro</h5>
+  <div id="grilla">
+  </div>
+  <a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_ver_mas" data-ga_label="grilla completa" href="/programacion/" class="hor-button grilla-button">grilla completa</a> 
+</div>
+
+
+<script>
+/*
+var d = new Date();
+var date_from = d.toISOString();
+
+var hostname = 'http://apipub-canales.encuentro.gov.ar/1.0/grilla';
+var path = '/';
+var app_key  = '8f0d681747a7490d1d2138fd3aa1bfc39209f64a';
+var params 	 = {
+	app_key: app_key,
+	canal: "Portal Encuentro",
+	fecha_inicio: date_from,
+}
+
+var query = encodeURIComponent(JSON.stringify(params));
+//var query = JSON.stringify(params);
+var url = hostname + path + query;
+*/
+
+var url = '/programacion/hoy/';
+
+$("#grilla").html('<div class="loader-ajax"></div>');
+
+$.getJSON(url, function(dias, status) {
+
+	if (status == "success") {
+
+		if (dias.length == 0) {
+			$("#grilla").html('No hay programación disponible para este día');
+			return;
+		}
+		var cant_programas = 1;
+
+		$("#grilla").html('');
+		var grid_list = '<ul>';
+
+		for (var i in dias) {
+
+			for (var j in dias[i]["programas"]) {
+
+				var image = dias[i]["programas"][j].imagen;
+				var title_original = dias[i]["programas"][j].title;
+				var title = truncate(title_original, 25, false);
+
+				if (dias[i]["programas"][j].id > -1) 
+					programURL = "/programas/"+dias[i]["programas"][j].id+"/";
+				else
+					programURL = "#";
+				
+				if (cant_programas == 1) {
+					//grid_list += '<li id="destacado-movil"><a href="'+programURL+'" class="video-pr-ds"><img src="'+image+'" class="img-responsive" alt="'+title_original+'"></a><a href="'+programURL+'"><li class="hora-pr-col"><time class="hora-pr">'+j+'</time><p class="title-pr">'+title+'</p></div></a></li>';
+					grid_list += '<li id="destacado-movil"><a class="video-pr-ds ga_encuentro_track_grid" data-ga_category="grilla" data-ga_action="link_grilla" data-ga_label="'+title_original+'" href="'+programURL+'" ><img src="'+image+'" class="img-responsive" alt="'+title_original+'"></a><a class="ga_encuentro_track_grid" data-ga_category="grilla" data-ga_action="link_grilla" data-ga_label="'+title_original+'" href="'+programURL+'"></div></a></li>';
+				} /*else {*/
+					grid_list += '<li class="destacados-horarios"><a class="ga_encuentro_track_grid" data-ga_category="grilla" data-ga_action="link_grilla" data-ga_label="'+title+'" href="'+programURL+'"><div id="overlay-clasic"><span class="ver-ficha-horario">ver ficha</span> </div><div class="hora-pr-col"><div class="hora-pr">'+j+'</div><div class="title-pr">'+title+'</div></div></a></li>';
+				//}
+				cant_programas++;
+
+				if (cant_programas >= 10) 
+					break;
+			}
+		}
+		grid_list += '</ul>';
+		$("#grilla").append(grid_list);
+
+		//trackeo para analytics
+		$("a.ga_encuentro_track_grid").click(function(e) {
+			var ga_category = $(e.currentTarget).data('ga_category');
+			var ga_action = $(e.currentTarget).data('ga_action');
+			var ga_label = $(e.currentTarget).data('ga_label');
+
+			encuentroTrackAnalytics(ga_category, ga_action, ga_label);
+		});
+		
+	} else {
+		console.log("Hubo un problema con la llamada.");
+	}
+});
+
+function truncate(str, n, useWordBoundary) {
+    var singular, tooLong = str.length > n;
+    useWordBoundary = useWordBoundary || true;
+
+    // Edge case where someone enters a ridiculously long string.
+    str = tooLong ? str.substr(0, n-1) : str;
+
+    singular = (str.search(/\s/) === -1) ? true : false;
+    if(!singular) {
+      str = useWordBoundary && tooLong ? str.substr(0, str.lastIndexOf(' ')) : str;
+    }
+
+    return  tooLong ? str + '&hellip;' : str;
+}
+</script>
+
+			      </div>
+		      <div id="central" class="col-md-9">
+				  	<div class="col-md-13">
+	<div class="programas">
+			<div class="row">
+					<div class="col-md-4">
+				<a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ver_mas" data-ga_label="Susurro y altavoz" href="/programas/serie/9151">
+		    		<div class="programa-view" style="width:100%;"> <!-- INICIO programa --> 
+		        		<div class="overlay-view"></div>
+		      			<img src="/files/6 (3).jpg" class="img-responsive" alt="Susurro y altavoz">
+		      			<div class="img-info">
+		        			<div class="title-cat-info">
+								<ul>
+				  								  								  									  							  					</ul>
+							</div>
+		        			<!-- CATEGORIA programa -->
+		        			<div class="title-img-info">Susurro y altavoz</div>
+		        			<!-- NOMBRE programa -->
+		        			<div class="tags-pr">
+		          				<ul class="tags" id="tags-9151">
+								  								  								  											<li>poes&iacute;a</li>
+																	  								  											<li> taller</li>
+																	  					          	</ul>
+								<!-- TAGS programa --> 
+		        			</div>
+		      			</div>
+		    		</div>
+				</a>
+		    <!-- FIN programa -->
+			</div>
+	    			<div class="col-md-4">
+				<a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ver_mas" data-ga_label="Los visuales" href="/programas/serie/8827">
+		    		<div class="programa-view" style="width:100%;"> <!-- INICIO programa --> 
+		        		<div class="overlay-view"></div>
+		      			<img src="/files/AficheB---360x360 (1).jpg" class="img-responsive" alt="Los visuales">
+		      			<div class="img-info">
+		        			<div class="title-cat-info">
+								<ul>
+				  								  								  									  							  					</ul>
+							</div>
+		        			<!-- CATEGORIA programa -->
+		        			<div class="title-img-info">Los visuales</div>
+		        			<!-- NOMBRE programa -->
+		        			<div class="tags-pr">
+		          				<ul class="tags" id="tags-8827">
+								  								  								  											<li>arte</li>
+																	  								  											<li> arte argentino</li>
+																	  					          	</ul>
+								<!-- TAGS programa --> 
+		        			</div>
+		      			</div>
+		    		</div>
+				</a>
+		    <!-- FIN programa -->
+			</div>
+	    			<div class="col-md-4">
+				<a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ver_mas" data-ga_label="Monstruos" href="/programas/serie/9156">
+		    		<div class="programa-view" style="width:100%;"> <!-- INICIO programa --> 
+		        		<div class="overlay-view"></div>
+		      			<img src="/files/1 (12).jpg" class="img-responsive" alt="Monstruos">
+		      			<div class="img-info">
+		        			<div class="title-cat-info">
+								<ul>
+				  								  								  									  							  					</ul>
+							</div>
+		        			<!-- CATEGORIA programa -->
+		        			<div class="title-img-info">Monstruos</div>
+		        			<!-- NOMBRE programa -->
+		        			<div class="tags-pr">
+		          				<ul class="tags" id="tags-9156">
+								  								  								  											<li>teatro</li>
+																	  								  											<li> actor</li>
+																	  					          	</ul>
+								<!-- TAGS programa --> 
+		        			</div>
+		      			</div>
+		    		</div>
+				</a>
+		    <!-- FIN programa -->
+			</div>
+	    	
+	    </div>
+			<div class="row">
+					<div class="col-md-4">
+				<a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ver_mas" data-ga_label="Encuentro en La C&uacute;pula" href="/programas/serie/8925">
+		    		<div class="programa-view" style="width:100%;"> <!-- INICIO programa --> 
+		        		<div class="overlay-view"></div>
+		      			<img src="/files/Afiche---360x360 (8).jpg" class="img-responsive" alt="Encuentro en La C&uacute;pula">
+		      			<div class="img-info">
+		        			<div class="title-cat-info">
+								<ul>
+				  								  								  									  							  					</ul>
+							</div>
+		        			<!-- CATEGORIA programa -->
+		        			<div class="title-img-info">Encuentro en La C&uacute;pula</div>
+		        			<!-- NOMBRE programa -->
+		        			<div class="tags-pr">
+		          				<ul class="tags" id="tags-8925">
+								  								  								  											<li>m&uacute;sica</li>
+																	  								  											<li> rock</li>
+																	  					          	</ul>
+								<!-- TAGS programa --> 
+		        			</div>
+		      			</div>
+		    		</div>
+				</a>
+		    <!-- FIN programa -->
+			</div>
+	    			<div class="col-md-4">
+				<a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ver_mas" data-ga_label="&iquest;Qu&eacute; piensan los que no piensan como yo?" href="/programas/serie/8822">
+		    		<div class="programa-view" style="width:100%;"> <!-- INICIO programa --> 
+		        		<div class="overlay-view"></div>
+		      			<img src="/files/Afiche---360x360 (1)-2.jpg" class="img-responsive" alt="&iquest;Qu&eacute; piensan los que no piensan como yo?">
+		      			<div class="img-info">
+		        			<div class="title-cat-info">
+								<ul>
+				  								  								  									  							  					</ul>
+							</div>
+		        			<!-- CATEGORIA programa -->
+		        			<div class="title-img-info">&iquest;Qu&eacute; piensan los que no piensan como yo?</div>
+		        			<!-- NOMBRE programa -->
+		        			<div class="tags-pr">
+		          				<ul class="tags" id="tags-8822">
+								  								  								  											<li>debate</li>
+																	  								  											<li> sociedad</li>
+																	  					          	</ul>
+								<!-- TAGS programa --> 
+		        			</div>
+		      			</div>
+		    		</div>
+				</a>
+		    <!-- FIN programa -->
+			</div>
+	    			<div class="col-md-4">
+				<a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ver_mas" data-ga_label="La Colifata en Mosc&uacute;" href="/programas/9194">
+		    		<div class="programa-view" style="width:100%;"> <!-- INICIO programa --> 
+		        		<div class="overlay-view"></div>
+		      			<img src="/files/Colifata.jpg" class="img-responsive" alt="La Colifata en Mosc&uacute;">
+		      			<div class="img-info">
+		        			<div class="title-cat-info">
+								<ul>
+				  								  								  									  							  					</ul>
+							</div>
+		        			<!-- CATEGORIA programa -->
+		        			<div class="title-img-info">La Colifata en Mosc&uacute;</div>
+		        			<!-- NOMBRE programa -->
+		        			<div class="tags-pr">
+		          				<ul class="tags" id="tags-9194">
+								  								  								  											<li>La Colifata</li>
+																	  								  											<li> radio</li>
+																	  					          	</ul>
+								<!-- TAGS programa --> 
+		        			</div>
+		      			</div>
+		    		</div>
+				</a>
+		    <!-- FIN programa -->
+			</div>
+	    	
+	    </div>
+			<div class="row">
+					<div class="col-md-4">
+				<a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ver_mas" data-ga_label="Dos patrias" href="/programas/serie/9175">
+		    		<div class="programa-view" style="width:100%;"> <!-- INICIO programa --> 
+		        		<div class="overlay-view"></div>
+		      			<img src="/files/4 (9).jpg" class="img-responsive" alt="Dos patrias">
+		      			<div class="img-info">
+		        			<div class="title-cat-info">
+								<ul>
+				  								  								  									  							  					</ul>
+							</div>
+		        			<!-- CATEGORIA programa -->
+		        			<div class="title-img-info">Dos patrias</div>
+		        			<!-- NOMBRE programa -->
+		        			<div class="tags-pr">
+		          				<ul class="tags" id="tags-9175">
+								  								  								  											<li>historia</li>
+																	  								  											<li> biograf&iacute;as</li>
+																	  					          	</ul>
+								<!-- TAGS programa --> 
+		        			</div>
+		      			</div>
+		    		</div>
+				</a>
+		    <!-- FIN programa -->
+			</div>
+	    			<div class="col-md-4">
+				<a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ver_mas" data-ga_label="Eureka. Desaf&iacute;o de ideas" href="/programas/serie/9039">
+		    		<div class="programa-view" style="width:100%;"> <!-- INICIO programa --> 
+		        		<div class="overlay-view"></div>
+		      			<img src="/files/Programa_360x360 (1).jpg" class="img-responsive" alt="Eureka. Desaf&iacute;o de ideas">
+		      			<div class="img-info">
+		        			<div class="title-cat-info">
+								<ul>
+				  								  								  									  							  					</ul>
+							</div>
+		        			<!-- CATEGORIA programa -->
+		        			<div class="title-img-info">Eureka. Desaf&iacute;o de ideas</div>
+		        			<!-- NOMBRE programa -->
+		        			<div class="tags-pr">
+		          				<ul class="tags" id="tags-9039">
+								  								  								  											<li>ciencia</li>
+																	  								  											<li> salud</li>
+																	  					          	</ul>
+								<!-- TAGS programa --> 
+		        			</div>
+		      			</div>
+		    		</div>
+				</a>
+		    <!-- FIN programa -->
+			</div>
+	    			<div class="col-md-4">
+				<a class="ga_encuentro_track" data-ga_category="catalogo" data-ga_action="link_ver_mas" data-ga_label="En concierto. M&uacute;sica en el CCK" href="/programas/serie/9181">
+		    		<div class="programa-view" style="width:100%;"> <!-- INICIO programa --> 
+		        		<div class="overlay-view"></div>
+		      			<img src="/files/2 (16).jpg" class="img-responsive" alt="En concierto. M&uacute;sica en el CCK">
+		      			<div class="img-info">
+		        			<div class="title-cat-info">
+								<ul>
+				  								  								  									  							  					</ul>
+							</div>
+		        			<!-- CATEGORIA programa -->
+		        			<div class="title-img-info">En concierto. M&uacute;sica en el CCK</div>
+		        			<!-- NOMBRE programa -->
+		        			<div class="tags-pr">
+		          				<ul class="tags" id="tags-9181">
+								  								  								  											<li>m&uacute;sica</li>
+																	  								  											<li> rock</li>
+																	  					          	</ul>
+								<!-- TAGS programa --> 
+		        			</div>
+		      			</div>
+		    		</div>
+				</a>
+		    <!-- FIN programa -->
+			</div>
+	    	
+	    </div>
+	    </div> 
+  	<div class="clr"></div>
+  	<div class="pagination"> 
+		<ul class="pagination"><li class="disabled"><span>&laquo;</span></li> <li class="active"><span>1</span></li><li><a href="http://encuentro.gob.ar/programas?page=2">2</a></li><li><a href="http://encuentro.gob.ar/programas?page=3">3</a></li><li><a href="http://encuentro.gob.ar/programas?page=4">4</a></li><li><a href="http://encuentro.gob.ar/programas?page=5">5</a></li><li><a href="http://encuentro.gob.ar/programas?page=6">6</a></li><li><a href="http://encuentro.gob.ar/programas?page=7">7</a></li><li><a href="http://encuentro.gob.ar/programas?page=8">8</a></li><li class="disabled"><span>...</span></li><li><a href="http://encuentro.gob.ar/programas?page=148">148</a></li><li><a href="http://encuentro.gob.ar/programas?page=149">149</a></li> <li><a href="http://encuentro.gob.ar/programas?page=2" rel="next">&raquo;</a></li></ul>
+  	</div>
+</div>		      </div>
+		      <div id="video" class="col-md-2">
+				  			<div class="col-md-13 seccion-v" id="popular">
+</div>
+
+<script>
+var currentViewport = viewport();
+if (currentViewport.width >= 960) {
+ 
+var url = '/popular/json';
+$.getJSON(url, function(results, status) {
+	if (status == "success") {
+		console.log("FOUND RESULTS" );
+		console.log("NUMBER OF RESULTS: " + results.length);
+		if (results.length > 0) {
+			$("#popular").html('<h5 class="text-uppercase">Lo más visto</h5>');
+			var block = '<ul>';
+			for (var i in results) {
+				var item = '<li class="destacado-hoy">';
+				if (results[i].educar_id != null) {
+					item += '<a class="video-pr-ds ga_encuentro_track_popular" data-ga_category="inicio" data-ga_action="link_mas_visto" data-ga_label="'+results[i].title+'" href="/programas/'+results[i].educar_id+'">';
+				} else {
+					item += '<a class="video-pr-ds">';
+				}
+				item += '<div id="overlay-clasic"><div class="icon-see"><span class="icn icn-ir"></span></div> </div>';
+				item += '<img src="'+results[i].image+'" class="img-responsive" alt="'+results[i].title+'"></a>';
+				item += '<div class="title-video-pr">'+results[i].title+'</div></li>';
+				block += item;
+			}
+			block += '</ul>';
+			$("#popular").append(block);
+
+			//trackeo para analytics
+			$("a.ga_encuentro_track_popular").click(function(e) {
+				var ga_category = $(e.currentTarget).data('ga_category');
+				var ga_action = $(e.currentTarget).data('ga_action');
+				var ga_label = $(e.currentTarget).data('ga_label');
+
+				encuentroTrackAnalytics(ga_category, ga_action, ga_label);
+			});
+			
+		}
+	} else {
+		alert("Hubo un problema con la llamada a Educ.ar");
+		console.log(status);
+	}
+})
+.done(function() { console.log('getJSON request succeeded!'); })
+.fail(function(jqXHR, textStatus, errorThrown) { 
+	console.log('getJSON request failed! ' + textStatus); 
+})
+.always(function() { console.log('getJSON request ended!'); });
+
+}
+</script>				<div class="col-md-13 seccion-v" id="newreleases">
+</div>
+
+<script>
+var currentViewport = viewport();
+if (currentViewport.width >= 960) {
+
+var url = '/new-releases/json';
+$.getJSON(url, function(results, status) {
+	if (status == "success") {
+		console.log("FOUND RESULTS" );
+		console.log("NUMBER OF RESULTS: " + results.length);
+		if (results.length > 0) {
+			$("#newreleases").html('<h5 class="text-uppercase">Estrenos</h5><span class="title-divider"></span>');
+		}
+		for (var i in results) {
+			var item = '<div id="destacado-hoy" id="ficha">';
+			if (results[i].educar_id != null) {
+				item += '<a class="video-pr-ds ga_encuentro_track_releases" data-ga_category="inicio" data-ga_action="link_estrenos" data-ga_label="'+results[i].title+'" href="/programas/'+results[i].educar_id+'">';
+			} else {
+				item += '<a class="video-pr-ds">';
+			}
+			item += '<div id="overlay-clasic"><div class="icon-see"><span class="icn icn-ir"></span></div></div>';
+			item += '<img src="'+results[i].image+'" class="img-responsive" alt="'+results[i].title+'"></a>';
+			item += '<div class="subtitle-video">'+results[i].title+'</div>';
+			if (results[i].release_time && results[i].release_time.length > 0)
+				item += '<div class="dia-hora">'+results[i].release_time+'</div>';
+			item += '<div class="title-estrenos">'+results[i].description+'</div>';
+			$("#newreleases").append(item);
+		}
+		$("#newreleases").append('</div>');
+
+		//trackeo para analytics
+		$("a.ga_encuentro_track_releases").click(function(e) {
+			var ga_category = $(e.currentTarget).data('ga_category');
+			var ga_action = $(e.currentTarget).data('ga_action');
+			var ga_label = $(e.currentTarget).data('ga_label');
+
+			encuentroTrackAnalytics(ga_category, ga_action, ga_label);
+		});
+	} else {
+		alert("Hubo un problema con la llamada a Educ.ar");
+		console.log(status);
+	}
+})
+.done(function() { console.log('getJSON request succeeded!'); })
+.fail(function(jqXHR, textStatus, errorThrown) { 
+	console.log('getJSON request failed! ' + textStatus); 
+})
+.always(function() { console.log('getJSON request ended!'); });
+
+}
+
+</script>
+			      </div>
+		    </div>
+		  </div>
+		</section>
+				</div>
+		<div id="footer">
+	<div class="container  pad-40">
+		<div class="container-form">
+			<div id="foot-m">
+				<a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Acerca de Encuentro" href="/acercade">Acerca de Encuentro</a>
+				<a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Cableoperadores" href="/cableoperadores">Cableoperadores</a>
+				<a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Presentacion de proyectos" href="/proyectos">Presentación de proyectos</a>
+				<a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Condiciones de uso" href="/condiciones">Condiciones de uso</a>
+				<a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Informacion para proveedores" target="_blank" href="http://www.educ.ar/sitios/educar/compras/index">Información para proveedores</a>
+				<a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Catalogo de programacion" target="_blank" href="http://catalogo.encuentro.gob.ar/">Catálogo de programación</a>
+				<a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Contacto" href="/contacto">Contacto</a>
+				<p class="subscribe" id="subscribe_message">Quiero recibir novedades </p>
+				<input class="mail-subs" placeholder="&#9993;" onfocus="this.placeholder = ''" onblur="this.placeholder = '&#9993;'" name="email" type="email" id="emailfield" required /><input type="submit" value="" class="send-subs" title="enviar" id="subscribe">
+				<div class="social">
+					<p>Seguinos en</p>
+					<a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Facebook" href="http://facebook.com/canalencuentro"><span class="icn icn-facebook"></span></a>
+					<a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Twitter" href="http://twitter.com/canalencuentro"><span class="icn icn-twitter"></span></a>
+					<a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Youtube" href="http://youtube.com/encuentro"><span class="icn icn-utube"></span></a>
+				</div>
+			</div>
+			<p>Todos los derechos reservados educ.ar 2016</p>
+		</div>
+	</div>
+	<div id="footer-logos">
+		<div class="container">
+			<div class="col-foot">
+				<ul>
+					<li><a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Canal Encuentro" href="http://www.encuentro.gov.ar/"><img src="/frontend/images/footer-encuentro.png" alt="Canal Encuentro"></a></li>
+					<li><a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Sistema Federal de Medios y Contenidos Publicos" href="https://www.argentina.gob.ar/mediospublicos/"><img src="/frontend/images/footer-secretaria.png" alt="Secretaría Federal de Medios y Contenidos Públicos"></a></li>
+					<li><a class="ga_encuentro_track" data-ga_category="inicio" data-ga_action="link_footer" data-ga_label="Educ.ar" href="https://www.educ.ar/"><img src="/frontend/images/footer-educar.png" alt="Educ.ar"></a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+$("#subscribe").on('click', function() {
+	var email = $('#emailfield').val();
+	if (email.length == 0 || !validateEmail(email))
+	{
+		$("#subscribe_message").html('El email no es válido.');
+		return;
+	}
+
+	var url = "/visitor?email="+email;
+
+	$.getJSON(url, function(results, status) {
+		if (status == "success") {
+			$("#subscribe_message").html('Muchas gracias.');
+		} else {
+			alert("Hubo un problema. Por favor intentá más tarde.");
+		}
+	});
+});
+
+function validateEmail(email) 
+{
+    //var re = /\S+@\S+/;
+	var re =/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i
+    return re.test(email);
+}
+</script>	</body>
+	
+	<script>
+	var dondeEstoy = 'catalogo';
+</script>
+</html>

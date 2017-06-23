@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2014-2015 Facundo Batista
+# Copyright 2014-2017 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -15,8 +13,6 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # For further info, check  https://launchpad.net/encuentro
-
-from __future__ import unicode_literals
 
 """Tests for the helper of scrapers."""
 
@@ -83,3 +79,35 @@ class EnhanceNumberTestCase(unittest.TestCase):
 
     def test_dashed_twodigits(self):
         self._check("05 - foo bar", "05. foo bar")
+
+
+class FakeIDGeneratorTestCase(unittest.TestCase):
+    """Tests for the fake id generator."""
+
+    def test_same(self):
+        r = helpers.get_unique_id("foobar", {})
+        self.assertEqual(r, "foobar")
+
+    def test_simple(self):
+        r = helpers.get_unique_id("foobar", {'foo', 'foobar', 'bar'})
+        self.assertEqual(r, "foobar--1")
+
+    def test_already_there_one(self):
+        r = helpers.get_unique_id("foobar", {'foobar', 'foobar--1'})
+        self.assertEqual(r, "foobar--2")
+
+    def test_already_there_several(self):
+        r = helpers.get_unique_id("foobar", {'foobar', 'foobar--1', 'foobar--2', 'foobar--3'})
+        self.assertEqual(r, "foobar--4")
+
+    def test_already_fake_simple(self):
+        r = helpers.get_unique_id("foobar--1", {'foo', 'bar'})
+        self.assertEqual(r, "foobar--1")
+
+    def test_already_fake_already_there(self):
+        r = helpers.get_unique_id("foobar--1", {'foobar--1', 'foobar--2'})
+        self.assertEqual(r, "foobar--3")
+
+    def test_already_fake_decen(self):
+        r = helpers.get_unique_id("foobar--9", {'foobar--9'})
+        self.assertEqual(r, "foobar--10")

@@ -1,6 +1,4 @@
-# -*- coding: utf8 -*-
-
-# Copyright 2012-2014 Facundo Batista
+# Copyright 2012-2017 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -18,8 +16,6 @@
 
 """A couple of helpers for server stuff."""
 
-from __future__ import unicode_literals
-
 import bz2
 import pickle
 import cgi
@@ -28,12 +24,11 @@ import os
 import re
 import time
 
-try:
-    import urlparse as parse
-    from urllib2 import HTTPError
-except ImportError:
-    from urllib import parse
-    from urllib.error import HTTPError
+from urllib import parse
+from urllib.error import HTTPError
+
+
+UNIQUE_ID_SEPARATOR = '--'
 
 
 def save_file(basename, data):
@@ -51,26 +46,28 @@ def save_file(basename, data):
 
 
 def _weird_utf8_fixing(byteseq):
-    """Clean non-utf8 elements and decode."""
+    """Clean non-utf8 elements and decode.
+
+    Receive bytes, return unicode.
+    """
     tmp = []
     consume = 0
     for i, c in enumerate(byteseq):
         if consume:
             consume -= 1
             continue
-        ord_c = ord(c)
-        if ord_c <= 127:  # 0... ....
+        if c <= 127:  # 0... ....
             tmp.append(c)
-        elif 192 <= ord_c <= 223:  # 110. ....
+        elif 192 <= c <= 223:  # 110. ....
             n = byteseq[i + 1]
-            if 128 <= ord(n) <= 191:
+            if 128 <= n <= 191:
                 # second byte ok
                 tmp.append(c)
                 tmp.append(n)
                 consume = 1
         else:
             ValueError("Unsupported fixing sequence.")
-    result = b"".join(tmp).decode("utf8")
+    result = bytes(tmp).decode("utf8")
     return result
 
 
@@ -78,7 +75,7 @@ def sanitize(html):
     """Sanitize html."""
     # try to decode in utf8, otherwise try in cp1252
     try:
-        html.decode("utf8")
+        html = html.decode("utf8")
     except UnicodeDecodeError:
         try:
             html = html.decode("cp1252")
@@ -86,7 +83,7 @@ def sanitize(html):
             html = _weird_utf8_fixing(html)
 
     # remove script stuff
-    html = re.sub(b"<script.*?</script>", b"", html, flags=re.S)
+    html = re.sub("<script.*?</script>", "", html, flags=re.S)
     return html
 
 
@@ -172,3 +169,19 @@ def enhance_number(text):
 
     text = "%02d. %s" % (number, rest.strip())
     return text
+
+
+def get_unique_id(prev_id, all_ids):
+    """Fake an ID using a separator and a number for it to be unique."""
+    if UNIQUE_ID_SEPARATOR in prev_id:
+        p1, p2 = prev_id.split(UNIQUE_ID_SEPARATOR)
+        base_id = p1
+        prev_number = int(p2)
+    else:
+        prev_number = 0
+        base_id = prev_id
+
+    while prev_id in all_ids:
+        prev_number += 1
+        prev_id = base_id + UNIQUE_ID_SEPARATOR + str(prev_number)
+    return prev_id

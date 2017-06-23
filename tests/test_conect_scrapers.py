@@ -58,21 +58,21 @@ class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
 
     def test_example_series_1(self):
-        html = open("tests/ej-conect-series_1.html").read()
+        html = open("tests/ej-conect-series_1.html", 'rb').read()
         res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_1)
 
     def test_example_series_2(self):
-        html = open("tests/ej-conect-series_2.html").read()
+        html = open("tests/ej-conect-series_2.html", 'rb').read()
         res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_2)
 
     def test_example_series_3(self):
-        html = open("tests/ej-conect-series_3.html").read()
+        html = open("tests/ej-conect-series_3.html", 'rb').read()
         res = scrapers_conect.scrap_series(html)
         self.assertEqual(res, _RES_SERIES_3)
 
     def test_example_video_01(self):
-        html = open("tests/ej-conect-video_01.html").read()
+        html = open("tests/ej-conect-video_01.html", 'rb').read()
         res = scrapers_conect.scrap_video(html)
         self.assertEqual(res, _RES_VIDEO_01)

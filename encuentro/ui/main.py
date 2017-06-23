@@ -89,11 +89,12 @@ class MainUI(remembering.RememberingMainWindow):
 
     _programs_file = os.path.join(multiplatform.data_dir, 'encuentro.data')
 
-    def __init__(self, version, app_quit):
+    def __init__(self, version, app_quit, update_source):
         super(MainUI, self).__init__()
         self.app_quit = app_quit
         self.finished = False
         self.version = version
+        self.update_source = update_source
         self.downloaders = {}
         self.setWindowTitle('Encuentro')
 
@@ -115,7 +116,7 @@ class MainUI(remembering.RememberingMainWindow):
         systray.show(self)
 
         if config.get('autorefresh'):
-            ue = update.UpdateEpisodes(self)
+            ue = update.UpdateEpisodes(self, update_source)
             ue.background()
         else:
             # refresh data if never done before or if last
@@ -123,7 +124,7 @@ class MainUI(remembering.RememberingMainWindow):
             last_refresh = config.get('autorefresh_last_time')
             if last_refresh is None or (
                     dt.datetime.now() - last_refresh > dt.timedelta(7)):
-                ue = update.UpdateEpisodes(self)
+                ue = update.UpdateEpisodes(self, update_source)
                 ue.background()
 
         self.show()
@@ -349,7 +350,7 @@ class MainUI(remembering.RememberingMainWindow):
 
     def refresh_episodes(self, _=None):
         """Update and refresh episodes."""
-        ue = update.UpdateEpisodes(self)
+        ue = update.UpdateEpisodes(self, self.update_source)
         ue.interactive()
 
     def download_episode(self, _=None):

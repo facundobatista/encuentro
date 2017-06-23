@@ -1,6 +1,4 @@
-# -*- coding: utf8 -*-
-
-# Copyright 2013-2014 Facundo Batista
+# Copyright 2013-2017 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -16,15 +14,14 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import print_function
-
 """Main server process to get all info from Encuentro web site."""
 
 import json
 import logging
 import sys
-import urllib
-import urllib2
+
+from collections import namedtuple
+from urllib import request, error, parse
 
 # we execute this script from inside the directory; pylint: disable=W0403
 import helpers
@@ -32,153 +29,164 @@ import scrapers_encuen
 import srv_logger
 
 
-URL_LISTING = "http://www.encuentro.gov.ar/sitios/encuentro/Programas/getEmisionesDeSitio"
-URL_IMAGE_BASE = (
-    "http://repositorioimagen-download.educ.ar/repositorio/Imagen/ver?image_id=%(img_id)s"
-)
-URL_DETAILS = 'http://www.encuentro.gov.ar/sitios/encuentro/Programas/detalleCapitulo'
-URL_EPIS_BASE = "http://www.encuentro.gov.ar/sitios/encuentro/programas/ver?rec_id=%(epis_id)s"
-
-POST_DETAILS = '__params=%7B%22rec_id%22%3A{}%2C%22ajax%22%3Atrue%7D'
+URL_LISTING = "http://encuentro.gob.ar/programas?page={page}"
+URL_BASE = "http://encuentro.gob.ar/"
+URL_VIDEO = "http://videos.encuentro.gob.ar/video/?id={video_id}"
 
 logger = logging.getLogger("Encuentro")
 
 episodes_cache = helpers.Cache("episodes_cache_encuen.pickle")
 
 
-class EpisodeInfo(object):
-    """Generic object to hold episode info."""
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+EpisodeInfo = namedtuple(
+    'EpisodeInfo', "section epis_url title description image_url duration epis_id season")
 
 
 @helpers.retryable(logger)
-def get_download_availability(episode_id):
-    """Check if the episode is available for download."""
-    logger.info("Get availability: %s", episode_id)
-    try:
-        info = episodes_cache.get(episode_id)
-        logger.info("    cached!")
-    except KeyError:
-        post = POST_DETAILS.format(episode_id)
-        u = urllib2.urlopen(URL_DETAILS, data=post)
-        t = u.read()
-        data = json.loads(t)
-        data = data["ResultSet"]['data']['recurso']['tipo_funcional']['data']
-        real_id = data['descargable']['file_id']
-        info = real_id is not None
-        episodes_cache.set(episode_id, info)
-        logger.info("    ok, avail? %s", real_id is not None)
-    return info
-
-
-@helpers.retryable(logger)
-def get_episode_info(url):
+def get_episode_info(program_number):
     """Get the info from an episode."""
+    url = "http://encuentro.gob.ar/programas/json/" + program_number
     logger.info("Get episode info: %r", url)
     try:
         info = episodes_cache.get(url)
         logger.info("    cached!")
     except KeyError:
-        u = urllib2.urlopen(url)
-        page = u.read()
-        info = scrapers_encuen.scrap_programa(page)
+        u = request.urlopen(url)
+        raw = u.read()
+        info = json.loads(raw.decode("utf8"))
         episodes_cache.set(url, info)
         logger.info("    ok")
     return info
 
 
 @helpers.retryable(logger)
-def get_listing_info(offset):
+def get_episodes_list(url):
+    """Get the episodes list for a serie."""
+    logger.info("Get episodes list from %s", url)
+    try:
+        u = request.urlopen(url)
+        raw = u.read()
+    except error.HTTPError as err:
+        logger.warning("    Ignoring! %r", err)
+        return
+
+    info = scrapers_encuen.scrap_series(raw)
+    return info
+
+
+@helpers.retryable(logger)
+def get_listing_info(page):
     """Get the info from a listing."""
-    logger.info("Get listing from offset %d", offset)
-    params = {'offset': offset, 'limit': 20, 'ajax': True}
-    data = "__params=" + urllib.quote(json.dumps(params))
-    logger.debug("hitting url: %r (%r)", URL_LISTING, data)
-    u = urllib2.urlopen(URL_LISTING, data=data)
+    logger.info("Get listing from page %d", page)
+    url = URL_LISTING.format(page=page)
+    logger.debug("hitting url: %r", url)
+    u = request.urlopen(url)
     raw = u.read()
-    data = json.loads(raw)
-    data = data['ResultSet']['data']
-    if data:
-        results = data['result']
-    else:
-        results = []
-    return results
+    return scrapers_encuen.scrap_list(raw)
+
+
+@helpers.retryable(logger)
+def get_best_video(page):
+    """Get the best video to download from the real web page."""
+    logger.info("Get best video from page %s", page)
+    u = request.urlopen(page)
+    raw = u.read()
+    return scrapers_encuen.scrap_bestvideo(raw)
 
 
 def get_episodes():
     """Yield episode info."""
-    offset = 0
+    page = 0
     all_items = []
     while True:
-        logger.info("Get Episodes, listing")
-        episodes = get_listing_info(offset)
+        episodes = get_listing_info(page)
         logger.info("    found %d", len(episodes))
         if not episodes:
             break
 
         all_items.extend(episodes)
-        offset += len(episodes)
+        page += 1
 
     # extract the relevant information
-    for item in all_items:
-        image = URL_IMAGE_BASE % dict(img_id=item['rec_medium_icon_image_id'])
-        description = item['rec_descripcion']
-        epis_id = item['rec_id']
-        epis_url = URL_EPIS_BASE % dict(epis_id=epis_id)
-        title = helpers.enhance_number(item['rec_titulo'])
+    for page_url, image, main_title in all_items:
+        page_url = URL_BASE + parse.quote(page_url)
+        image = URL_BASE + parse.quote(image)
 
-        # get more info from the episode page
-        logger.info("Getting info for %r %r", title, epis_url)
-        duration, links_info = get_episode_info(epis_url)
+        if '/serie/' in page_url:
+            all_episodes = get_episodes_list(page_url)
+            if all_episodes is None:
+                logger.warning("Problem getting episodes list for %r (%s)", main_title, page_url)
+                # problem getting the info
+                continue
+        else:
+            program_number = page_url.split("/")[-1]
+            all_episodes = [(None, program_number)]  # no season!
 
-        if len(links_info) == 0:
-            if duration > 60:
-                section = u"Película"
-            elif duration < 10:
-                section = u"Micro"
+        for season, program_number in all_episodes:
+            episode_info = get_episode_info(program_number)
+            api_epis_url = episode_info['download_url_hd']
+            if api_epis_url is None:
+                # not downloadable program
+                continue
+
+            if season is None:
+                # standalone program
+                title = main_title
             else:
-                section = u"Especial"
+                # part of a Serie
+                title = main_title + " / " + episode_info['title'].strip()
+
+            duration = episode_info['duration']
+            if duration is not None:
+                duration = int(duration)
+            epis_id = str(episode_info['educar_id'])
+            description = episode_info['description'].strip()
+
+            # get the best possible video
+            epis_url = get_best_video(URL_VIDEO.format(video_id=epis_id))
+            if epis_url is None:
+                # fallback to the best option from the API
+                epis_url = api_epis_url
+
+            if season is None:
+                if duration is None:
+                    section = u"Película"
+                else:
+                    if duration > 60:
+                        section = u"Película"
+                    elif duration < 10:
+                        section = u"Micro"
+                    else:
+                        section = u"Especial"
+            else:
+                section = 'Series'
 
             ep = EpisodeInfo(section=section, epis_url=epis_url,
                              title=title, description=description,
                              image_url=image, duration=duration,
-                             epis_id=epis_id, season=None)
+                             epis_id=epis_id, season=season)
             yield ep
-        else:
-            section = u"Serie"
-            for season, title, url in links_info:
-                epis_id = helpers.get_url_param(url, 'rec_id')
-                ep = EpisodeInfo(section=section, epis_url=url, title=title,
-                                 description=description, image_url=image,
-                                 duration=duration, epis_id=epis_id,
-                                 season=season)
-                yield ep
 
 
 def get_all_data():
     """Collect all data from the servers."""
     all_data = []
-    collected = {}
+    collected = set()
     for ep in get_episodes():
-        available = get_download_availability(ep.epis_id)
-        if not available:
-            continue
-        info = dict(channel=u"Encuentro", title=ep.title, url=ep.epis_url,
-                    section=ep.section, description=ep.description,
-                    duration=ep.duration, episode_id=ep.epis_id,
-                    image_url=ep.image_url, season=ep.season)
-
-        # check if already collected, verifying all is ok
+        # check if the unique id we use is reused (same episode used in two different places), and
+        # in that case fake another id so the episode can still be stored and used
         if ep.epis_id in collected:
-            previous = collected[ep.epis_id]
-            if previous == info:
-                continue
-            else:
-                raise ValueError("Bad repeated! %s and %s", previous, info)
+            episode_id = helpers.get_unique_id(ep.epis_id, collected)
+            logger.info("Using a different id instead of %r: %r", ep.epis_id, episode_id)
+        else:
+            episode_id = ep.epis_id
+        collected.add(episode_id)
 
         # store
-        collected[ep.epis_id] = info
+        info = dict(channel=u"Encuentro", title=ep.title, url=ep.epis_url,
+                    section=ep.section, description=ep.description,
+                    duration=ep.duration, episode_id=episode_id,
+                    image_url=ep.image_url, season=ep.season)
         all_data.append(info)
     return all_data
 
@@ -186,7 +194,7 @@ def get_all_data():
 def main():
     """Entry point."""
     all_data = get_all_data()
-    helpers.save_file("encuentro-v05", all_data)
+    helpers.save_file("encuentro-v06", all_data)
 
 
 if __name__ == '__main__':
@@ -198,6 +206,6 @@ if __name__ == '__main__':
     srv_logger.setup_log(shy)
 
     if len(sys.argv) > 1:
-        print(get_episode_info(int(sys.argv[1])))
+        print(get_episode_info(sys.argv[1]))
     else:
         main()
