@@ -1,4 +1,4 @@
-# Copyright 2014 Facundo Batista
+# Copyright 2014-2017 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -123,9 +123,12 @@ def hit(url, apply_cache):
 
 def get_swfs():
     """Retrieve all SWFs from site and parse them."""
-    soup = bs4.BeautifulSoup(hit(URL_FLASH, False))
+    soup = bs4.BeautifulSoup(hit(URL_FLASH, False), "html.parser")
     links = [(x.text, x.text.split(".")) for x in soup.find_all('a')]
-    names = [n for n, p in links if p[0].isdigit() and p[1] == 'swf']
+    orderable_names = [(int(p[0]), n) for n, p in links if p[0].isdigit() and p[1] == 'swf']
+
+    # order by the numeric value
+    names = [x[1] for x in sorted(orderable_names)]
 
     # cache all except the last one, as it changes in the same month
     names = [(n, True) for n in names[:-1]] + [(names[-1], False)]
@@ -141,7 +144,7 @@ def get_swfs():
 
 def get_mp3s():
     """Retrieve all mp3s names."""
-    soup = bs4.BeautifulSoup(hit(URL_MUSIC, False))
+    soup = bs4.BeautifulSoup(hit(URL_MUSIC, False), "html.parser")
     links = [x['href'] for x in soup.find_all('a')]
     mp3s = [x for x in links if x[:6].isdigit() and x.endswith('.mp3')]
     return mp3s

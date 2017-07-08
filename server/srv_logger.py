@@ -29,7 +29,7 @@ def setup_log(shy):
     """Log setup."""
     _rootlogger = logging.getLogger("")
     _rootlogger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s %(levelname)7s '
+    formatter = logging.Formatter('%(asctime)s %(levelname)-7s '
                                   '%(name)s: %(message)s')
 
     # stdout

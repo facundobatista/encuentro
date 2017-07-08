@@ -1,4 +1,4 @@
-# Copyright 2013-2014 Facundo Batista
+# Copyright 2013-2017 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -30,12 +30,12 @@ from encuentro.ui.main import MainUI
 # will try to load EpisodeData from this namespace
 from encuentro.data import EpisodeData  # NOQA
 
-logger = logging.getLogger('encuentro.init')
-
 from PyQt4.QtGui import QApplication, QIcon
 
+logger = logging.getLogger('encuentro.init')
 
-def start(version):
+
+def start(version, update_source):
     """Rock and roll."""
     # set up config
     fname = os.path.join(multiplatform.config_dir, 'encuentro.conf')
@@ -48,5 +48,5 @@ def start(version):
     icon = QIcon(multiplatform.get_path("encuentro/logos/icon-192.png"))
     app.setWindowIcon(icon)
 
-    MainUI(version, app.quit)
+    MainUI(version, app.quit, update_source)
     sys.exit(app.exec_())

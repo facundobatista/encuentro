@@ -1,0 +1,2 @@
+fades --python=python2 --system-site-packages -r requirements_py2.txt bin/encuentro --verbose
+

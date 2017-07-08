@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2012-2014 Facundo Batista
+# Copyright 2012-2017 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -26,7 +24,7 @@ import helpers
 
 def scrap_series(html):
     """Get useful info from the series list."""
-    soup = bs4.BeautifulSoup(helpers.sanitize(html))
+    soup = bs4.BeautifulSoup(helpers.sanitize(html), "html.parser")
 
     episodes_list = soup.find('ul', id='listaEpisodios')
     results = []
@@ -57,7 +55,7 @@ def scrap_series(html):
 
 def scrap_video(html):
     """Get useful info from the video page."""
-    soup = bs4.BeautifulSoup(helpers.sanitize(html))
+    soup = bs4.BeautifulSoup(helpers.sanitize(html), "html.parser")
 
     item = soup.find('p', class_='duracion')
     if item is not None:

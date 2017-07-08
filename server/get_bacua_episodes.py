@@ -1,6 +1,4 @@
-# -*- coding: utf8 -*-
-
-# Copyright 2012-2014 Facundo Batista
+# Copyright 2012-2017 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -21,7 +19,8 @@
 import logging
 import re
 import sys
-import urllib2
+
+from urllib import request
 
 from bs4 import BeautifulSoup
 
@@ -43,10 +42,10 @@ logger = logging.getLogger("BACUA")
 
 def scrap_list_page(html):
     """Scrap the list page."""
-    pagina = re.compile('<p class="info_resultado_busca">([^"]*)</p>')
+    pagina = re.compile(b'<p class="info_resultado_busca">([^"]*)</p>')
     m = pagina.search(html).group(1)
-    s = re.sub('<[^<]+?>', '', m)
-    t = re.compile('[0-9]+[0-9]')
+    s = re.sub(b'<[^<]+?>', b'', m)
+    t = re.compile(b'[0-9]+[0-9]')
     h = t.search(s).group(0)
     s = int(h) + 1
     lista = []
@@ -59,7 +58,7 @@ def scrap_list_page(html):
 def get_list_pages():
     """Get list of pages."""
     logger.info("Getting list of pages")
-    response = urllib2.urlopen(PAGE_URL)
+    response = request.urlopen(PAGE_URL)
     html = response.read()
     lista = scrap_list_page(html)
     logger.info("    got %d", len(lista))
@@ -70,7 +69,7 @@ def scrap_page(html):
     """Scrap the page."""
     contents = []
     sanitized = helpers.sanitize(html)
-    soup = BeautifulSoup(sanitized)
+    soup = BeautifulSoup(sanitized, "html.parser")
     for i in soup.findAll("div", {"class": "video_muestra_catalogo"}):
         for a_node in i.find_all("a"):
             onclick = a_node.get("onclick", "")
@@ -99,7 +98,7 @@ def scrap_page(html):
 def get_content(page_url):
     """Get content from a page."""
     logger.info("Getting info for page %r", page_url)
-    u = urllib2.urlopen(page_url)
+    u = request.urlopen(page_url)
     html = u.read()
     contents = scrap_page(html)
     logger.info("    got %d contents", len(contents))

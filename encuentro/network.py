@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-# Copyright 2011-2016 Facundo Batista
+# Copyright 2011-2017 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -16,9 +16,9 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals, print_function
-
 """Some functions to deal with network and Encuentro site."""
+
+from __future__ import unicode_literals, print_function
 
 import json
 import logging
@@ -43,10 +43,10 @@ if __name__ == '__main__':
     for n in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
         sip.setapi(n, 2)   # API v2 FTW!
 
-from PyQt4 import QtNetwork, QtCore
+from PyQt4 import QtNetwork, QtCore  # NOQA (import not at the top)
 
-from encuentro import multiplatform, utils
-from encuentro.config import config
+from encuentro import multiplatform, utils  # NOQA (import not at the top)
+from encuentro.config import config  # NOQA (import not at the top)
 
 # special import sequence to get a useful version of youtube-dl
 try:

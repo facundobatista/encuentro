@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2014 Facundo Batista
+# Copyright 2014-2017 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -115,7 +115,8 @@ def _fix_bio(bio):
 
 def _fix_name(name):
     """Fix and improve the name info."""
-    name = name.replace("&quot;", '"')
+    name = name.replace("&quot;", '"')  # translate quotes
+    name = name.split('<')[0]  # ignore everything after html tag
     return name
 
 

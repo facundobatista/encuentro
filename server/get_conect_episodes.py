@@ -1,6 +1,4 @@
-# -*- coding: utf8 -*-
-
-# Copyright 2013-2014 Facundo Batista
+# Copyright 2013-2017 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -21,8 +19,8 @@
 import json
 import logging
 import sys
-import urllib
-import urllib2
+
+from urllib import parse, request
 
 # we execute this script from inside the directory; pylint: disable=W0403
 import helpers
@@ -74,12 +72,12 @@ def _search(channel_id, transm_id, offset):
     """Search each page."""
     params = {'offset': offset, 'limit': 20,
               'tipo_emision_id': transm_id, 'ajax': True}
-    data = "__params=" + urllib.quote(json.dumps(params))
+    data = b"__params=" + parse.quote(json.dumps(params)).encode('ascii')
     url = URL_SEARCH % dict(channel_id=channel_id)
     logger.debug("hitting url: %r (%r)", url, data)
-    u = urllib2.urlopen(url, data=data)
+    u = request.urlopen(url, data=data)
     raw = u.read()
-    data = json.loads(raw)
+    data = json.loads(raw.decode('utf8'))
     results = data['ResultSet']['data']['result']
     return results
 
@@ -117,7 +115,7 @@ def do_search(channel_id, transm_id):
 def get_from_series(url):
     """Get the episodes from an url page."""
     logger.info("Get from series: %r", url)
-    u = urllib2.urlopen(url)
+    u = request.urlopen(url)
     page = u.read()
     results = scrapers_conect.scrap_series(page)
     logger.info("   %d", len(results))
@@ -132,7 +130,7 @@ def get_episode_info(url):
         info = episodes_cache.get(url)
         logger.info("    cached!")
     except KeyError:
-        u = urllib2.urlopen(url)
+        u = request.urlopen(url)
         page = u.read()
         info = scrapers_conect.scrap_video(page)
         episodes_cache.set(url, info)
@@ -198,7 +196,7 @@ def get_all_data():
 def main():
     """Entry point."""
     all_data = get_all_data()
-    helpers.save_file("conectar-v05", all_data)
+    helpers.save_file("conectar-v06", all_data)
 
 
 if __name__ == '__main__':

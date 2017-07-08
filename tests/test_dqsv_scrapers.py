@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2014 Facundo Batista
+# Copyright 2014-2017 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -269,9 +267,37 @@ _SHOULD_SWF_10 = [(
     datetime.date(year=2015, month=8, day=23),
     )]
 
+_SHOULD_SWF_11 = [(
+    'Abelardo Castillo',
+    'Escritor.',
+    'Porteño, aunque sanpedrino por adopción, Abelardo Castillo edificó su obra literaria desde que en su adolescencia ganó un concurso por su cuento Volvedor. Y empezó a publicar además de fundar revistas (por ejemplo, El escarabajo de oro). Fue autor de cuentos, novelas, piezas teatrales, ensayos, además de ejercer la docencia. En su producción campean temáticas recurrentes como la muerte, la locura, el suicidio y las relaciones muy encontradas de pareja. Sus textos fueron traducidos a varios idiomas. Fue uno de los más fecundos y superlativos escritores argentinos.',  # NOQA
+    "swf_image_11ac.jpeg",
+    datetime.date(year=2017, month=5, day=7),
+    ), (
+    'Sergio Vainman',
+    'Autor, productor de televisión y teatro.',
+    'Es uno de los creadores de la telenovela juvenil junto con Jorge Maestro (amigo de la infancia, compañero de la escuela y luego del magisterio). Juntos, años más tarde, en 1982, en plena dictadura cívico militar, crearon “Nosotros y Los Miedos”, un televisivo que afrontó temáticas sociales profundas, relegadas por entonces de la pantalla chica. Luego se sucedieron guiones para una amplia gama de ciclos televisivos como por ejemplo Zona de riesgo; Estado civil; La banda del Golden Rocket; Los machos, entre tantos otros. “Soy un tipo que aspira, humildemente, a ser testigo del tiempo que le tocó vivir”, se autodefine. Y vaya si lo es.',  # NOQA
+    "swf_image_11sv.jpeg",
+    datetime.date(year=2017, month=5, day=14),
+    ), (
+    'Luciana Rubinska',
+    'Periodista.',
+    'Su primera graduación fue como licenciada en relaciones del trabajo por la UBA y luego como periodista deportiva. Pero antes, en el segundo año de esa carrera, trabajó como pasante en el diario Olé, luego como columnista y finalmente como conductora de diversos programas de televisión. En la actualidad es una de las periodistas más destacadas tanto en el ámbito deportivo como en el de la realidad nacional. Siempre le gustaron los deportes, especialmente el fútbol, sin embargo se consolidó como una de las más sustantivas periodistas con una mixtura de conocimiento, espontaneidad y simpatía.',  # NOQA
+    "swf_image_11lr.jpeg",
+    datetime.date(year=2017, month=5, day=21),
+    ), (
+    'Arturo Bonín',
+    'Actor.',
+    'El gusto por la actuación lo comenzó a saborear de adolescente, cuando paralelamente estudiaba para químico de la alimentación. Sus primeras actuaciones destacadas fuero en la tele, en 1982, con “Todos los días la misma historia”; luego se sucedieron ciclos como el prestigioso “Yo fui testigo”; y muchísimos otros tanto en cine como en teatro porque allí, sobre las tablas, es donde más cómodo se siente. Además de obras como “Los pequeños burgueses”, “Illia”; “El conventillo de la paloma”, Bonín participa en Teatro por la Identidad, uno de los brazos artísticos de Abuelas de Plaza de Mayo. Más de 40 años de trayectoria y compromiso social.',  # NOQA
+    "swf_image_11ab.jpeg",
+    datetime.date(year=2017, month=5, day=28),
+    )]
+
 
 class ScrapersTestCase(unittest.TestCase):
     """Tests for the scrapers."""
+
+    maxDiff = None
 
     def _check(self, result, should_have):
         """Helper to check."""
@@ -360,6 +386,11 @@ class ScrapersTestCase(unittest.TestCase):
         swf = open("tests/ej-dqsv-10.swf", 'rb')
         result = scrapers_dqsv.scrap(swf)
         self._check(result, _SHOULD_SWF_10)
+
+    def test_example_series_11(self):
+        swf = open("tests/ej-dqsv-11.swf", 'rb')
+        result = scrapers_dqsv.scrap(swf)
+        self._check(result, _SHOULD_SWF_11)
 
 
 class HelpersTestCase(unittest.TestCase):

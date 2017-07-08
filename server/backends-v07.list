@@ -1,0 +1,7 @@
+# list of files to download, with data for different backends each line has 
+# the backend name, the downloader to use, and the metadata file name
+encuentro generic   encuentro-v06.bz2
+conectar  conectar  conectar-v06.bz2
+bacua     generic   bacua-v05.bz2
+dqsv      dqsv      dqsv-v05.bz2
+ted1      youtube   ted1-v05.bz2
