@@ -150,14 +150,14 @@ def get_episodes():
 
             if season is None:
                 if duration is None:
-                    section = u"Película"
+                    section = "Película"
                 else:
                     if duration > 60:
-                        section = u"Película"
+                        section = "Película"
                     elif duration < 10:
-                        section = u"Micro"
+                        section = "Micro"
                     else:
-                        section = u"Especial"
+                        section = "Especial"
             else:
                 section = 'Series'
 
@@ -183,7 +183,7 @@ def get_all_data():
         collected.add(episode_id)
 
         # store
-        info = dict(channel=u"Encuentro", title=ep.title, url=ep.epis_url,
+        info = dict(channel="Encuentro", title=ep.title, url=ep.epis_url,
                     section=ep.section, description=ep.description,
                     duration=ep.duration, episode_id=episode_id,
                     image_url=ep.image_url, season=ep.season)

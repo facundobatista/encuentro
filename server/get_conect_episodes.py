@@ -31,20 +31,20 @@ import srv_logger
 # different channels from where read content
 # id, name
 CHANNELS = [
-    ('encuentro', u"Encuentro"),
-    ('pakapaka', u"Pakapaka"),
-    ('ronda', u"Ronda"),
-    ('educar', u"Educ.ar"),
-    ('conectar', u"Conectar Igualdad"),
+    ('encuentro', "Encuentro"),
+    ('pakapaka', "Pakapaka"),
+    ('ronda', "Ronda"),
+    ('educar', "Educ.ar"),
+    ('conectar', "Conectar Igualdad"),
 ]
 
 # different emission types
 # id, name, divided in series or not
 TRANSMISSIONS = [
-    (1, u"Película", False),
-    (2, u"Especial", False),
-    (3, u"Serie", True),
-    (4, u"Micro", True),
+    (1, "Película", False),
+    (2, "Especial", False),
+    (3, "Serie", True),
+    (4, "Micro", True),
 ]
 
 URL_EPIS_BASE = (
