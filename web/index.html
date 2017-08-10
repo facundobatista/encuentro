@@ -1,259 +1,363 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<!doctype html>
+<html lang="es">
+
 <head>
- <title>Encuentro</title>
- <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
- <link rel="stylesheet" href="normalize.css" type="text/css" />
- <link rel="stylesheet" href="main.css" type="text/css" />
- <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu:regular,bold&subset=Latin"> 
+  <!--Page by Cecilia Schiebel-->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>
+    Encuentro
+  </title>
+  <meta name="description" content="Visualizador de contenidos del Canal Encuentro y otros">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="icon" href="assets/images/favicon.ico">
+
+  <!-- Latest compiled and minified CSS -->
+  <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
+
+  <script src="https://use.fontawesome.com/e43d165817.js"></script>
+
+  <link rel="stylesheet" href="assets/css/vendor.min.css">
+  
+  <link rel="stylesheet" href="assets/css/main.min.css">
+
 </head>
 
-<body> 
+<body>
+  <!--[if lt IE 8]>
+      <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
 
-<div id="page">
- <div id="header">
-  <img id="logo" alt="Visualizador de contenidos del Canal Encuentro y otros" src="imgs/title.png" />
-  <h1>Visualizador de contenidos del Canal Encuentro y otros</h1>
- </div>
+    <section id="header" class="appear"></section>
+    <div class="navbar navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <h1>
+            <a class="navbar-brand" href="index.html">
+              Encuentro
+            </a>
+          </h1>
+        </div>
+        <div>
+          <ul class="nav navbar-nav">
+            <li><a href="#descarga" class="downloadLink hidden-xs hidden-sm" >Descarga</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
- <div id="content">
-  <div class="section" id="section-about">
-   <p>
-     Busque, descargue, y vea el maravilloso contenido ofrecido por el Canal Encuentro, Paka Paka, BACUA, Educ.ar, TEDx, CDA y otros.
-   </p>
-     
-   <p>
-    Este es un simple programa que permite buscar, descargar y ver contenido de Encuentro y otros canales. Notar que este programa no distribuye contenido directamente, sino que permite un mejor uso personal de esos contenidos.
-   </p>
-   
-   <p>
-   Por favor, referirse a los sitios web correspondientes para saber qué se puede y qué no se puede hacer con los contenidos de tales sitios.
-   </p>
+    <section class="featured">
+      <div class="container">
+        <div class="row mar-bot40">
+          <div class="col-md-6 col-md-offset-3">
 
-   <p>
-    <b>Nota importante:</b> Si tenés una versión anterior a la 3.1, el programa no te va a funcionar correctamente. Tenés que actualizar sí o sí la versión. Esto es porque Encuentro y Conectate reconfiguraron sus portales, por lo que las versiones viejas no te van a funcionar correctamente.
-   </p>
-  </div>
+            <div class="align-center">
+              <img src="assets/images/120x120.png" alt="">
+              <h2 class="slogan">Encuentro</h2>
+              <p>
+                Visualizador de contenidos del Canal Encuentro y otros
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <div class="section" id="section-screenshots">
+    <!--description-->
+    <section id="section-services" class="section pad-bot30 bg-white text-center">
+      <div class="container">
 
-   <ul class="image-list">
-    <li><a href="imgs/screenshot1.png" alt="screenshot"><img src="imgs/ssth1.png" /></a></li>
-    <li><a href="imgs/screenshot2.png" alt="screenshot"><img src="imgs/ssth2.png" /></a></li>
-   </ul>
-  </div>
+        <div class="row mar-bot40">
+          <h4>
+            Busque, descargue, y vea el maravilloso contenido ofrecido por el Canal Encuentro, Paka Paka, BACUA, Educ.ar, TEDx, CDA y otros.
+          </h4>
+          <p>
+            Este es un simple programa que permite buscar, descargar y ver contenido de Encuentro y otros canales.
+            <br>
+            Notar que este programa no distribuye contenido directamente, sino que permite un mejor uso personal de esos contenidos.
+            <br>
+            Por favor, referirse a los sitios web correspondientes para saber qué se puede y qué no se puede hacer con los contenidos de tales sitios.
+          </p>
 
-  <div class="section" id="section-gametypes">
-   <h2>Instalar</h2>
+        </div>
 
-   <ul class="download-list">
-    <li>Para Debian/Ubuntu usá <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.deb">este instalador (.deb)</a> (<a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.deb/+md5">md5</a>, <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.deb.asc">sig</a>)</li>
-        <ul>
-            <li> Bajás el .deb</li>
-            <li> Le das doble-click, o si lo querés instalar a mano, hacés: <pre>dpkg -i encuentro-*.deb</pre></li>
-        </ul>
-    <li>Si estás en Windows, usá <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0-setup.exe">este instalador (.exe)</a>. (<a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0-setup.exe/+md5">md5</a>, <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0-setup.exe.asc">sig</a>)</li> 
-        <ul>
-            <li> Bajás el .exe</li>
-            <li> Le das doble-click</li>
-        </ul>
-    <li>Instalarlo en Arch es sencillo ya que está disponible en AUR; por ejemplo, se puede hacer:
-<pre>
-    yaourt -S encuentro
-</pre>
-    <li>Podés descargar el <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.tar.gz">tarball multiplatforma</a> (<a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.tar.gz/+md5">md5</a>, <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.tar.gz.asc">sig</a>) e instalarlo a la manera antigua:</li>
-        <ul>
-            <li> Bajás el .tar.gz</li>
-            <li> Lo abrís: <pre>tar -xf encuentro-*.tar.gz</pre></li>
-            <li> Entrás: <pre>cd encuentro-*</pre></li>
-            <li> Lo instalás: <pre>sudo python setup.py install</pre></li>
-        </ul>
-    <li>Si estás en Fedora o Red Hat, muy pronto vas a poder disfrutar de la versión en los repos, o el .rpm para descargar, mientras tanto usá el tarball...</li> 
+      </div>
+    </section>
 
-    <li>Nota: no hay más PPAs para estar automáticamente actualizado en Debian/Ubuntu, porque en esta oportunidad no pude hacer andar toda la maldita maquinaria para generarlos.</li>
+    <!-- download -->
+    <section id="descarga" class="section pad-bot30 bg-white descarga">
+      <div class="container">
 
-    <li>También se puede instalar directamente desde PyPI (no sé cómo se maneja el tema de las dependencias, acá):
-<pre>
-    sudo easy_install encuentro
-</pre>
+        <div class="row mar-bot40">
+          <div class="col-md-offset-3 col-md-6">
+            <div class="section-header">
+              <h2 class="section-heading animated" data-animation="bounceInUp">Instalacion</h2>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row mar-bot40">
+          <!--Debian/Ubuntu-->
+          <div class="col-lg-4">
+            <div class="align-center">
+              
+              <h3 class="text-bold">
+                <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.deb">
+                  <span class="fa fa-arrow-circle-o-down" aria-hidden="true"></span>
+                  Debian/Ubuntu
+                </a>
+              </h3>
+              
+              <div class="text-bold">
+                <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.deb/+md5">md5</a>
+                <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.deb.asc">sig</a>
+              </div>
 
-   </ul>
-  </div>
+              <p>
+                Bajás el .deb
+                <br>
+                Le das doble-click, o si lo querés instalar a mano, hacés:
+              </p>
+              <code>dpkg -i encuentro-*.deb</code>
+            
+            </div>
+          </div>
 
-  </div>
+          <!--Windows-->
+          <div class="col-lg-4">
+            <div class="align-center">
 
-  <div class="section" id="section-devs">
-   <h2>Desarrolladores, desarrolladores, desarrolladores</h2>
+              <h3 class="text-bold">
+                <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0-setup.exe">
+                  <span class="fa fa-arrow-circle-o-down" aria-hidden="true"></span>
+                  Windows
+                </a>
+              </h3>
+              
+              <div class="text-bold">
+                <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0-setup.exe/+md5">md5</a>
+                <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0-setup.exe.asc">sig</a>
+              </div>
 
-    <ul>
-        <li><i>Encuentro</i> está totalmente desarrollado en <a href="http://python.org">Python</a></li>
-        <li>el desarrollador principal es <a href="https://twitter.com/facundobatista">Facundo Batista</a></li>
-        <li>podés enviar reportes de bugs, hacer pedidos o aportar ideas nuevas <a href="http://bugs.launchpad.net/encuentro/+filebug">acá</a></li>
-        <li>para ayudar a nivel de nuevo código, usá estas <a href="http://bazaar.launchpad.net/~facundo/encuentro/trunk/view/head:/RUNNING_TESTS.txt">instrucciones</a></li>
-        <li>gracias a <a href="https://twitter.com/dmascialino">Diego Mascialino</a> por el empaquetado para Arch.</li>
-    </ul>
-  </div>
+              <p>
+                Bajás el .exe
+                <br>
+                Le das doble-click
+              </p>
 
-  <div class="section" id="section-devs">
-   <h2>Donar</h2>
+            </div>
+          </div>
 
-   Si te gustó el programa, hay dos formas de agradecerme (¡podés hacer ambas!):
-   
-   <ul>
-     <li> <a href="http://python.com.ar/pyar/Donaciones">Doná</a> algo de dinero a Python Argentina (después de todo, recibí un montón de ayuda de ellos)</li>
-     <li>Invitame una cerveza si alguna vez nos vemos</li>
-   </ul>
-  </div>
+          <!--Arch-->
+          <div class="col-lg-4">
+            <div class="align-center">
 
-  <div class="section" id="section-devs">
-   <h2>Historial</h2>
+              <h3 class="text-bold">
+                Arch
+              </h3>
+              
+              <p>
+                Instalarlo en Arch es sencillo ya que está disponible en AUR; por ejemplo, se puede hacer:
+              </p>
+              <code>yaourt -S encuentro</code>
 
-   La versión actual es la 4.0:
+            </div>
+          </div>
 
-   <ul>
-    <li><b>Dos nuevos backends: Contenidos Digitales Abiertos (CDA) y TEDx Buenos Aires</b></li>
-    <li>Mejoras en los scrappers de distintos backends para presentar contenidos más limpios</li>
-    <li>Se refactoreó el esquema de descargas: ahora es mucho más robusto y confiable</li>
-    <li>Los archivos descargados tienen un nombre más limpio para que se puedan grabar en cualquier lado</li>
-    <li>Soporta la lib de notificación mal instalada</li>
-    <li>Algunas correcciones en la interfaz para hacerlo más usable</li>
-   </ul>
+        </div>
 
-   Cambios para la versión 3.1:
+        <!--Tarball-->
+        <div class="row mar-bot40">
+          <div class="col-xs-12">
+            <div class="align-center">
 
-   <ul>
-    <li><b>Vuelve a funcionar luego de los cambios de backend de Encuentro y Conectate</b></li>
-    <li>Ahora con CTRL-F se va directamente al campo de filtro (gracias Emiliano (@emilianohf))</li>
-    <li>Se rehizo el manejo de la lista de episodios: ahora verlos y filtrarlos es muchísimo más rápido</li>
-    <li>Mejoras en el empaquetado, debería funcionar para muchas (todas?) las versiones de Debian/Ubuntu (gracias Adrián Alves)</li>
-    <li>Varias mejoras al encontrar nuevos episodios de los distintos backends, y correcciones en general</li>
-   </ul>
+              <h3 class="text-bold">
+                <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.tar.gz">
+                  <span class="fa fa-arrow-circle-o-down" aria-hidden="true"></span>
+                  Tarball Multiplatforma
+                </a>
+              </h3>
 
-   Cambios para la versión 2.1.1:
-   
-   <ul>
-    <li><b>Nuevo backend para 'Decime Quien Sos Vos'</b></li>
-    <li>Se autentica correctamente en Conectate, lo que implica mejor calidad de videos descargados</li>
-    <li>Evita explotar por la mala interacción entre PyQt y pynotify en algunos sistemas</li>
-    <li>Se arregló la conservación del estado de ordenamiento de las columnas entre ejecuciones</li>
-    <li>Es más robusto frente a problemas al guardar la configuración o metadata</li>
-    <li>Tiene un mejor parseo para Bacua y otros backends; se mejoraron las herramientas en general</li>
-    <li>No se loguea más algunos parámetros sensibles a nivel seguridad</li>
-   </ul>
+              <div class="text-bold">
+                <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.tar.gz/+md5">md5</a>
+                <a href="https://launchpad.net/encuentro/trunk/encuentro-4.0/+download/encuentro-4.0.tar.gz.asc">sig</a>
+              </div>
 
-   Cambios para la versión 2.0.x:
-   
-   <ul>
-    <li><b>Vuelve a funcionar luego de los cambios de backend de Encuentro y Conectate</b></li>
-    <li>Maneja las temporadas de los programas; no se repiten nombres y graba agrupado a disco</li>
-    <li>Sólo anota (y no requiere aprobación del usuario) al tener errores en la descarga</li>
-    <li>Mejor manejo de las imágenes de los episodios, con lo cual ahora se ven las de Bacua</li>
-    <li>Actualiza automáticamente la metadata si se la encuentra demasiado desactualizada</li>
-    <li>El proyecto tiene menos dependencias, es más simple hacerlo funcionar en más sistemas</li>
-    <li>Soporta ser ejecutado en un virtualenv</li>
-    <li>Varias correcciones y detalles para hacerlo más usable y robusto</li>
-   </ul>
+              <p>
+                Bajás el .tar.gz
+                <br>
+                Lo abrís:
+                <br>
+                  <code>tar -xf encuentro-*.tar.gz</code>
+                <br>
+                Entrás:
+                <br>
+                  <code>cd encuentro-*</code>
+                <br>
+                Lo instalás:
+                <br>
+                  <code>sudo python setup.py install</code>
+              </p>
 
-   Cambios para la versión 1.1:
-   
-   <ul>
-    <li><b>Corregido el problema de autenticación luego de unos cambios en el servicio</b></li>
-    <li>Mejor manejo de error en las descargas, ahora no se traba en los errores de red</li>
-    <li>Errores de red expuestos más claros al usuario y en el log</li>
-    <li>Mejor parseo de las páginas de los servicios</li>
-    <li>El campo de contraseña es opcionalmente ocultado</li>
-    <li>Se puede elegir via la interfaz al directorio de descargas</li>
-   </ul>
+            </div>
+          </div>
 
-   Cambios para la versión 1.0:
-   
-   <ul>
-    <li><b>¡Ahora funciona en Windows!</b></li>
-    <li>Usamos Qt para la interfaz gráfica</li>
-    <li>Se hicieron algunos ajustes en la forma de empaquetado</li>
-    <li>Tenemos otras pequeñas mejoras y correcciones</li>
-   </ul>
+        </div>
+        
+        <!--<div class="row mar-bot40">
+          <div class="col-md-6">
+            <div id="extra-installation" class="panel panel-default">
+              
+              <div class="panel-heading">
+                <h3 class="panel-title">Extras</h3>
+              </div>
+              
+              <div class="panel-body">
+                <ul>
+                  <li>Si estás en Fedora o Red Hat, muy pronto vas a poder disfrutar de la versión en los repos, o el .rpm para descargar, mientras tanto usá el tarball...</li> 
 
-   Cambios para la versión 0.9:
-   
-   <ul>
-    <li><b>Hay un nuevo backend! <a href="http://www.bacua.gob.ar/">Banco Audiovisual de Contenidos Universales Argentino</a></b></li>
-    <li>Se muestran imágenes para cada episodio</li>
-    <li>Hay una cola explícita de descargas, mostrando los estados de todas las transferencias</li>
-    <li>Las descargas terminadas se pueden filtrar por separado</li>
-    <li>Mejor manejo de las cancelaciones, más logging, y otras pequeñas mejoras y correcciones</li>
-   </ul>
+                  <li>Nota: no hay más PPAs para estar automáticamente actualizado en Debian/Ubuntu, porque en esta oportunidad no pude hacer andar toda la maldita maquinaria para generarlos.</li>
 
-   Cambios para la versión 0.8:
-   
-   <ul>
-    <li><b>Soporte para múltiples fuentes de datos. Ahora también baja los episodios perdidos de la web de Encuentro.</b></li>
-    <li>Corregido el problema que hacía perder las actualizaciones cuando se reordenaba o filtraba (dando la impresión que los downloads se trababan).</li>
-    <li>Mejor uso de nombres y directorios al grabar los videos.</li>
-    <li>Otras pequeñas mejoras y correcciones.</li>
-   </ul>
+                  <li>También se puede instalar directamente desde PyPI (no sé cómo se maneja el tema de las dependencias, acá):</li>
+                  <code>sudo easy_install encuentro</code>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+        </div>-->
+        
+        
+      </div>
+    </section>
 
-   Cambios para la versión 0.7:
-   
-   <ul>
-     <li><b>El programa Encuentro funciona con todo el contenido de Conectate.</b></li>
-     <li>Se mejoró el título de la columna Duración.</li>
-     <li>Notificaciones cuando termina una descarga (configurable).</li>
-     <li>Icono de estado en el systray.</li>
-     <li>Mostramos la descripción del episodio al dejar el mouse quieto en la linea.</li>
-     <li>Ahora tenemos un menú.</li>
-   </ul>
+    <!-- news -->
+    <section id="section-news" class="section appear clearfix">
+      <div class="container">
 
-   Cambios para la versión 0.5:
-   
-   <ul>
-     <li>Se puede autorefrescar la lista de episodios al inicio (si lo dice la config)</li>
-     <li>El filtro ahora funciona también sobre la columna de Sección</li>
-     <li>Soporta mejor los episodios que fueron borrados del disco</li>
-     <li>También hay algunas pequeñas mejoras y otros detalles corregidos</li>
-   </ul>
+        <div class="row mar-bot40">
+          <div class="col-md-offset-3 col-md-6">
+            <div class="section-header">
+              <h2 class="section-heading animated" data-animation="bounceInUp">Novedades</h2>
+              <p>Versión Actual 4.0</p>
+            </div>
+          </div>
+        </div>
 
-   Cambios para la versión 0.4:
-   
-   <ul>
-     <li>Ahora se puede filtrar todos los programas para encontrarlos más fácil.</li>
-     <li>¡Tenemos una versión para Windows! (gracias Javier Andalia)</li>
-     <li>¡Tenemos un instalador para Arch Linux! (gracias Diego Mascialino)</li>
-     <li>Mostramos versiones de todas las bibliotecas usadas al arrancar.</li>
-     <li>Mejor info de error si no se encuentra alguna biblioteca.</li>
-     <li>Correcciones pequeñas, y más control de errores...</li>
-   </ul>
+        
+        <div class="row">
+          
+          <div class="col-md-6">
+            <a href="http://encuentro.taniquetil.com.ar/imgs/screenshot1.png" target="_blank" alt="screenshot">
+              <img src="assets/images/encuentro_screenshot1.png" class="img-responsive mar-bot20" alt="Encuentro Screenshot">
+            </a>
+          </div>
+          
+          <div class="col-md-6">
+            <ul class="mar-bot20">
+              <li><strong>Dos nuevos backends: Contenidos Digitales Abiertos (CDA) y TEDx Buenos Aires</strong></li>
+              <li>Mejoras en los scrappers de distintos backends para presentar contenidos más limpios</li>
+              <li>Se refactoreó el esquema de descargas: ahora es mucho más robusto y confiable</li>
+              <li>Los archivos descargados tienen un nombre más limpio para que se puedan grabar en cualquier lado</li>
+              <li>Soporta la lib de notificación mal instalada</li>
+              <li>Algunas correcciones en la interfaz para hacerlo más usable</li>
+            </ul>
+            <div class="text-center">
+              <a class="btn btn-large btn-warning" href="history.html" role="button">Historial Completo</a>
+            </div>
+          </div>
+        </div>
+        
+        
+        
 
-   Cambios para la versión 0.3:
-   
-   <ul>
-     <li>Ahora podés poner al mismo tiempo a bajar muchos episodios (se encolan).</li>
-     <li>¡Soportamos botón derecho! Hacé click en cualquier episodio y fijate las opciones.</li>
-     <li>Las descargas ahora pueden cancelarse.</li>
-     <li>Menos dependencias: no más zope, y uso json de la biblioteca estándar.</li>
-     <li>También corregí algunos problemillas, y limpié un poco el código.</li>
-   </ul>
+      </div>
+    </section>
+    <!-- /news -->
 
-   La primera versión que se liberó al público, la 0.2, tenía estos detalles como los más importantes:
-   
-   <ul>
-     <li>Se pueden encolar descargas de episodios, que luego irán bajando uno por uno.</li>
-     <li>Permite una visualización directa de los episodios desde el programa.</li>
-     <li>Se mantiene y muestra el estado de cada episodio.</li>
-     <li>La lista e información de los episodios se descarga automáticamente del server, para un mejor arranque.</li>
-     <li>Configuración de parámetros, con un wizard para realizar más fácilmente la configuración necesaria.</li>
-     <li>Descargable como tarball (multiplataforma), con un instalador para Debian/Ubuntu, e incluso con un PPA para suscribirse.</li>
-   </ul>
-  </div>
+    <!-- about -->
+    <section id="section-about" class="section appear clearfix">
+      <div class="container">
 
- </div>
+        <div class="row mar-bot40">
+          <div class="col-md-offset-3 col-md-6">
+            <div class="section-header">
+              <h2 class="section-heading animated" data-animation="bounceInUp">Acerca de</h2>
+            </div>
+          </div>
+        </div>
 
- <div id="footer">
-  <p>Copyright 2011-2016 - Facundo Batista (<a href="http://taniquetil.com.ar/plog/">blog</a>, <a href="https://twitter.com/facundobatista">twitter</a>)</p>
-  <p>Asesor de estilo: Mariano Guerra</p>
- </div>
-</div>
+        <div class="row">
+          <div class="col-md-offset-2 col-md-8 text-big text-center">
+            <ul class="list-unstyled">
+                <li><strong>Encuentro</strong> está totalmente desarrollado en <a href="http://python.org">Python</a></li>
+                <li>El desarrollador principal es <a href="https://twitter.com/facundobatista">Facundo Batista</a></li>
+                <li>Podés enviar reportes de bugs, hacer pedidos o aportar ideas nuevas <a href="http://bugs.launchpad.net/encuentro/+filebug">acá</a></li>
+                <li>Para ayudar a nivel de nuevo código, usá estas <a href="http://bazaar.launchpad.net/~facundo/encuentro/trunk/view/head:/RUNNING_TESTS.txt">instrucciones</a></li>
+                <li>Gracias a <a href="https://twitter.com/dmascialino">Diego Mascialino</a> por el empaquetado para Arch.</li>
+            </ul>
+          </div>
+        </div>
 
+      </div> <!--/container-->
+    </section>
+    <!-- /about -->
+
+    <section id="section-donate" class="section">
+      <div class="container">
+        <div class="row mar-bot40">
+          <div class="col-md-12">
+            <h4>Donar</h4>
+
+            <p>
+              Si te gustó el programa, hay dos formas de agradecerme (¡podés hacer ambas!):
+            </p>
+            
+            <ul>
+              <li> <a href="http://python.com.ar/pyar/Donaciones">Doná</a> algo de dinero a Python Argentina (después de todo, recibí un montón de ayuda de ellos)</li>
+              <li>Invitame una cerveza si alguna vez nos vemos
+                
+                <i class="fa fa-beer"></i>
+                
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="footer" class="section footer">
+      <div class="container">
+        <div class="row animated opacity mar-bot20" data-andown="fadeIn" data-animation="animation">
+          <div class="col-sm-12 align-center">
+            <ul class="social-network social-circle">
+              <li><a href="http://www.taniquetil.com.ar/plog/" class="icoBlog" title="Blog"><i class="fa fa-pencil"></i></a></li>
+              <li><a href="https://twitter.com/facundobatista" class="icoTwitter" title="Twitter"><i class="fa fa-twitter"></i></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row align-center copyright">
+          <div class="col-sm-12">
+            <p>Copyright &copy;  2011-2017 - Facundo Batista</p>
+            <div class="credits">
+              Diseño ─ <a href="https://ceciliaschiebel.github.io/">Cecilia Schiebel</a>
+              <br>
+              <br>
+              Theme basado en <a href="https://bootstrapmade.com/demo/Amoeba/">Amoeba</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+    
+    <a href="#header" class="scrollup"><i class="fa fa-chevron-circle-up"></i></a>
+
+  <script src="assets/js/vendor.min.js"></script>
+  
+  <script src="assets/js/main.min.js"></script>
 </body>
+
 </html>

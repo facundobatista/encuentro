@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Encuentro - Historia</title>
+  <meta name="description" content="Visualizador de contenidos del Canal Encuentro y otros">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="icon" href="assets/images/favicon.ico">
+
+  <!-- Latest compiled and minified CSS -->
+  <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">-->
+
+  <script src="https://use.fontawesome.com/e43d165817.js"></script>
+
+  <link rel="stylesheet" href="assets/css/vendor.min.css">
+  
+  <link rel="stylesheet" href="assets/css/main.min.css">
+
+</head>
+
+<body>
+  <!--[if lt IE 8]>
+      <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
+
+    <section id="header" class="appear"></section>
+    <div class="navbar navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <h1>
+            <a class="navbar-brand" href="index.html">
+              Encuentro
+            </a>
+          </h1>
+        </div>
+      </div>
+    </div>
+
+    <section class="featured">
+      <div class="container">
+        <div class="row mar-bot40">
+          <div class="col-md-6 col-md-offset-3">
+          <a href="index.html">
+
+            <div class="align-center">
+              <img src="assets/images/120x120.png" alt="">
+              <h2 class="slogan">Encuentro</h2>
+              <p>
+                Visualizador de contenidos del Canal Encuentro y otros
+              </p>
+            </div>
+          </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="section-news" class="section appear clearfix">
+      <div class="container">
+
+            <div class="section-header">
+              <h2 class="section-heading animated" data-animation="bounceInUp">Historial de cambios</h2>
+            </div>
+
+          <div class="col-md-7">
+              <p><strong>Cambios para la versión 3.1</strong></p>
+            <ul class="mar-bot20">
+    <li>Vuelve a funcionar luego de los cambios de backend de Encuentro y Conectate</li>
+    <li>Ahora con CTRL-F se va directamente al campo de filtro (gracias Emiliano (@emilianohf))</li>
+    <li>Se rehizo el manejo de la lista de episodios: ahora verlos y filtrarlos es muchísimo más rápido</li>
+    <li>Mejoras en el empaquetado, debería funcionar para muchas (todas?) las versiones de Debian/Ubuntu (gracias Adrián Alves)</li>
+    <li>Varias mejoras al encontrar nuevos episodios de los distintos backends, y correcciones en general</li>
+            </ul>
+          </div>
+
+          <div class="col-md-7">
+              <p><strong>Cambios para la versión 2.1.1</strong></p>
+            <ul class="mar-bot20">
+    <li>Nuevo backend para 'Decime Quien Sos Vos'</li>
+    <li>Se autentica correctamente en Conectate, lo que implica mejor calidad de videos descargados</li>
+    <li>Evita explotar por la mala interacción entre PyQt y pynotify en algunos sistemas</li>
+    <li>Se arregló la conservación del estado de ordenamiento de las columnas entre ejecuciones</li>
+    <li>Es más robusto frente a problemas al guardar la configuración o metadata</li>
+    <li>Tiene un mejor parseo para Bacua y otros backends; se mejoraron las herramientas en general</li>
+    <li>No se loguea más algunos parámetros sensibles a nivel seguridad</li>
+            </ul>
+          </div>
+
+          <div class="col-md-7">
+              <p><strong>Cambios para la versión 2.0.x</strong></p>
+            <ul class="mar-bot20">
+    <li>Vuelve a funcionar luego de los cambios de backend de Encuentro y Conectate</li>
+    <li>Maneja las temporadas de los programas; no se repiten nombres y graba agrupado a disco</li>
+    <li>Sólo anota (y no requiere aprobación del usuario) al tener errores en la descarga</li>
+    <li>Mejor manejo de las imágenes de los episodios, con lo cual ahora se ven las de Bacua</li>
+    <li>Actualiza automáticamente la metadata si se la encuentra demasiado desactualizada</li>
+    <li>El proyecto tiene menos dependencias, es más simple hacerlo funcionar en más sistemas</li>
+    <li>Soporta ser ejecutado en un virtualenv</li>
+    <li>Varias correcciones y detalles para hacerlo más usable y robusto</li>
+            </ul>
+          </div>
+
+          <div class="col-md-7">
+              <p><strong>Cambios para la versión 1.1</strong></p>
+            <ul class="mar-bot20">
+    <li>Corregido el problema de autenticación luego de unos cambios en el servicio</li>
+    <li>Mejor manejo de error en las descargas, ahora no se traba en los errores de red</li>
+    <li>Errores de red expuestos más claros al usuario y en el log</li>
+    <li>Mejor parseo de las páginas de los servicios</li>
+    <li>El campo de contraseña es opcionalmente ocultado</li>
+    <li>Se puede elegir via la interfaz al directorio de descargas</li>
+            </ul>
+          </div>
+
+          <div class="col-md-7">
+              <p><strong>Cambios para la versión 1.0</strong></p>
+            <ul class="mar-bot20">
+    <li>¡Ahora funciona en Windows!</li>
+    <li>Usamos Qt para la interfaz gráfica</li>
+    <li>Se hicieron algunos ajustes en la forma de empaquetado</li>
+    <li>Tenemos otras pequeñas mejoras y correcciones</li>
+            </ul>
+          </div>
+
+          <div class="col-md-7">
+              <p><strong>Cambios para la versión 0.9</strong></p>
+            <ul class="mar-bot20">
+    <li>Hay un nuevo backend! <a href="http://www.bacua.gob.ar/">Banco Audiovisual de Contenidos Universales Argentino</a></li>
+    <li>Se muestran imágenes para cada episodio</li>
+    <li>Hay una cola explícita de descargas, mostrando los estados de todas las transferencias</li>
+    <li>Las descargas terminadas se pueden filtrar por separado</li>
+    <li>Mejor manejo de las cancelaciones, más logging, y otras pequeñas mejoras y correcciones</li>
+            </ul>
+          </div>
+
+          <div class="col-md-7">
+              <p><strong>Cambios para la versión 0.8</strong></p>
+            <ul class="mar-bot20">
+    <li>Soporte para múltiples fuentes de datos. Ahora también baja los episodios perdidos de la web de Encuentro.</li>
+    <li>Corregido el problema que hacía perder las actualizaciones cuando se reordenaba o filtraba (dando la impresión que los downloads se trababan).</li>
+    <li>Mejor uso de nombres y directorios al grabar los videos.</li>
+    <li>Otras pequeñas mejoras y correcciones.</li>
+            </ul>
+          </div>
+
+          <div class="col-md-7">
+              <p><strong>Cambios para la versión 0.7</strong></p>
+            <ul class="mar-bot20">
+     <li>El programa Encuentro funciona con todo el contenido de Conectate.</li>
+     <li>Se mejoró el título de la columna Duración.</li>
+     <li>Notificaciones cuando termina una descarga (configurable).</li>
+     <li>Icono de estado en el systray.</li>
+     <li>Mostramos la descripción del episodio al dejar el mouse quieto en la linea.</li>
+     <li>Ahora tenemos un menú.</li>
+            </ul>
+          </div>
+
+          <div class="col-md-7">
+              <p><strong>Cambios para la versión 0.5</strong></p>
+            <ul class="mar-bot20">
+     <li>Se puede autorefrescar la lista de episodios al inicio (si lo dice la config)</li>
+     <li>El filtro ahora funciona también sobre la columna de Sección</li>
+     <li>Soporta mejor los episodios que fueron borrados del disco</li>
+     <li>También hay algunas pequeñas mejoras y otros detalles corregidos</li>
+            </ul>
+          </div>
+
+          <div class="col-md-7">
+              <p><strong>Cambios para la versión 0.4</strong></p>
+            <ul class="mar-bot20">
+     <li>Ahora se puede filtrar todos los programas para encontrarlos más fácil.</li>
+     <li>¡Tenemos una versión para Windows! (gracias Javier Andalia)</li>
+     <li>¡Tenemos un instalador para Arch Linux! (gracias Diego Mascialino)</li>
+     <li>Mostramos versiones de todas las bibliotecas usadas al arrancar.</li>
+     <li>Mejor info de error si no se encuentra alguna biblioteca.</li>
+     <li>Correcciones pequeñas, y más control de errores...</li>
+            </ul>
+          </div>
+
+          <div class="col-md-7">
+              <p><strong>Cambios para la versión 0.3</strong></p>
+            <ul class="mar-bot20">
+     <li>Ahora podés poner al mismo tiempo a bajar muchos episodios (se encolan).</li>
+     <li>¡Soportamos botón derecho! Hacé click en cualquier episodio y fijate las opciones.</li>
+     <li>Las descargas ahora pueden cancelarse.</li>
+     <li>Menos dependencias: no más zope, y uso json de la biblioteca estándar.</li>
+     <li>También corregí algunos problemillas, y limpié un poco el código.</li>
+            </ul>
+          </div>
+
+          <div class="col-md-7">
+              <p><strong>La primera versión</strong> que se liberó al público, la 0.2, tenía estos detalles como los más importantes</p>
+            <ul class="mar-bot20">
+     <li>Se pueden encolar descargas de episodios, que luego irán bajando uno por uno.</li>
+     <li>Permite una visualización directa de los episodios desde el programa.</li>
+     <li>Se mantiene y muestra el estado de cada episodio.</li>
+     <li>La lista e información de los episodios se descarga automáticamente del server, para un mejor arranque.</li>
+     <li>Configuración de parámetros, con un wizard para realizar más fácilmente la configuración necesaria.</li>
+     <li>Descargable como tarball (multiplataforma), con un instalador para Debian/Ubuntu, e incluso con un PPA para suscribirse.</li>
+            </ul>
+          </div>
+
+
+      </div>
+    </section>
+    <!-- /news -->
+
+    <section id="footer" class="section footer">
+      <div class="container">
+        <div class="row animated opacity mar-bot20" data-andown="fadeIn" data-animation="animation">
+          <div class="col-sm-12 align-center">
+            <ul class="social-network social-circle">
+              <li><a href="http://www.taniquetil.com.ar/plog/" class="icoBlog" title="Blog"><i class="fa fa-pencil"></i></a></li>
+              <li><a href="https://twitter.com/facundobatista" class="icoTwitter" title="Twitter"><i class="fa fa-twitter"></i></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row align-center copyright">
+          <div class="col-sm-12">
+            <p>Copyright &copy;  2011-2017 - Facundo Batista</p>
+            <div class="credits">
+              Diseño ─ <a href="https://ceciliaschiebel.github.io/">Cecilia Schiebel</a>
+              <br>
+              <br>
+              Theme basado en <a href="https://bootstrapmade.com/demo/Amoeba/">Amoeba</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+    
+    <a href="#header" class="scrollup"><i class="fa fa-chevron-circle-up"></i></a>
+
+  <script src="assets/js/vendor.min.js"></script>
+  
+  <script src="assets/js/main.min.js"></script>
+</body>
+
+</html>
