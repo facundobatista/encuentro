@@ -67,7 +67,9 @@ def get_episodes_list(url):
         u = request.urlopen(url)
         raw = u.read()
     except error.HTTPError as err:
-        logger.warning("    Ignoring! %r", err)
+        # log in warning only if the error is 3xx or 4xx
+        _log = logger.warning if err.code < 500 else logger.debug
+        _log("    Ignoring url %r: HTTPError %s", url, err.code)
         return
 
     info = scrapers_encuen.scrap_series(raw)
@@ -115,7 +117,7 @@ def get_episodes():
         if '/serie/' in page_url:
             all_episodes = get_episodes_list(page_url)
             if all_episodes is None:
-                logger.warning("Problem getting episodes list for %r (%s)", main_title, page_url)
+                logger.debug("Problem getting episodes list for %r (%s)", main_title, page_url)
                 # problem getting the info
                 continue
         else:
