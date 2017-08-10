@@ -324,10 +324,10 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_series_3(self):
         swf = open("tests/ej-dqsv-3.swf", 'rb')
         custom_order = [
-            u"Diego Capusotto",
-            u"Osvaldo Bayer",
-            u"Víctor Hugo Morales",
-            u"Rodolfo Livingston",
+            "Diego Capusotto",
+            "Osvaldo Bayer",
+            "Víctor Hugo Morales",
+            "Rodolfo Livingston",
         ]
         result = scrapers_dqsv.scrap(swf, custom_order)
         self._check(result, _SHOULD_SWF_3)
@@ -350,11 +350,11 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_series_7(self):
         swf = open("tests/ej-dqsv-7.swf", 'rb')
         custom_order = [
-            u"Felipe Pigna",
-            u"Héctor Negro",
-            u"Hebe de Bonafini",
-            u"Soledad Villamil",
-            u"Pepe Soriano",
+            "Felipe Pigna",
+            "Héctor Negro",
+            "Hebe de Bonafini",
+            "Soledad Villamil",
+            "Pepe Soriano",
         ]
         result = scrapers_dqsv.scrap(swf, custom_order)
         self._check(result, _SHOULD_SWF_7)
@@ -362,11 +362,11 @@ class ScrapersTestCase(unittest.TestCase):
     def test_example_series_8(self):
         swf = open("tests/ej-dqsv-8.swf", 'rb')
         custom_order = [
-            u"Juan Sasturain",
-            u"Jairo",
-            u"Rogelio García Lupo",
-            u"Estela Barnes de Carlotto",
-            u"José Pablo Feinmann",
+            "Juan Sasturain",
+            "Jairo",
+            "Rogelio García Lupo",
+            "Estela Barnes de Carlotto",
+            "José Pablo Feinmann",
         ]
         result = scrapers_dqsv.scrap(swf, custom_order)
         self._check(result, _SHOULD_SWF_8)
@@ -429,5 +429,5 @@ class HelpersTestCase(unittest.TestCase):
         self.assertEqual(r, "Foo bar.")
 
     def test_name_quote(self):
-        r = scrapers_dqsv._fix_name(u'Juan &quot;Tata&quot; Cedrón')
-        self.assertEqual(r, u'Juan "Tata" Cedrón')
+        r = scrapers_dqsv._fix_name('Juan &quot;Tata&quot; Cedrón')
+        self.assertEqual(r, 'Juan "Tata" Cedrón')
