@@ -1,3 +1,11 @@
+encuentro (5.0ubuntu1) unstable; urgency=medium
+
+  * mejoras masivas para soportar los nuevos cambios en algunos backends
+  * renovación completa del sitio web e íconos del programa
+  * algunas mejoras en el parsing de los servers
+
+ -- Facundo Batista <facundo@taniquetil.com.ar>  Tue, 15 Aug 2017 18:37:54 -0300
+
 encuentro (3.2) unstable; urgency=medium
 
   * Release 3.2

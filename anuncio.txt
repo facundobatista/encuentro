@@ -1,38 +1,35 @@
 
-Encuentro 4.0
+Encuentro 5.0
 
-Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, BACUA, Educ.ar, Decime quien sos vos, CDA, TED y otros.
+Encuentro es un simple programa que permite buscar, descargar y ver contenido del Canal Encuentro, Paka Paka, BACUA, Educ.ar, Decime quien sos vos, TED y otros.
 
 Notar que este programa no distribuye contenido directamente, sino que permite un mejor uso personal de esos contenidos.  Por favor, referirse a los sitios web correspondientes para saber qué se puede y qué no se puede hacer con los contenidos de tales sitios.
+
+http://www.taniquetil.com.ar/facundo/imgs/encuentro-logonuevo.png
+
 
 Página oficial:
 
     http://encuentro.taniquetil.com.ar/
 
 
-La versión 4.0 trae los siguientes cambios con respecto a la versión anterior:
+La versión 5.0 trae los siguientes cambios con respecto a la versión anterior:
 
-    - Dos nuevos backends: Contenidos Digitales Abiertos (CDA) y TEDx Buenos Aires
+  - Mejoras masivas para soportar los nuevos cambios en algunos backends (gracias Diego Mascialino)
 
-    - Mejoras en los scrappers de distintos backends para presentar contenidos más limpios
+  - Renovación completa del sitio web e íconos del programa (gracias Cecilia Schiebel)
 
-    - Se refactoreó el esquema de descargas: ahora es mucho más robusto y confiable
-
-    - Los archivos descargados tienen un nombre más limpio para que se puedan grabar en cualquier lado
-
-    - Soporta la lib de notificación mal instalada
-
-    - Algunas correcciones en la interfaz para hacerlo más usable
+  - Algunas mejoras en el parsing de los servers
 
 
 La forma más fácil de instalarlo, si tienen un Debian o Ubuntu, es usando este instalador:
 
-    http://encuentro.taniquetil.com.ar/download/encuentro-4.0.deb
+    https://launchpad.net/encuentro/trunk/5.0/+download/encuentro-5.0.deb
 
 
 También tenemos instalador para Windows:
 
-    http://encuentro.taniquetil.com.ar/download/encuentro-4.0-setup.exe
+    https://launchpad.net/encuentro/trunk/5.0/+download/encuentro-5.0-setup.exe
 
 
 Instalarlo en Arch es sencillo ya que está disponible en AUR, por ejemplo se puede hacer:
@@ -47,7 +44,7 @@ También se puede instalar directamente desde PyPI:
 
 En cualquier otro caso, pueden usar el tarball para instalarlo:
 
-    http://encuentro.taniquetil.com.ar/download/encuentro-4.0.tar.gz
+    https://launchpad.net/encuentro/trunk/5.0/+download/encuentro-5.0.tar.gz
 
 
 Si tienen Fedora o Red Hat, todavía no tenemos un instalador, pero lo pueden instalar o usar desde el tarball, como acabo de indicar.
