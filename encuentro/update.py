@@ -29,7 +29,7 @@ from datetime import datetime
 
 import defer
 
-from PyQt4.QtGui import QApplication
+from PyQt5.QtWidgets import QApplication
 
 from encuentro import utils
 from encuentro.config import config

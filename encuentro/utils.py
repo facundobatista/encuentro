@@ -21,7 +21,7 @@ from __future__ import print_function
 import defer
 import os
 
-from PyQt4 import QtNetwork, QtCore
+from PyQt5 import QtNetwork, QtCore
 
 _qt_network_manager = QtNetwork.QNetworkAccessManager()
 

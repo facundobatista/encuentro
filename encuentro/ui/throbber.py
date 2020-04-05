@@ -18,11 +18,9 @@
 
 """A throbber."""
 
-from PyQt4.QtGui import (
-    QLabel,
-    QMovie,
-)
-from PyQt4.QtCore import Qt
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtGui import QMovie
+from PyQt5.QtCore import Qt
 
 from encuentro import multiplatform
 

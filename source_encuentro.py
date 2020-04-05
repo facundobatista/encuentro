@@ -29,5 +29,5 @@ def add_info(report):
     attach_file_if_exists(report, fname, "EncuentroLog")
 
     # info about dependencies
-    packages = ["python-requests", "python-defer", "python-qt4", "python-xdg"]
+    packages = ["python-requests", "python-defer", "python-qt5", "python-xdg"]
     attach_related_packages(report, packages)
