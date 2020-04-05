@@ -24,10 +24,10 @@ import os
 import sys
 import time
 import urllib
-import urllib2
+import urllib.request as urllib2
 
 from threading import Thread, Event
-from Queue import Queue, Empty
+from queue import Queue, Empty
 
 import bs4
 import defer
@@ -82,7 +82,7 @@ def clean_fname(fname):
     try:
         return fname.encode('ascii')
     except UnicodeError:
-        return "".join(urllib.quote(x.encode("utf-8")) if ord(x) > 127 else x for x in fname)
+        return "".join(urllib.parse.quote(x.encode("utf-8")) if ord(x) > 127 else x for x in fname)
 
 
 class BadCredentialsError(Exception):
@@ -202,9 +202,9 @@ class MiBrowser(Thread):
         usr, psw = self.authinfo
         get_data = dict(
             servicio=self.parent.service,
-            continuar=urllib.quote(self.url),
+            continuar=urllib.parse.quote(self.url),
         )
-        complete_auth_url = AUTH_URL + "?" + urllib.urlencode(get_data)
+        complete_auth_url = AUTH_URL + "?" + urllib.parse.urlencode(get_data)
         post_data = dict(
             login_user_name=usr,
             login_user_password=psw,
