@@ -16,7 +16,7 @@
 
 """Classes to interface to and persist the episodes data."""
 
-import cgi
+import html
 import logging
 import os
 import pickle
@@ -76,8 +76,8 @@ class EpisodeData(object):
                  image_data=None, subtitle=None):
         self.channel = channel
         self.section = section
-        self.season = None if season is None else cgi.escape(season)
-        self.title = cgi.escape(title)
+        self.season = None if season is None else html.escape(season)
+        self.title = html.escape(title)
         self.duration = duration
         self.description = description
         self.subtitle = subtitle
@@ -123,8 +123,8 @@ class EpisodeData(object):
         """Update the episode data."""
         self.channel = channel
         self.section = section
-        self.season = None if season is None else cgi.escape(season)
-        self.title = cgi.escape(title)
+        self.season = None if season is None else html.escape(season)
+        self.title = html.escape(title)
         self.duration = duration
         self.description = description
         self.subtitle = subtitle
