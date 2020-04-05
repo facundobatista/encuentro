@@ -22,7 +22,7 @@ import os
 import re
 import subprocess
 import sys
-import user
+from pathlib import Path
 
 
 _basedir = os.path.abspath(os.path.dirname(os.path.dirname(
@@ -84,9 +84,9 @@ def get_download_dir():
     try:
         cmd = ["xdg-user-dir", 'DOWNLOAD']
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        base = proc.communicate()[0].strip()
+        base = proc.communicate()[0].strip().decode()
     except OSError:
-        base = user.home
+        base = Path.home()
     return os.path.join(base, 'encuentro')
 
 
