@@ -42,7 +42,7 @@ siguientes dependencias (paquete y número mínimo de versión):
     python-qt4              4.9.1
     python-xdg              0.15
     python-bs4              4.1.0
-    python-notify           0.1.1
+    python-notify2          0.3.1
 
 (este último, python-notify, no es realmente necesario, pero si está el
 programa notificará las descargas finalizadas)
