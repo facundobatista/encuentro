@@ -17,8 +17,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals, print_function
-
 """The package."""
 
 import sys

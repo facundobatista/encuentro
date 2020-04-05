@@ -16,8 +16,6 @@
 
 """Main entry point, and initialization of everything we can."""
 
-from __future__ import print_function
-
 import logging
 import os
 import sys

@@ -14,8 +14,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import print_function
-
 """Logging set up."""
 
 import logging

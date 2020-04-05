@@ -14,8 +14,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import print_function
-
 """Some useful functions."""
 
 import defer
@@ -32,6 +30,10 @@ class _Downloader(object):
         self.deferred = defer.Deferred()
         self.deferred._store_it_because_qt_needs_or_wont_work = self
         self.progress = 0
+
+        if not isinstance(url, str):
+            url = url.decode()
+
         request = QtNetwork.QNetworkRequest(QtCore.QUrl(url))
 
         self.req = _qt_network_manager.get(request)

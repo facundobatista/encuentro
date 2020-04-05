@@ -18,8 +18,6 @@
 
 """Some functions to deal with network and Encuentro site."""
 
-from __future__ import unicode_literals, print_function
-
 import json
 import logging
 import os
@@ -151,6 +149,10 @@ class BaseDownloader(object):
         if not os.path.exists(dirsecc):
             os.makedirs(dirsecc)
 
+        try:
+            fname = fname.decode()
+        except AttributeError:
+            pass
         tempf = fname + str(time.time())
         return fname, tempf
 
@@ -438,7 +440,7 @@ class _GenericDownloader(BaseDownloader):
         request = QtNetwork.QNetworkRequest()
         request.setUrl(QtCore.QUrl(url))
         for hk, hv in self.headers.items():
-            request.setRawHeader(hk, hv)
+            request.setRawHeader(hk.encode(), hv.encode())
 
         def end_ok():
             """Finish Ok politely the deferred."""

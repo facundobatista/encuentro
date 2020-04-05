@@ -16,8 +16,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals
-
 """Several dialogs."""
 
 from PyQt4.QtGui import (

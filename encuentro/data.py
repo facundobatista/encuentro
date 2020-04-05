@@ -14,8 +14,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals, print_function
-
 """Classes to interface to and persist the episodes data."""
 
 import cgi
@@ -46,13 +44,13 @@ _normalize_cache = {}
 def _search_normalizer(char):
     """Normalize always to one char length."""
     try:
-        return _normalize_cache[char]
+        return _normalize_cache[char].decode()
     except KeyError:
         norm = normalize('NFKD', char).encode('ASCII', 'ignore').lower()
         if not norm:
-            norm = '?'
+            norm = b'?'
         _normalize_cache[char] = norm
-        return norm
+        return norm.decode()
 
 
 def prepare_to_filter(text):

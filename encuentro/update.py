@@ -16,8 +16,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals
-
 """Update the episodes metadata."""
 
 import bz2
@@ -109,6 +107,8 @@ class UpdateEpisodes(object):
             return
         if dialog and dialog.closed:
             return
+
+        backends_file = backends_file.decode()
         backends_list = [l.strip().split() for l in backends_file.split("\n")
                          if l and l[0] != '#']
 

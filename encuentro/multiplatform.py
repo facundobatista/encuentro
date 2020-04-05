@@ -16,8 +16,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals
-
 """Multiplatform code."""
 
 import os

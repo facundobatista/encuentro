@@ -16,8 +16,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals
-
 """Central panels in the main window, the content part of all the interface."""
 
 import logging
@@ -125,7 +123,9 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
             end_state = Status.downloaded
         else:
             # something bad happened
-            gui_msg = str(error).decode("utf8")
+            if not isinstance(error, str):
+                error = error.decode()
+            gui_msg = error
             end_state = Status.none
         item.setText(1, gui_msg)
         item.setDisabled(True)
