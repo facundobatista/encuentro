@@ -52,15 +52,15 @@ logger.set_up(verbose)
 log = logging.getLogger('encuentro.init')
 
 # first of all, show the versions
-print "Running Python %s on %r" % (sys.version_info, sys.platform)
+print("Running Python %s on %r" % (sys.version_info, sys.platform))
 log.info("Running Python %s on %r", sys.version_info, sys.platform)
 version_file = multiplatform.get_path('version.txt')
 if os.path.exists(version_file):
     version = open(version_file).read().strip()
-    print "Encuentro: v. %s" % (version,)
+    print("Encuentro: v. %s" % (version,))
 else:
     version = None
-    print "Encuentro: sin revno info"
+    print("Encuentro: sin revno info")
 log.info("Encuentro version: %r", version)
 
 main.start(version, args.source)
