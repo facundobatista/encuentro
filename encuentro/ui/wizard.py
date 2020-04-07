@@ -22,7 +22,7 @@ from __future__ import unicode_literals
 
 import logging
 
-from PyQt4.QtGui import (
+from PyQt5.QtWidgets import (
     QCheckBox,
     QDialog,
     QDialogButtonBox,
@@ -184,7 +184,7 @@ class WizardDialog(QDialog):
 if __name__ == '__main__':
     import sys
 
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     app.have_metadata = lambda: False
     app.have_config = lambda: False

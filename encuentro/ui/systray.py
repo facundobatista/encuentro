@@ -22,7 +22,8 @@ import subprocess
 
 from encuentro import multiplatform
 
-from PyQt4.QtGui import QSystemTrayIcon, QIcon, QMenu
+from PyQt5.QtWidgets import QSystemTrayIcon, QMenu
+from PyQt5.QtGui import QIcon
 
 logger = logging.getLogger("encuentro.systray")
 

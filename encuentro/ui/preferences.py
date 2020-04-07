@@ -24,7 +24,7 @@ import os
 import sys
 import logging
 
-from PyQt4.QtGui import (
+from PyQt5.QtWidgets import (
     QCheckBox,
     QCompleter,
     QDialog,
@@ -39,7 +39,7 @@ from PyQt4.QtGui import (
     QVBoxLayout,
     QWidget,
 )
-from PyQt4.QtCore import Qt, QDir
+from PyQt5.QtCore import Qt, QDir
 
 from encuentro.config import config
 
@@ -212,7 +212,7 @@ if __name__ == '__main__':
         os.path.realpath(sys.argv[0]))))
     sys.path.insert(0, project_basedir)
 
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
 
     frame = PreferencesDialog()

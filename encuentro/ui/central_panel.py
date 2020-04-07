@@ -23,28 +23,30 @@ from __future__ import unicode_literals
 import logging
 import operator
 
-from PyQt4.QtGui import (
+from PyQt5.QtWidgets import (
     QAbstractItemView,
-    QAbstractTextDocumentLayout,
     QApplication,
-    QBrush,
-    QColor,
     QHBoxLayout,
-    QImage,
     QLabel,
     QMenu,
-    QPixmap,
     QPushButton,
     QStyle,
-    QStyleOptionViewItemV4,
+    QStyleOptionViewItem,
     QStyledItemDelegate,
-    QTextDocument,
     QTextEdit,
     QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
 )
-from PyQt4.QtCore import Qt, QSize, QAbstractTableModel
+from PyQt5.QtGui import (
+    QAbstractTextDocumentLayout,
+    QBrush,
+    QColor,
+    QImage,
+    QPixmap,
+    QTextDocument,
+)
+from PyQt5.QtCore import Qt, QSize, QAbstractTableModel
 
 from encuentro import data, image
 from encuentro.config import config, signal
@@ -213,7 +215,7 @@ class HTMLDelegate(QStyledItemDelegate):
         if index.column() != self._html_column:
             return QStyledItemDelegate.paint(self, painter, option, index)
 
-        options = QStyleOptionViewItemV4(option)
+        options = QStyleOptionViewItem(option)
         self.initStyleOption(options, index)
 
         if options.widget is None:
@@ -238,7 +240,7 @@ class HTMLDelegate(QStyledItemDelegate):
 
     def sizeHint(self, option, index):
         """Calculate the needed size."""
-        options = QStyleOptionViewItemV4(option)
+        options = QStyleOptionViewItem(option)
         self.initStyleOption(options, index)
 
         doc = QTextDocument()
@@ -377,7 +379,7 @@ class EpisodesWidgetView(remembering.RememberingTableView):
         self.verticalHeader().hide()
         header = self.horizontalHeader()
         header.setStretchLastSection(False)
-        header.setResizeMode(2, header.Stretch)
+        header.setSectionResizeMode(2, header.Stretch)
         header.sortIndicatorChanged.connect(self._model.sort)
 
         # other behaviour configs

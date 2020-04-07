@@ -39,11 +39,11 @@ if __name__ == '__main__':
     # special import before any other imports to configure GUI to use API 2; we
     # normally don't need to do this *here*, just a support for run
     # this as a script, for testing/development purpuses
-    import sip
+    from PyQt5 import sip
     for n in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
         sip.setapi(n, 2)   # API v2 FTW!
 
-from PyQt4 import QtNetwork, QtCore  # NOQA (import not at the top)
+from PyQt5 import QtNetwork, QtCore  # NOQA (import not at the top)
 
 from encuentro import multiplatform, utils  # NOQA (import not at the top)
 from encuentro.config import config  # NOQA (import not at the top)

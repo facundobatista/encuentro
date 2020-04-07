@@ -39,7 +39,7 @@ siguientes dependencias (paquete y número mínimo de versión):
     python                  2.6.6
     python-requests         2.2.1
     python-defer            1.0.6
-    python-qt4              4.9.1
+    python-qt5              5.7
     python-xdg              0.15
     python-bs4              4.1.0
     python-notify           0.1.1
@@ -57,7 +57,7 @@ Si querés instalarlo en un virtualenv para colaborar en el proyecto o por
 cualquier otra causa, tenés que seguir los siguientes pasos:
 
 Es necesario hacer un branch del proyecto, o descargar el tarball,
-tener instalado python-qt4 y python-notify. Al generar el virtualenv tenés
+tener instalado python-qt5 y python-notify. Al generar el virtualenv tenés
 que utilizar la opción '--system-site-packages'.
 
 Crear el virtualenv:

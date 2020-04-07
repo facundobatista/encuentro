@@ -26,10 +26,9 @@ import datetime as dt
 
 import defer
 
-from PyQt4.QtGui import (
+from PyQt5.QtWidgets import (
     QAction,
     QCheckBox,
-    QKeySequence,
     QLabel,
     QLineEdit,
     QMessageBox,
@@ -37,6 +36,9 @@ from PyQt4.QtGui import (
     QSizePolicy,
     QStyle,
     QWidget,
+)
+from PyQt5.QtGui import (
+    QKeySequence,
 )
 
 from encuentro import multiplatform, data, update
@@ -312,7 +314,8 @@ class MainUI(remembering.RememberingMainWindow):
         # stuff pending
         m = "Hay programas todavía en proceso de descarga!\n¿Seguro quiere salir del programa?"
         QMB = QMessageBox
-        dlg = QMB("Guarda!", m, QMB.Question, QMB.Yes, QMB.No, QMB.NoButton)
+        dlg = QMB(QMB.Question, "Guarda!", m, QMB.Yes | QMB.No, None)
+
         opt = dlg.exec_()
         if opt != QMB.Yes:
             logger.info("Quit cancelled")
@@ -344,8 +347,7 @@ class MainUI(remembering.RememberingMainWindow):
                     text = repr(text)
 
         QMB = QMessageBox
-        dlg = QMB("Atención: " + err_type, text, QMB.Warning,
-                  QMB.Ok, QMB.NoButton, QMB.NoButton)
+        dlg = QMB(QMB.Warning, "Atención: " + err_type, text, QMB.Ok | QMB.NoButton, None)
         dlg.exec_()
 
     def refresh_episodes(self, _=None):

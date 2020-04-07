@@ -20,7 +20,7 @@ from __future__ import unicode_literals
 
 """Several dialogs."""
 
-from PyQt4.QtGui import (
+from PyQt5.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QLabel,
@@ -93,7 +93,7 @@ class UpdateDialog(QDialog):
 if __name__ == '__main__':
     import sys
 
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtGui import QApplication
     app = QApplication(sys.argv)
 
     frame = UpdateDialog()

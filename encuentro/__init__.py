@@ -24,7 +24,7 @@ from __future__ import unicode_literals, print_function
 import sys
 
 # special import before any other imports to configure GUI to use API 2
-import sip
+from PyQt5 import sip
 for name in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
     sip.setapi(name, 2)   # API v2 FTW!
 
@@ -73,7 +73,7 @@ with NiceImporter('xdg', 'python-xdg', '0.15'):
     import xdg  # NOQA
 with NiceImporter('requests', 'python-requests', '2.2.1'):
     import requests  # NOQA
-with NiceImporter('PyQt4.QtCore', 'PyQt4', '4.9.1'):
-    import PyQt4.QtCore  # NOQA
+with NiceImporter('PyQt5.QtCore', 'PyQt5', '5.7'):
+    import PyQt5.QtCore  # NOQA
 with NiceImporter('defer', 'python-defer', '1.0.6'):
     import defer  # NOQA

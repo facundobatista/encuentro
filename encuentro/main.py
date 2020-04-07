@@ -30,7 +30,8 @@ from encuentro.ui.main import MainUI
 # will try to load EpisodeData from this namespace
 from encuentro.data import EpisodeData  # NOQA
 
-from PyQt4.QtGui import QApplication, QIcon
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication
 
 logger = logging.getLogger('encuentro.init')
 
