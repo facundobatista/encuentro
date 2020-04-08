@@ -6,5 +6,5 @@ set -eu
 
 PYTHONPATH=server fades -r requirements_py3.txt -x nosetests -v -s tests
 fades -d flake8 -x flake8 --max-line-length=99 server
-fades -p python2 -d flake8 -x flake8 --max-line-length=99 encuentro
+fades -d flake8 -x flake8 --max-line-length=99 encuentro
 pylint -d R,C,W,E -e C0111,C0112  -r n -f colorized --no-docstring-rgx="(__.*__|test_*)" encuentro server 2> /dev/null
