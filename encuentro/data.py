@@ -292,7 +292,7 @@ class ProgramsData(object):
 
     def values(self):
         """Return the iter values of the data."""
-        return iter(self.data.values())
+        return self.data.values()
 
     def __len__(self):
         """The length."""
@@ -300,7 +300,7 @@ class ProgramsData(object):
 
     def items(self):
         """Return the iter items of the data."""
-        return iter(self.data.items())
+        return self.data.items()
 
     def save(self):
         """Save to disk."""

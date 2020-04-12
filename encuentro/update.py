@@ -214,7 +214,7 @@ class UpdateEpisodes(object):
             final_data.append(d)
 
         logger.debug("Merging: appending other data: %s", backends.keys())
-        for data in iter(backends.values()):
+        for data in backends.values():
             final_data.extend(data)
         logger.debug("Merged, final: %d", len(final_data))
         return final_data

@@ -279,7 +279,7 @@ class MainUI(remembering.RememberingMainWindow):
             programs_data.save()
 
         # shutdown all the downloaders
-        for downloader in iter(self.downloaders.values()):
+        for downloader in self.downloaders.values():
             downloader.shutdown()
 
         # bye bye
