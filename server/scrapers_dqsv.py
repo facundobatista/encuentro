@@ -188,7 +188,7 @@ def scrap(fh, custom_order=None):
         else:
             try:
                 idx = custom_order.index(name)
-            except:
+            except Exception:
                 continue
 
         image = images[idx]

@@ -1,6 +1,4 @@
-# -*- coding: utf8 -*-
-
-# Copyright 2011-2013 Facundo Batista
+# Copyright 2011-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -83,8 +81,8 @@ def get_download_dir():
     """
     try:
         cmd = ["xdg-user-dir", 'DOWNLOAD']
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-        base = proc.communicate()[0].strip().decode()
+        proc = subprocess.run(cmd, stdout=subprocess.PIPE, universal_newlines=True)
+        base = proc.stdout.strip()
     except OSError:
         base = Path.home()
     return os.path.join(base, 'encuentro')

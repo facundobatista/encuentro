@@ -1,6 +1,4 @@
-# -*- coding: utf8 -*-
-
-# Copyright 2011-2017 Facundo Batista
+# Copyright 2011-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -40,7 +38,7 @@ BACKENDS_LIST = "backends-v07.list"
 logger = logging.getLogger('encuentro.update')
 
 
-class UpdateEpisodes(object):
+class UpdateEpisodes:
     """Update the episodes info."""
 
     def __init__(self, main_window, update_source):
@@ -108,9 +106,10 @@ class UpdateEpisodes(object):
         if dialog and dialog.closed:
             return
 
-        backends_file = backends_file.decode()
-        backends_list = [l.strip().split() for l in backends_file.split("\n")
-                         if l and l[0] != '#']
+        # This is a text file, let's convert to unicode, and get useful lines.
+        backends_file = backends_file.decode('utf-8')
+        backends_list = [
+            line.strip().split() for line in backends_file.split("\n") if line and line[0] != '#']
 
         backends = {}
         for b_name, b_dloader, b_filename in backends_list:

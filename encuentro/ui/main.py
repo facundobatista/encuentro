@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
-
-# Copyright 2013-2016 Facundo Batista
+# Copyright 2013-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -262,8 +260,7 @@ class MainUI(remembering.RememberingMainWindow):
 
     def _review_need_something_indicator(self):
         """Hide/show/enable/disable different indicators if need sth."""
-        needsomething = bool(not self.have_config() or
-                             not self.have_metadata())
+        needsomething = bool(not self.have_config() or not self.have_metadata())
         self.needsomething_alert.setVisible(needsomething)
 
     def shutdown(self):
@@ -334,8 +331,8 @@ class MainUI(remembering.RememberingMainWindow):
             return
         logger.debug("Showing a message: %r", text)
 
-        # error text can be produced by windows, try to to sanitize it
-        if isinstance(text, str):
+        # error text can be produced by Windows, try to to sanitize it
+        if isinstance(text, bytes):
             try:
                 text = text.decode("utf8")
             except UnicodeDecodeError:
@@ -343,8 +340,6 @@ class MainUI(remembering.RememberingMainWindow):
                     text = text.decode("latin1")
                 except UnicodeDecodeError:
                     text = repr(text)
-            except AttributeError:
-                pass
 
         QMB = QMessageBox
         dlg = QMB(QMB.Warning, "Atención: " + err_type, text, QMB.Ok | QMB.NoButton, None)

@@ -1,4 +1,4 @@
-# Copyright 2013 Facundo Batista
+# Copyright 2013-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -24,16 +24,12 @@ from PyQt5 import QtNetwork, QtCore
 _qt_network_manager = QtNetwork.QNetworkAccessManager()
 
 
-class _Downloader(object):
+class _Downloader:
     """An asynch downloader that fires a deferred with data when done."""
     def __init__(self, url):
         self.deferred = defer.Deferred()
         self.deferred._store_it_because_qt_needs_or_wont_work = self
         self.progress = 0
-
-        if not isinstance(url, str):
-            url = url.decode()
-
         request = QtNetwork.QNetworkRequest(QtCore.QUrl(url))
 
         self.req = _qt_network_manager.get(request)
@@ -100,7 +96,7 @@ def download(url):
     return general_deferred
 
 
-class SafeSaver(object):
+class SafeSaver:
     """A safe saver to disk.
 
     It saves to a .tmp and moves into final destination, and other

@@ -1,6 +1,4 @@
-# -*- coding: utf8 -*-
-
-# Copyright 2013-2015 Facundo Batista
+# Copyright 2013-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -64,14 +62,12 @@ class GeneralPreferences(QWidget):
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         completer.setCompletionMode(QCompleter.PopupCompletion)
 
-        l = QLabel("<b>Ingresá el directorio donde descargar los videos...</b>")
-        l.setTextFormat(Qt.RichText)
-        grid.addWidget(l, 0, 0, 1, 2)
+        label = QLabel("<b>Ingresá el directorio donde descargar los videos...</b>")
+        label.setTextFormat(Qt.RichText)
+        grid.addWidget(label, 0, 0, 1, 2)
 
         grid.addWidget(QLabel("Descargar en:"), 1, 0, 2, 1)
         prv = config.get('downloaddir', '')
-        if not isinstance(prv, str):
-            prv = prv.decode()
         self.downloaddir_entry = QLineEdit(prv)
         self.downloaddir_entry.setCompleter(completer)
         self.downloaddir_entry.setPlaceholderText('Ingresá un directorio')
@@ -132,22 +128,18 @@ class ConectatePreferences(QWidget):
         grid.setSpacing(20)
         grid.setColumnStretch(1, 10)
 
-        l = QLabel("<b>Ingresá tus datos del portal Conectate:</b>")
-        l.setTextFormat(Qt.RichText)
-        grid.addWidget(l, 0, 0, 1, 2)
+        label = QLabel("<b>Ingresá tus datos del portal Conectate:</b>")
+        label.setTextFormat(Qt.RichText)
+        grid.addWidget(label, 0, 0, 1, 2)
 
         grid.addWidget(QLabel("Usuario:"), 1, 0, 2, 1)
         prv = config.get('user', '')
-        if not isinstance(prv, str):
-            prv = prv.decode()
         self.user_entry = QLineEdit(prv)
         self.user_entry.setPlaceholderText('Ingresá tu usuario de Conectate')
         grid.addWidget(self.user_entry, 1, 1, 2, 2)
 
         grid.addWidget(QLabel("Contraseña:"), 2, 0, 3, 1)
         prv = config.get('password', '')
-        if not isinstance(prv, str):
-            prv = prv.decode()
         self.password_entry = QLineEdit(prv)
         self.password_entry.setEchoMode(QLineEdit.Password)
         self.password_entry.setPlaceholderText('Ingresá tu contraseña de Conectate')
@@ -157,12 +149,12 @@ class ConectatePreferences(QWidget):
         self.password_mask.stateChanged.connect(self._toggle_password_mask)
         grid.addWidget(self.password_mask, 3, 1, 4, 2)
 
-        l = QLabel('Si no tenés estos datos, '
-                   '<a href="{}">registrate aquí</a>'.format(URL_CONECTATE))
-        l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        l.setTextFormat(Qt.RichText)
-        l.setOpenExternalLinks(True)
-        grid.addWidget(l, 4, 0, 5, 3)
+        label = QLabel(
+            'Si no tenés estos datos, <a href="{}">registrate aquí</a>'.format(URL_CONECTATE))
+        label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        label.setTextFormat(Qt.RichText)
+        label.setOpenExternalLinks(True)
+        grid.addWidget(label, 4, 0, 5, 3)
 
     def _toggle_password_mask(self):
         """Toggle the password hiding."""

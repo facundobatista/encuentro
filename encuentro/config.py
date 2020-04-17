@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright 2013 Facundo Batista
+# Copyright 2013-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -77,7 +75,7 @@ class _Config(dict):
             pickle.dump(raw_dict, fh)
 
 
-class _Signal(object):
+class _Signal:
     """Custom signals.
 
     Decorate a function to be called when signal is emitted.

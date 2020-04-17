@@ -1,6 +1,4 @@
-# -*- coding: UTF-8 -*-
-
-# Copyright 2013-2015 Facundo Batista
+# Copyright 2013-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -125,8 +123,6 @@ class DownloadsWidget(remembering.RememberingTreeWidget):
             end_state = Status.downloaded
         else:
             # something bad happened
-            if not isinstance(error, str):
-                error = error.decode()
             gui_msg = error
             end_state = Status.none
         item.setText(1, gui_msg)
@@ -578,7 +574,7 @@ class EpisodeInfo(QWidget):
             self.image_episode.hide()
             self.throbber.show()
             # now do call the get_image
-            self.get_image(episode.episode_id, episode.image_url.encode('utf-8'))
+            self.get_image(episode.episode_id, episode.image_url)
 
         # all description
         description = episode.description.replace("\n", "<br/>")

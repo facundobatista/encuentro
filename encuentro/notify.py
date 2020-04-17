@@ -1,6 +1,4 @@
-# -*- coding: utf8 -*-
-
-# Copyright 2015 Facundo Batista
+# Copyright 2015-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -30,7 +28,7 @@ si lo instala tendrá algunas notificaciones en el escritorio.
 logger = logging.getLogger('encuentro.notification')
 
 
-class _Notifier(object):
+class _Notifier:
     """A notifier that defers the import as much as possible.
 
     This is because importing 'pynotify' while PyQt is still starting causes

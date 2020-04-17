@@ -1,6 +1,4 @@
-# -*- coding: utf8 -*-
-
-# Copyright 2011-2017 Facundo Batista
+# Copyright 2011-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -23,8 +21,7 @@ import logging
 import os
 import sys
 import time
-import urllib
-import urllib.request as urllib2
+from urllib import request, parse
 
 from threading import Thread, Event
 from queue import Queue, Empty
@@ -32,19 +29,10 @@ from queue import Queue, Empty
 import bs4
 import defer
 import requests
+from PyQt5 import QtNetwork, QtCore
 
-if __name__ == '__main__':
-    # special import before any other imports to configure GUI to use API 2; we
-    # normally don't need to do this *here*, just a support for run
-    # this as a script, for testing/development purpuses
-    from PyQt5 import sip
-    for n in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
-        sip.setapi(n, 2)   # API v2 FTW!
-
-from PyQt5 import QtNetwork, QtCore  # NOQA (import not at the top)
-
-from encuentro import multiplatform, utils  # NOQA (import not at the top)
-from encuentro.config import config  # NOQA (import not at the top)
+from encuentro import multiplatform, utils
+from encuentro.config import config
 
 # special import sequence to get a useful version of youtube-dl
 try:
@@ -82,7 +70,7 @@ def clean_fname(fname):
     try:
         return fname.encode('ascii')
     except UnicodeError:
-        return "".join(urllib.parse.quote(x.encode("utf-8")) if ord(x) > 127 else x for x in fname)
+        return "".join(parse.quote(x.encode("utf-8")) if ord(x) > 127 else x for x in fname)
 
 
 class BadCredentialsError(Exception):
@@ -104,7 +92,7 @@ class Finished(Exception):
     """Special exception (to be ignored) used by some Downloaders to finish themselves."""
 
 
-class BaseDownloader(object):
+class BaseDownloader:
     """Base episode downloader."""
 
     def __init__(self):
@@ -149,10 +137,6 @@ class BaseDownloader(object):
         if not os.path.exists(dirsecc):
             os.makedirs(dirsecc)
 
-        try:
-            fname = fname.decode()
-        except AttributeError:
-            pass
         tempf = fname + str(time.time())
         return fname, tempf
 
@@ -202,9 +186,9 @@ class MiBrowser(Thread):
         usr, psw = self.authinfo
         get_data = dict(
             servicio=self.parent.service,
-            continuar=urllib.parse.quote(self.url),
+            continuar=parse.quote(self.url),
         )
-        complete_auth_url = AUTH_URL + "?" + urllib.parse.urlencode(get_data)
+        complete_auth_url = AUTH_URL + "?" + parse.urlencode(get_data)
         post_data = dict(
             login_user_name=usr,
             login_user_password=psw,
@@ -226,7 +210,7 @@ class MiBrowser(Thread):
         soup = bs4.BeautifulSoup(html)
         new_url = soup.find(attrs={'class': 'descargas panel row'}).find('a')['href']
         self.log("Opening final url %r", new_url)
-        content = urllib2.urlopen(new_url)
+        content = request.urlopen(new_url)
         try:
             filesize = int(content.headers['content-length'])
         except KeyError:
@@ -383,7 +367,7 @@ class EncuentroDownloader(AuthenticatedDownloader):
 
 
 class _GenericDownloader(BaseDownloader):
-    """Episode downloader for a generic site that works with urllib2."""
+    """Episode downloader for a generic site that works with urllib."""
 
     headers = {
         'User-Agent': 'Mozilla/5.0',
@@ -440,7 +424,7 @@ class _GenericDownloader(BaseDownloader):
         request = QtNetwork.QNetworkRequest()
         request.setUrl(QtCore.QUrl(url))
         for hk, hv in self.headers.items():
-            request.setRawHeader(hk.encode(), hv.encode())
+            request.setRawHeader(hk.encode('utf-8'), hv.encode('utf-8'))
 
         def end_ok():
             """Finish Ok politely the deferred."""
@@ -488,6 +472,8 @@ class GenericAudioDownloader(_GenericDownloader):
 
 
 class ThreadedYT(Thread):
+    """Use youtube downloader in a different thread."""
+
     def __init__(self, url, fname, output_queue, must_quit, log):
         self.url = url
         self.fname = fname
@@ -616,6 +602,7 @@ class ChunksDownloader(BaseDownloader):
         self.cancelled = True
 
     def _shutdown(self):
+        """Stop everything."""
         self.log('Stopping')
         self.should_stop = True
 

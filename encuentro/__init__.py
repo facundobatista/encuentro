@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-# Copyright 2011-2015 Facundo Batista
+# Copyright 2011-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -21,12 +18,6 @@
 
 import sys
 
-# special import before any other imports to configure GUI to use API 2
-from PyQt5 import sip
-for name in "QDate QDateTime QString QTextStream QTime QUrl QVariant".split():
-    sip.setapi(name, 2)   # API v2 FTW!
-
-
 IMPORT_MSG = """
 ERROR! Problema al importar %(module)r
 
@@ -35,7 +26,7 @@ el paquete %(package)r versión %(version)s o superior.
 """
 
 
-class NiceImporter(object):
+class NiceImporter:
     """Show nicely successful and errored imports."""
     def __init__(self, module, package, version):
         self.module = module
