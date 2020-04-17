@@ -16,8 +16,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals
-
 """The preferences dialog."""
 
 import os
@@ -72,6 +70,8 @@ class GeneralPreferences(QWidget):
 
         grid.addWidget(QLabel("Descargar en:"), 1, 0, 2, 1)
         prv = config.get('downloaddir', '')
+        if not isinstance(prv, str):
+            prv = prv.decode()
         self.downloaddir_entry = QLineEdit(prv)
         self.downloaddir_entry.setCompleter(completer)
         self.downloaddir_entry.setPlaceholderText('Ingresá un directorio')
@@ -138,12 +138,16 @@ class ConectatePreferences(QWidget):
 
         grid.addWidget(QLabel("Usuario:"), 1, 0, 2, 1)
         prv = config.get('user', '')
+        if not isinstance(prv, str):
+            prv = prv.decode()
         self.user_entry = QLineEdit(prv)
         self.user_entry.setPlaceholderText('Ingresá tu usuario de Conectate')
         grid.addWidget(self.user_entry, 1, 1, 2, 2)
 
         grid.addWidget(QLabel("Contraseña:"), 2, 0, 3, 1)
         prv = config.get('password', '')
+        if not isinstance(prv, str):
+            prv = prv.decode()
         self.password_entry = QLineEdit(prv)
         self.password_entry.setEchoMode(QLineEdit.Password)
         self.password_entry.setPlaceholderText('Ingresá tu contraseña de Conectate')

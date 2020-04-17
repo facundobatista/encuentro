@@ -16,8 +16,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals, print_function
-
 """The notification-to-the-desktop subsystem."""
 
 import logging
@@ -25,7 +23,7 @@ import logging
 from encuentro.config import config
 
 _ERRMSG = """
-ERROR! Problema al importar 'pynotify' - No es "estrictamente necesario, pero
+ERROR! Problema al importar 'notify2' - No es "estrictamente necesario, pero
 si lo instala tendrá algunas notificaciones en el escritorio.
 """
 
@@ -45,22 +43,22 @@ class _Notifier(object):
         """Initialize everything."""
         self._inited = True
         try:
-            import pynotify
+            import notify2
         except ImportError:
             print(_ERRMSG)
             self._notify = lambda t, m: None
         else:
-            pynotify.init("Encuentro")
+            notify2.init("Encuentro")
 
             def _f(title, message):
                 """The method that will really notify."""
                 if config.get('notification', True):
                     try:
-                        n = pynotify.Notification(title, message)
+                        n = notify2.Notification(title, message)
                         n.show()
                     except Exception as err:
                         logger.warning("Unable to notify! %s(%s) (imported is %r)",
-                                       err.__class__.__name__, err, pynotify)
+                                       err.__class__.__name__, err, notify2)
 
             self._notify = _f
 

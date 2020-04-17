@@ -14,11 +14,9 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals, print_function
-
 """Classes to interface to and persist the episodes data."""
 
-import cgi
+import html
 import logging
 import os
 import pickle
@@ -46,13 +44,13 @@ _normalize_cache = {}
 def _search_normalizer(char):
     """Normalize always to one char length."""
     try:
-        return _normalize_cache[char]
+        return _normalize_cache[char].decode()
     except KeyError:
         norm = normalize('NFKD', char).encode('ASCII', 'ignore').lower()
         if not norm:
-            norm = '?'
+            norm = b'?'
         _normalize_cache[char] = norm
-        return norm
+        return norm.decode()
 
 
 def prepare_to_filter(text):
@@ -78,8 +76,8 @@ class EpisodeData(object):
                  image_data=None, subtitle=None):
         self.channel = channel
         self.section = section
-        self.season = None if season is None else cgi.escape(season)
-        self.title = cgi.escape(title)
+        self.season = None if season is None else html.escape(season)
+        self.title = html.escape(title)
         self.duration = duration
         self.description = description
         self.subtitle = subtitle
@@ -125,8 +123,8 @@ class EpisodeData(object):
         """Update the episode data."""
         self.channel = channel
         self.section = section
-        self.season = None if season is None else cgi.escape(season)
-        self.title = cgi.escape(title)
+        self.season = None if season is None else html.escape(season)
+        self.title = html.escape(title)
         self.duration = duration
         self.description = description
         self.subtitle = subtitle
@@ -294,7 +292,7 @@ class ProgramsData(object):
 
     def values(self):
         """Return the iter values of the data."""
-        return self.data.itervalues()
+        return self.data.values()
 
     def __len__(self):
         """The length."""
@@ -302,7 +300,7 @@ class ProgramsData(object):
 
     def items(self):
         """Return the iter items of the data."""
-        return self.data.iteritems()
+        return self.data.items()
 
     def save(self):
         """Save to disk."""

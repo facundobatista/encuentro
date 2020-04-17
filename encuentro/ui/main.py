@@ -16,8 +16,6 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-from __future__ import unicode_literals
-
 """The main window."""
 
 import logging
@@ -283,7 +281,7 @@ class MainUI(remembering.RememberingMainWindow):
             programs_data.save()
 
         # shutdown all the downloaders
-        for downloader in self.downloaders.itervalues():
+        for downloader in self.downloaders.values():
             downloader.shutdown()
 
         # bye bye
@@ -345,6 +343,8 @@ class MainUI(remembering.RememberingMainWindow):
                     text = text.decode("latin1")
                 except UnicodeDecodeError:
                     text = repr(text)
+            except AttributeError:
+                pass
 
         QMB = QMessageBox
         dlg = QMB(QMB.Warning, "Atención: " + err_type, text, QMB.Ok | QMB.NoButton, None)

@@ -18,7 +18,7 @@
 
 
 import logging
-import md5
+from hashlib import md5
 import os
 import glob
 
@@ -40,7 +40,7 @@ class ImageGetter(object):
     def get_image(self, episode_id, url):
         """Get an image and show it using the callback."""
         logger.info("Loading image for episode %s: %r", episode_id, url)
-        file_name = md5.md5(url).hexdigest()
+        file_name = md5(url).hexdigest()
         file_fullname = os.path.join(self.cache_dir, file_name)
         img_search_result = glob.glob(file_fullname + '.*')
         if len(img_search_result) > 0:

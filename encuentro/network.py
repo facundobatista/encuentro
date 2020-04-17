@@ -18,18 +18,16 @@
 
 """Some functions to deal with network and Encuentro site."""
 
-from __future__ import unicode_literals, print_function
-
 import json
 import logging
 import os
 import sys
 import time
 import urllib
-import urllib2
+import urllib.request as urllib2
 
 from threading import Thread, Event
-from Queue import Queue, Empty
+from queue import Queue, Empty
 
 import bs4
 import defer
@@ -84,7 +82,7 @@ def clean_fname(fname):
     try:
         return fname.encode('ascii')
     except UnicodeError:
-        return "".join(urllib.quote(x.encode("utf-8")) if ord(x) > 127 else x for x in fname)
+        return "".join(urllib.parse.quote(x.encode("utf-8")) if ord(x) > 127 else x for x in fname)
 
 
 class BadCredentialsError(Exception):
@@ -151,6 +149,10 @@ class BaseDownloader(object):
         if not os.path.exists(dirsecc):
             os.makedirs(dirsecc)
 
+        try:
+            fname = fname.decode()
+        except AttributeError:
+            pass
         tempf = fname + str(time.time())
         return fname, tempf
 
@@ -200,9 +202,9 @@ class MiBrowser(Thread):
         usr, psw = self.authinfo
         get_data = dict(
             servicio=self.parent.service,
-            continuar=urllib.quote(self.url),
+            continuar=urllib.parse.quote(self.url),
         )
-        complete_auth_url = AUTH_URL + "?" + urllib.urlencode(get_data)
+        complete_auth_url = AUTH_URL + "?" + urllib.parse.urlencode(get_data)
         post_data = dict(
             login_user_name=usr,
             login_user_password=psw,
@@ -438,7 +440,7 @@ class _GenericDownloader(BaseDownloader):
         request = QtNetwork.QNetworkRequest()
         request.setUrl(QtCore.QUrl(url))
         for hk, hv in self.headers.items():
-            request.setRawHeader(hk, hv)
+            request.setRawHeader(hk.encode(), hv.encode())
 
         def end_ok():
             """Finish Ok politely the deferred."""
