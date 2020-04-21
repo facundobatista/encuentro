@@ -1,4 +1,4 @@
-# Copyright 2013-2014 Facundo Batista
+# Copyright 2013-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -30,7 +30,7 @@ from encuentro.ui import dialogs
 logger = logging.getLogger('encuentro.data')
 
 
-class Status(object):
+class Status:
     """Status constants."""
     none = 'none'
     waiting = 'waiting'
@@ -38,30 +38,15 @@ class Status(object):
     downloaded = 'downloaded'
 
 
-_normalize_cache = {}
-
-
-def _search_normalizer(char):
-    """Normalize always to one char length."""
-    try:
-        return _normalize_cache[char].decode()
-    except KeyError:
-        norm = normalize('NFKD', char).encode('ASCII', 'ignore').lower()
-        if not norm:
-            norm = b'?'
-        _normalize_cache[char] = norm
-        return norm.decode()
-
-
 def prepare_to_filter(text):
     """Prepare a text to filter.
 
     It receives unicode, but return simple lowercase ascii.
     """
-    return ''.join(_search_normalizer(c) for c in text)
+    return normalize('NFKD', text).encode('ASCII', 'ignore').decode("ASCII").lower()
 
 
-class EpisodeData(object):
+class EpisodeData:
     """Episode data."""
 
     # these is for the attributes to be here when unpickling old instances
@@ -177,7 +162,7 @@ class EpisodeData(object):
         return "<EpisodeData [%s] (%s) %r (%r): %r>" % args
 
 
-class ProgramsData(object):
+class ProgramsData:
     """Holder / interface for programs data."""
 
     # more recent version of the in-disk data

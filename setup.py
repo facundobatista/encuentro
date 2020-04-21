@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright 2011-2016 Facundo Batista
+# Copyright 2011-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -20,13 +20,13 @@
 
 Needed packages to run (using Debian/Ubuntu package names):
 
-    python 2.7
-    python-requests 0.12.1
+    python 3.6
+    python-requests 2.23.0
     python-defer 1.0.6
     python-qt5 5.7
-    python-xdg 0.15
-    python-notify 0.1.1   # not really needed, but provides notifications
-    python-bs4 4.1.0
+    python-xdg 0.26
+    python-notify2        # not really needed, but provides notifications
+    python-bs4 4.8.2
     youtube-dl    # whatever version and optional; if too old or not
                   # present, an included one will be used
 """

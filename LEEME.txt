@@ -36,15 +36,15 @@ Es bastante sencillo, sólo tenés que hacer:
 Para que funcione correctamente, tenés que tener Python 2 instalado, y las
 siguientes dependencias (paquete y número mínimo de versión):
 
-    python                  2.6.6
-    python-requests         2.2.1
+    python                  3.6
+    python-requests         2.23.0
     python-defer            1.0.6
     python-qt5              5.7
-    python-xdg              0.15
-    python-bs4              4.1.0
+    python-xdg              0.26
+    python-bs4              4.8.2
     python-notify2          0.3.1
 
-(este último, python-notify, no es realmente necesario, pero si está el
+(este último, python-notify2, no es realmente necesario, pero si está el
 programa notificará las descargas finalizadas)
 
 
@@ -57,7 +57,7 @@ Si querés instalarlo en un virtualenv para colaborar en el proyecto o por
 cualquier otra causa, tenés que seguir los siguientes pasos:
 
 Es necesario hacer un branch del proyecto, o descargar el tarball,
-tener instalado python-qt5 y python-notify. Al generar el virtualenv tenés
+tener instalado python-qt5 y python-notify2. Al generar el virtualenv tenés
 que utilizar la opción '--system-site-packages'.
 
 Crear el virtualenv:
@@ -71,7 +71,7 @@ Activarlo:
 Instalar las dependencias:
 
     cd path/to/encuentro/code/trunk
-    pip install -r requirements_py2.txt
+    pip install -r requirements.txt
 
 Ejecutar Encuentro:
 

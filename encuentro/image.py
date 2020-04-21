@@ -1,4 +1,4 @@
-# Copyright 2013-2014 Facundo Batista
+# Copyright 2013-2020 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -18,16 +18,16 @@
 
 
 import logging
-from hashlib import md5
 import os
 import glob
+from hashlib import md5
 
 from encuentro import multiplatform, utils
 
 logger = logging.getLogger('encuentro.image')
 
 
-class ImageGetter(object):
+class ImageGetter:
     """Image downloader and cache object."""
 
     def __init__(self, callback):
@@ -40,7 +40,7 @@ class ImageGetter(object):
     def get_image(self, episode_id, url):
         """Get an image and show it using the callback."""
         logger.info("Loading image for episode %s: %r", episode_id, url)
-        file_name = md5(url).hexdigest()
+        file_name = md5(url.encode('utf8')).hexdigest()
         file_fullname = os.path.join(self.cache_dir, file_name)
         img_search_result = glob.glob(file_fullname + '.*')
         if len(img_search_result) > 0:

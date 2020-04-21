@@ -1,6 +1,10 @@
 Procedimiento para generar el .exe
 ----------------------------------
 
+WARNING: esto está viejo, se necesita actualizar este procedimiento luego
+de la migración a Qt5 y a Py3 (probablemente sea muy similar... o no).
+
+
 Del lado de linux, sólo un paso: preparar un directorio con "el programa
 a empaquetar":
 
@@ -14,7 +18,7 @@ priori no nos interesa distribuir:
     rm MANIFEST.in
     rm pasos_release.txt
     rm pylintrc
-    rm requirements_py?.txt
+    rm requirements.txt
     rm -r server
     rm setup.py
     rm source_encuentro.py
@@ -38,7 +42,7 @@ necesario para que corra:
         http://www.riverbankcomputing.com/software/pyqt/download
 
     - Las dependencias:
-        pip -r requirements_py2.txt
+        pip -r requirements.txt
         (o ir instalando cada linea de ese archivo con pip o easy_install)
 
 Probarlo que ande todo bien!!

@@ -58,7 +58,7 @@ def scrap_program(html):
     if duration_node is None:
         duration = None
     else:
-        duration = int(re.search("(\d+)", duration_node.text).groups()[0])
+        duration = int(re.search(r"(\d+)", duration_node.text).groups()[0])
 
     return title, epis_id, duration, epis_url, description
 
