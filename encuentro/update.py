@@ -136,8 +136,9 @@ class UpdateEpisodes:
         if dialog and dialog.closed:
             return
         tell_user("Conciliando datos de diferentes backends")
-        logger.debug("Merging backends data")
-        new_data = self._merge(backends)
+        new_data = []
+        for data in backends.values():
+            new_data.extend(data)
 
         tell_user("Actualizando los datos internos (%d)....", len(new_data))
         logger.debug("Updating internal metadata (%d)", len(new_data))

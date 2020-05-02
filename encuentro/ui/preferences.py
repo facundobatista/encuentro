@@ -22,6 +22,7 @@ import logging
 
 from PyQt5.QtWidgets import (
     QCheckBox,
+    QComboBox,
     QCompleter,
     QDialog,
     QDialogButtonBox,
@@ -35,7 +36,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from PyQt5.QtCore import Qt, QDir
+from PyQt5.QtCore import Qt, QDir, QRect
 
 from encuentro.config import config
 
@@ -102,6 +103,35 @@ class GeneralPreferences(QWidget):
         prv = config.get('clean-filenames', False)
         self.cleanfnames_checkbox.setChecked(prv)
         grid.addWidget(self.cleanfnames_checkbox, 5, 0, 6, 2)
+
+        lq = QLabel(
+            "<b>Ingrese la Calidad de Video Preferida para las Descargas:</b>"
+        )
+        lq.setTextFormat(Qt.RichText)
+        grid.addWidget(lq, 8, 0, 7, 2)
+
+        lqd = QLabel("* En caso de no existir se eligira la mas conveninete.")
+        lqd.setTextFormat(Qt.RichText)
+        grid.addWidget(lqd, 9, 0, 8, 2)
+
+        self.select_quality = QComboBox()
+        self.select_quality.setGeometry(QRect())
+        self.select_quality.setObjectName("Calidad de Video Preferida")
+        self.select_quality.addItem("1080p")  # HD
+        self.select_quality.addItem("720p")   # ALTA
+        self.select_quality.addItem("480p")   # MEDIA
+        self.select_quality.addItem("360p")   # BAJA
+        self.select_quality.addItem("240p")   # MALA
+        self.select_quality.activated[str].connect(self.selected)
+
+        prv = config.get('quality', '480p')
+
+        self.select_quality.setCurrentText(prv)
+        grid.addWidget(self.select_quality, 10, 0, 9, 2)
+
+    def selected(self, text):
+        self.selected_text = text
+        # print(self.selected_text)
 
     def _choose_dir(self):
         """Choose a directory using a dialog."""
