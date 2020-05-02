@@ -1,7 +1,10 @@
 # list of files to download, with data for different backends each line has 
 # the backend name, the downloader to use, and the metadata file name
-encuentro generic   encuentro-v06.bz2
-conectar  conectar  conectar-v06.bz2
-bacua     generic   bacua-v05.bz2
-dqsv      dqsv      dqsv-v05.bz2
-ted1      youtube   ted1-v05.bz2
+encuentro m3u8  Contar-Encuentro-v06.bz2
+tvpublica m3u8 Contar-TVPublica-v06.bz2
+fuegos m3u8  Contar-Fuegos-v06.bz2
+cortos m3u8  Contar-Cortos-v06.bz2
+pakapaka m3u8  Contar-PakaPaka-v06.bz2
+deportv m3u8  Contar-DeporTv-v06.bz2
+documentales m3u8  Contar-Documentales-v06.bz2
+ficciones m3u8  Contar-FiccionesTv-v06.bz2
