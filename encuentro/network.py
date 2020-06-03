@@ -474,13 +474,14 @@ class GenericAudioDownloader(_GenericDownloader):
 class ThreadedYT(Thread):
     """Use youtube downloader in a different thread."""
 
-    def __init__(self, url, fname, output_queue, must_quit, log):
+    def __init__(self, url, fname, output_queue, must_quit, log, video_format=None):
         self.url = url
         self.fname = fname
         self.output_queue = output_queue
         self.must_quit = must_quit
         self._prev_progress = None
         self.log = log
+        self.video_format = video_format
         super(ThreadedYT, self).__init__()
 
     def _really_download(self):
@@ -508,6 +509,8 @@ class ThreadedYT(Thread):
             'quiet': True,
             'logger': logger,
         }
+        if self.video_format:
+            conf['format'] = self.video_format
 
         with youtube_dl.YoutubeDL(conf) as ydl:
             self.log("Threaded YT, about to download")
@@ -588,6 +591,84 @@ class YoutubeDownloader(BaseDownloader):
         self.deferred.callback(fname)
 
 
+class M3u8YTDownloader(YoutubeDownloader):
+    """
+    Download episode with youtube-dl in m3u8 format.
+    """
+
+    def __init__(self):
+        super(M3u8YTDownloader, self).__init__()
+        self.quality = config.get('quality', '480p')
+
+    def _parse_formats(self, formats):
+        """Get available formats for audio and video."""
+        for f in formats:
+            if f['format_id'].startswith('audio-'):
+                audio_format = f['format_id']
+            if f['vcodec'] != 'none' and self.quality.startswith(str(f['height'])):
+                video_format = f['format_id']
+        return video_format, audio_format
+
+    @defer.inline_callbacks
+    def _download(self, canal, seccion, season, titulo, url, cb_progress):
+        """Download an episode to disk."""
+        self.burl = url.split('stream.m3u8')[0]
+
+        options = {
+            'quiet': True
+        }
+        with youtube_dl.YoutubeDL(options) as ydl:
+            info = ydl.extract_info(url, download=False)
+            formats = info.get('formats', [info])
+
+        video_format, audio_format = self._parse_formats(formats)
+
+        # start the threaded downloaded
+        qinput = DeferredQueue()
+
+        # build where to save it
+        fname, tempf = self._setup_target(canal, seccion, season, titulo, ".mp4")
+        self.log("Downloading to temporal file %r", tempf)
+
+        self.log("Download episode %r: browser started", url)
+        thyt = ThreadedYT(
+            url, tempf, qinput, self.thyts_quit,
+            self.log, video_format+'+'+audio_format
+        )
+        thyt.start()
+
+        # loop reading until finished
+        while True:
+            # get all data and just use the last item
+            payload = yield qinput.deferred_get()
+            if self.cancelled:
+                self.log("Cancelled!")
+                self.thyts_quit.set()
+                raise CancelledError()
+
+            # special situations
+            if payload is None:
+                # no data, let's try again
+                continue
+
+            data = payload[-1]
+            if isinstance(data, Exception):
+                raise data
+            if data == DONE_TOKEN:
+                break
+
+            # normal
+            cb_progress(data)
+
+        # rename to proper name and finish
+        self.log("Downloading done, renaming %s to %r", tempf, fname)
+        try:
+            os.rename(tempf+'.mp4', fname)
+        except FileNotFoundError:
+            os.rename(tempf, fname)
+        self.deferred.callback(fname)
+
+
 class ChunksDownloader(BaseDownloader):
     """Download several chunks and merge them in one file."""
 
@@ -649,6 +730,7 @@ all_downloaders = {
     'dqsv': GenericAudioDownloader,
     'youtube': YoutubeDownloader,
     'chunks': ChunksDownloader,
+    'm3u8': M3u8YTDownloader,
 }
 
 
