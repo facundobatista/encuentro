@@ -33,7 +33,7 @@ from encuentro.ui import dialogs
 
 # main entry point to download all backends data
 BACKENDS_BASE_URL = "http://www.taniquetil.com.ar/encuentro/"
-BACKENDS_LIST = "backends-v07.list"
+BACKENDS_LIST = "backends-v08.list"
 
 logger = logging.getLogger('encuentro.update')
 
@@ -136,8 +136,9 @@ class UpdateEpisodes:
         if dialog and dialog.closed:
             return
         tell_user("Conciliando datos de diferentes backends")
-        logger.debug("Merging backends data")
-        new_data = self._merge(backends)
+        new_data = []
+        for data in backends.values():
+            new_data.extend(data)
 
         tell_user("Actualizando los datos internos (%d)....", len(new_data))
         logger.debug("Updating internal metadata (%d)", len(new_data))
@@ -151,69 +152,3 @@ class UpdateEpisodes:
 
         if dialog:
             dialog.accept()
-
-    def _merge(self, backends):
-        """Merge content from all backends.
-
-        This is for v03-05, with only 'encuentro' and 'conectar' data to be
-        really merged, other data just appended.
-        """
-        raw_encuentro_data = backends.pop('encuentro')
-        raw_conectar_data = backends.pop('conectar')
-        enc_data = dict((x['episode_id'], x) for x in raw_encuentro_data)
-        con_data = dict((x['episode_id'], x) for x in raw_conectar_data)
-        common = set(enc_data) & set(con_data)
-        logger.debug("Merging: encuentro=%d conectar=%d (common=%d)",
-                     len(enc_data), len(con_data), len(common))
-
-        # what is in not common in both goes untouched
-        final_data = ([enc_data[epid] for epid in set(enc_data) - common] +
-                      [con_data[epid] for epid in set(con_data) - common])
-
-        # what is common, we need to do the merge
-        for epid in common:
-            enc_ep = enc_data[epid]
-            con_ep = con_data[epid]
-
-            enc_desc = enc_ep['description']
-            con_desc = con_ep['description']
-            if enc_desc == con_desc:
-                description = enc_desc
-            elif enc_desc is None:
-                description = con_desc
-            elif con_desc is None:
-                description = enc_desc
-            else:
-                # not None, or they would have been the same, let's concat
-                # both, shorter first
-                if len(con_desc) < len(enc_desc):
-                    description = con_desc + ' ' + enc_desc
-                else:
-                    description = enc_desc + ' ' + con_desc
-
-            # if both are equal (None or not), it also works
-            if enc_ep['duration'] is None:
-                duration = con_ep['duration']
-            else:
-                duration = enc_ep['duration']
-            if enc_ep['image_url'] is None:
-                image_url = con_ep['image_url']
-            else:
-                image_url = enc_ep['image_url']
-            if enc_ep['season'] is None:
-                season = con_ep['season']
-            else:
-                season = enc_ep['season']
-
-            d = dict(episode_id=epid, description=description,
-                     duration=duration, url=con_ep['url'],
-                     channel=con_ep['channel'], title=con_ep['title'],
-                     section=con_ep['section'], image_url=image_url,
-                     downtype=con_ep['downtype'], season=season)
-            final_data.append(d)
-
-        logger.debug("Merging: appending other data: %s", backends.keys())
-        for data in backends.values():
-            final_data.extend(data)
-        logger.debug("Merged, final: %d", len(final_data))
-        return final_data
