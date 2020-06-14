@@ -433,12 +433,7 @@ class EpisodesWidgetView(remembering.RememberingTableView):
         if episode.state == Status.downloaded:
             self.main_window.play_episode(episode)
         elif episode.state == Status.none:
-            if self.main_window.have_config():
-                self.main_window.queue_download(episode)
-            else:
-                logger.debug("Not starting download because no config.")
-                t = "No se puede arrancar una descarga porque la configuración está incompleta."
-                self.main_window.show_message('Falta configuración', t)
+            self.main_window.queue_download(episode)
 
     def _adjust_gui(self, episode_id):
         """Adjust the rest of the GUI for this episode."""
@@ -479,10 +474,7 @@ class EpisodesWidgetView(remembering.RememberingTableView):
         elif state == Status.none:
             act_play.setEnabled(False)
             act_cancel.setEnabled(False)
-            if self.main_window.have_config():
-                act_download.setEnabled(True)
-            else:
-                act_download.setEnabled(False)
+            act_download.setEnabled(True)
         menu.exec_(self.viewport().mapToGlobal(point))
 
     def set_filter(self, text, only_downloaded=False):
@@ -591,22 +583,18 @@ class EpisodeInfo(QWidget):
         if episode.state == data.Status.downloaded:
             label = "Reproducir"
             func = self.main_window.play_episode
-            enable = True
             remove = False
         elif episode.state == data.Status.downloading:
             label = "Cancelar descarga"
             func = self.main_window.cancel_download
-            enable = True
             remove = False
         elif episode.state == data.Status.waiting:
             label = "Sacar de la cola"
             func = self.main_window.unqueue_download
-            enable = True
             remove = True
         else:
             label = "Descargar"
             func = self.main_window.download_episode
-            enable = bool(self.main_window.have_config())
             remove = False
 
         def _exec(func, episode, remove):
@@ -616,7 +604,7 @@ class EpisodeInfo(QWidget):
                 self.update(episode)
 
         # set button text, disconnect if should, and connect new func
-        self.button.setEnabled(enable)
+        self.button.setEnabled(True)
         self.button.setText(label)
         if self.button.connected:
             self.button.clicked.disconnect()
