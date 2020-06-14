@@ -29,29 +29,11 @@ from queue import Queue, Empty
 import bs4
 import defer
 import requests
+import youtube_dl
 from PyQt5 import QtNetwork, QtCore
 
 from encuentro import multiplatform, utils
 from encuentro.config import config
-
-# special import sequence to get a useful version of youtube-dl
-try:
-    import youtube_dl
-except ImportError:
-    youtube_dl = None
-else:
-    _version = getattr(youtube_dl, '__version__', getattr(youtube_dl.version, '__version__', None))
-    if _version < '2015.12.21':
-        # older than builtin version
-        for k in [x for x in sys.modules if x.startswith('youtube_dl')]:
-            del sys.modules[k]
-        youtube_dl = None
-if youtube_dl is None:
-    # inexistant or too old, let's use the builtin version
-    root_path = os.path.dirname(os.path.dirname(__file__))
-    builtin_path = os.path.join(os.path.abspath(root_path), "external", "youtube-dl")
-    sys.path.insert(0, builtin_path)
-    import youtube_dl
 
 
 AUTH_URL = "http://registro.educ.ar/cuentas/ServicioLogin/index"
@@ -633,7 +615,7 @@ class M3u8YTDownloader(YoutubeDownloader):
         self.log("Download episode %r: browser started", url)
         thyt = ThreadedYT(
             url, tempf, qinput, self.thyts_quit,
-            self.log, video_format+'+'+audio_format
+            self.log, video_format + ' + ' + audio_format
         )
         thyt.start()
 
@@ -663,7 +645,7 @@ class M3u8YTDownloader(YoutubeDownloader):
         # rename to proper name and finish
         self.log("Downloading done, renaming %s to %r", tempf, fname)
         try:
-            os.rename(tempf+'.mp4', fname)
+            os.rename(tempf + '.mp4', fname)
         except FileNotFoundError:
             os.rename(tempf, fname)
         self.deferred.callback(fname)
