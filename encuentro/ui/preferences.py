@@ -42,10 +42,6 @@ from encuentro.config import config
 
 logger = logging.getLogger('encuentro.preferences')
 
-URL_CONECTATE = (
-    "http://registro.educ.ar/cuentas/registro/index?servicio=conectate"
-)
-
 
 class GeneralPreferences(QWidget):
     """The general preferences input."""
@@ -150,57 +146,6 @@ class GeneralPreferences(QWidget):
         return d
 
 
-class ConectatePreferences(QWidget):
-    """The preferences for Conectate backend."""
-    def __init__(self):
-        super(ConectatePreferences, self).__init__()
-        grid = QGridLayout(self)
-        grid.setSpacing(20)
-        grid.setColumnStretch(1, 10)
-
-        label = QLabel("<b>Ingresá tus datos del portal Conectate:</b>")
-        label.setTextFormat(Qt.RichText)
-        grid.addWidget(label, 0, 0, 1, 2)
-
-        grid.addWidget(QLabel("Usuario:"), 1, 0, 2, 1)
-        prv = config.get('user', '')
-        self.user_entry = QLineEdit(prv)
-        self.user_entry.setPlaceholderText('Ingresá tu usuario de Conectate')
-        grid.addWidget(self.user_entry, 1, 1, 2, 2)
-
-        grid.addWidget(QLabel("Contraseña:"), 2, 0, 3, 1)
-        prv = config.get('password', '')
-        self.password_entry = QLineEdit(prv)
-        self.password_entry.setEchoMode(QLineEdit.Password)
-        self.password_entry.setPlaceholderText('Ingresá tu contraseña de Conectate')
-        grid.addWidget(self.password_entry, 2, 1, 3, 2)
-
-        self.password_mask = QCheckBox('Mostrar contraseña')
-        self.password_mask.stateChanged.connect(self._toggle_password_mask)
-        grid.addWidget(self.password_mask, 3, 1, 4, 2)
-
-        label = QLabel(
-            'Si no tenés estos datos, <a href="{}">registrate aquí</a>'.format(URL_CONECTATE))
-        label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        label.setTextFormat(Qt.RichText)
-        label.setOpenExternalLinks(True)
-        grid.addWidget(label, 4, 0, 5, 3)
-
-    def _toggle_password_mask(self):
-        """Toggle the password hiding."""
-        if self.password_mask.isChecked() is True:
-            self.password_entry.setEchoMode(QLineEdit.Normal)
-        else:
-            self.password_entry.setEchoMode(QLineEdit.Password)
-
-    def get_config(self):
-        """Return the config for this tab."""
-        d = {}
-        d['user'] = self.user_entry.text()
-        d['password'] = self.password_entry.text()
-        return d
-
-
 class PreferencesDialog(QDialog):
     """The dialog for preferences."""
     def __init__(self):
@@ -210,8 +155,6 @@ class PreferencesDialog(QDialog):
         tabbed = QTabWidget()
         self.gp = GeneralPreferences()
         tabbed.addTab(self.gp, "General")
-        self.cp = ConectatePreferences()
-        tabbed.addTab(self.cp, "Conectate")
         vbox.addWidget(tabbed)
 
         bbox = QDialogButtonBox(QDialogButtonBox.Ok)
@@ -228,7 +171,6 @@ class PreferencesDialog(QDialog):
         """Just save."""
         # get it from tabs
         config.update(self.gp.get_config())
-        config.update(self.cp.get_config())
         config.save()
 
 

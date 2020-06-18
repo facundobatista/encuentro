@@ -42,20 +42,13 @@ puede actualizar la lista ahora desde esta misma ventana
 y en cualquier momento desde el menú del programa.
 """
 
-TEXT_CONFIG = """
-Para poder descargar los programas de los distintos backends tiene que
-configurar algunos con usuario y clave; puede configurar el sistema
-ahora desde esta misma ventana o en cualquier momento desde el menú
-del programa.
-"""
-
 TEXT_HAPPY_END = """
 Felicitaciones, el programa está listo para usar :)
 """
 
 TEXT_SAD_END = """
 ¡Ya podes usar el programa!
-(aunque te falta actualizar y/o configurar algo)
+(aunque falta actualizar la lista de episodios)
 """
 
 # The steps for the wizard
@@ -66,7 +59,6 @@ TEXT_SAD_END = """
 STEPS = [
     (TEXT_INIT, None, None, None),
     (TEXT_EPISODES, "episode", "Actualizar", "update"),
-    (TEXT_CONFIG, "config", "Configurar", "configure"),
     (None, None, None, None),
 ]
 
@@ -144,7 +136,7 @@ class WizardDialog(QDialog):
 
         # adjust main text and action button
         if self.step == len(STEPS) - 1:
-            if self.mw.have_metadata() and self.mw.have_config():
+            if self.mw.have_metadata():
                 self.main_text.setText(TEXT_HAPPY_END)
             else:
                 self.main_text.setText(TEXT_SAD_END)
@@ -160,10 +152,6 @@ class WizardDialog(QDialog):
             self.navbut_actn.clicked.disconnect()
             self.navbut_actn.clicked.connect(method_to_call)
 
-    def _act_configure(self, _):
-        """Open the config dialog."""
-        self.mw.open_preferences()
-
     def _act_update(self, *a):
         """Open the update dialog."""
         self.mw.refresh_episodes()
@@ -172,10 +160,6 @@ class WizardDialog(QDialog):
         """Tell if the episode step should be ignored."""
         return self.mw.have_metadata()
 
-    def _ign_config(self):
-        """Tell if the configure step should be ignored."""
-        return self.mw.have_config()
-
 
 if __name__ == '__main__':
     import sys
@@ -183,7 +167,6 @@ if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
     app = QApplication(sys.argv)
     app.have_metadata = lambda: False
-    app.have_config = lambda: False
 
     frame = WizardDialog(app)
     frame.show()

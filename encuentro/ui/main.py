@@ -40,12 +40,7 @@ from PyQt5.QtGui import (
 from encuentro import multiplatform, data, update
 from encuentro.config import config, signal
 from encuentro.data import Status
-from encuentro.network import (
-    BadCredentialsError,
-    CancelledError,
-    EncuentroError,
-    all_downloaders,
-)
+from encuentro.network import CancelledError, all_downloaders
 from encuentro.notify import notify
 from encuentro.ui import (
     central_panel,
@@ -73,7 +68,7 @@ contenido del canal Encuentro y otros.<br/>
 <br/>
 Versión %s<br/>
 <br/>
-<small>Copyright 2010-2013 Facundo Batista</small><br/>
+<small>Copyright 2010-2020 Facundo Batista</small><br/>
 <br/>
 <a href="http://encuentro.taniquetil.com.ar">
     http://encuentro.taniquetil.com.ar
@@ -133,8 +128,7 @@ class MainUI(remembering.RememberingMainWindow):
     def _touch_config(self):
         """Do some config processing."""
         # log the config, but without user and pass
-        safecfg = config.sanitized_config()
-        logger.debug("Configuration loaded: %s", safecfg)
+        logger.debug("Configuration loaded: %s", config)
 
         # we have a default for download dir
         if not config.get('downloaddir'):
@@ -147,10 +141,6 @@ class MainUI(remembering.RememberingMainWindow):
             config.pop('cols_width', None)
             config.pop('cols_order', None)
             config.pop('selected_row', None)
-
-    def have_config(self):
-        """Return if some config is needed."""
-        return config.get('user') and config.get('password')
 
     def have_metadata(self):
         """Return if metadata is needed."""
@@ -243,7 +233,7 @@ class MainUI(remembering.RememberingMainWindow):
 
     def _start_wizard(self, _=None):
         """Start the wizard if needed."""
-        if not self.have_config() or not self.have_metadata():
+        if not self.have_metadata():
             dlg = wizard.WizardDialog(self)
             dlg.exec_()
         self._review_need_something_indicator()
@@ -260,7 +250,7 @@ class MainUI(remembering.RememberingMainWindow):
 
     def _review_need_something_indicator(self):
         """Hide/show/enable/disable different indicators if need sth."""
-        needsomething = bool(not self.have_config() or not self.have_metadata())
+        needsomething = not self.have_metadata()
         self.needsomething_alert.setVisible(needsomething)
 
     def shutdown(self):
@@ -381,18 +371,6 @@ class MainUI(remembering.RememberingMainWindow):
             except CancelledError:
                 logger.debug("Got a CancelledError!")
                 self.episodes_download.end(error="Cancelado")
-            except BadCredentialsError:
-                logger.debug("Bad credentials error!")
-                msg = "Error con las credenciales: hay que configurar usuario y clave correctos"
-                self.show_message('BadCredentialsError', msg)
-                self.episodes_download.end(error=msg)
-            except EncuentroError as e:
-                orig_exc = e.orig_exc
-                msg = "%s(%s)" % (orig_exc, e)
-                err_type = e.__class__.__name__
-                logger.exception("Custom Encuentro error: %s (%r)", e, orig_exc)
-                notify(err_type, msg)
-                self.episodes_download.end(error="Error: " + msg)
             except Exception as e:
                 err_type = e.__class__.__name__
                 notify(err_type, str(e))
@@ -437,8 +415,7 @@ class MainUI(remembering.RememberingMainWindow):
         dlg.exec_()
         # after dialog closes, config changed, so review indicators
         self._review_need_something_indicator()
-        safecfg = config.sanitized_config()
-        logger.debug("Configuration changed: %s", safecfg)
+        logger.debug("Configuration changed: %s", config)
 
     def check_download_play_buttons(self):
         """Set both buttons state according to the selected episodes."""
@@ -456,14 +433,13 @@ class MainUI(remembering.RememberingMainWindow):
         self.action_play.setToolTip(ttip)
 
         # 'download' button should be enabled if at least one of the selected
-        # rows is in 'none' state, and if config is ok
+        # rows is in 'none' state
         download_enabled = False
-        if self.have_config():
-            for episode_id in episode_ids:
-                episode = self.programs_data[episode_id]
-                if episode.state == Status.none:
-                    download_enabled = True
-                    break
+        for episode_id in episode_ids:
+            episode = self.programs_data[episode_id]
+            if episode.state == Status.none:
+                download_enabled = True
+                break
         ttip = TTIP_DOWNLOAD_E if download_enabled else TTIP_DOWNLOAD_D
         self.action_download.setEnabled(download_enabled)
         self.action_download.setToolTip(ttip)
