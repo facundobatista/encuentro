@@ -23,6 +23,7 @@ Options:
   --shy                  Do not show log messages.
 """
 
+import re
 import os
 import sys
 
@@ -76,6 +77,10 @@ class ContAR:
         self.session = requests.Session()
         self.logger = logging.getLogger("Contar")
         self.special_episodes = ["ver trailer", "tráiler", "especiales", "micros", "conferencias"]
+        self.re_normal_episodes = self._re_normal_episodes_compile()
+
+    def _re_normal_episodes_compile(self):
+        return re.compile("^\d+$")
 
     def _check_base_dir(self):
         """Create directory for cont.ar files."""
@@ -140,25 +145,35 @@ class ContAR:
                     # Retrieve serie - season - episode data
                     for ep in season['videos']['data']:
 
-                        if season['name'].lower() not in self.special_episodes:
+                        if self.re_normal_episodes.match(season['name']):
                             # Set season - episode name if regular episode: <serie> - SXXEXX
                             s = f"{serie_data['name']} - S{season['name'].zfill(2)}E{str(ep['episode']).zfill(2)}"
                         else:
                             s = season['name']
-
+                            print(season['name'])
                         # Try to get published date, some doesn't have
                         try:
                             date = ep['streams'][0]['created_at'].split('T')[0]
                         except Exception:
                             date = ''
 
+                        if type(serie_data['genres']) is str:
+                            section = serie_data['genres']
+                        elif len(serie_data['genres'][0]):
+                            section = serie_data['genres'][0]
+                        else:
+                            section = ''
+
+                        print(serie_data['genres'])
+                        print(section)
+                        print()
                         info = dict(
                             channel=channel["name"],
                             title=ep['name'],
                             url=ep['streams'][0]['url'].replace('https://', 'http://'),
                             serie_online_url=f"{self.url_serie}{serie['uuid']}",
                             online_url=f"{self.url_watch}{ep['id']}",
-                            section=', '.join([str(g) for g in serie_data['genres']]),
+                            section=section,
                             description=ep['synopsis'],
                             duration=ep['hms'],
                             episode_id=ep['id'],
