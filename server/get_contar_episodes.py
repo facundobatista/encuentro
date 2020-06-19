@@ -152,23 +152,18 @@ class ContAR:
                             s = f"{serie_data['name']} - S{season['name'].zfill(2)}E{str(ep['episode']).zfill(2)}"
                         else:
                             s = season['name']
-                            print(season['name'])
                         # Try to get published date, some doesn't have
                         try:
                             date = ep['streams'][0]['created_at'].split('T')[0]
                         except Exception:
                             date = ''
 
+                        section = ''
                         if type(serie_data['genres']) is str:
                             section = serie_data['genres']
-                        elif len(serie_data['genres'][0]):
+                        elif len(serie_data['genres']) > 0:
                             section = serie_data['genres'][0]
-                        else:
-                            section = ''
 
-                        print(serie_data['genres'])
-                        print(section)
-                        print()
                         info = dict(
                             channel=channel["name"],
                             title=ep['name'],
