@@ -61,13 +61,15 @@ class ContAR:
             {'name': 'PakaPaka', 'id': '242'},
             {'name': 'DeporTv', 'id': '243'},
             {'name': 'FiccionesTv', 'id': '240'},
-            {'name': 'Documentales', 'id': '260'},
             {'name': 'Cortos', 'id': '263'},
+            {'name': 'SeguimosEducando', 'id': '290'},
+            {'name': 'CCK', 'id': '244'},
+            {'name': 'Bacua', 'id': '260'},
             # Not included for now. Needs Adaptation
-            # {'name':'Tecnopolis', 'id':'249'}, Channel existed before
-            # {'name':'CCK', 'id':'cck'}, CCK Refers to another Web, needs HTML parser
             # {'name':'Nacional', 'id':'251'}, Audio Podcasts
-            # {'name':'Seguimos Educando', 'id':'287'}, Audio Podcasts
+            # {'name':'Seguimos Educando Radio', 'id':'287'}, Audio Podcasts
+            # {'name':'Tecnopolis', 'id':'249'}, Removed
+            # {'name': 'Documentales', 'id': '260'}, # Removed
         ]
 
         self.base_directory = 'contar'
