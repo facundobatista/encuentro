@@ -23,6 +23,7 @@ Options:
   --shy                  Do not show log messages.
 """
 
+import re
 import os
 import sys
 
@@ -60,13 +61,15 @@ class ContAR:
             {'name': 'PakaPaka', 'id': '242'},
             {'name': 'DeporTv', 'id': '243'},
             {'name': 'FiccionesTv', 'id': '240'},
-            {'name': 'Documentales', 'id': '260'},
             {'name': 'Cortos', 'id': '263'},
+            {'name': 'SeguimosEducando', 'id': '290'},
+            {'name': 'CCK', 'id': '244'},
+            {'name': 'Bacua', 'id': '260'},
             # Not included for now. Needs Adaptation
-            # {'name':'Tecnopolis', 'id':'249'}, Channel existed before
-            # {'name':'CCK', 'id':'cck'}, CCK Refers to another Web, needs HTML parser
             # {'name':'Nacional', 'id':'251'}, Audio Podcasts
-            # {'name':'Seguimos Educando', 'id':'287'}, Audio Podcasts
+            # {'name':'Seguimos Educando Radio', 'id':'287'}, Audio Podcasts
+            # {'name':'Tecnopolis', 'id':'249'}, Removed
+            # {'name': 'Documentales', 'id': '260'}, # Removed
         ]
 
         self.base_directory = 'contar'
@@ -76,6 +79,10 @@ class ContAR:
         self.session = requests.Session()
         self.logger = logging.getLogger("Contar")
         self.special_episodes = ["ver trailer", "tráiler", "especiales", "micros", "conferencias"]
+        self.re_normal_episodes = self._re_normal_episodes_compile()
+
+    def _re_normal_episodes_compile(self):
+        return re.compile("^\d+$")
 
     def _check_base_dir(self):
         """Create directory for cont.ar files."""
@@ -140,17 +147,22 @@ class ContAR:
                     # Retrieve serie - season - episode data
                     for ep in season['videos']['data']:
 
-                        if season['name'].lower() not in self.special_episodes:
+                        if self.re_normal_episodes.match(season['name']):
                             # Set season - episode name if regular episode: <serie> - SXXEXX
                             s = f"{serie_data['name']} - S{season['name'].zfill(2)}E{str(ep['episode']).zfill(2)}"
                         else:
                             s = season['name']
-
                         # Try to get published date, some doesn't have
                         try:
                             date = ep['streams'][0]['created_at'].split('T')[0]
                         except Exception:
                             date = ''
+
+                        section = ''
+                        if type(serie_data['genres']) is str:
+                            section = serie_data['genres']
+                        elif len(serie_data['genres']) > 0:
+                            section = serie_data['genres'][0]
 
                         info = dict(
                             channel=channel["name"],
@@ -158,7 +170,7 @@ class ContAR:
                             url=ep['streams'][0]['url'].replace('https://', 'http://'),
                             serie_online_url=f"{self.url_serie}{serie['uuid']}",
                             online_url=f"{self.url_watch}{ep['id']}",
-                            section=', '.join([str(g) for g in serie_data['genres']]),
+                            section=section,
                             description=ep['synopsis'],
                             duration=ep['hms'],
                             episode_id=ep['id'],
