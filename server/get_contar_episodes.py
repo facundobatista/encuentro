@@ -1,4 +1,5 @@
 # Copyright 2019-2020 Santiago Torres Batan
+
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -29,15 +30,14 @@ import sys
 
 import time
 import json
+import logging
 import requests
 
 # we execute this script from inside the directory; pylint: disable=W0403
 import helpers
-import logging
 import srv_logger
 
 from config import config
-
 
 class ContAR:
     """
@@ -45,7 +45,7 @@ class ContAR:
     and retrieve channells data.
     """
 
-    def __init__(self, credentials):
+    def __init__(self, credentials, base_directory = 'contar'):
         self.url_watch = "https://www.cont.ar/watch/"
         self.url_serie = "https://www.cont.ar/serie/"
         self.url_channel = "https://www.cont.ar/channel/"
@@ -72,7 +72,7 @@ class ContAR:
             # {'name': 'Documentales', 'id': '260'}, # Removed
         ]
 
-        self.base_directory = 'contar'
+        self.base_directory = base_directory
         self._check_base_dir()
 
         self.credentials = credentials
@@ -147,37 +147,7 @@ class ContAR:
                     # Retrieve serie - season - episode data
                     for ep in season['videos']['data']:
 
-                        if self.re_normal_episodes.match(season['name']):
-                            # Set season - episode name if regular episode: <serie> - SXXEXX
-                            s = f"{serie_data['name']} - S{season['name'].zfill(2)}E{str(ep['episode']).zfill(2)}"
-                        else:
-                            s = season['name']
-                        # Try to get published date, some doesn't have
-                        try:
-                            date = ep['streams'][0]['created_at'].split('T')[0]
-                        except Exception:
-                            date = ''
-
-                        section = ''
-                        if type(serie_data['genres']) is str:
-                            section = serie_data['genres']
-                        elif len(serie_data['genres']) > 0:
-                            section = serie_data['genres'][0]
-
-                        info = dict(
-                            channel=channel["name"],
-                            title=ep['name'],
-                            url=ep['streams'][0]['url'].replace('https://', 'http://'),
-                            serie_online_url=f"{self.url_serie}{serie['uuid']}",
-                            online_url=f"{self.url_watch}{ep['id']}",
-                            section=section,
-                            description=ep['synopsis'],
-                            duration=ep['hms'],
-                            episode_id=ep['id'],
-                            date=date,
-                            image_url=ep['posterImage'],
-                            season=s
-                        )
+                        info = self.get_episode_data(channel, serie, serie_data, season, ep)
                         all_data.append(info)
                         self.logger.info(" Episode: %s", info)
 
@@ -227,6 +197,42 @@ class ContAR:
                 json.dump(data, f)
 
         return data
+
+    def get_episode_data(self, channel, serie, serie_data, season, ep):
+        """Parse and filter data from json to Episode Dict."""
+
+        if self.re_normal_episodes.match(season['name']):
+            # Set season - episode name if regular episode: <serie> - SXXEXX
+            s = f"{serie_data['name']} - S{season['name'].zfill(2)}E{str(ep['episode']).zfill(2)}"
+        else:
+            s = season['name']
+
+        # Try to get published date, some doesn't have
+        try:
+            date = ep['streams'][0]['created_at'].split('T')[0]
+        except Exception:
+            date = ''
+
+        section = ''
+        if type(serie_data['genres']) is str:
+            section = serie_data['genres'].split(',')[0]
+        elif len(serie_data['genres']) > 0:
+            section = serie_data['genres'][0]
+
+        return dict(
+            channel=channel["name"],
+            title=ep['name'],
+            url=ep['streams'][0]['url'].replace('https://', 'http://'),
+            serie_online_url=f"{self.url_serie}{serie['uuid']}",
+            online_url=f"{self.url_watch}{ep['id']}",
+            section=section,
+            description=ep['synopsis'],
+            duration=ep['hms'],
+            episode_id=ep['id'],
+            date=date,
+            image_url=ep['posterImage'],
+            season=s
+        )
 
 
 def main(credentials, channels_to_retrieve):
