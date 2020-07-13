@@ -1,3 +1,4 @@
 # list of files to download, with data for different backends each line has 
 # the backend name, the downloader to use, and the metadata file name
-contar  m3u8   contar-v01.bz2
+contar  m3u8  contar-v01.bz2
+ted  youtube  ted1-v06.bz2
