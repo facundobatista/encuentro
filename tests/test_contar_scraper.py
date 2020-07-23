@@ -14,7 +14,7 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-"""Tests for the scrapers for ted1 backend."""
+"""Tests for the scrapers for contar backend."""
 
 import os
 import sys

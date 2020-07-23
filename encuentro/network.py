@@ -280,7 +280,12 @@ class YoutubeDownloader(BaseDownloader):
 
         # rename to proper name and finish
         self.log("Downloading done, renaming temp to %r", fname)
-        os.rename(tempf, fname)
+        try:
+            os.rename(tempf + '.mkv', fname)
+        except FileNotFoundError:
+            os.rename(tempf + '.mp4', fname)
+        except FileNotFoundError:
+            os.rename(tempf, fname)
         self.deferred.callback(fname)
 
 
