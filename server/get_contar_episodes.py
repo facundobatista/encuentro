@@ -137,19 +137,17 @@ class ContAR:
             try:
                 # Retrieve serie data
                 serie_data = self.get_episodes(serie['uuid'], channel)
-
                 # Retrieve serie - season data
                 for season in serie_data['seasons']['data']:
-
                     # Retrieve serie - season - episode data
                     for ep in season['videos']['data']:
-
                         info = self.get_episode_data(channel, serie, serie_data, season, ep)
                         all_data.append(info)
                         self.logger.info(" Episode: %s", info)
 
                     # get some rest now
                     time.sleep(1)
+
             except Exception as e:
                 print(e)
 
@@ -199,9 +197,13 @@ class ContAR:
         """Parse and filter data from json to Episode Dict."""
 
         if self.re_normal_episodes.match(season['name']):
-            # Set season - episode name if regular episode: <serie> - SXXEXX
-            s = f"{serie_data['name']} - S{season['name'].zfill(2)}E{str(ep['episode']).zfill(2)}"
+            # Set season - episode name if regular episode:
+            # Season: <serie>
+            # Episode: SXXEXX - <episode_name>
+            title = f"S{season['name'].zfill(2)}E{str(ep['episode']).zfill(2)} - {ep['name']}"
+            s = serie_data['name']
         else:
+            title = ep['name']
             s = season['name']
 
         # Try to get published date, some doesn't have
@@ -218,7 +220,7 @@ class ContAR:
 
         return dict(
             channel=channel["name"],
-            title=ep['name'],
+            title=title,
             url=ep['streams'][0]['url'].replace('https://', 'http://'),
             serie_online_url=f"{self.url_serie}{serie['uuid']}",
             online_url=f"{self.url_watch}{ep['id']}",

@@ -56,7 +56,7 @@ class BasicDataParsingTestCase(unittest.TestCase):
         info = self.contar.get_episode_data(channel, serie, serie_data, season, episode)
 
         self.assertEqual(info['channel'], 'TVPublica')
-        self.assertEqual(info['title'], 'Episodio 1')
+        self.assertEqual(info['title'], 'S01E01 - Episodio 1')
         self.assertEqual(
             info['url'],
             'http://arsat.cont.ar/vod-contar-001/10001/20181017/stream.m3u8'
@@ -84,7 +84,7 @@ class BasicDataParsingTestCase(unittest.TestCase):
             info['image_url'],
             'https://gob-artwork.obs.sa-argentina-1.myhuaweicloud.com/content/v/UBxRIpe3VAlHn6w6BmbWnp7JaSRE7l7mloNTmB2T.jpeg'
         )
-        self.assertEqual(info['season'], 'La educación del rey - S01E01')
+        self.assertEqual(info['season'], 'La educación del rey')
 
 
 class GenresRetrieverTestCase(unittest.TestCase):
@@ -182,9 +182,9 @@ class EpisodeNumberParsingTestCase(unittest.TestCase):
         episode = season['videos']['data'][0]
         info = self.contar.get_episode_data(channel, serie, serie_data, season, episode)
 
-        self.assertEqual(info['title'], 'Episodio 1')
         self.assertEqual(season['name'], '1')
-        self.assertEqual(info['season'], 'La educación del rey - S01E01')
+        self.assertEqual(info['season'], 'La educación del rey')
+        self.assertEqual(info['title'], 'S01E01 - Episodio 1')
 
     def test_episode_special_chapter(self):
         channel = {'id':'246', 'name':'TVPublica'}
