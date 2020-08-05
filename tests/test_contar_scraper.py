@@ -19,11 +19,11 @@
 import os
 import sys
 import unittest
-import json
 
 # Adds server directory for imports
-sys.path.insert(0,'server')
+sys.path.insert(0, 'server')
 from server.get_contar_episodes import ContAR
+
 
 class BasicDataParsingTestCase(unittest.TestCase):
     """Tests for the main scrapers."""
@@ -31,12 +31,12 @@ class BasicDataParsingTestCase(unittest.TestCase):
     def setUp(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
         self.contar = ContAR(
-            credentials={'email':'xx@gmail.com', 'password':'test'},
+            credentials={'email': 'xx@gmail.com', 'password': 'test'},
             base_directory=script_dir+'/contar'
         )
 
     def test_series_info(self):
-        channel = {'id':'246', 'name':'TVPublica'}
+        channel = {'id': '246', 'name': 'TVPublica'}
         uuid = 'ffa91a1d-1753-4b84-a3de-1900600ff905'
         episodes = self.contar.get_episodes(uuid, channel)
 
@@ -47,13 +47,15 @@ class BasicDataParsingTestCase(unittest.TestCase):
         self.assertEqual(episodes['name'], 'La educación del rey')
 
     def test_epidode_info(self):
-        channel = {'id':'246', 'name':'TVPublica'}
-        serie = {'uuid':'ffa91a1d-1753-4b84-a3de-1900600ff905'}
+        channel = {'id': '246', 'name': 'TVPublica'}
+        serie = {'uuid': 'ffa91a1d-1753-4b84-a3de-1900600ff905'}
         serie_data = self.contar.get_episodes(serie['uuid'], channel)
         season = serie_data['seasons']['data'][0]
         episode = season['videos']['data'][0]
 
-        info = self.contar.get_episode_data(channel, serie, serie_data, season, episode)
+        info = self.contar.get_episode_data(
+            channel, serie, serie_data, season, episode
+        )
 
         self.assertEqual(info['channel'], 'TVPublica')
         self.assertEqual(info['title'], 'S01E01 - Episodio 1')
@@ -93,72 +95,84 @@ class GenresRetrieverTestCase(unittest.TestCase):
     def setUp(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
         self.contar = ContAR(
-            credentials={'email':'', 'password':''},
+            credentials={'email': '', 'password': ''},
             base_directory=script_dir+'/contar'
         )
 
     def test_genre_if_multiple(self):
-        channel = {'id':'246', 'name':'TVPublica'}
-        serie = {'uuid':'ffa91a1d-1753-4b84-a3de-1900600ff905'}
+        channel = {'id': '246', 'name': 'TVPublica'}
+        serie = {'uuid': 'ffa91a1d-1753-4b84-a3de-1900600ff905'}
         serie_data = self.contar.get_episodes(serie['uuid'], channel)
         season = serie_data['seasons']['data'][0]
         episode = season['videos']['data'][0]
-        info = self.contar.get_episode_data(channel, serie, serie_data, season, episode)
+        info = self.contar.get_episode_data(
+            channel, serie, serie_data, season, episode
+        )
 
         self.assertEqual(serie_data['genres'], ["Suspenso", "Drama"])
         self.assertEqual(info['section'], 'Suspenso')
 
     def test_genre_if_string(self):
-        channel = {'id':'246', 'name':'TVPublica'}
-        serie = {'uuid':'ffa91a1d-1753-4b84-a3de-1900600ff906'}
+        channel = {'id': '246', 'name': 'TVPublica'}
+        serie = {'uuid': 'ffa91a1d-1753-4b84-a3de-1900600ff906'}
         serie_data = self.contar.get_episodes(serie['uuid'], channel)
         season = serie_data['seasons']['data'][0]
         episode = season['videos']['data'][0]
-        info = self.contar.get_episode_data(channel, serie, serie_data, season, episode)
+        info = self.contar.get_episode_data(
+            channel, serie, serie_data, season, episode
+        )
 
         self.assertEqual(serie_data['genres'], "Suspenso")
         self.assertEqual(info['section'], "Suspenso")
 
     def test_genre_if_unique(self):
-        channel = {'id':'246', 'name':'TVPublica'}
-        serie = {'uuid':'ffa91a1d-1753-4b84-a3de-1900600ff907'}
+        channel = {'id': '246', 'name': 'TVPublica'}
+        serie = {'uuid': 'ffa91a1d-1753-4b84-a3de-1900600ff907'}
         serie_data = self.contar.get_episodes(serie['uuid'], channel)
         season = serie_data['seasons']['data'][0]
         episode = season['videos']['data'][0]
-        info = self.contar.get_episode_data(channel, serie, serie_data, season, episode)
+        info = self.contar.get_episode_data(
+            channel, serie, serie_data, season, episode
+        )
 
         self.assertEqual(serie_data['genres'], ["Suspenso"])
         self.assertEqual(info['section'], "Suspenso")
 
     def test_genre_if_empty_list(self):
-        channel = {'id':'246', 'name':'TVPublica'}
-        serie = {'uuid':'ffa91a1d-1753-4b84-a3de-1900600ff908'}
+        channel = {'id': '246', 'name': 'TVPublica'}
+        serie = {'uuid': 'ffa91a1d-1753-4b84-a3de-1900600ff908'}
         serie_data = self.contar.get_episodes(serie['uuid'], channel)
         season = serie_data['seasons']['data'][0]
         episode = season['videos']['data'][0]
-        info = self.contar.get_episode_data(channel, serie, serie_data, season, episode)
+        info = self.contar.get_episode_data(
+            channel, serie, serie_data, season, episode
+        )
 
         self.assertEqual(serie_data['genres'], [])
         self.assertEqual(info['section'], '')
 
     def test_genre_if_empty_string(self):
-        channel = {'id':'246', 'name':'TVPublica'}
-        serie = {'uuid':'ffa91a1d-1753-4b84-a3de-1900600ff909'}
+        channel = {'id': '246', 'name': 'TVPublica'}
+        serie = {'uuid': 'ffa91a1d-1753-4b84-a3de-1900600ff909'}
         serie_data = self.contar.get_episodes(serie['uuid'], channel)
         season = serie_data['seasons']['data'][0]
         episode = season['videos']['data'][0]
-        info = self.contar.get_episode_data(channel, serie, serie_data, season, episode)
+        info = self.contar.get_episode_data(
+            channel, serie, serie_data, season, episode
+        )
 
         self.assertEqual(serie_data['genres'], '')
         self.assertEqual(info['section'], '')
 
     def test_genre_if_string_multiple(self):
-        channel = {'id':'246', 'name':'TVPublica'}
-        serie = {'uuid':'ffa91a1d-1753-4b84-a3de-1900600ff910'}
+        channel = {'id': '246', 'name': 'TVPublica'}
+        serie = {'uuid': 'ffa91a1d-1753-4b84-a3de-1900600ff910'}
         serie_data = self.contar.get_episodes(serie['uuid'], channel)
         season = serie_data['seasons']['data'][0]
         episode = season['videos']['data'][0]
-        info = self.contar.get_episode_data(channel, serie, serie_data, season, episode)
+        info = self.contar.get_episode_data(
+            channel, serie, serie_data, season, episode
+        )
 
         self.assertEqual(serie_data['genres'], "Suspenso, Drama, Accion")
         self.assertEqual(info['section'], "Suspenso")
@@ -170,29 +184,33 @@ class EpisodeNumberParsingTestCase(unittest.TestCase):
     def setUp(self):
         script_dir = os.path.dirname(os.path.realpath(__file__))
         self.contar = ContAR(
-            credentials={'email':'xx@gmail.com', 'password':'test'},
+            credentials={'email': 'xx@gmail.com', 'password': 'test'},
             base_directory=script_dir+'/contar'
         )
 
     def test_episode_season_episode_number(self):
-        channel = {'id':'246', 'name':'TVPublica'}
-        serie = {'uuid':'ffa91a1d-1753-4b84-a3de-1900600ff909'}
+        channel = {'id': '246', 'name': 'TVPublica'}
+        serie = {'uuid': 'ffa91a1d-1753-4b84-a3de-1900600ff909'}
         serie_data = self.contar.get_episodes(serie['uuid'], channel)
         season = serie_data['seasons']['data'][0]
         episode = season['videos']['data'][0]
-        info = self.contar.get_episode_data(channel, serie, serie_data, season, episode)
+        info = self.contar.get_episode_data(
+            channel, serie, serie_data, season, episode
+        )
 
         self.assertEqual(season['name'], '1')
         self.assertEqual(info['season'], 'La educación del rey')
         self.assertEqual(info['title'], 'S01E01 - Episodio 1')
 
     def test_episode_special_chapter(self):
-        channel = {'id':'246', 'name':'TVPublica'}
-        serie = {'uuid':'c77b173c-d885-412d-b1db-930d4f1a5763'}
+        channel = {'id': '246', 'name': 'TVPublica'}
+        serie = {'uuid': 'c77b173c-d885-412d-b1db-930d4f1a5763'}
         serie_data = self.contar.get_episodes(serie['uuid'], channel)
         season = serie_data['seasons']['data'][1]
         episode = season['videos']['data'][0]
-        info = self.contar.get_episode_data(channel, serie, serie_data, season, episode)
+        info = self.contar.get_episode_data(
+            channel, serie, serie_data, season, episode
+        )
 
         self.assertEqual(info['title'], 'La caída - Trailer')
         self.assertEqual(season['name'], 'EXTRAS')
