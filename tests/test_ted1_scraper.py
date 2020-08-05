@@ -22,8 +22,9 @@ import unittest
 import json
 
 # Adds server directory for imports
-sys.path.insert(0,'server')
+sys.path.insert(0, 'server')
 from server import get_ted1_episodes as teds
+
 
 class BasicDataParsingTestCase(unittest.TestCase):
     """Tests for the main scrapers."""
@@ -38,7 +39,10 @@ class BasicDataParsingTestCase(unittest.TestCase):
         info = teds.parse_episode(self.episode)
 
         self.assertEqual(info['channel'], 'TedxRiodDeLaPlataTv')
-        self.assertEqual(info['title'], 'Mis alumnos y las calles del pueblo | Miguel Ángel Risso Patrón | TEDxRíodelaPlata')
+        self.assertEqual(
+            info['title'],
+            'Mis alumnos y las calles del pueblo | Miguel Ángel Risso Patrón | TEDxRíodelaPlata'
+        )
         self.assertEqual(
             info['url'],
             'https://www.youtube.com/watch?v=2iWuWJkdgSk'
