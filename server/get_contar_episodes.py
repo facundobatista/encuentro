@@ -15,7 +15,7 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-help = """Main server process to get all info from Cont.ar web site.
+"""Main server process to get all info from Cont.ar web site.
 
 Usage:
   get_contar_episodes.py [--shy]
@@ -39,13 +39,11 @@ import srv_logger
 
 from config import config
 
-class ContAR:
-    """
-    Class for managing cont.ar sessions and connections
-    and retrieve channells data.
-    """
 
-    def __init__(self, credentials, base_directory = 'contar'):
+class ContAR:
+    """Manage cont.ar sessions and connections and retrieve channells data."""
+
+    def __init__(self, credentials, base_directory='contar'):
         self.url_watch = "https://www.cont.ar/watch/"
         self.url_serie = "https://www.cont.ar/serie/"
         self.url_channel = "https://www.cont.ar/channel/"
@@ -79,10 +77,7 @@ class ContAR:
         self.session = requests.Session()
         self.logger = logging.getLogger("Contar")
         self.special_episodes = ["ver trailer", "tráiler", "especiales", "micros", "conferencias"]
-        self.re_normal_episodes = self._re_normal_episodes_compile()
-
-    def _re_normal_episodes_compile(self):
-        return re.compile("^\d+$")
+        self.re_normal_episodes = re.compile(r"^\d+$")
 
     def _check_base_dir(self):
         """Create directory for cont.ar files."""
@@ -100,7 +95,9 @@ class ContAR:
         header = {
             'Content-Type': 'application/json;charset=utf-8',
             'Accept': 'application/json, text/plain',
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
+            'User-Agent': (
+                'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                'Chrome/51.0.2704.103 Safari/537.36'),
         }
         if self.token:
             header.update({'Authorization': f"Bearer {self.token}"})
@@ -235,16 +232,16 @@ class ContAR:
         )
 
 
-def main(credentials, channels_to_retrieve):
+def main(credentials, to_retrieve):
     """Entry point."""
     contar = ContAR(credentials)
 
-    if channels_to_retrieve == 'all':
+    if to_retrieve == 'all':
         channels = [ch for ch in contar.channels]
     else:
-        channels = [ch for ch in contar.channels if ch['name'].lower() in channels_to_retrieve]
+        channels = [ch for ch in contar.channels if ch['name'].lower() in to_retrieve]
 
-    if len(channels_to_retrieve) < 1 or (len(channels) != len(channels_to_retrieve) and channels_to_retrieve != 'all'):
+    if len(to_retrieve) < 1 or (len(channels) != len(to_retrieve) and to_retrieve != 'all'):
         print("No appropiate channels selected!!\nWatch --help for list of channels.")
         exit()
 
@@ -253,7 +250,7 @@ def main(credentials, channels_to_retrieve):
         channel_data = contar.get_all_listing_data(channel)
         all_data.extend(channel_data)
 
-    helpers.save_file(f"contar-v01", all_data)
+    helpers.save_file("contar-v01", all_data)
 
 
 if __name__ == '__main__':
@@ -261,14 +258,11 @@ if __name__ == '__main__':
     srv_logger.setup_log(shy)
 
     # credentials in config
-    try:
-        email = config.get('email')
-        password = config.get('password')
-    except e as Exception:
-        print(help)
+    email = config.get('email')
+    password = config.get('password')
 
     # if credentials are empty auth will fail
     credentials = {'email': email, 'password': password}
-    channels_to_retrieve = 'all'
+    to_retrieve = 'all'
 
-    main(credentials, channels_to_retrieve)
+    main(credentials, to_retrieve)

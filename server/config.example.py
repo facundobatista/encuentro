@@ -1,7 +1,9 @@
-# Fill me with cont.ar credentials
-# Rename me as config.py
+"""Cont.ar credentials.
+
+Fill me with real credentials and rename me as config.py
+"""
 
 config = {
-    'email':'mail@server.com',
-    'password':'passw'
+    'email': 'mail@server.com',
+    'password': 'passw'
 }

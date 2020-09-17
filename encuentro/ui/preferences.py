@@ -125,6 +125,7 @@ class GeneralPreferences(QWidget):
         grid.addWidget(self.select_quality, 10, 0, 9, 2)
 
     def selected(self, text):
+        """Store selected text."""
         self.selected_text = text
         # print(self.selected_text)
 

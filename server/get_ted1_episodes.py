@@ -20,8 +20,6 @@
 import logging
 import sys
 
-from urllib import request
-
 # we execute this script from inside the directory; pylint: disable=W0403
 import helpers
 import srv_logger
@@ -29,17 +27,18 @@ from youtube_dl import YoutubeDL
 
 logger = logging.getLogger("TED1")
 
-URL_TEDYT_PLAYLIST_2011 = "https://www.youtube.com/watch?v=_VEYn3bXz34&list=PL547F6F904BAA501E"
-URL_TEDYT_PLAYLIST_2012 = "https://www.youtube.com/watch?v=mZZJdSqUfYM&list=PLsRNoUx8w3rP4YDQWKBl9Qy_DfmsvC0XX"
-URL_TEDYT_PLAYLIST_2013 = "https://www.youtube.com/watch?v=L-eSrNZsZlE&list=PLsRNoUx8w3rMIiGR_FvsfG46OsQibS8KV"
-URL_TEDYT_PLAYLIST_2014 = "https://www.youtube.com/watch?v=PxaXEAPn8RU&list=PLsRNoUx8w3rO1ceOlKZTL_h8c0rxGXmXA"
-URL_TEDYT_PLAYLIST_2015 = "https://www.youtube.com/watch?v=SiOrA0QqEKE&list=PLsRNoUx8w3rPg2EaGKRV-5aI6dfYIPRcW"
-URL_TEDYT_PLAYLIST_2016 = "https://www.youtube.com/watch?v=Ft_IO42_lVg&list=PLsRNoUx8w3rNOqwOnjcq6nM6UqYDUGBhv"
-URL_TEDYT_PLAYLIST_2017 = "https://www.youtube.com/watch?v=4NuF4HD94Qs&list=PLsRNoUx8w3rPP48vfgD8Wa9OGjR7um1qB"
-URL_TEDYT_PLAYLIST_2018 = "https://www.youtube.com/watch?v=Xiha1EH1i88&list=PLsRNoUx8w3rOWJTPn343NCYMEjJzsbh8U"
-URL_TEDYT_PLAYLIST_2019 = "https://www.youtube.com/watch?v=ESwDIXXyh_Y&list=PLsRNoUx8w3rPwgYNaKv0XS5_vV5stY34v"
-URL_TEDYT_PLAYLIST_2019_2 = "https://www.youtube.com/watch?v=i5ui_DrtcpU&list=PLsRNoUx8w3rOXwyAWe90WjDiPk8wmMTwp"
-URL_TEDYT_PLAYLIST_2020 = "https://www.youtube.com/watch?v=X3-Dn69r9DU&list=PLsRNoUx8w3rPkReTDIq2NvjykOzuFyn0D"
+BASE = "https://www.youtube.com/watch?"
+URL_TEDYT_PLAYLIST_2011 = BASE + "v=_VEYn3bXz34&list=PL547F6F904BAA501E"
+URL_TEDYT_PLAYLIST_2012 = BASE + "v=mZZJdSqUfYM&list=PLsRNoUx8w3rP4YDQWKBl9Qy_DfmsvC0XX"
+URL_TEDYT_PLAYLIST_2013 = BASE + "v=L-eSrNZsZlE&list=PLsRNoUx8w3rMIiGR_FvsfG46OsQibS8KV"
+URL_TEDYT_PLAYLIST_2014 = BASE + "v=PxaXEAPn8RU&list=PLsRNoUx8w3rO1ceOlKZTL_h8c0rxGXmXA"
+URL_TEDYT_PLAYLIST_2015 = BASE + "v=SiOrA0QqEKE&list=PLsRNoUx8w3rPg2EaGKRV-5aI6dfYIPRcW"
+URL_TEDYT_PLAYLIST_2016 = BASE + "v=Ft_IO42_lVg&list=PLsRNoUx8w3rNOqwOnjcq6nM6UqYDUGBhv"
+URL_TEDYT_PLAYLIST_2017 = BASE + "v=4NuF4HD94Qs&list=PLsRNoUx8w3rPP48vfgD8Wa9OGjR7um1qB"
+URL_TEDYT_PLAYLIST_2018 = BASE + "v=Xiha1EH1i88&list=PLsRNoUx8w3rOWJTPn343NCYMEjJzsbh8U"
+URL_TEDYT_PLAYLIST_2019 = BASE + "v=ESwDIXXyh_Y&list=PLsRNoUx8w3rPwgYNaKv0XS5_vV5stY34v"
+URL_TEDYT_PLAYLIST_2019_2 = BASE + "v=i5ui_DrtcpU&list=PLsRNoUx8w3rOXwyAWe90WjDiPk8wmMTwp"
+URL_TEDYT_PLAYLIST_2020 = BASE + "v=X3-Dn69r9DU&list=PLsRNoUx8w3rPkReTDIq2NvjykOzuFyn0D"
 
 seasons = {
     '2011': URL_TEDYT_PLAYLIST_2011,
@@ -59,7 +58,7 @@ seasons = {
 def parse_episode(episode):
     """Parse Episode."""
     ep = {}
-    ep['url'] = "https://www.youtube.com/watch?v="+episode['id'].rstrip()
+    ep['url'] = BASE + "v=" + episode['id'].rstrip()
     ep['section'] = 'Charlas TED'
     ep['title'] = episode['title']
     ep['duration'] = "{:02d}:{:02d}".format(*divmod(episode['duration'], 60))
@@ -68,7 +67,7 @@ def parse_episode(episode):
     ep['channel'] = 'TedxRiodDeLaPlataTv'
     ep['image_url'] = episode['thumbnail']
     ep['subtitle'] = ''
-    ep['episode_id'] = 'ted_'+episode['id'].rstrip()
+    ep['episode_id'] = 'ted_' + episode['id'].rstrip()
 
     return ep
 
@@ -89,7 +88,8 @@ def get_all_data():
                     episode['season'] = season
                     ep = parse_episode(episode)
                     episodes.append(ep)
-                except Exception as e:
+                except Exception as exc:
+                    print("Problemas parseando", exc)
                     pass
 
     return episodes
