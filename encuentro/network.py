@@ -29,7 +29,7 @@ from queue import Queue, Empty
 
 import defer
 import youtube_dl
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtNetwork
 
 from encuentro import multiplatform
 from encuentro.config import config
@@ -129,6 +129,106 @@ class BaseDownloader:
                 self.log("Cleaning failed: %r", err)
             else:
                 self.log("Cleaned ok")
+
+
+class _GenericDownloader(BaseDownloader):
+    """Episode downloader for a generic site that works with urllib2."""
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0',
+        'Accept': '*/*',
+    }
+    manager = QtNetwork.QNetworkAccessManager()
+    file_extension = None  # to be overwritten by class child
+
+    def __init__(self):
+        super(_GenericDownloader, self).__init__()
+        self._prev_progress = None
+        self.internal_downloader_deferred = None
+        self.log("Inited")
+
+    def _shutdown(self):
+        """Quit the download."""
+        self.log("Shutdown finished")
+
+    def _cancel(self):
+        """Cancel a download."""
+        if self.internal_downloader_deferred is not None:
+            self.log("Cancelled")
+            exc = CancelledError("Cancelled by user")
+            self.internal_downloader_deferred.errback(exc)
+
+    @defer.inline_callbacks
+    def _download(self, canal, seccion, season, titulo, url, cb_progress):
+        """Download an episode to disk."""
+        url = str(url)
+        self.log("Download episode %r", url)
+
+        # build where to save it
+        fname, tempf = self._setup_target(canal, seccion, season, titulo, self.file_extension)
+        self.log("Downloading to temporal file %r", tempf)
+        fh = open(tempf, "wb")
+
+        def report(dloaded, total):
+            """Report download."""
+            if total == -1:
+                m = "%d MB" % (dloaded // MB,)
+            else:
+                size_mb = total // MB
+                perc = dloaded * 100.0 / total
+                m = "%.1f%% (de %d MB)" % (perc, size_mb)
+            if m != self._prev_progress:
+                cb_progress(m)
+                self._prev_progress = m
+
+        def save():
+            """Save available bytes to disk."""
+            data = req.read(req.bytesAvailable())
+            fh.write(data)
+
+        request = QtNetwork.QNetworkRequest()
+        request.setUrl(QtCore.QUrl(url))
+        for hk, hv in self.headers.items():
+            request.setRawHeader(hk.encode(), hv.encode())
+
+        def end_ok():
+            """Finish Ok politely the deferred."""
+            if not self.internal_downloader_deferred.called:
+                self.internal_downloader_deferred.callback(True)
+
+        def end_fail(exc):
+            """Finish in error politely the deferred."""
+            if not self.internal_downloader_deferred.called:
+                self.internal_downloader_deferred.errback(exc)
+
+        deferred = self.internal_downloader_deferred = defer.Deferred()
+        req = self.manager.get(request)
+        req.downloadProgress.connect(report)
+        req.error.connect(end_fail)
+        req.readyRead.connect(save)
+        req.finished.connect(end_ok)
+
+        try:
+            yield deferred
+        except Exception as err:
+            self.log("Exception when waiting deferred: %s (request finished? %s)",
+                     err, req.isFinished())
+            raise
+        finally:
+            if not req.isFinished():
+                self.log("Aborting QNetworkReply")
+                req.abort()
+            fh.close()
+
+        # rename to final name and end
+        logger.info("Downloading done, renaming temp to %r", fname)
+        os.rename(tempf, fname)
+        self.deferred.callback(fname)
+
+
+class GenericAudioDownloader(_GenericDownloader):
+    """Generic downloaded that saves audio."""
+    file_extension = ".mp3"
 
 
 class DeferredQueue(Queue):
@@ -395,6 +495,7 @@ class M3u8YTDownloader(YoutubeDownloader):
 all_downloaders = {
     'youtube': YoutubeDownloader,
     'm3u8': M3u8YTDownloader,
+    'audio': GenericAudioDownloader
 }
 
 
