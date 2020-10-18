@@ -529,6 +529,8 @@ class EpisodeInfo(QWidget):
 
         # load the image and show it
         pixmap = QPixmap(image_path)
+        pixmap = pixmap.scaled(720, 540, Qt.KeepAspectRatio)
+
         self.image_episode.setPixmap(pixmap)
         self.image_episode.show()
 

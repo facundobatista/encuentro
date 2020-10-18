@@ -21,6 +21,8 @@ import os
 import sys
 import time
 from urllib import parse
+from pathlib import Path
+from pathlib import PurePath
 
 from threading import Thread, Event
 from queue import Queue, Empty
@@ -52,7 +54,8 @@ class CancelledError(Exception):
 
 
 class Finished(Exception):
-    """Special exception (to be ignored) used by some Downloaders to finish themselves."""
+    """Special exception (to be ignored) used by some
+    Downloaders to finish themselves."""
 
 
 class BaseDownloader:
@@ -191,6 +194,7 @@ class ThreadedYT(Thread):
                 # YoutubeDL can't be really cancelled, we raise something and then ignore it;
                 # opened for this: https://github.com/rg3/youtube-dl/issues/8014
                 raise Finished()
+
             m = "%.1f%% (de %d MB)" % (perc, size_mb)
             if m != self._prev_progress:
                 self.output_queue.put(m)
@@ -344,9 +348,29 @@ class M3u8YTDownloader(YoutubeDownloader):
                 self.thyts_quit.set()
                 raise CancelledError()
 
-            # special situations
+            # For m3u8, ytdownload does not retrieve downloaded data so we
+            # retrieve it from files in filesystem, from audio and video parts.
             if payload is None:
-                # no data, let's try again
+                files = list(Path(PurePath(fname).parent).glob(titulo+'*.part'))
+                if len(files) == 0:
+                    continue
+
+                for f in files:
+                    if "audio" in f.stem:
+                        # Downloading Audio
+                        audio = Path(PurePath(f)).stat().st_size
+                        audio = audio // MB
+                        m = f"{audio} MB de audio"
+                        break
+                    else:
+                        # Downloading Video
+                        video = Path(PurePath(f)).stat().st_size
+                        video = video // MB
+                        m = f"{video} MB de video"
+                        break
+
+                # We Are downloading
+                thyt.output_queue.put(m)
                 continue
 
             data = payload[-1]
