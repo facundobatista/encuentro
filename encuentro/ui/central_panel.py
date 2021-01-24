@@ -262,7 +262,7 @@ class EpisodesWidgetModel(QAbstractTableModel):
         self._order_column = self._order_direction = 0
         self._filter_text = ''
         self._filter_only_downloaded = False
-        self._filter_channels = []
+        self._filter_channel = None
         self.episodes, self.pos_map = self._load_episodes()
 
     def _load_episodes(self):
@@ -275,9 +275,7 @@ class EpisodesWidgetModel(QAbstractTableModel):
         text = data.prepare_to_filter(self._filter_text)
         episodes = []
         for ep in self.main_window.programs_data.values():
-            if self._filter_channels != [] and \
-               ep.channel not in self._filter_channels \
-               and 'Todos' not in self._filter_channels:
+            if self._filter_channel is not None and ep.channel != self._filter_channel:
                 continue
 
             params = ep.filter_params(text, self._filter_only_downloaded)
@@ -356,11 +354,11 @@ class EpisodesWidgetModel(QAbstractTableModel):
         self._order_direction = order
         self.reload_episodes()
 
-    def set_filter(self, text, only_downloaded, chans):
+    def set_filter(self, text, only_downloaded, channel):
         """Apply a filter to the episodes list."""
         self._filter_text = text
         self._filter_only_downloaded = only_downloaded
-        self._filter_channels = [ e.text() for e in chans]
+        self._filter_channel = channel
         self.reload_episodes()
 
 
@@ -484,7 +482,7 @@ class EpisodesWidgetView(remembering.RememberingTableView):
             act_download.setEnabled(True)
         menu.exec_(self.viewport().mapToGlobal(point))
 
-    def set_filter(self, text, only_downloaded=False, chans=[]):
+    def set_filter(self, text, only_downloaded, chans):
         """Apply a filter to the episodes list (just a proxy to the model)."""
         self._model.set_filter(text, only_downloaded, chans)
 

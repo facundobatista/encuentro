@@ -25,6 +25,7 @@ import defer
 from PyQt5.QtWidgets import (
     QAction,
     QCheckBox,
+    QComboBox,
     QLabel,
     QLineEdit,
     QMessageBox,
@@ -80,6 +81,8 @@ Versión %s<br/>
 </center>
 """
 
+CHANNELS_ALL = 'Todos'
+
 
 class MainUI(remembering.RememberingMainWindow):
     """Main UI."""
@@ -102,9 +105,8 @@ class MainUI(remembering.RememberingMainWindow):
         self.big_panel = central_panel.BigPanel(self)
         self.episodes_list = self.big_panel.episodes
         self.episodes_download = self.big_panel.downloads_widget
-        self.episode_channels = ['Todos'] + list(
-            set([ e.channel for e in self.episodes_list._model.episodes if e.channel != ''])
-        )
+        self.episode_channels = [CHANNELS_ALL] + sorted(
+            set(e.channel for e in self.episodes_list._model.episodes if e.channel))
         self.setCentralWidget(self.big_panel)
 
         # the setting of menubar should be almost in the end, because it may
@@ -206,31 +208,31 @@ class MainUI(remembering.RememberingMainWindow):
         self.action_play.triggered.connect(self.on_play_action)
         menu_prog.addAction(self.action_play)
 
-        # toolbar for buttons
+        # toolbar for buttons and filters
         toolbar = self.addToolBar('main')
+        toolbar.layout().setSpacing(10)
+
+        # basic buttons
         toolbar.addAction(self.action_download)
         toolbar.addAction(self.action_play)
         toolbar.addSeparator()
         toolbar.addAction(action_reload)
         toolbar.addAction(action_preferences)
 
-        # filter text and button, to the right
+        # spacer to move all filters to the right
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         toolbar.addWidget(spacer)
-        self.filter_chan = QListWidget()
-        self.filter_chan.setMaximumHeight(40)
-        self.filter_chan.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        for c in self.episode_channels:
-            item=QListWidgetItem()
-            item.setText(c)
-            self.filter_chan.addItem(item)
-        toolbar.addWidget(self.filter_chan)
-        self.button = QPushButton("Seleccionar!")
-        self.button.clicked.connect(self.on_filter_changed)
-        toolbar.addWidget(self.button)
-        toolbar.addSeparator()
 
+        # channel selection combobox
+        toolbar.addWidget(QLabel("Canal: "))
+        self.filter_chan = QComboBox()
+        for c in self.episode_channels:
+            self.filter_chan.addItem(c)
+        self.filter_chan.activated.connect(self.on_filter_changed)
+        toolbar.addWidget(self.filter_chan)
+
+        # filter text and button
         toolbar.addWidget(QLabel("Filtro: "))
         self.filter_line = QLineEdit()
         self.filter_line.setMaximumWidth(150)
@@ -262,8 +264,10 @@ class MainUI(remembering.RememberingMainWindow):
         """The filter text has changed, apply it in the episodes list."""
         text = self.filter_line.text()
         cbox = self.filter_cbox.checkState()
-        chans = self.filter_chan.selectedItems()
-        self.episodes_list.set_filter(text, cbox, chans)
+        channel = self.filter_chan.currentText()
+        if channel == CHANNELS_ALL:
+            channel = None
+        self.episodes_list.set_filter(text, cbox, channel)
 
         # after applying filter, nothing is selected, so check buttons
         # (easiest way to clean them all)
