@@ -33,10 +33,6 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QStyle,
     QWidget,
-    QPushButton,
-    QListWidget,
-    QListWidgetItem,
-    QAbstractItemView,
 )
 from PyQt5.QtGui import (
     QKeySequence,
