@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-# Copyright 2011-2017 Facundo Batista
+# Copyright 2011-2021 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -23,21 +21,6 @@ import logging
 import sys
 import os
 
-# this will be replaced at install time
-INSTALLED_BASE_DIR = "@ INSTALLED_BASE_DIR @"
-
-# get the replaced-at-install-time name if exists, or the project one
-if os.path.exists(INSTALLED_BASE_DIR):
-    project_basedir = INSTALLED_BASE_DIR
-    sys._INSTALLED_BASE_DIR = INSTALLED_BASE_DIR
-else:
-    project_basedir = os.path.abspath(os.path.dirname(os.path.dirname(
-                                            os.path.realpath(sys.argv[0]))))
-
-if project_basedir not in sys.path:
-    sys.path.insert(0, project_basedir)
-    sys.path.insert(1, os.path.join(project_basedir, 'qtreactor'))
-
 from encuentro import main, multiplatform, logger
 
 # parse cmd line params
@@ -49,11 +32,11 @@ args = parser.parse_args()
 # set up logging
 verbose = bool(args.verbose)
 logger.set_up(verbose)
-log = logging.getLogger('encuentro.init')
+logger = logging.getLogger('encuentro.init')
 
 # first of all, show the versions
 print("Running Python %s on %r" % (sys.version_info, sys.platform))
-log.info("Running Python %s on %r", sys.version_info, sys.platform)
+logger.info("Running Python %s on %r", sys.version_info, sys.platform)
 version_file = multiplatform.get_path('version.txt')
 if os.path.exists(version_file):
     version = open(version_file).read().strip()
@@ -61,6 +44,6 @@ if os.path.exists(version_file):
 else:
     version = None
     print("Encuentro: sin revno info")
-log.info("Encuentro version: %r", version)
+logger.info("Encuentro version: %r", version)
 
 main.start(version, args.source)

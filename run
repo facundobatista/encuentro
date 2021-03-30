@@ -1,1 +1,1 @@
-fades --system-site-packages -r requirements.txt bin/encuentro --verbose
+fades -r requirements.txt -m encuentro --verbose

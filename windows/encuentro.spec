@@ -1,6 +1,6 @@
 # -*- mode: python -*-
 a = Analysis(['c:\\encuentro\\bin\\encuentro'],
-             pathex=['C:\\pyinst', 'C:\\encuentro', 'C:\\encuentro\\external', 'C:\\encuentro\\external\\youtube-dl'],
+             pathex=['C:\\pyinst', 'C:\\encuentro'],
              hiddenimports=[],
              hookspath=None)
 pyz = PYZ(a.pure)

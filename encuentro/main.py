@@ -44,7 +44,7 @@ def start(version, update_source):
 
     # the order of the lines hereafter are very precise, don't mess with them
     app = QApplication(sys.argv)
-    icon = QIcon(multiplatform.get_path("encuentro/logos/icon-192.png"))
+    icon = QIcon(multiplatform.get_path("logos/icon-192.png"))
     app.setWindowIcon(icon)
 
     MainUI(version, app.quit, update_source)

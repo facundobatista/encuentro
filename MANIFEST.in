@@ -6,9 +6,4 @@ include README.txt
 include COPYING
 include AUTHORS
 include encuentro.desktop
-include source_encuentro.py 
-include version.txt
-include man/encuentro.1
-include external/youtube-dl/AUTHORS
-include external/youtube-dl/LICENSE
-include external/youtube-dl/README.md
+include encuentro/version.txt

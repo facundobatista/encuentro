@@ -23,8 +23,7 @@ import sys
 from pathlib import Path
 
 
-_basedir = os.path.abspath(os.path.dirname(os.path.dirname(
-    os.path.realpath(sys.argv[0]))))
+_basedir = os.path.dirname(__file__)
 
 # if the base directory was determined by setup.py, fix it
 # pylint: disable=W0212
