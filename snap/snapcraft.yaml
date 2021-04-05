@@ -29,8 +29,8 @@ parts:
             - libfreetype6
             - libpng16-16
         organize:
-          # move things around so they're tidier
-          lib/python3.8/site-packages: lib/
+            # move things around so they're tidier
+            lib/python3.8/site-packages: lib/
         stage:
             # copy in only what we need. Comment out this whole section to grab
             # everything if something stops working, and then once you've spotted what
@@ -42,7 +42,6 @@ parts:
             - lib/chardet-*.dist-info
             - lib/defer
             - lib/defer-*.dist-info
-            - lib/easy_install.py
             - lib/encuentro
             - lib/encuentro-*.egg-info
             - lib/idna
