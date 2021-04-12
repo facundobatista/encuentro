@@ -18,6 +18,8 @@ apps:
             - removable-media # so it can access things in /media, etc. (manually connected)
             - network         # to get the content
             - desktop         # so the right default media player can be used
+        extensions:
+            - kde-neon
 
 parts:
     encuentro:
@@ -26,15 +28,19 @@ parts:
         requirements: 
             - requirements.txt
         stage-packages:
-            - libfreetype6
-            - libpng16-16
+            - libgtk-3-0
+            - libqt53danimation5
+            - libqt53dextras5
+            - libqt53dquick5
+            - libqt53dquickscene2d5
+            - libqt5gamepad5
+            - libspeechd2
+            - libatk-bridge2.0-0
+            - libatspi2.0-0
+            - libxinerama1
         organize:
-            # move things around so they're tidier
             lib/python3.8/site-packages: lib/
         stage:
-            # copy in only what we need. Comment out this whole section to grab
-            # everything if something stops working, and then once you've spotted what
-            # it was we needed, add it back in here.
             - bin/encuentro
             - lib/certifi
             - lib/certifi-*.dist-info
@@ -43,7 +49,7 @@ parts:
             - lib/defer
             - lib/defer-*.dist-info
             - lib/encuentro
-            - lib/encuentro-*.egg-info
+            - lib/encuentro-*.dist-info
             - lib/idna
             - lib/idna-*.dist-info
             - lib/pkg_resources
@@ -62,67 +68,16 @@ parts:
             - lib/pyxdg-*.dist-info
             - lib/youtube_dl
             - lib/youtube_dl-*.dist-info
-            - "**/libEGL.so.1"
-            - "**/libGL.so.1"
-            - "**/libQt53DAnimation.so.5"
-            - "**/libQt53DCore.so.5"
-            - "**/libQt53DExtras.so.5"
-            - "**/libQt53DInput.so.5"
-            - "**/libQt53DLogic.so.5"
-            - "**/libQt53DQuick.so.5"
-            - "**/libQt53DQuickScene2D.so.5"
-            - "**/libQt53DRender.so.5"
-            - "**/libQt5EglFSDeviceIntegration.so.5"
-            - "**/libQt5EglFsKmsSupport.so.5"
-            - "**/libQt5Gamepad.so.5"
-            - "**/libQt5MultimediaQuick.so.5"
-            - "**/libQt5WebEngine.so.5"
-            - "**/libQt5WebEngineCore.so.5"
-            - "**/libX11-xcb.so.1"
-            - "**/libX11.so.6"
-            - "**/libXcomposite.so.1"
-            - "**/libXext.so.6"
-            - "**/libasound.so.2"
-            - "**/libatk-1.0.so.0"
-            - "**/libcairo-gobject.so.2"
-            - "**/libcairo.so.2"
-            - "**/libcups.so.2"
-            - "**/libdrm.so.2"
-            - "**/libfontconfig.so.1"
-            - "**/libgdk-3.so.0"
-            - "**/libgdk_pixbuf-2.0.so.0"
-            - "**/libgstallocators-1.0.so.0"
-            - "**/libgstapp-1.0.so.0"
-            - "**/libgstaudio-1.0.so.0"
-            - "**/libgstbase-1.0.so.0"
-            - "**/libgstpbutils-1.0.so.0"
-            - "**/libgstreamer-1.0.so.0"
-            - "**/libgstvideo-1.0.so.0"
-            - "**/libgtk-3.so.0"
-            - "**/libodbc.so.2"
-            - "**/libpango-1.0.so.0"
-            - "**/libpangocairo-1.0.so.0"
-            - "**/libpq.so.5"
-            - "**/libpulse-mainloop-glib.so.0"
-            - "**/libpulse.so.0"
-            - "**/libspeechd.so.2"
-            - "**/libwayland-client.so.0"
-            - "**/libwayland-cursor.so.0"
-            - "**/libwayland-egl.so.1"
-            - "**/libxcb-glx.so.0"
-            - "**/libxcb-icccm.so.4"
-            - "**/libxcb-image.so.0"
-            - "**/libxcb-keysyms.so.1"
-            - "**/libxcb-randr.so.0"
-            - "**/libxcb-render-util.so.0"
-            - "**/libxcb-render.so.0"
-            - "**/libxcb-shape.so.0"
-            - "**/libxcb-shm.so.0"
-            - "**/libxcb-sync.so.1"
-            - "**/libxcb-util.so.1"
-            - "**/libxcb-xfixes.so.0"
-            - "**/libxcb-xinerama.so.0"
-            - "**/libxcb-xkb.so.1"
-            - "**/libxcb.so.1"
-            - "**/libxkbcommon-x11.so.0"
-            - "**/libxkbcommon.so.0"
+            - "**/libQt53DAnimation.so.*"
+            - "**/libQt53DCore.so.*"
+            - "**/libQt53DExtras.so.*"
+            - "**/libQt53DInput.so.*"
+            - "**/libQt53DLogic.so.*"
+            - "**/libQt53DQuick.so.*"
+            - "**/libQt53DQuickScene2D.so.*"
+            - "**/libQt53DRender.so.*"
+            - "**/libQt5Gamepad.so.*"
+            - "**/libatk-1.0.so.*"
+            - "**/libgdk-3.so.*"
+            - "**/libgtk-3.so.*"
+            - "**/libspeechd.so.*"

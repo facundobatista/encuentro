@@ -16,19 +16,7 @@
 #
 # For further info, check  https://launchpad.net/encuentro
 
-"""Build tar.gz for encuentro.
-
-Needed packages to run (using Debian/Ubuntu package names):
-
-    python 3.6
-    python-requests 2.23.0
-    python-defer 1.0.6
-    python-qt5 5.7
-    python-xdg 0.26
-    python-notify2        # not really needed, but provides notifications
-    youtube-dl    # whatever version and optional; if too old or not
-                  # present, an included one will be used
-"""
+"""Build tar.gz for encuentro."""
 
 from setuptools import setup
 
