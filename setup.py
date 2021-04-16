@@ -37,7 +37,7 @@ setup(
     author_email='facundo@taniquetil.com.ar',
     description='Search, download and see the wonderful Encuentro content.',
     long_description=LONG_DESCRIPTION,
-    url='https://launchpad.net/encuentro',
+    url='https://github.com/facundobatista/encuentro',
 
     packages=[
         "encuentro",
