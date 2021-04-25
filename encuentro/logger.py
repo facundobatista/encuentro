@@ -1,4 +1,4 @@
-# Copyright 2011-2013 Facundo Batista
+# Copyright 2011-2021 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -23,7 +23,7 @@ import traceback
 
 from logging.handlers import RotatingFileHandler
 
-import xdg.BaseDirectory
+from encuentro import multiplatform
 
 
 class CustomRotatingFH(RotatingFileHandler):
@@ -47,8 +47,7 @@ def exception_handler(exc_type, exc_value, tb):
 
 def get_filename():
     """Return the log file name."""
-    return os.path.join(xdg.BaseDirectory.xdg_cache_home,
-                        'encuentro', 'encuentro.log')
+    return os.path.join(multiplatform.cache_dir, 'encuentro', 'encuentro.log')
 
 
 def set_up(verbose):

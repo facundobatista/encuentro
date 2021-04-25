@@ -22,13 +22,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+import appdirs
 
 _basedir = os.path.dirname(__file__)
-
-# if the base directory was determined by setup.py, fix it
-# pylint: disable=W0212
-if hasattr(sys, '_INSTALLED_BASE_DIR'):
-    _basedir = sys._INSTALLED_BASE_DIR
 
 # if the base directory was mangled by PyInstaller, fix it
 _frozen = False
@@ -37,19 +33,9 @@ if hasattr(sys, 'frozen'):
     _frozen = True
 # pylint: enable=W0212
 
-if sys.platform == 'win32':
-    # won't find this in linux; pylint: disable=F0401
-    from win32com.shell import shell, shellcon
-    config_dir = shell.SHGetFolderPath(0, shellcon.CSIDL_PROFILE, None, 0)
-    data_dir = shell.SHGetFolderPath(0, shellcon.CSIDL_LOCAL_APPDATA, None, 0)
-    cache_dir = data_dir
-    del shell, shellcon
-else:
-    from xdg import BaseDirectory
-    config_dir = BaseDirectory.xdg_config_home
-    data_dir = BaseDirectory.xdg_data_home
-    cache_dir = BaseDirectory.xdg_cache_home
-    del BaseDirectory
+config_dir = appdirs.user_config_dir()
+data_dir = appdirs.user_data_dir()
+cache_dir = appdirs.user_cache_dir()
 
 
 def get_path(path):
@@ -74,10 +60,7 @@ def sanitize(name):
 
 
 def get_download_dir():
-    """Get a the download dir for the system.
-
-    I hope this someday will be included in the xdg library :|
-    """
+    """Get a the download dir for the system."""
     try:
         cmd = ["xdg-user-dir", 'DOWNLOAD']
         proc = subprocess.run(cmd, stdout=subprocess.PIPE, universal_newlines=True)

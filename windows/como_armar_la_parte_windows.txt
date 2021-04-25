@@ -1,26 +1,20 @@
 Procedimiento para generar el .exe
 ----------------------------------
 
-WARNING: esto está viejo, se necesita actualizar este procedimiento luego
-de la migración a Qt5 y a Py3 (probablemente sea muy similar... o no).
-
-
 Del lado de linux, sólo un paso: preparar un directorio con "el programa
 a empaquetar":
 
-    bzr export algunlado .
+    cp -pr encuentro/ /path/a/algun/lado
 
-Ir a ese "algunlado" y borrar a discreción un montón de cosas que a
+Ir a ese "algun lado" y borrar a discreción un montón de cosas que a
 priori no nos interesa distribuir:
 
+    rm -fr .git*
     rm anuncio.txt
     rm encuentro.desktop
     rm MANIFEST.in
     rm pasos_release.txt
     rm pylintrc
-    rm requirements.txt
-    rm -r server
-    rm setup.py
     rm source_encuentro.py
     rm test
     rm -r tests
@@ -28,15 +22,36 @@ priori no nos interesa distribuir:
     rm -r debian
     rm encuentro.spec
     rm HOWTO_PACKAGE.rst
-    rm -r man
-    rm -r RUNNING_TESTS.txt
+
+# FIXME
+10:04:08|facundo@antorcha:~/temp/vbox/encuentro$ rm encuentro*.snap 
+10:04:20|facundo@antorcha:~/temp/vbox/encuentro$ rm -r encuentro.egg-info/
+ 3680  rm -r dist
+ 3682  rm -r build
+10:05:15|facundo@antorcha:~/temp/vbox/encuentro$ rm -r snap/
+    
+# FIXME: confirmar
+    rm requirements.txt
+    rm setup.py
 
 El resto es del lado Windows. Antes que nada ver que el programa corra ok.
 Llevar el programa a empaquetar a "c:\encuentro", e instalar el software
 necesario para que corra:
 
-    - Obvio, Python:
-        https://www.python.org/downloads/release/python-278/
+- Instalar todo lo necesario:
+
+    - Python, bajar el instalador de acá y ejecutarlo:
+
+        https://www.python.org/downloads/release/python-394/
+    
+    - PyInstaller: lo instalamos en un virtualenv, entonces abrir una 
+      linea de comandos y hacer:
+
+        python -m venv pyinst
+        pyinst\Scripts\activate.bat
+        pip install pyinstaller
+
+
 
     - Qt (probablemente PyQt4-4.11.2-gpl-Py2.7-Qt4.8.6-x32.exe):
         http://www.riverbankcomputing.com/software/pyqt/download
