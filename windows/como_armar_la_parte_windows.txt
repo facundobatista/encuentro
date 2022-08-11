@@ -10,92 +10,76 @@ Ir a ese "algun lado" y borrar a discreción un montón de cosas que a
 priori no nos interesa distribuir:
 
     rm -fr .git*
-    rm anuncio.txt
-    rm encuentro.desktop
-    rm MANIFEST.in
-    rm pasos_release.txt
-    rm pylintrc
-    rm source_encuentro.py
-    rm test
+    rm -r build
+    rm -r debian
+    rm -r dist
+    rm -r encuentro.egg-info/
+    rm -r snap/
     rm -r tests
     rm -r web
-    rm -r debian
-    rm encuentro.spec
     rm HOWTO_PACKAGE.rst
-
-# FIXME
-10:04:08|facundo@antorcha:~/temp/vbox/encuentro$ rm encuentro*.snap 
-10:04:20|facundo@antorcha:~/temp/vbox/encuentro$ rm -r encuentro.egg-info/
- 3680  rm -r dist
- 3682  rm -r build
-10:05:15|facundo@antorcha:~/temp/vbox/encuentro$ rm -r snap/
-    
-# FIXME: confirmar
+    rm MANIFEST.in
+    rm anuncio.txt
+    rm encuentro*.snap 
+    rm encuentro.desktop
+    rm encuentro.spec
+    rm pasos_release.txt
+    rm pylintrc
     rm requirements.txt
+    rm run
     rm setup.py
+    rm source_encuentro.py
+    rm test
 
 El resto es del lado Windows. Antes que nada ver que el programa corra ok.
 Llevar el programa a empaquetar a "c:\encuentro", e instalar el software
 necesario para que corra:
 
-- Instalar todo lo necesario:
+Instalar Python, obviamente; bajar el instalador de acá y ejecutarlo:
 
-    - Python, bajar el instalador de acá y ejecutarlo:
+    https://www.python.org/downloads/release/python-394/
 
-        https://www.python.org/downloads/release/python-394/
-    
-    - PyInstaller: lo instalamos en un virtualenv, entonces abrir una 
-      linea de comandos y hacer:
+Probar que el programa en sí ande ok en Windows:
 
-        python -m venv pyinst
-        pyinst\Scripts\activate.bat
-        pip install pyinstaller
+    - crear un venv con todas las dependencias:
 
+        python -m venv env
+        env\Scripts\activate.bat
+        pip install -r requirements.txt
 
+    - youtube-dl usa `ffmpeg`, así que esto hay que bajarlo a mano...
 
-    - Qt (probablemente PyQt4-4.11.2-gpl-Py2.7-Qt4.8.6-x32.exe):
-        http://www.riverbankcomputing.com/software/pyqt/download
+        https://www.gyan.dev/ffmpeg/builds/ 
 
-    - Las dependencias:
-        pip -r requirements.txt
-        (o ir instalando cada linea de ese archivo con pip o easy_install)
+      ...y poner el ffmpeg.exe en el directorio Scripts del virtualenv.
 
-Probarlo que ande todo bien!!
+    - y finalmente probarlo:
+        
+        python -m encuentro
+        
+Ahora que sabemos que funciona todo ok, instalar PyInstaller en el mismo virtualenv anterior:
 
-Si todo está ok, seguimos adelante. Descomprimir PyInstaller 2
-en "c:\pyinst". Se puede bajar de aquí:
+    pip install pyinstaller
 
-    http://sourceforge.net/projects/pyinstaller/files/2.0/pyinstaller-2.0.zip/download
+Y traer el ffmpeg.exe a la raiz del directorio de `encuentro`.
 
-Luego entrar a ese dir y hacer:
+Luego ir a ese mismo directorio y hacer:
 
-    python pyinstaller.py c:\encuentro\bin\encuentro
+    pyinstaller.exe encuentro/__main__.py
 
-Nos va a dejar toda una estructura. Patchear el ...
+Nos va a dejar toda una estructura en el siguiente archivo:
 
-    c:\pyinst\encuentro\encuentro.spec
+    __main__.spec
 
-...con el .spec del repo.
-
-También hay que fixear el soporte para PyQt. Editar
-support/rthooks/pyi_rth_qt4plugins.py en PyInstaller y agregar al
-principio de todo:
-
-    import sip
-    sip.setapi(u'QDate', 2)
-    sip.setapi(u'QDateTime', 2)
-    sip.setapi(u'QString', 2)
-    sip.setapi(u'QTextStream', 2)
-    sip.setapi(u'QTime', 2)
-    sip.setapi(u'QUrl', 2)
-    sip.setapi(u'QVariant', 2)
+Patchear ese archivo con el que tenemos el dir "windows".
 
 Ejecutar finalmente:
 
-    python pyinstaller.py encuentro\encuentro.spec
+    pyinstaller.exe __main__.spec
 
-Ya debería estar. Para probar, ir a la carpeta encuentro\dist\encuentro y
-ejecutar el encuentro.exe.
+Ya debería estar. Para probar, ir a la carpeta encuentro\dist\__main__ y
+ejecutar el __main__.exe. Validar que funcione alguna descarga que 
+use ffmpeg (via youtube-dl)!
 
 
 Armar el instalador
@@ -105,14 +89,8 @@ Instalar NSIS dsde acá:
 
     http://nsis.sourceforge.net/Download
 
-
-Asegurarnos de tener lo que preparamos antes en los dirs correspondientes:
-
-  c:\encuentro
-  c:\pyinst\encuentro\dist
-
-Crear un dir c:\makeinst, y poner ahí el script 'install_script.nsi' (que
-está en el repo), y actualizar el nro de versión en este mismo archivo.
+Copiar en el dir de encuentro el script 'install_script.nsi' (que
+está en el subdir de windows), y actualizar el nro de versión en este mismo archivo.
 
 Luego, desde el navegador de archivos, hacerle botón derecho,
 "Compile NSIS Script".  Eso nos debería dejar, en ese mismo directorio,
