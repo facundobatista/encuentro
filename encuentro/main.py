@@ -31,6 +31,11 @@ from encuentro.data import EpisodeData  # NOQA
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 
+# hack deprecation for 'defer'
+import collections
+collections.Callable = collections.abc.Callable
+
+
 logger = logging.getLogger('encuentro.init')
 
 
