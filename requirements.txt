@@ -1,6 +1,7 @@
 appdirs==1.4.4
 defer==1.0.4
-PyQt5-sip==12.8.1
-PyQt5==5.15.4
+PyQt5-sip==12.13.0
+PyQt5==5.15.10
 requests==2.31.0
-youtube-dl==2021.3.25
+
+https://github.com/ytdl-org/youtube-dl/archive/refs/heads/master.zip

@@ -1,4 +1,4 @@
-# Copyright 2011-2020 Facundo Batista
+# Copyright 2011-2023 Facundo Batista
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -286,15 +286,19 @@ class ThreadedYT(Thread):
 
         def report(info):
             """Report download."""
-            total = info['total_bytes']
-            dloaded = info['downloaded_bytes']
-            size_mb = total // MB
-            perc = dloaded * 100.0 / total
             if self.must_quit.is_set():
                 # YoutubeDL can't be really cancelled, we raise something and then ignore it;
                 # opened for this: https://github.com/rg3/youtube-dl/issues/8014
                 raise Finished()
 
+            total = info.get('total_bytes', info.get('total_bytes_estimate'))
+            if total is None:
+                # no total yet
+                return
+
+            dloaded = info['downloaded_bytes']
+            size_mb = total // MB
+            perc = dloaded * 100.0 / total
             m = "%.1f%% (de %d MB)" % (perc, size_mb)
             if m != self._prev_progress:
                 self.output_queue.put(m)
@@ -451,7 +455,7 @@ class M3u8YTDownloader(YoutubeDownloader):
             # For m3u8, ytdownload does not retrieve downloaded data so we
             # retrieve it from files in filesystem, from audio and video parts.
             if payload is None:
-                files = list(Path(PurePath(fname).parent).glob(titulo+'*.part'))
+                files = list(Path(PurePath(fname).parent).glob(titulo + '*.part'))
                 if len(files) == 0:
                     continue
 
