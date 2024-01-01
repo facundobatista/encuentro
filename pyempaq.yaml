@@ -1,0 +1,11 @@
+name: Encuentro
+exec:
+  module: encuentro
+requirements:
+  - requirements.txt
+include: 
+  - AUTHORS
+  - COPYING
+  - README.txt
+  - requirements.txt
+  - encuentro/**
